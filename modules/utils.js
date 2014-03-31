@@ -32,8 +32,9 @@ exports.initOvercastDir = function (dest_dir, callback) {
       overcast_dest_dir: dest_dir
     })
   }, function (err, stdout, stderr) {
-    console.log(stdout);
     if (err) {
+      console.log(stdout);
+      exports.red(stderr);
       exports.die('Unable to create .overcast directory.');
     } else {
       exports.grey('Created new config directory:');
