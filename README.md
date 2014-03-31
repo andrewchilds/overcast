@@ -113,12 +113,18 @@ I wanted something that is conceptually simple and easy to use, that is only con
 ### overcast help
 
 ```
+  Overcast v0.1.5
+
+  Code repo, issues, pull requests:
+    https://github.com/andrewchilds/overcast
+
   Usage:
     overcast [command] [options...]
 
   Help:
     overcast help
     overcast help [command]
+    overcast [command] help
 
   Commands:
     overcast cluster list

@@ -22,12 +22,14 @@ function execute() {
   if (args.command) {
     if (commands[args.command]) {
       command = commands[args.command];
-    } else {
-      utils.unknownCommand();
     }
   }
 
-  command.run(args);
+  if ((args._[0] === 'help' || args.help) && command.help) {
+    command.help(args);
+  } else {
+    command.run(args);
+  }
 }
 
 init();

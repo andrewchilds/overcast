@@ -38,12 +38,18 @@ exports.help = function (args) {
   });
 
   utils.printArray([
+    ('Overcast v' + utils.VERSION).grey,
+    '',
+    'Code repo, issues, pull requests:'.grey,
+    '  https://github.com/andrewchilds/overcast',
+    '',
     'Usage:'.grey,
     '  overcast [command] [options...]',
     '',
     'Help:'.grey,
     '  overcast help',
     '  overcast help [command]',
+    '  overcast [command] help',
     '',
     'Commands:'.grey
   ]);

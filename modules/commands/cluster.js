@@ -11,7 +11,7 @@ exports.run = function (args) {
   if (args.subcommand && commands[args.subcommand]) {
     commands[args.subcommand](args);
   } else {
-    utils.unknownCommand();
+    utils.red('Missing subcommand.');
     exports.help(args);
   }
 };
