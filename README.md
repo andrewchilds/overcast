@@ -360,9 +360,9 @@ Contributions are very welcome. If you've got an idea for a feature or found a b
 
 ## Roadmap
 
-- Test coverage for commands that hit remote servers
 - Linode support
 - AWS EC2 support
+- Better test coverage
 - Improved script library bundle
 
 ## License
