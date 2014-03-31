@@ -341,11 +341,25 @@ npm install
 npm test
 ```
 
+## Upgrading Overcast
+
+```sh
+npm -g update overcast
+```
+
+Configuration files are left alone during an upgrade.
+
+## Contributing
+
+Contributions are very welcome. If you've got an idea for a feature or found a bug, please [open an issue](https://github.com/andrewchilds/overcast/issues). If you're a developer and want to help make Overcast better, [open a pull request](https://github.com/andrewchilds/overcast/pulls) with your changes.
+
 ## Roadmap
 
 - Test coverage for commands that hit remote servers
-- Linode support
-- Amazon EC2 support
+- More bundled script libraries
+- Support for 
+- Linode API support
+- AWS EC2 support
 
 ## License
 
