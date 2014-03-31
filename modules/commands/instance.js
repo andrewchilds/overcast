@@ -40,6 +40,9 @@ subcommands.create = function (args) {
   } else if (!provider || !providers[provider]) {
     utils.die('Missing --provider parameter. Supported providers are: ' +
       _.keys(providers).join(', ') + '.');
+  } else if (clusters[cluster].instances[args.name]) {
+    utils.red('Instance "' + args.name + '" already exists.');
+    return list.run(args);
   }
 
   providers[provider].create({

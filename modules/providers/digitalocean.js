@@ -152,7 +152,7 @@ exports.create = function (options) {
       },
       callback: function (result) {
         if (result && result.droplet) {
-          utils.success('Starting to create instance ' + result.droplet.id + '.');
+          utils.success('Starting to create instance ' + result.droplet.id + ' on DigitalOcean.');
           utils.success('This could take a minute, please wait...');
           exports.waitForInstanceCreation(result.droplet);
         }
@@ -169,7 +169,7 @@ exports.waitForInstanceCreation = function (droplet) {
         if (result.event.action_status === 'done') {
           utils.progressComplete();
           utils.success('Instance created!');
-          utils.note('Waiting 60 seconds for server to boot up...');
+          utils.note('Waiting 30 seconds for server to boot up...');
           exports.waitForServerBoot(droplet);
         } else {
           utils.progress(result.event.percentage);
@@ -188,7 +188,7 @@ exports.waitForServerBoot = function (droplet, percentage) {
     utils.progress(percentage);
     setTimeout(function () {
       exports.waitForServerBoot(droplet, percentage + 2);
-    }, 1200);
+    }, 600);
   } else {
     utils.progressComplete();
     exports.getDroplet(droplet.id, function (droplet) {
