@@ -95,6 +95,12 @@ The command `overcast init` will create a new configuration in the current direc
     Example:
     $ overcast cluster create db
 
+  overcast cluster rename [name] [new-name]
+    Renames a cluster.
+
+    Example:
+    $ overcast cluster rename app-cluster app-cluster-old
+
   overcast cluster remove [name]
     Removes a cluster from the index. If the cluster has any instances
     attached to it, they will be moved to the "orphaned" cluster.
@@ -144,6 +150,7 @@ The command `overcast init` will create a new configuration in the current direc
   Commands:
     overcast cluster list
     overcast cluster create [name]
+    overcast cluster rename [name] [new-name]
     overcast cluster remove [name]
     overcast expose [instance|cluster|all] [port...]
     overcast exposed [instance|cluster|all]
@@ -354,10 +361,9 @@ Contributions are very welcome. If you've got an idea for a feature or found a b
 ## Roadmap
 
 - Test coverage for commands that hit remote servers
-- More bundled script libraries
-- Support for 
-- Linode API support
+- Linode support
 - AWS EC2 support
+- Improved script library bundle
 
 ## License
 
