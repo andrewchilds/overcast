@@ -1,0 +1,55 @@
+#!/bin/bash
+
+# Configure IPTables on Ubuntu 12.04.
+
+# set -x
+
+current_ssh_port=`cat /etc/ssh/sshd_config | grep Port | awk '{ print \$2 }'`
+
+if [ -z "$exposed_ports" ]; then
+  echo "No exposed ports defined, no action taken."
+  exit 1
+fi
+
+ssh_port_not_included=true
+for exposed_port in $exposed_ports; do
+  if [ "$current_ssh_port" -eq "$exposed_port" ]; then
+    ssh_port_not_included=false
+  fi
+done
+
+if $ssh_port_not_included; then
+  echo "Current SSH port ($current_ssh_port) not included in exposed port list, no action taken."
+  exit 1
+fi
+
+# Flush all current rules from iptables
+iptables -F
+
+for exposed_port in $exposed_ports; do
+  iptables -A INPUT -p tcp --dport $exposed_port -j ACCEPT
+done
+
+# Ping
+iptables -A INPUT -p icmp -m icmp --icmp-type 8 -j ACCEPT
+
+# Accept packets belonging to established and related connections
+iptables -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
+
+# Localhost
+iptables -A INPUT -i lo -j ACCEPT
+
+# Log Dropped Connections
+# iptables -A INPUT -m limit --limit 30/minute -j LOG --log-level 7 --log-prefix "Dropped by firewall: "
+# iptables -A INPUT -j LOG --log-level 7 --log-prefix "Dropped by firewall: "
+
+# Set default policies for INPUT, FORWARD and OUTPUT chains
+iptables -P INPUT DROP
+iptables -P FORWARD DROP
+iptables -P OUTPUT ACCEPT
+
+# List rules
+iptables -L -v
+
+mkdir -p /etc/iptables
+iptables-save > /etc/iptables/rules.v4

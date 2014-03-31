@@ -1,0 +1,18 @@
+#!/bin/bash
+
+set -x
+
+# Install core packages
+
+apt-get update
+apt-get install aptitude
+aptitude -y full-upgrade
+aptitude -y install git-core wget vim less build-essential iptables-persistent
+
+# SSH Config
+
+sed -i"-orig" "s/LoginGraceTime [0-9]\+/LoginGraceTime 30/" /etc/ssh/sshd_config
+sed -ri 's/UsePAM yes/#UsePam yes/g' /etc/ssh/sshd_config
+sed -ri 's/#UsePAM no/UsePAM no/g' /etc/ssh/sshd_config
+
+service ssh restart

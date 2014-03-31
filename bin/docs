@@ -1,0 +1,19 @@
+#!/usr/bin/env node
+
+// Generates Markdown-formatted API documentation from module/command help functions.
+
+var utils = require('../modules/utils');
+var _ = require('lodash');
+
+utils.findConfig(function () {
+  utils.CONFIG_DIR = '/path/to/.overcast';
+  _.each(utils.getCommands(), function (command, name) {
+    console.log('### overcast ' + name);
+    console.log('');
+    console.log('```');
+    // console.log('$ overcast help ' + (name === 'help' ? '' : name));
+    command.help();
+    console.log('```');
+    console.log('');
+  });
+});

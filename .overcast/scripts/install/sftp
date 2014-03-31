@@ -1,0 +1,26 @@
+#!/bin/bash
+
+# Add SFTP support to Ubuntu 12.04.
+
+# Requires a user to be added to the "filetransfer" group, like so:
+# $ useradd -d /srv/www/mydomain myuser
+# $ passwd myuser
+# $ usermod -G filetransfer myuser
+# $ chown -R myuser:myuser /srv/www/mydomain/*
+
+set -x
+
+addgroup filetransfer
+
+sed -i"-orig" "s/Subsystem sftp \/usr\/lib\/openssh\/sftp\-server/# Subsystem sftp \/usr\/lib\/openssh\/sftp-server/" /etc/ssh/sshd_config
+
+cat >> /etc/ssh/sshd_config << EOF
+
+Subsystem sftp internal-sftp
+
+Match group filetransfer
+  ChrootDirectory %h
+  X11Forwarding no
+  AllowTcpForwarding no
+  ForceCommand internal-sftp
+EOF

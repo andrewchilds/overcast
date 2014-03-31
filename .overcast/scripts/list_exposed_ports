@@ -1,0 +1,6 @@
+#!/bin/bash
+
+# List exposed TCP ports.
+# Tested on Ubuntu 12.04.
+
+iptables -L -n | grep 'ACCEPT' | grep 'tcp dpt:' | awk '{ print $7 }' | tr -d 'dpt:' | paste -sd ' '

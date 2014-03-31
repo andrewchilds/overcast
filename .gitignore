@@ -1,0 +1,8 @@
+.overcast/keys
+.overcast/clusters.json
+.overcast/variables.json
+test/.overcast
+.DS_Store
+.idea
+npm-debug.log
+libpeerconnection.log

@@ -1,0 +1,7 @@
+#!/bin/bash
+
+# Install Redis on Ubuntu 12.04.
+
+set -x
+
+aptitude install -y redis-server

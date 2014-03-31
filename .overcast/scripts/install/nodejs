@@ -1,0 +1,11 @@
+#!/bin/bash
+
+# Install NodeJS on Ubuntu 12.04.
+# https://github.com/joyent/node/wiki/Installing-Node.js-via-package-manager
+
+set -x
+
+aptitude -y install python-software-properties
+add-apt-repository ppa:chris-lea/node.js
+apt-get update
+aptitude -y install nodejs

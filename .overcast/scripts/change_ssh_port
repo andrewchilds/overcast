@@ -1,0 +1,17 @@
+#!/bin/bash
+
+# Change SSH listener port.
+# Tested on Ubuntu 12.04.
+
+# set -x
+
+if [ -z "$new_ssh_port" ]; then
+  echo "No port defined, no action taken."
+  exit 1
+fi
+
+echo Setting port to $new_ssh_port...
+
+sed -i"-orig" "s/Port [0-9]\+/Port $new_ssh_port/" /etc/ssh/sshd_config
+
+service ssh restart
