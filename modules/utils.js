@@ -23,22 +23,23 @@ exports.findConfig = function (callback) {
   });
 };
 
-exports.initOvercastDir = function (dir, callback) {
-  var execStr = 'mkdir -p ' +
-    dir + '/.overcast/keys ' +
-    dir + '/.overcast/files ' +
-    dir + '/.overcast/scripts && echo "{}" > ' +
-    dir + '/.overcast/clusters.json && echo "{}" > ' +
-    dir + '/.overcast/variables.json';
+exports.initOvercastDir = function (dest_dir, callback) {
+  dest_dir += '/.overcast';
 
-  return cp.exec(execStr, function (err) {
+  return cp.exec(__dirname + '/../bin/init', {
+    env: _.extend({}, process.env, {
+      overcast_src_dir: __dirname + '/../.overcast',
+      overcast_dest_dir: dest_dir
+    })
+  }, function (err, stdout, stderr) {
+    console.log(stdout);
     if (err) {
       exports.die('Unable to create .overcast directory.');
     } else {
-      exports.note('Created new config directory:');
-      exports.note(dir + '/.overcast');
+      exports.grey('Created new config directory:');
+      exports.cyan(dest_dir);
       if (_.isFunction(callback)) {
-        callback(dir + '/.overcast');
+        callback(dest_dir);
       }
     }
   });
@@ -203,7 +204,7 @@ exports.saveClusters = function (clusters, done) {
 };
 
 exports.unknownCommand = function () {
-  console.log('Unknown command.'.red);
+  exports.red('Unknown command.');
 };
 
 exports.sanitize = function (str) {
@@ -224,25 +225,20 @@ exports.die = function (str) {
   process.exit(1);
 };
 
-exports.success = function (str) {
-  console.log(str.green);
-};
-
-exports.grey = function (str) {
-  console.log(str.grey);
-};
-
-exports.red = function (str) {
-  console.log(str.red);
-};
-
-exports.note = function (str) {
-  console.log(str.cyan);
-};
-
-exports.alert = function (str) {
-  console.log(str.yellow);
-};
+_.each({
+  alert: 'yellow',
+  cyan: 'cyan',
+  green: 'green',
+  grey: 'grey',
+  note: 'cyan',
+  red: 'red',
+  success: 'green',
+  yellow: 'yellow'
+}, function (color, fnName) {
+  exports[fnName] = function (str) {
+    console.log((str + '')[color]);
+  };
+});
 
 exports.prefixPrint = function (prefix, prefixColor, str, textColor) {
   console.log((prefix + ': ')[prefixColor] + str[textColor || 'white']);
