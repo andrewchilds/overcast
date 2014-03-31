@@ -363,4 +363,4 @@ Contributions are very welcome. If you've got an idea for a feature or found a b
 
 ## License
 
-MIT. Copyright &copy; 2014 Andrew Childs.
+MIT. Copyright &copy; 2014 [Andrew Childs](http://twitter.com/andrewchilds).
