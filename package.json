@@ -1,6 +1,6 @@
 {
   "name": "overcast",
-  "description": "A simple cloud management CLI.",
+  "description": "A terminal-focused cloud management tool.",
   "version": "0.1.2",
   "repository": "https://github.com/andrewchilds/overcast.git",
   "author": {
