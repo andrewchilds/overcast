@@ -1,0 +1,31 @@
+{
+  "dummy-app-cluster": {
+    "instances": {
+      "dummy.app.01": {
+        "ip": "127.0.0.1",
+        "name": "dummy.01",
+        "ssh_key": "/Users/username/.ssh/id_rsa",
+        "ssh_port": "22222",
+        "user": "root"
+      },
+      "dummy.app.02": {
+        "ip": "127.0.0.2",
+        "name": "dummy.02",
+        "ssh_key": "/path/to/.overcast/keys/overcast.key",
+        "ssh_port": "22",
+        "user": "root"
+      }
+    }
+  },
+  "dummy-db-cluster": {
+    "instances": {
+      "dummy.db.01": {
+        "ip": "127.0.0.3",
+        "name": "dummy.03",
+        "ssh_key": "/path/to/.overcast/keys/overcast.key",
+        "ssh_port": "22",
+        "user": "root"
+      }
+    }
+  }
+}
