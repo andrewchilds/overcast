@@ -328,6 +328,8 @@ The config directory looks like this:
 
 ## Running the Tests
 
+[![Build Status](https://travis-ci.org/andrewchilds/overcast.svg?branch=master)](https://travis-ci.org/andrewchilds/overcast)
+
 ```sh
 npm install
 npm test
