@@ -17,11 +17,23 @@ Overcast is a simple terminal-based cloud management tool that was designed to m
   $ overcast cluster create app
   ```
 
-- Spin up new instances on DigitalOcean. Once finished these are automatically added to clusters.
+- Create, snapshot and destroy instances on DigitalOcean.
   ```sh
-  $ overcast instance create db.01 --cluster=db --host=digitalocean
-  $ overcast instance create db.02 --cluster=db --host=digitalocean
+  # Create a new Ubuntu 12.04 instance:
+  $ overcast instance create db.01 --cluster=db
+  # Install/configure the instance to your liking:
+  $ overcast run db.01 install/core install/redis
+  $ overcast expose db.01 22 6379
+  # Shutdown the instance and create a snapshot:
+  $ overcast digitalocean shutdown db.01
+  $ overcast digitalocean snapshot db.01 my.db.snapshot
+  # Spin up a cluster using your snapshot:
+  $ overcast instance create db.02 --cluster=db --image-name=my.db.snapshot
+  $ overcast instance create db.03 --cluster=db --image-name=my.db.snapshot
+  $ overcast instance create db.04 --cluster=db --image-name=my.db.snapshot
   ```
+
+  EC2/Linode support is on the roadmap.
 
 - Import existing instances located anywhere to a cluster.
   ```sh
@@ -109,6 +121,69 @@ The command `overcast init` will create a new configuration in the current direc
     $ overcast cluster remove db
 ```
 
+### overcast digitalocean
+
+```
+  These functions require the following values set in .overcast/variables.json:
+    DIGITALOCEAN_CLIENT_ID
+    DIGITALOCEAN_API_KEY
+
+  overcast digitalocean destroy [instance]
+    Destroys a DigitalOcean droplet and removes it from your account.
+    This is irreversible.
+
+    Example:
+    $ overcast digitalocean destroy app.01
+
+  overcast digitalocean droplets
+    List all DigitalOcean droplets in your account.
+
+  overcast digitalocean images
+    List all available DigitalOcean images. Includes snapshots.
+
+  overcast digitalocean reboot [instance]
+    Reboots a DigitalOcean droplet. According to their API docs: "this is the
+    preferred method to use if a server is not responding."
+
+    Example:
+    $ overcast digitalocean reboot app.01
+
+  overcast digitalocean rebuild [instance] [options]
+    Rebuild a DigitalOcean droplet using a specified image name, slug or ID.
+    According to the API docs, "This is useful if you want to start again but
+    retain the same IP address for your droplet."
+
+      Option              | Default
+      --image-slug=SLUG   | ubuntu-12-04-x64
+      --image-name=NAME   |
+      --image-id=ID       |
+
+    Example:
+    $ overcast digitalocean rebuild app.01 --name=my.app.snapshot
+
+  overcast digitalocean regions
+    List available DigitalOcean regions (nyc2, sfo1, etc).
+
+  overcast digitalocean sizes
+    List available DigitalOcean sizes (512mb, 1gb, etc).
+
+  overcast digitalocean shutdown [instance]
+    Shut down a DigitalOcean droplet.
+
+    Example:
+    $ overcast digitalocean shutdown app.01
+
+  overcast digitalocean snapshot [instance] [snapshot-name]
+    Creates a named snapshot of a droplet. Returns a snapshot object,
+    which you can use to create a new instance. This may cause a reboot.
+
+    Example:
+    $ overcast digitalocean snapshot app.01
+
+  overcast digitalocean snapshots
+    Lists available snapshots in your DigitalOcean account.
+```
+
 ### overcast expose
 
 ```
@@ -134,7 +209,7 @@ The command `overcast init` will create a new configuration in the current direc
 ### overcast help
 
 ```
-  Overcast v0.1.5
+  Overcast v0.1.8
 
   Code repo, issues, pull requests:
     https://github.com/andrewchilds/overcast
@@ -152,6 +227,16 @@ The command `overcast init` will create a new configuration in the current direc
     overcast cluster create [name]
     overcast cluster rename [name] [new-name]
     overcast cluster remove [name]
+    overcast digitalocean destroy [instance]
+    overcast digitalocean droplets
+    overcast digitalocean images
+    overcast digitalocean reboot [instance]
+    overcast digitalocean rebuild [instance] [options]
+    overcast digitalocean regions
+    overcast digitalocean sizes
+    overcast digitalocean shutdown [instance]
+    overcast digitalocean snapshot [instance] [snapshot-name]
+    overcast digitalocean snapshots
     overcast expose [instance|cluster|all] [port...]
     overcast exposed [instance|cluster|all]
     overcast info
@@ -199,12 +284,20 @@ The command `overcast init` will create a new configuration in the current direc
     The instance will start out using the auto-generated SSH key found here:
     /path/to/.overcast/keys/overcast.key.pub
 
-      Option            | Default
-      --cluster=CLUSTER |
-      --provider=NAME   | digitalocean
-      --region=NAME     | nyc2
-      --image=NAME      | ubuntu-12-04-x64
-      --size=NAME       | 512mb
+    You can specify region, image, and size of the droplet using -id or -slug.
+    You can also specify an image or snapshot using --image-name.
+
+      Option               | Default
+      --cluster=CLUSTER    |
+      --provider=NAME      | digitalocean
+      --ssh-port=PORT      | 22
+      --region-slug=NAME   | nyc2
+      --region-id=ID       |
+      --image-slug=NAME    | ubuntu-12-04-x64
+      --image-id=ID        |
+      --image-name=NAME    |
+      --size-slug=NAME     | 512mb
+      --size-id=ID         |
 
     Example:
     $ overcast instance create db.01 --cluster=db --host=digitalocean
@@ -212,12 +305,12 @@ The command `overcast init` will create a new configuration in the current direc
   overcast instance import [name] [options]
     Imports an existing instance to a cluster.
 
-      Option            | Default
-      --cluster=CLUSTER |
-      --ip=IP           |
-      --ssh-port=PORT   | 22
-      --ssh-key=PATH    | .overcast/keys/overcast.key
-      --user=USERNAME   | root
+      Option               | Default
+      --cluster=CLUSTER    |
+      --ip=IP              |
+      --ssh-port=PORT      | 22
+      --ssh-key=PATH       | .overcast/keys/overcast.key
+      --user=USERNAME      | root
 
     Example:
     $ overcast instance import app.01 --cluster=app --ip=127.0.0.1 \

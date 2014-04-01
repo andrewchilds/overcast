@@ -4,7 +4,7 @@ var _ = require('lodash');
 var colors = require('colors');
 var list = require('./commands/list');
 
-exports.VERSION = '0.1.7';
+exports.VERSION = '0.1.8';
 
 exports.clustersCache = null;
 exports.variablesCache = null;
@@ -18,11 +18,15 @@ exports.getCommands = function () {
 
 exports.findConfig = function (callback) {
   exports.walkDir(process.cwd(), function (dir) {
-    exports.CONFIG_DIR = dir;
-    exports.CLUSTERS_JSON = dir + '/clusters.json';
-    exports.VARIABLES_JSON = dir + '/variables.json';
-    callback();
+    exports.setConfigDir(dir);
+    (callback || _.noop)();
   });
+};
+
+exports.setConfigDir = function (dir) {
+  exports.CONFIG_DIR = dir;
+  exports.CLUSTERS_JSON = dir + '/clusters.json';
+  exports.VARIABLES_JSON = dir + '/variables.json';
 };
 
 exports.initOvercastDir = function (dest_dir, callback) {
@@ -41,9 +45,7 @@ exports.initOvercastDir = function (dest_dir, callback) {
     } else {
       exports.grey('Created new config directory:');
       exports.cyan(dest_dir);
-      if (_.isFunction(callback)) {
-        callback(dest_dir);
-      }
+      (callback || _.noop)(dest_dir);
     }
   });
 };
@@ -247,17 +249,66 @@ exports.prefixPrint = function (prefix, prefixColor, str, textColor) {
   console.log((prefix + ': ')[prefixColor] + str[textColor || 'white']);
 };
 
-exports.progress = function (percentage) {
+exports.progress = function (percentage, elapsed) {
+  percentage = percentage || 0;
   percentage = parseFloat(percentage);
-  var width = Math.max(1, Math.ceil(percentage / 2));
-  var hashes = _.times(width, function () { return '#'.yellow; });
-  var spaces = _.times(50 - width, function () { return ' '; });
-  var str = '[' + hashes.join('') + spaces.join('') + ']';
 
+  var remaining = '???';
+  if (percentage > 10) {
+    remaining = (((elapsed / (percentage / 100)) - elapsed) / 1000).toPrecision(2);
+  }
+
+  var width = Math.max(1, Math.ceil(percentage / 2));
+  var hashes = _.times(width, function (i) {
+    i += Math.round(_.now() / 500);
+    var c = i % 3 ? 'cyan' : 'blue';
+    return ' '[c].inverse;
+  });
+  var spaces = _.times(50 - width, function () { return '-'.grey; });
+  var str = ' ' + hashes.join('') + spaces.join('') + (' ' + remaining + ' seconds left').grey;
+
+  exports.clearLine();
   process.stdout.write(str + "\r");
 };
 
-exports.progressComplete = function () {
-  exports.progress(100);
-  console.log('');
+exports.clearLine = function () {
+  var str = _.times(80, function () { return ' '; });
+  process.stdout.write(str.join('') + "\r");
+};
+
+exports.progressComplete = exports.clearLine;
+
+exports.progressBar = function (testFn, doneFn) {
+  var startTime = _.now();
+  var interval = setInterval(function () {
+    var percentage = testFn();
+    if (percentage < 100) {
+      exports.progress(percentage, _.now() - startTime);
+    } else {
+      clearInterval(interval);
+      exports.progressComplete();
+      (doneFn || _.noop)();
+    }
+  }, 250);
+};
+
+exports.waitForProgress = function (seconds, callback, percentage) {
+  var startTime = _.now();
+  exports.progressBar(function () {
+    return ((_.now() - startTime) / (seconds * 1000)) * 100;
+  }, callback);
+};
+
+exports.printCollection = function (type, collection) {
+  if (_.isEmpty(collection)) {
+    return exports.red('No ' + type + ' found.');
+  }
+
+  _.each(collection, function (obj) {
+    console.log('');
+    console.log('  ' + obj.name);
+    _.each(obj, function (val, key) {
+      exports.grey('      ' + key + ': ' + val);
+    });
+  });
 };

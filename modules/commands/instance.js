@@ -22,36 +22,27 @@ var subcommands = {};
 subcommands.create = function (args) {
   var clusters = utils.getClusters();
 
-  var cluster = utils.sanitize(args.cluster);
-  var provider = utils.sanitize(args.provider) || 'digitalocean';
-  var region = utils.sanitize(args.region);
-  var size = utils.sanitize(args.size);
-  var image = utils.sanitize(args.image);
+  args.cluster = utils.sanitize(args.cluster);
+  args.provider = utils.sanitize(args.provider) || 'digitalocean';
 
   if (!args.name) {
     utils.red('Missing [name] parameter.');
     return exports.help(args);
-  } else if (!cluster) {
+  } else if (!args.cluster) {
     utils.red('Missing --cluster parameter.');
     return exports.help(args);
-  } else if (!clusters[cluster]) {
-    utils.die('No "' + cluster + '" cluster found. Known clusters are: ' +
+  } else if (!clusters[args.cluster]) {
+    utils.die('No "' + args.cluster + '" cluster found. Known clusters are: ' +
       _keys(clusters).join(', ') + '.');
-  } else if (!provider || !providers[provider]) {
+  } else if (!args.provider || !providers[args.provider]) {
     utils.die('Missing --provider parameter. Supported providers are: ' +
       _.keys(providers).join(', ') + '.');
-  } else if (clusters[cluster].instances[args.name]) {
+  } else if (clusters[args.cluster].instances[args.name]) {
     utils.red('Instance "' + args.name + '" already exists.');
     return list.run(args);
   }
 
-  providers[provider].create({
-    name: args.name,
-    cluster: cluster,
-    size: size,
-    image: image,
-    region: region
-  });
+  providers[args.provider].create(args);
 };
 
 subcommands.import = function (args) {
@@ -137,12 +128,20 @@ exports.help = function () {
     '  The instance will start out using the auto-generated SSH key found here:'.grey,
     ('  ' + utils.CONFIG_DIR + '/keys/overcast.key.pub').cyan,
     '',
-    '    Option            | Default'.grey,
-    '    --cluster=CLUSTER |'.grey,
-    '    --provider=NAME   | digitalocean'.grey,
-    '    --region=NAME     | nyc2'.grey,
-    '    --image=NAME      | ubuntu-12-04-x64'.grey,
-    '    --size=NAME       | 512mb'.grey,
+    '  You can specify region, image, and size of the droplet using -id or -slug.'.grey,
+    '  You can also specify an image or snapshot using --image-name.'.grey,
+    '',
+    '    Option               | Default'.grey,
+    '    --cluster=CLUSTER    |'.grey,
+    '    --provider=NAME      | digitalocean'.grey,
+    '    --ssh-port=PORT      | 22'.grey,
+    '    --region-slug=NAME   | nyc2'.grey,
+    '    --region-id=ID       |'.grey,
+    '    --image-slug=NAME    | ubuntu-12-04-x64'.grey,
+    '    --image-id=ID        |'.grey,
+    '    --image-name=NAME    |'.grey,
+    '    --size-slug=NAME     | 512mb'.grey,
+    '    --size-id=ID         |'.grey,
     '',
     '  Example:'.grey,
     '  $ overcast instance create db.01 --cluster=db --host=digitalocean'.grey,
@@ -150,12 +149,12 @@ exports.help = function () {
     'overcast instance import [name] [options]',
     '  Imports an existing instance to a cluster.'.grey,
     '',
-    '    Option            | Default'.grey,
-    '    --cluster=CLUSTER |'.grey,
-    '    --ip=IP           |'.grey,
-    '    --ssh-port=PORT   | 22 '.grey,
-    '    --ssh-key=PATH    | .overcast/keys/overcast.key'.grey,
-    '    --user=USERNAME   | root'.grey,
+    '    Option               | Default'.grey,
+    '    --cluster=CLUSTER    |'.grey,
+    '    --ip=IP              |'.grey,
+    '    --ssh-port=PORT      | 22 '.grey,
+    '    --ssh-key=PATH       | .overcast/keys/overcast.key'.grey,
+    '    --user=USERNAME      | root'.grey,
     '',
     '  Example:'.grey,
     '  $ overcast instance import app.01 --cluster=app --ip=127.0.0.1 \\'.grey,
