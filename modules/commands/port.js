@@ -14,15 +14,22 @@ exports.run = function (args) {
     return exports.help(args);
   }
 
+  var instances = utils.findMatchingInstances(args.name);
+  utils.handleEmptyInstances(instances, args);
+
+  var new_ssh_port = args._[0] + '';
+
   args.env = {
-    'new_ssh_port': args._[0] + ''
+    new_ssh_port: new_ssh_port
   };
 
   args._ = ['change_ssh_port'];
-  ssh(args);
-
-  utils.updateInstance(args.name, {
-    ssh_port: args.env.new_ssh_port
+  ssh(args, function () {
+    _.each(instances, function (instance) {
+      utils.updateInstance(instance.name, {
+        ssh_port: new_ssh_port
+      });
+    });
   });
 };
 

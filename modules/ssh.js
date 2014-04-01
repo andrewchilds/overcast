@@ -3,7 +3,7 @@ var cp = require('child_process');
 var _ = require('lodash');
 var utils = require('./utils');
 
-module.exports = function (args) {
+module.exports = function (args, callback) {
   var instances = utils.findMatchingInstances(args.name);
   utils.handleEmptyInstances(instances, args);
 
@@ -11,16 +11,23 @@ module.exports = function (args) {
     _.each(instances, function (instance) {
       runOnInstance(instance, _.cloneDeep(args));
     });
+    if (_.isFunction(callback)) {
+      callback();
+    }
   } else {
-    runOnInstances(_.toArray(instances), args);
+    runOnInstances(_.toArray(instances), args, callback);
   }
 };
 
-function runOnInstances(stack, args) {
+function runOnInstances(stack, args, callback) {
   var instance = stack.shift();
   runOnInstance(instance, _.cloneDeep(args), function () {
     if (stack.length > 0) {
-      runOnInstances(stack, args);
+      runOnInstances(stack, args, callback);
+    } else {
+      if (_.isFunction(callback)) {
+        callback();
+      }
     }
   });
 }
