@@ -212,8 +212,7 @@ exports.getOrCreateOvercastKeyID = function (callback) {
 };
 
 function handleCreateResponse(droplet) {
-  utils.grey('Creating droplet ' + droplet.id + ' on DigitalOcean.');
-  utils.grey('This could take a minute, please wait...');
+  utils.grey('Creating droplet ' + droplet.id + ' on DigitalOcean, please wait...');
   waitForEventToFinish(droplet.event_id, function () {
     utils.success('Droplet created!');
     utils.grey('Waiting 30 seconds for server to boot up...');
@@ -246,16 +245,17 @@ exports.updateInstanceWithDropletInfo = function (name, droplet) {
 };
 
 exports.snapshot = function (instance, name, callback) {
-  // GET https://api.digitalocean.com/droplets/[droplet_id]/snapshot/?name=[snapshot_name]
-  utils.grey('Creating new snapshot "' + name + '" of instance "' + instance.name + '", please wait...');
-  exports.eventedRequest({
-    endpoint: 'droplets/' + instance.digitalocean.id + '/snapshot',
-    query: { name: name },
-    callback: function (eventResult) {
-      console.log(eventResult);
-      utils.success('Snapshot "' + name + '" created.');
-      (callback || _.noop)();
-    }
+  exports.shutdown(instance, function () {
+    // GET https://api.digitalocean.com/droplets/[droplet_id]/snapshot/?name=[snapshot_name]
+    utils.grey('Creating new snapshot "' + name + '" of instance "' + instance.name + '", please wait...');
+    exports.eventedRequest({
+      endpoint: 'droplets/' + instance.digitalocean.id + '/snapshot',
+      query: { name: name },
+      callback: function (eventResult) {
+        utils.success('Snapshot "' + name + '" created.');
+        (callback || _.noop)();
+      }
+    });
   });
 };
 
