@@ -1,6 +1,6 @@
 # Overcast
 
-![Screenshot](http://i.imgur.com/Ak5xp9Y.png)
+![Screenshot](http://i.imgur.com/n8IKY6m.png)
 
 Overcast is a simple terminal-based cloud management tool that was designed to make it easy to spin up and manage clusters of servers in a consistent, scriptable way. Inspired by [Packer.io](http://packer.io).
 
