@@ -174,8 +174,7 @@ The command `overcast init` will create a new configuration in the current direc
     $ overcast digitalocean shutdown app.01
 
   overcast digitalocean snapshot [instance] [snapshot-name]
-    Creates a named snapshot of a droplet. Returns a snapshot object,
-    which you can use to create a new instance. This may cause a reboot.
+    Creates a named snapshot of a droplet. This process will reboot the instance.
 
     Example:
     $ overcast digitalocean snapshot app.01
@@ -209,7 +208,7 @@ The command `overcast init` will create a new configuration in the current direc
 ### overcast help
 
 ```
-  Overcast v0.1.8
+  Overcast v0.1.9
 
   Code repo, issues, pull requests:
     https://github.com/andrewchilds/overcast
