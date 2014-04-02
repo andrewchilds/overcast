@@ -40,6 +40,7 @@ function runOnInstance(instance, args, next) {
     name: instance.name,
     ssh_key: instance.ssh_key,
     ssh_port: instance.ssh_port,
+    continueOnError: args.continueOnError,
     env: args.env,
     command: command
   }, function () {
@@ -114,7 +115,7 @@ function sshExec(options, next) {
 
   ssh.on('exit', function (code) {
     process.stdin.pause();
-    if (code !== 0) {
+    if (code !== 0 && !options.continueOnError) {
       var str = 'SSH connection exited with a non-zero code (' + code + '). Stopping execution...';
       utils.prefixPrint(options.name, color, str, 'red');
       process.exit(1);
