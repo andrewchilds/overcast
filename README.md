@@ -54,7 +54,7 @@ Overcast is a simple terminal-based cloud management tool that was designed to m
   $ overcast pull all /etc/nginx/sites-enabled/myapp.conf nginx/{instance}.myapp.conf
   ```
 
-- Overcast is a thin wrapper around your native SSH client, and doesn't install or leave anything on the servers you communicate with, so the only real attack surface is SSH itself.
+- Overcast is a thin wrapper around your native SSH client, and doesn't install or leave anything on the servers you communicate with.
 
 - A [script library](https://github.com/andrewchilds/overcast/tree/master/.overcast/scripts) is included to make it easy to install common software components. The library was written for Ubuntu servers, but could be extended to include other distributions.
 
