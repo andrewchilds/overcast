@@ -60,7 +60,7 @@ Overcast is a simple terminal-based cloud management tool that was designed to m
 
 There are a number of server management frameworks out there already (Chef, Puppet, Ansible, Salt), but they all involve either a complicated server/client implementation, a steep learning curve or a giant, monolithic conceptual framework.
 
-I wanted something that was conceptually simple and focused on the problem of multi-server communication, that leaves problems like process management and system monitoring to tools designed specifically for those problems (Monit, Munin, Nagios).
+I wanted something that was conceptually simple and focused on the problem of multi-server provisioning and communication, that leaves problems like process management and system monitoring to tools designed specifically for those problems (Monit, Munin, Nagios).
 
 ## Installation
 
