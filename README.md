@@ -11,21 +11,26 @@ Overcast is a simple terminal-based cloud management tool that was designed to m
 
 ## Features
 
-- Define clusters using the command line or manually by editing a JSON file.
+- Define clusters and instances using the command line or by editing a simple JSON file.
+
   ```sh
   $ overcast cluster create db
   $ overcast cluster create app
+  $ overcast instance import app.01 --cluster=app --ip=127.0.0.2 \
+    --ssh-port=22222 --ssh-key=$HOME/.ssh/id_rsa
+  $ overcast instance import app.02 --cluster=app --ip=127.0.0.3 \
+    --ssh-port=22222 --ssh-key=$HOME/.ssh/id_rsa
   ```
 
 - Create, snapshot and destroy instances on DigitalOcean.
+
   ```sh
   # Create a new Ubuntu 12.04 instance:
   $ overcast instance create db.01 --cluster=db
-  # Install/configure the instance to your liking:
+  # Configure the instance to your liking:
   $ overcast run db.01 install/core install/redis
   $ overcast expose db.01 22 6379
-  # Shutdown the instance and create a snapshot:
-  $ overcast digitalocean shutdown db.01
+  # Create a snapshot:
   $ overcast digitalocean snapshot db.01 my.db.snapshot
   # Spin up a cluster using your snapshot:
   $ overcast instance create db.02 --cluster=db --image-name=my.db.snapshot
@@ -35,35 +40,29 @@ Overcast is a simple terminal-based cloud management tool that was designed to m
 
   EC2/Linode support is on the roadmap.
 
-- Import existing instances located anywhere to a cluster.
-  ```sh
-  $ overcast instance import app.01 --cluster=app --ip=127.0.0.2 \
-    --ssh-port=22222 --ssh-key=$HOME/.ssh/id_rsa
-  $ overcast instance import app.02 --cluster=app --ip=127.0.0.3 \
-    --ssh-port=22222 --ssh-key=$HOME/.ssh/id_rsa
-  ```
+- Run commands or script files across any number of servers. Commands can be run sequentially or in parallel.
 
-- Run commands or script files on an instance, a cluster, or all clusters, sequentially or in parallel.
   ```sh
   $ overcast run db install/core install/redis
   $ overcast run all uptime "free-m" "df -h" --parallel
   ```
 
 - Push and pull files between your local machine and an instance, a cluster, or all clusters. Dynamically rewrite file paths to include the instance name.
+
   ```sh
   $ overcast push app nginx/myapp.conf /etc/nginx/sites-enabled/myapp.conf
   $ overcast pull all /etc/nginx/sites-enabled/myapp.conf nginx/{instance}.myapp.conf
   ```
 
-- Overcast is a thin wrapper around your native SSH client, and doesn't install or leave anything on the servers you communicate with.
+- Overcast is a thin wrapper around your native SSH client, and doesn't install or leave anything on the servers you communicate with, so the only real attack surface is SSH itself.
 
-- A script library is included to make it easy to install common software components in a modular fashion. The library is tailored to Ubuntu 12.04, but could easily be extended to include other distributions/versions.
+- A [script library](https://github.com/andrewchilds/overcast/tree/master/.overcast/scripts) is included to make it easy to install common software components. The library was written for Ubuntu servers, but could be extended to include other distributions.
 
 ## Design Goals &amp; Motivation
 
-There are a number of server management frameworks out there already (Chef, Puppet, Ansible, Salt), but all involve either a complicated server/client implementation, a steep learning curve or a giant, monolithic conceptual framework.
+There are a number of server management frameworks out there already (Chef, Puppet, Ansible, Salt), but they all involve either a complicated server/client implementation, a steep learning curve or a giant, monolithic conceptual framework.
 
-I wanted something that is conceptually simple and easy to use, that is only concerned with programmatic communication with clusters of servers, that leaves problems like process/state management and monitoring to other tools.
+I wanted something that was conceptually simple and focused on the problem of multi-server communication, that leaves problems like process management and system monitoring to tools designed specifically for those problems (Monit, Munin, Nagios).
 
 ## Installation
 
