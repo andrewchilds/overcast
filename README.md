@@ -22,7 +22,7 @@ Overcast is a simple terminal-based cloud management tool that was designed to m
     --ssh-port=22222 --ssh-key=$HOME/.ssh/id_rsa
   ```
 
-- Create, snapshot and destroy instances on DigitalOcean.
+- Create, snapshot and destroy instances on DigitalOcean (EC2/Linode support is on the roadmap).
 
   ```sh
   # Create a new Ubuntu 12.04 instance:
@@ -37,8 +37,6 @@ Overcast is a simple terminal-based cloud management tool that was designed to m
   $ overcast instance create db.03 --cluster=db --image-name=my.db.snapshot
   $ overcast instance create db.04 --cluster=db --image-name=my.db.snapshot
   ```
-
-  EC2/Linode support is on the roadmap.
 
 - Run commands or script files across any number of servers. Commands can be run sequentially or in parallel.
 
