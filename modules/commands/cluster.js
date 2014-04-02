@@ -1,4 +1,3 @@
-var fs = require('fs');
 var colors = require('colors');
 var _ = require('lodash');
 var utils = require('../utils');

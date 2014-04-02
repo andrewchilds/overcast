@@ -1,4 +1,3 @@
-var cp = require('child_process');
 var _ = require('lodash');
 var utils = require('../utils');
 var list = require('./list');

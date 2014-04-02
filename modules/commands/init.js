@@ -1,8 +1,6 @@
 var fs = require('fs');
 var _ = require('lodash');
-var cp = require('child_process');
 var utils = require('../utils');
-var help = require('./help');
 
 exports.run = function (args) {
   var cwd = process.cwd();

@@ -1,7 +1,6 @@
 var cp = require('child_process');
 var _ = require('lodash');
 var utils = require('../utils');
-var help = require('./help');
 
 exports.run = function (args) {
   utils.argShift(args, 'name');

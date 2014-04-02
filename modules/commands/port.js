@@ -1,4 +1,3 @@
-var spawn = require('child_process').spawn;
 var _ = require('lodash');
 var utils = require('../utils');
 var ssh = require('../ssh');
