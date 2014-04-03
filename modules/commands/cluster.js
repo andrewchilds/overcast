@@ -10,7 +10,7 @@ exports.run = function (args) {
   if (args.subcommand && commands[args.subcommand]) {
     commands[args.subcommand](args);
   } else {
-    utils.red('Missing subcommand.');
+    utils.red('Missing or unknown subcommand.');
     exports.help(args);
   }
 };

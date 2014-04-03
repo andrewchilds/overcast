@@ -143,12 +143,16 @@ exports.create = function (options) {
     });
   }
 
+  if (!options.name) {
+    options.name = options.instance;
+  }
+
   var instance = {
     name: options.name || 'overcast.instance.' + _.now(),
     ip: '127.0.0.1',
-    provider: 'digitalocean',
     ssh_key: options['ssh-key'] || utils.CONFIG_DIR + '/keys/overcast.key',
-    ssh_port: options['ssh-port']  || 22
+    ssh_port: options['ssh-port'] || 22,
+    user: 'root'
   };
 
   var clusters = utils.getClusters();

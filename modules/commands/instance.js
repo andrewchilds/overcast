@@ -6,12 +6,11 @@ var list = require('./list');
 
 exports.run = function (args) {
   utils.argShift(args, 'subcommand');
-  utils.argShift(args, 'name');
 
   if (args.subcommand && subcommands[args.subcommand]) {
     subcommands[args.subcommand](args);
   } else {
-    utils.red('Missing subcommand.');
+    utils.red('Missing or unknown subcommand.');
     exports.help(args);
   }
 };
@@ -20,6 +19,7 @@ var subcommands = {};
 
 subcommands.create = function (args) {
   var clusters = utils.getClusters();
+  utils.argShift(args, 'name');
 
   args.cluster = utils.sanitize(args.cluster);
   args.provider = utils.sanitize(args.provider) || 'digitalocean';
@@ -32,7 +32,7 @@ subcommands.create = function (args) {
     return exports.help(args);
   } else if (!clusters[args.cluster]) {
     utils.die('No "' + args.cluster + '" cluster found. Known clusters are: ' +
-      _keys(clusters).join(', ') + '.');
+      _.keys(clusters).join(', ') + '.');
   } else if (!args.provider || !providers[args.provider]) {
     utils.die('Missing --provider parameter. Supported providers are: ' +
       _.keys(providers).join(', ') + '.');
@@ -46,6 +46,7 @@ subcommands.create = function (args) {
 
 subcommands.import = function (args) {
   var clusters = utils.getClusters();
+  utils.argShift(args, 'name');
 
   var cluster = utils.sanitize(args.cluster);
   var ip = utils.sanitize(args.ip);
@@ -86,6 +87,7 @@ subcommands.import = function (args) {
 
 subcommands.remove = function (args) {
   var clusters = utils.getClusters();
+  utils.argShift(args, 'name');
 
   if (!args.name) {
     utils.die('Missing [name] parameter.');
@@ -109,11 +111,66 @@ subcommands.remove = function (args) {
   });
 };
 
+subcommands.update = function (args) {
+  var clusters = utils.getClusters();
+
+  if (args.name) {
+    utils.argShift(args, 'oldName');
+  } else {
+    utils.argShift(args, 'name');
+  }
+
+  var instance = utils.findOnlyMatchingInstance(args.oldName || args.name);
+  utils.handleEmptyInstances(instance, args);
+
+  var parentClusterName = utils.findClusterNameForInstance(instance);
+  var messages = [];
+
+  if (args.cluster) {
+    if (!clusters[args.cluster]) {
+      utils.die('No "' + args.cluster + '" cluster found. Known clusters are: ' +
+        _.keys(clusters).join(', ') + '.');
+    }
+    if (clusters[args.cluster].instances[instance.name]) {
+      utils.die('An instance named "' + instance.name + '" already exists in the "' + args.cluster + '" cluster.');
+    }
+
+    delete clusters[parentClusterName].instances[instance.name];
+    clusters[args.cluster].instances[instance.name] = instance;
+    parentClusterName = args.cluster;
+    messages.push('Instance "' + instance.name + '" has been moved to the "' + args.cluster + '" cluster.');
+  }
+
+  if (args.oldName) {
+    if (clusters[parentClusterName].instances[args.name]) {
+      utils.die('An instance named "' + args.name + '" already exists in the "' + parentClusterName + '" cluster.');
+    }
+
+    instance.name = args.name;
+    delete clusters[parentClusterName].instances[args.oldName];
+    clusters[parentClusterName].instances[args.name] = instance;
+    messages.push('Instance "' + args.oldName + '" has been renamed to "' + args.name + '".');
+  }
+
+  _.each(['ip', 'ssh-key', 'ssh-port', 'user'], function (prop) {
+    if (args[prop]) {
+      clusters[parentClusterName].instances[args.name][prop.replace('-', '_')] = args[prop];
+      messages.push('Instance "' + prop + '" has been updated to "' + args[prop] + '".');
+    }
+  });
+
+  utils.saveClusters(clusters, function () {
+    _.each(messages, utils.success);
+    list.run(args);
+  });
+};
+
 exports.signatures = function () {
   return [
     '  overcast instance create [name] [options]',
     '  overcast instance import [name] [options]',
     '  overcast instance remove [name]',
+    '  overcast instance update [name] [options]'
   ];
 };
 
@@ -158,6 +215,21 @@ exports.help = function () {
     '  Example:'.grey,
     '  $ overcast instance import app.01 --cluster=app --ip=127.0.0.1 \\'.grey,
     '      --ssh-port=22222 --ssh-key=$HOME/.ssh/id_rsa'.grey,
+    '',
+    'overcast instance update [name] [options]',
+    '  Update any instance property. Specifying --cluster will move the instance to'.grey,
+    '  that cluster. Specifying --name will rename the instance.'.grey,
+    '',
+    '    Option               | Default'.grey,
+    '    --name=NAME          |'.grey,
+    '    --cluster=CLUSTER    |'.grey,
+    '    --ip=IP              |'.grey,
+    '    --ssh-port=PORT      | 22 '.grey,
+    '    --ssh-key=PATH       | .overcast/keys/overcast.key'.grey,
+    '    --user=USERNAME      | root'.grey,
+    '',
+    '  Example:'.grey,
+    '  $ overcast instance update app.01 --user=differentuser --ssh-key=/path/to/another/key'.grey,
     '',
     'overcast instance remove [name]',
     '  Removes an instance from the index.'.grey,

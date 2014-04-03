@@ -124,6 +124,19 @@ exports.findOnlyMatchingInstance = function (name) {
   return instance;
 };
 
+exports.findClusterNameForInstance = function (instance) {
+  var clusters = exports.getClusters();
+  var foundName;
+
+  _.each(clusters, function (cluster, clusterName) {
+    if (!foundName && cluster.instances[instance.name]) {
+      foundName = clusterName;
+    }
+  });
+
+  return foundName;
+};
+
 exports.handleEmptyInstances = function (instances, args) {
   if (_.isEmpty(instances)) {
     exports.red('No cluster or instance found matching "' + args.name + '".');
@@ -307,8 +320,27 @@ exports.printCollection = function (type, collection) {
   _.each(collection, function (obj) {
     console.log('');
     console.log('  ' + obj.name);
-    _.each(obj, function (val, key) {
-      exports.grey('      ' + key + ': ' + val);
-    });
+    exports.prettyPrint(obj, 6);
+  });
+};
+
+exports.prettyPrint = function (obj, indent, stepBy) {
+  var prefix = '';
+  _.times(indent || 0, function () { prefix += ' '; });
+  stepBy = stepBy || 2;
+
+  _.each(obj, function (val, key) {
+    if (_.isPlainObject(val)) {
+      exports.grey(prefix + key + ':');
+      exports.prettyPrint(val, indent + stepBy, stepBy);
+    } else {
+      var valStr = val;
+      if (_.isArray(val) && val.length === 0) {
+        valStr = '[]';
+      } else if (val === '') {
+        valStr = '""';
+      }
+      exports.grey(prefix + key + ': ' + valStr);
+    }
   });
 };

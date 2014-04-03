@@ -17,13 +17,8 @@ exports.run = function (args) {
     console.log('');
     console.log('  ' + clusterName);
     _.each(cluster.instances, function (instance) {
-      console.log('');
-      utils.note('    ' + instance.name);
-      _.each(instance, function (val, key) {
-        if (key !== 'name') {
-          utils.grey('      ' + key + ': ' + val);
-        }
-      });
+      utils.green('    ' + instance.name);
+      utils.prettyPrint(instance, 6);
     });
   });
 };
