@@ -1,4 +1,5 @@
 var _ = require('lodash');
+var readline = require('readline');
 var utils = require('../utils');
 var list = require('./list');
 var API = require('../providers/digitalocean.js');
@@ -12,8 +13,8 @@ exports.run = function (args) {
     return exports.help(args);
   }
 
-  if (/^(droplets|images|regions|sizes|snapshots)$/.test(args.subcommand)) {
-    return subcommands[args.subcommand]();
+  if (/^(create|droplets|images|regions|sizes|snapshots)$/.test(args.subcommand)) {
+    return subcommands[args.subcommand](args);
   }
 
   if (!args.instance) {
@@ -46,6 +47,43 @@ exports.run = function (args) {
 
 var subcommands = {};
 
+subcommands.create = function (args) {
+  var clusters = utils.getClusters();
+
+  if (!args.cluster) {
+    utils.red('Missing --cluster parameter.');
+    return exports.help(args);
+  } else if (!clusters[args.cluster]) {
+    utils.die('No "' + args.cluster + '" cluster found. Known clusters are: ' +
+      _.keys(clusters).join(', ') + '.');
+  } else if (clusters[args.cluster].instances[args.name]) {
+    utils.red('Instance "' + args.name + '" already exists.');
+    return list.run(args);
+  }
+
+  API.create(args);
+};
+
+subcommands.destroy = function (instance, args) {
+  if (args.force) {
+    return API.destroy(instance);
+  }
+
+  var rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout
+  });
+
+  rl.question('Do you really want to destroy this instance? [Y/n]'.yellow, function (answer) {
+    rl.close();
+    if (answer === 'n' || answer === 'N') {
+      utils.grey('No action taken.');
+    } else {
+      API.destroy(instance);
+    }
+  });
+};
+
 subcommands.droplets = function () {
   API.getDroplets(function (droplets) {
     utils.printCollection('droplets', droplets);
@@ -56,6 +94,14 @@ subcommands.images = function () {
   API.getImages(function (images) {
     utils.printCollection('images', images);
   });
+};
+
+subcommands.reboot = function (instance) {
+  API.reboot(instance);
+};
+
+subcommands.rebuild = function (instance, args) {
+  API.rebuild(instance, args);
 };
 
 subcommands.regions = function () {
@@ -70,10 +116,8 @@ subcommands.sizes = function () {
   });
 };
 
-subcommands.snapshots = function () {
-  API.getSnapshots(function (snapshots) {
-    utils.printCollection('snapshots', snapshots);
-  });
+subcommands.shutdown = function (instance) {
+  API.shutdown(instance);
 };
 
 subcommands.snapshot = function (instance, args) {
@@ -87,24 +131,15 @@ subcommands.snapshot = function (instance, args) {
   API.snapshot(instance, args.name);
 };
 
-subcommands.rebuild = function (instance, args) {
-  API.rebuild(instance, args);
-};
-
-subcommands.reboot = function (instance) {
-  API.reboot(instance);
-};
-
-subcommands.shutdown = function (instance) {
-  API.shutdown(instance);
-};
-
-subcommands.destroy = function (instance) {
-  API.destroy(instance);
+subcommands.snapshots = function () {
+  API.getSnapshots(function (snapshots) {
+    utils.printCollection('snapshots', snapshots);
+  });
 };
 
 exports.signatures = function () {
   return [
+    '  overcast digitalocean create [instance] [options]',
     '  overcast digitalocean destroy [instance]',
     '  overcast digitalocean droplets',
     '  overcast digitalocean images',
@@ -124,9 +159,35 @@ exports.help = function () {
     '  DIGITALOCEAN_CLIENT_ID',
     '  DIGITALOCEAN_API_KEY',
     '',
+    'overcast digitalocean create [name] [options]',
+    '  Creates a new instance on DigitalOcean.'.grey,
+    '',
+    '  The instance will start out using the auto-generated SSH key found here:'.grey,
+    ('  ' + utils.CONFIG_DIR + '/keys/overcast.key.pub').cyan,
+    '',
+    '  You can specify region, image, and size of the droplet using -id or -slug.'.grey,
+    '  You can also specify an image or snapshot using --image-name.'.grey,
+    '',
+    '    Option               | Default'.grey,
+    '    --cluster=CLUSTER    |'.grey,
+    '    --ssh-port=PORT      | 22'.grey,
+    '    --region-slug=NAME   | nyc2'.grey,
+    '    --region-id=ID       |'.grey,
+    '    --image-slug=NAME    | ubuntu-12-04-x64'.grey,
+    '    --image-id=ID        |'.grey,
+    '    --image-name=NAME    |'.grey,
+    '    --size-slug=NAME     | 512mb'.grey,
+    '    --size-id=ID         |'.grey,
+    '',
+    '  Example:'.grey,
+    '  $ overcast instance create db.01 --cluster=db --size-slug=1gb --region-slug=sfo1'.grey,
+    '',
     'overcast digitalocean destroy [instance]',
     '  Destroys a DigitalOcean droplet and removes it from your account.'.grey,
-    '  This is irreversible.'.grey,
+    '  Using --force overrides the confirm dialog. This is irreversible.'.grey,
+    '',
+    '    Option               | Default'.grey,
+    '    --force              | false'.grey,
     '',
     '  Example:'.grey,
     '  $ overcast digitalocean destroy app.01'.grey,
@@ -149,10 +210,10 @@ exports.help = function () {
     '  According to the API docs, "This is useful if you want to start again but'.grey,
     '  retain the same IP address for your droplet."'.grey,
     '',
-    '    Option              | Default'.grey,
-    '    --image-slug=SLUG   | ubuntu-12-04-x64'.grey,
-    '    --image-name=NAME   |'.grey,
-    '    --image-id=ID       |'.grey,
+    '    Option               | Default'.grey,
+    '    --image-slug=SLUG    | ubuntu-12-04-x64'.grey,
+    '    --image-name=NAME    |'.grey,
+    '    --image-id=ID        |'.grey,
     '',
     '  Example:'.grey,
     '  $ overcast digitalocean rebuild app.01 --name=my.app.snapshot'.grey,
