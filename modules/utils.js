@@ -4,7 +4,7 @@ var _ = require('lodash');
 var colors = require('colors');
 var list = require('./commands/list');
 
-exports.VERSION = '0.1.10';
+exports.VERSION = '0.1.11';
 
 exports.clustersCache = null;
 exports.variablesCache = null;
@@ -267,15 +267,18 @@ exports.progress = function (percentage, elapsed) {
   percentage = parseFloat(percentage);
 
   var remaining = '???';
-  if (percentage > 10) {
+  if (percentage > 2) {
     remaining = (((elapsed / (percentage / 100)) - elapsed) / 1000).toPrecision(2);
+  }
+  if (remaining > 99) {
+    remaining = '???';
   }
 
   var width = Math.max(1, Math.ceil(percentage / 2));
   var hashes = _.times(width, function (i) {
-    i += Math.round(_.now() / 500);
-    var c = i % 3 ? 'cyan' : 'blue';
-    return ' '[c].inverse;
+    i += Math.round(_.now() / 250);
+    var char = i % 3 ? ' ' : '/';
+    return char.cyan.inverse;
   });
   var spaces = _.times(50 - width, function () { return '-'.grey; });
   var str = ' ' + hashes.join('') + spaces.join('') + (' ' + remaining + ' seconds left').grey;
@@ -320,7 +323,7 @@ exports.printCollection = function (type, collection) {
   _.each(collection, function (obj) {
     console.log('');
     console.log('  ' + obj.name);
-    exports.prettyPrint(obj, 6);
+    exports.prettyPrint(obj, 4);
   });
 };
 

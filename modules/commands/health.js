@@ -107,10 +107,8 @@ exports.help = function (args) {
     '          "time": "0:01",'.grey,
     '          "command": "/sbin/init"'.grey,
     '        }'.grey,
-    '        ...'.grey,
     '      ]'.grey,
     '    }'.grey,
-    '    ...'.grey,
     '  }'.grey
   ]);
 };

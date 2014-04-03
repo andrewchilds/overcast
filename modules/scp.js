@@ -84,8 +84,6 @@ function scpExec(options, next) {
     utils.die('No direction specified.');
   }
 
-  console.log(args);
-
   var scp = cp.spawn('scp', args);
 
   scp.stdout.on('data', function (data) {

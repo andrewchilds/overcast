@@ -96,6 +96,10 @@ subcommands.images = function () {
   });
 };
 
+subcommands.poweron = function (instance) {
+  API.powerOn(instance);
+};
+
 subcommands.reboot = function (instance) {
   API.reboot(instance);
 };
@@ -108,6 +112,10 @@ subcommands.regions = function () {
   API.getRegions(function (regions) {
     utils.printCollection('regions', regions);
   });
+};
+
+subcommands.resize = function (instance, args) {
+  API.resize(instance, args);
 };
 
 subcommands.sizes = function () {
@@ -124,8 +132,7 @@ subcommands.snapshot = function (instance, args) {
   utils.argShift(args, 'name');
 
   if (!args.name) {
-    utils.red('Missing snapshot name.');
-    return exports.help(args);
+    utils.die('Missing snapshot name.');
   }
 
   API.snapshot(instance, args.name);
@@ -143,9 +150,11 @@ exports.signatures = function () {
     '  overcast digitalocean destroy [instance]',
     '  overcast digitalocean droplets',
     '  overcast digitalocean images',
+    '  overcast digitalocean poweron [instance]',
     '  overcast digitalocean reboot [instance]',
     '  overcast digitalocean rebuild [instance] [options]',
     '  overcast digitalocean regions',
+    '  overcast digitalocean resize',
     '  overcast digitalocean sizes',
     '  overcast digitalocean shutdown [instance]',
     '  overcast digitalocean snapshot [instance] [snapshot-name]',
@@ -198,8 +207,11 @@ exports.help = function () {
     'overcast digitalocean images',
     '  List all available DigitalOcean images. Includes snapshots.'.grey,
     '',
+    'overcast digitalocean poweron [instance]',
+    '  Power on a powered off droplet.'.grey,
+    '',
     'overcast digitalocean reboot [instance]',
-    '  Reboots a DigitalOcean droplet. According to their API docs: "this is the'.grey,
+    '  Reboots a DigitalOcean droplet. According to the API docs, "this is the'.grey,
     '  preferred method to use if a server is not responding."'.grey,
     '',
     '  Example:'.grey,
@@ -220,6 +232,18 @@ exports.help = function () {
     '',
     'overcast digitalocean regions',
     '  List available DigitalOcean regions (nyc2, sfo1, etc).'.grey,
+    '',
+    'overcast digitalocean resize [name] [options]',
+    '  Shutdown, resize, and reboot a DigitalOcean droplet.'.grey,
+    '  If --skipboot flag is used, the droplet will stay in a powered-off state.'.grey,
+    '',
+    '    Option               | Default'.grey,
+    '    --size-slug=NAME     |'.grey,
+    '    --size-id=ID         |'.grey,
+    '    --skipBoot           | false'.grey,
+    '',
+    '  Example:'.grey,
+    '  $ overcast instance resize db.01 --size-slug=2gb'.grey,
     '',
     'overcast digitalocean sizes',
     '  List available DigitalOcean sizes (512mb, 1gb, etc).'.grey,

@@ -248,6 +248,23 @@ exports.updateInstanceWithDropletInfo = function (name, droplet) {
   });
 };
 
+exports.powerOn = function (instance, callback) {
+  // GET https://api.digitalocean.com/droplets/[droplet_id]/power_on
+
+  utils.grey('Powering on "' + instance.name + '", please wait...');
+  exports.eventedRequest({
+    endpoint: 'droplets/' + instance.digitalocean.id + '/power_on',
+    callback: function (eventResult) {
+      utils.success('Instance "' + instance.name + '" powered on.');
+      utils.grey('Waiting 30 seconds for server to boot up...');
+      utils.waitForProgress(30, function () {
+        utils.success('OK, server should be responsive.');
+        (callback || _.noop)();
+      });
+    }
+  });
+};
+
 exports.snapshot = function (instance, name, callback) {
   exports.shutdown(instance, function () {
     // GET https://api.digitalocean.com/droplets/[droplet_id]/snapshot/?name=[snapshot_name]
@@ -301,7 +318,7 @@ exports.rebuild = function (instance, args, callback) {
       utils.success('Instance "' + instance.name + '" rebuilt.');
       utils.grey('Waiting 30 seconds for server to boot up...');
       utils.waitForProgress(30, function () {
-        utils.success('OK, server should be responsive now.');
+        utils.success('OK, server should be responsive.');
         (callback || _.noop)();
       });
     }
@@ -316,9 +333,37 @@ exports.reboot = function (instance, callback) {
     endpoint: 'droplets/' + instance.digitalocean.id + '/reboot',
     callback: function (eventResult) {
       utils.success('Instance "' + instance.name + '" rebooted.');
-
       (callback || _.noop)();
     }
+  });
+};
+
+exports.resize = function (instance, args, callback) {
+  // GET https://api.digitalocean.com/droplets/[droplet_id]/resize/
+  //   ?size_id=[size_id]
+
+  var query = {};
+  if (args['size-id']) {
+    query.size_id = args['size-id'];
+  } else if (args['size-slug']) {
+    query.size_slug = args['size-slug'];
+  }
+
+  exports.shutdown(instance, function () {
+    utils.grey('Resizing "' + instance.name + '", please wait...');
+    exports.eventedRequest({
+      endpoint: 'droplets/' + instance.digitalocean.id + '/resize',
+      query: query,
+      callback: function (eventResult) {
+        utils.success('Instance "' + instance.name + '" resized.');
+        if (args.skipBoot) {
+          utils.grey('Skipping droplet boot since --skipBoot flag was used.');
+          (callback || _.noop)();
+        } else {
+          exports.powerOn(instance, callback);
+        }
+      }
+    });
   });
 };
 
@@ -358,9 +403,17 @@ function waitForEventToFinish(event_id, callback) {
   var percentage = 0;
   var response;
 
+  var fiveMinutes = 1000 * 60 * 5;
+  var eventTimeout = setTimeout(function () {
+    percentage = 100;
+    utils.red('This event has not finished after five minutes, giving up...');
+    callback({});
+  }, fiveMinutes);
+
   utils.progressBar(function () {
     return percentage;
   }, function () {
+    clearTimeout(eventTimeout);
     (callback || _.noop)(response);
   });
 

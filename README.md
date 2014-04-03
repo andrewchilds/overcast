@@ -118,6 +118,23 @@ The command `overcast init` will create a new configuration in the current direc
     $ overcast cluster remove db
 ```
 
+### overcast completions
+
+```
+  overcast completions
+    Return an array of commands, cluster names, and instance names for use
+    in bash tab completion.
+
+    To enable tab completion in bash, add this to your .bash_profile:
+
+    _overcast_completions() {
+      local cur=${COMP_WORDS[COMP_CWORD]}
+      COMPREPLY=($(compgen -W "`overcast completions`" -- "$cur"))
+      return 0
+    }
+    complete -F _overcast_completions overcast
+```
+
 ### overcast digitalocean
 
 ```
@@ -125,9 +142,35 @@ The command `overcast init` will create a new configuration in the current direc
     DIGITALOCEAN_CLIENT_ID
     DIGITALOCEAN_API_KEY
 
+  overcast digitalocean create [name] [options]
+    Creates a new instance on DigitalOcean.
+
+    The instance will start out using the auto-generated SSH key found here:
+    /path/to/.overcast/keys/overcast.key.pub
+
+    You can specify region, image, and size of the droplet using -id or -slug.
+    You can also specify an image or snapshot using --image-name.
+
+      Option               | Default
+      --cluster=CLUSTER    |
+      --ssh-port=PORT      | 22
+      --region-slug=NAME   | nyc2
+      --region-id=ID       |
+      --image-slug=NAME    | ubuntu-12-04-x64
+      --image-id=ID        |
+      --image-name=NAME    |
+      --size-slug=NAME     | 512mb
+      --size-id=ID         |
+
+    Example:
+    $ overcast instance create db.01 --cluster=db --size-slug=1gb --region-slug=sfo1
+
   overcast digitalocean destroy [instance]
     Destroys a DigitalOcean droplet and removes it from your account.
-    This is irreversible.
+    Using --force overrides the confirm dialog. This is irreversible.
+
+      Option               | Default
+      --force              | false
 
     Example:
     $ overcast digitalocean destroy app.01
@@ -138,8 +181,11 @@ The command `overcast init` will create a new configuration in the current direc
   overcast digitalocean images
     List all available DigitalOcean images. Includes snapshots.
 
+  overcast digitalocean poweron [instance]
+    Power on a powered off droplet.
+
   overcast digitalocean reboot [instance]
-    Reboots a DigitalOcean droplet. According to their API docs: "this is the
+    Reboots a DigitalOcean droplet. According to the API docs, "this is the
     preferred method to use if a server is not responding."
 
     Example:
@@ -150,16 +196,28 @@ The command `overcast init` will create a new configuration in the current direc
     According to the API docs, "This is useful if you want to start again but
     retain the same IP address for your droplet."
 
-      Option              | Default
-      --image-slug=SLUG   | ubuntu-12-04-x64
-      --image-name=NAME   |
-      --image-id=ID       |
+      Option               | Default
+      --image-slug=SLUG    | ubuntu-12-04-x64
+      --image-name=NAME    |
+      --image-id=ID        |
 
     Example:
     $ overcast digitalocean rebuild app.01 --name=my.app.snapshot
 
   overcast digitalocean regions
     List available DigitalOcean regions (nyc2, sfo1, etc).
+
+  overcast digitalocean resize [name] [options]
+    Shutdown, resize, and reboot a DigitalOcean droplet.
+    If --skipboot flag is used, the droplet will stay in a powered-off state.
+
+      Option               | Default
+      --size-slug=NAME     |
+      --size-id=ID         |
+      --skipBoot           | false
+
+    Example:
+    $ overcast instance resize db.01 --size-slug=2gb
 
   overcast digitalocean sizes
     List available DigitalOcean sizes (512mb, 1gb, etc).
@@ -237,17 +295,15 @@ The command `overcast init` will create a new configuration in the current direc
             "time": "0:01",
             "command": "/sbin/init"
           }
-          ...
         ]
       }
-      ...
     }
 ```
 
 ### overcast help
 
 ```
-  Overcast v0.1.10
+  Overcast v0.1.11
 
   Code repo, issues, pull requests:
     https://github.com/andrewchilds/overcast
@@ -265,12 +321,16 @@ The command `overcast init` will create a new configuration in the current direc
     overcast cluster create [name]
     overcast cluster rename [name] [new-name]
     overcast cluster remove [name]
+    overcast completions
+    overcast digitalocean create [instance] [options]
     overcast digitalocean destroy [instance]
     overcast digitalocean droplets
     overcast digitalocean images
+    overcast digitalocean poweron [instance]
     overcast digitalocean reboot [instance]
     overcast digitalocean rebuild [instance] [options]
     overcast digitalocean regions
+    overcast digitalocean resize
     overcast digitalocean sizes
     overcast digitalocean shutdown [instance]
     overcast digitalocean snapshot [instance] [snapshot-name]
@@ -283,6 +343,7 @@ The command `overcast init` will create a new configuration in the current direc
     overcast instance create [name] [options]
     overcast instance import [name] [options]
     overcast instance remove [name]
+    overcast instance update [name] [options]
     overcast list
     overcast ping [instance|cluster|all]
     overcast port [instance|cluster|all] [port]
@@ -354,6 +415,21 @@ The command `overcast init` will create a new configuration in the current direc
     Example:
     $ overcast instance import app.01 --cluster=app --ip=127.0.0.1 \
         --ssh-port=22222 --ssh-key=$HOME/.ssh/id_rsa
+
+  overcast instance update [name] [options]
+    Update any instance property. Specifying --cluster will move the instance to
+    that cluster. Specifying --name will rename the instance.
+
+      Option               | Default
+      --name=NAME          |
+      --cluster=CLUSTER    |
+      --ip=IP              |
+      --ssh-port=PORT      | 22
+      --ssh-key=PATH       | .overcast/keys/overcast.key
+      --user=USERNAME      | root
+
+    Example:
+    $ overcast instance update app.01 --user=differentuser --ssh-key=/path/to/another/key
 
   overcast instance remove [name]
     Removes an instance from the index.
