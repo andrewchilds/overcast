@@ -1,0 +1,42 @@
+#!/bin/bash
+
+# Example of how to provision a DigitalOcean droplet using Overcast, with the following:
+#
+#  - Ubuntu 12.04, 512mb, nyc2 region.
+#  - NodeJS, Redis, and Nginx installed.
+#  - A user account created with SSH access using the overcast SSH key.
+#  - A snapshot of the configured instance, in case you need to rebuild it.
+#
+# The script should take around 5-6 minutes to complete.
+
+cluster="example.cluster"
+instance="example.app.01"
+username="appuser"
+
+echo Creating DigitalOcean instance...
+overcast cluster create $cluster
+overcast digitalocean create $instance --cluster $cluster
+
+echo Install core packages, Nginx, Redis, NodeJS, configure chrooted SFTP...
+overcast run $instance install/core install/sftp install/nginx install/redis install/nodejs
+
+echo Adding user $username...
+overcast run $instance --env="username=$username" add_user
+
+echo Configure iptables...
+overcast expose $instance 22 80 443
+
+echo Push nginx configuration...
+overcast push $instance nginx/example.conf /etc/nginx/sites-enabled/myapp.conf
+
+echo Switching default SSH user to $username...
+echo Going forward, to run commands on this instance as root, use --user=root
+overcast instance update $instance --user=$username
+
+echo Creating snapshot...
+overcast digitalocean snapshot $instance $instance.snapshot
+
+# Run your own application install script, like so:
+# overcast run $instance /path/to/my-app-install-script
+
+echo Done.
