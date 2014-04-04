@@ -25,7 +25,7 @@ describe 'instance', ->
 
     it 'should display that instance with the list command', ->
       overcast 'list', (stdout) ->
-        expect(stdout).toContain 'instance.01 (127.0.0.1:22)'
+        expect(stdout).toContain 'instance.01 (root@127.0.0.1:22)'
 
   describe 'update', ->
 
@@ -61,7 +61,7 @@ describe 'instance', ->
         expect(stdout).toContain 'All instances from this cluster were moved to the "orphaned" cluster.'
 
         overcast 'list', (stdout) ->
-          expect(stdout).toContain 'instance.01 (127.0.0.1:22)'
+          expect(stdout).toContain 'instance.01 (root@127.0.0.1:22)'
 
     it 'should allow me to remove an instance', ->
       overcast 'instance remove instance.01', (stdout) ->
