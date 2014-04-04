@@ -303,7 +303,7 @@ The command `overcast init` will create a new configuration in the current direc
 ### overcast help
 
 ```
-  Overcast v0.1.11
+  Overcast v0.1.12
 
   Code repo, issues, pull requests:
     https://github.com/andrewchilds/overcast
@@ -466,7 +466,7 @@ The command `overcast init` will create a new configuration in the current direc
 ```
   overcast port [instance|cluster|all] [port]
     Change the SSH port for an instance or a cluster.
-    Careful, this port should already be open!
+    This command will fail if the new port is not opened by iptables.
 
     Examples:
     $ overcast port app.01 22222
@@ -513,9 +513,10 @@ The command `overcast init` will create a new configuration in the current direc
     Commands will run sequentially unless you use the --parallel flag,
     in which case each command will run on all instances simultanously.
 
-      Option
-      --env="KEY=VAL KEY='1 2 3'"
-      --parallel -p
+      Option                          | Default
+      --env="KEY=VAL KEY='1 2 3'"   |
+      --parallel -p                   |
+      --continueOnError               | false
 
     Examples:
     $ overcast run app --env="foo='bar bar' testing=123" env
@@ -527,9 +528,10 @@ The command `overcast init` will create a new configuration in the current direc
     Script files will run sequentially unless you use the --parallel flag,
     in which case each file will execute on all instances simultanously.
 
-      Option
-      --env="KEY=VAL KEY='1 2 3'"
-      --parallel -p
+      Option                          | Default
+      --env="KEY=VAL KEY='1 2 3'"   |
+      --parallel -p                   |
+      --continueOnError               | false
 
     Relative paths are relative to this directory:
     /path/to/.overcast/scripts

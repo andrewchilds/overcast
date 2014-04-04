@@ -42,7 +42,7 @@ exports.help = function () {
   utils.printArray([
     'overcast port [instance|cluster|all] [port]',
     '  Change the SSH port for an instance or a cluster.'.grey,
-    '  Careful, this port should already be open!'.yellow,
+    '  This command will fail if the new port is not opened by iptables.'.yellow,
     '',
     '  Examples:'.grey,
     '  $ overcast port app.01 22222'.grey,

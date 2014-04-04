@@ -10,6 +10,21 @@ if [ -z "$new_ssh_port" ]; then
   exit 1
 fi
 
+current_ssh_port=`cat /etc/ssh/sshd_config | grep Port | awk '{ print \$2 }'`
+exposed_ports=`iptables -L -n | grep 'ACCEPT' | grep 'tcp dpt:' | awk '{ print $7 }' | tr -d 'dpt:' | paste -sd ' '`
+
+ssh_port_not_exposed=true
+for exposed_port in $exposed_ports; do
+  if [ "$new_ssh_port" -eq "$exposed_port" ]; then
+    new_ssh_port_not_exposed=false
+  fi
+done
+
+if $new_ssh_port_not_exposed; then
+  echo "New SSH port ($new_ssh_port) not exposed by iptables, no action taken."
+  exit 1
+fi
+
 echo Setting port to $new_ssh_port...
 
 sed -i"-orig" "s/Port [0-9]\+/Port $new_ssh_port/" /etc/ssh/sshd_config
