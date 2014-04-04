@@ -303,7 +303,7 @@ The command `overcast init` will create a new configuration in the current direc
 ### overcast help
 
 ```
-  Overcast v0.1.12
+  Overcast v0.1.13
 
   Code repo, issues, pull requests:
     https://github.com/andrewchilds/overcast
@@ -424,9 +424,9 @@ The command `overcast init` will create a new configuration in the current direc
       --name=NAME          |
       --cluster=CLUSTER    |
       --ip=IP              |
-      --ssh-port=PORT      | 22
-      --ssh-key=PATH       | .overcast/keys/overcast.key
-      --user=USERNAME      | root
+      --ssh-port=PORT      |
+      --ssh-key=PATH       |
+      --user=USERNAME      |
 
     Example:
     $ overcast instance update app.01 --user=differentuser --ssh-key=/path/to/another/key
@@ -516,6 +516,8 @@ The command `overcast init` will create a new configuration in the current direc
       Option                          | Default
       --env="KEY=VAL KEY='1 2 3'"   |
       --parallel -p                   |
+      --user=NAME                     |
+      --ssh-key=PATH                  |
       --continueOnError               | false
 
     Examples:
@@ -531,6 +533,8 @@ The command `overcast init` will create a new configuration in the current direc
       Option                          | Default
       --env="KEY=VAL KEY='1 2 3'"   |
       --parallel -p                   |
+      --user=NAME                     |
+      --ssh-key=PATH                  |
       --continueOnError               | false
 
     Relative paths are relative to this directory:
@@ -545,7 +549,12 @@ The command `overcast init` will create a new configuration in the current direc
 ```
   overcast ssh [instance]
     Opens an SSH connection to an instance.
+
+    Option
+    --ssh-key=PATH
+    --user=NAME
 ```
+
 
 ## Running the Tests
 
