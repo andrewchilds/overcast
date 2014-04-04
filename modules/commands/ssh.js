@@ -19,12 +19,12 @@ exports.run = function (args) {
   var ssh = cp.spawn('ssh', [
     '-tt',
     '-i',
-    instance.ssh_key || utils.CONFIG_DIR + '/keys/overcast.key',
+    (args['ssh-key'] || instance.ssh_key || utils.CONFIG_DIR + '/keys/overcast.key'),
     '-p',
-    instance.ssh_port || '22',
+    (instance.ssh_port || '22'),
     '-o',
     'StrictHostKeyChecking=no',
-    (instance.user || 'root') + '@' + instance.ip
+    (args.user || instance.user || 'root') + '@' + instance.ip
   ]);
 
   process.stdin.resume();
@@ -66,6 +66,10 @@ exports.signatures = function () {
 exports.help = function () {
   utils.printArray([
     'overcast ssh [instance]',
-    '  Opens an SSH connection to an instance.'.grey
+    '  Opens an SSH connection to an instance.'.grey,
+    '',
+    '  Option'.grey,
+    '  --ssh-key=PATH'.grey,
+    '  --user=NAME'.grey
   ]);
 };

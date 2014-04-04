@@ -1,16 +1,16 @@
 #!/bin/bash
 
-# Add SFTP support to Ubuntu 12.04.
+# Configure chrooted SFTP.
+# Tested on Ubuntu 12.04.
 
-# Requires a user to be added to the "filetransfer" group, like so:
-# $ useradd -d /srv/www/mydomain myuser
-# $ passwd myuser
-# $ usermod -G filetransfer myuser
-# $ chown -R myuser:myuser /srv/www/mydomain/*
+# Once configured, users requiring SFTP access must be added to the "sftp" group, like so:
+# $ useradd -d /home/myusername -p password myusername
+# $ usermod -G sftp myusername
+# That user then has SFTP access and is chrooted to their home directory.
 
 set -x
 
-addgroup filetransfer
+groupadd -f sftp
 
 sed -i"-orig" "s/Subsystem sftp \/usr\/lib\/openssh\/sftp\-server/# Subsystem sftp \/usr\/lib\/openssh\/sftp-server/" /etc/ssh/sshd_config
 
@@ -18,7 +18,7 @@ cat >> /etc/ssh/sshd_config << EOF
 
 Subsystem sftp internal-sftp
 
-Match group filetransfer
+Match group sftp
   ChrootDirectory %h
   X11Forwarding no
   AllowTcpForwarding no

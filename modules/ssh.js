@@ -36,9 +36,9 @@ function runOnInstance(instance, args, next) {
   var command = args._.shift();
   sshExec({
     ip: instance.ip,
-    user: instance.user,
+    user: args.user || instance.user,
     name: instance.name,
-    ssh_key: instance.ssh_key,
+    ssh_key: args['ssh-key'] || instance.ssh_key,
     ssh_port: instance.ssh_port,
     continueOnError: args.continueOnError,
     env: args.env,

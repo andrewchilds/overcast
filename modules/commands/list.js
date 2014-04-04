@@ -16,7 +16,7 @@ exports.run = function (args) {
     console.log('');
     console.log('  ' + clusterName);
     _.each(cluster.instances, function (instance) {
-      var str = '    ' + instance.name + ' (' + instance.ip + ':' + (instance.ssh_port || 22) + ')';
+      var str = '    ' + instance.name + ' (' + instance.user + '@' + instance.ip + ':' + (instance.ssh_port || 22) + ')';
       utils.green(str);
     });
   });

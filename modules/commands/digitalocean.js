@@ -105,6 +105,10 @@ subcommands.reboot = function (instance) {
 };
 
 subcommands.rebuild = function (instance, args) {
+  if (!args['image-id'] && !args['image-name'] && !args['image-slug']) {
+    args['image-slug'] = 'ubuntu-12-04-x64';
+  }
+
   API.rebuild(instance, args);
 };
 
