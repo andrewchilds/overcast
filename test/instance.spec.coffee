@@ -58,14 +58,14 @@ describe 'instance', ->
     it 'should move the instance to the "orphaned" cluster when the parent cluster is deleted', ->
       overcast 'cluster remove instance-test', (stdout) ->
         expect(stdout).toContain 'Cluster "instance-test" has been removed'
-        expect(stdout).toContain 'All instances from this cluster were moved to the "orphaned" cluster.'
+        expect(stdout).toContain 'The 2 instances from this cluster were moved to the "orphaned" cluster.'
 
         overcast 'list', (stdout) ->
           expect(stdout).toContain 'instance.01 (root@127.0.0.1:22)'
 
     it 'should allow me to remove an instance', ->
       overcast 'instance remove instance.01', (stdout) ->
-        expect(stdout).toContain 'Instance "instance.01" has been deleted from the "orphaned" cluster'
+        expect(stdout).toContain 'Instance "instance.01" has been removed from the "orphaned" cluster'
 
         overcast 'instance remove instance.02', ->
           overcast 'cluster remove another-cluster', ->

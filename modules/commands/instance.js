@@ -106,7 +106,7 @@ subcommands.remove = function (args) {
       utils.die('No instance found with the name "' + args.name + '".');
     } else {
       utils.success('Instance "' + args.name +
-        '" has been deleted from the "' + deletedFrom + '" cluster.');
+        '" has been removed from the "' + deletedFrom + '" cluster.');
     }
   });
 };

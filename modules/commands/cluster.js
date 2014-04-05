@@ -21,6 +21,19 @@ commands.list = function (args) {
   list.run(args);
 };
 
+commands.count = function (args) {
+  var clusters = utils.getClusters();
+
+  if (!args.name) {
+    utils.red('Missing [name] parameter.');
+    return exports.help(args);
+  } else if (!clusters[args.name]) {
+    utils.die('The cluster "' + args.name + '" wasn\'t found.');
+  }
+
+  console.log(_.keys(clusters[args.name].instances).length);
+};
+
 commands.create = function (args) {
   var clusters = utils.getClusters();
 
@@ -72,9 +85,9 @@ commands.remove = function (args) {
     utils.die('The cluster "' + args.name + '" wasn\'t found.');
   }
 
-  var orphaned = false;
+  var orphaned = 0;
   if (!_.isEmpty(clusters[args.name].instances)) {
-    orphaned = true;
+    orphaned = _.keys(clusters[args.name].instances).length;
     clusters.orphaned = clusters.orphaned || { instances: {} };
     _.extend(clusters.orphaned.instances, clusters[args.name].instances);
   }
@@ -84,7 +97,11 @@ commands.remove = function (args) {
   utils.saveClusters(clusters, function () {
     utils.success('Cluster "' + args.name + '" has been removed.');
     if (orphaned) {
-      utils.alert('All instances from this cluster were moved to the "orphaned" cluster.');
+      if (args.name === 'orphaned') {
+        utils.alert('The ' + orphaned + ' instance(s) in the "orphaned" cluster were removed.');
+      } else {
+        utils.alert('The ' + orphaned + ' instance(s) from this cluster were moved to the "orphaned" cluster.');
+      }
     }
     list.run(args);
   });
@@ -93,6 +110,7 @@ commands.remove = function (args) {
 exports.signatures = function () {
   return [
     '  overcast cluster list',
+    '  overcast cluster count [name]',
     '  overcast cluster create [name]',
     '  overcast cluster rename [name] [new-name]',
     '  overcast cluster remove [name]'
@@ -101,6 +119,17 @@ exports.signatures = function () {
 
 exports.help = function () {
   utils.printArray([
+    'overcast cluster count [name]',
+    '  Return the number of instances in a cluster.'.grey,
+    '',
+    '  Example:'.grey,
+    '  $ overcast cluster count db'.grey,
+    '  > 0'.grey,
+    '  $ overcast instance create db.01 --cluster db'.grey,
+    '  > ...'.grey,
+    '  $ overcast cluster count db'.grey,
+    '  > 1'.grey,
+    '',
     'overcast cluster create [name]',
     '  Creates a new cluster.'.grey,
     '',
@@ -111,7 +140,7 @@ exports.help = function () {
     '  Renames a cluster.'.grey,
     '',
     '  Example:'.grey,
-    '  $ overcast cluster rename app-cluster app-cluster-old'.grey,
+    '  $ overcast cluster rename app-cluster app-cluster-renamed'.grey,
     '',
     'overcast cluster remove [name]',
     '  Removes a cluster from the index. If the cluster has any instances'.grey,

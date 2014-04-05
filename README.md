@@ -56,12 +56,6 @@ Overcast is a simple terminal-based cloud management tool that was designed to m
 
 - A [script library](https://github.com/andrewchilds/overcast/tree/master/.overcast/scripts) is included to make it easy to install common software components. The library was written for Ubuntu servers, but could be extended to include other distributions.
 
-## Design Goals &amp; Motivation
-
-There are a number of server management frameworks out there already (Chef, Puppet, Ansible, Salt), but they all involve either a complicated server/client implementation, a steep learning curve or a giant, monolithic conceptual framework.
-
-I wanted something that was conceptually simple and focused on the problem of multi-server provisioning and communication, that leaves problems like process management and system monitoring to tools designed specifically for those problems (Monit, Munin, Nagios).
-
 ## Installation
 
 1. Install [Node.js](https://github.com/joyent/node/wiki/Installing-Node.js-via-package-manager) if not already installed.
@@ -98,6 +92,17 @@ The command `overcast init` will create a new configuration in the current direc
 ### overcast cluster
 
 ```
+  overcast cluster count [name]
+    Return the number of instances in a cluster.
+
+    Example:
+    $ overcast cluster count db
+    > 0
+    $ overcast instance create db.01 --cluster db
+    > ...
+    $ overcast cluster count db
+    > 1
+
   overcast cluster create [name]
     Creates a new cluster.
 
@@ -108,7 +113,7 @@ The command `overcast init` will create a new configuration in the current direc
     Renames a cluster.
 
     Example:
-    $ overcast cluster rename app-cluster app-cluster-old
+    $ overcast cluster rename app-cluster app-cluster-renamed
 
   overcast cluster remove [name]
     Removes a cluster from the index. If the cluster has any instances
@@ -303,7 +308,7 @@ The command `overcast init` will create a new configuration in the current direc
 ### overcast help
 
 ```
-  Overcast v0.1.13
+  Overcast v0.1.14
 
   Code repo, issues, pull requests:
     https://github.com/andrewchilds/overcast
@@ -318,6 +323,7 @@ The command `overcast init` will create a new configuration in the current direc
 
   Commands:
     overcast cluster list
+    overcast cluster count [name]
     overcast cluster create [name]
     overcast cluster rename [name] [new-name]
     overcast cluster remove [name]
@@ -555,6 +561,11 @@ The command `overcast init` will create a new configuration in the current direc
     --user=NAME
 ```
 
+## Design Goals &amp; Motivation
+
+There are a number of server management frameworks out there already (Chef, Puppet, Ansible, Salt), but they all involve either a complicated server/client implementation, a steep learning curve or a giant, monolithic conceptual framework.
+
+I wanted something that was conceptually simple and focused on the problem of multi-server provisioning and communication, that leaves problems like process management and system monitoring to tools designed specifically for those problems (Monit, Munin, Nagios).
 
 ## Running the Tests
 
