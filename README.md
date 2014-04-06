@@ -16,26 +16,26 @@ Overcast is a simple terminal-based cloud management tool that was designed to m
   ```sh
   $ overcast cluster create db
   $ overcast cluster create app
-  $ overcast instance import app.01 --cluster=app --ip=127.0.0.2 \
-    --ssh-port=22222 --ssh-key=$HOME/.ssh/id_rsa
-  $ overcast instance import app.02 --cluster=app --ip=127.0.0.3 \
-    --ssh-port=22222 --ssh-key=$HOME/.ssh/id_rsa
+  $ overcast instance import app.01 --cluster app --ip 127.0.0.2 \
+    --ssh-port 22222 --ssh-key $HOME/.ssh/id_rsa
+  $ overcast instance import app.02 --cluster app --ip 127.0.0.3 \
+    --ssh-port 22222 --ssh-key $HOME/.ssh/id_rsa
   ```
 
 - Create, snapshot and destroy instances on DigitalOcean (EC2/Linode support is on the roadmap).
 
   ```sh
   # Create a new Ubuntu 12.04 instance:
-  $ overcast instance create db.01 --cluster=db
+  $ overcast digitalocean create db.01 --cluster db
   # Configure the instance to your liking:
   $ overcast run db.01 install/core install/redis
   $ overcast expose db.01 22 6379
   # Create a snapshot:
   $ overcast digitalocean snapshot db.01 my.db.snapshot
   # Spin up a cluster using your snapshot:
-  $ overcast instance create db.02 --cluster=db --image-name=my.db.snapshot
-  $ overcast instance create db.03 --cluster=db --image-name=my.db.snapshot
-  $ overcast instance create db.04 --cluster=db --image-name=my.db.snapshot
+  $ overcast digitalocean create db.02 --cluster db --image-name my.db.snapshot
+  $ overcast digitalocean create db.03 --cluster db --image-name my.db.snapshot
+  $ overcast digitalocean create db.04 --cluster db --image-name my.db.snapshot
   ```
 
 - Run commands or script files across any number of servers. Commands can be run sequentially or in parallel.
@@ -157,18 +157,18 @@ The command `overcast init` will create a new configuration in the current direc
     You can also specify an image or snapshot using --image-name.
 
       Option               | Default
-      --cluster=CLUSTER    |
-      --ssh-port=PORT      | 22
-      --region-slug=NAME   | nyc2
-      --region-id=ID       |
-      --image-slug=NAME    | ubuntu-12-04-x64
-      --image-id=ID        |
-      --image-name=NAME    |
-      --size-slug=NAME     | 512mb
-      --size-id=ID         |
+      --cluster CLUSTER    |
+      --ssh-port PORT      | 22
+      --region-slug NAME   | nyc2
+      --region-id ID       |
+      --image-slug NAME    | ubuntu-12-04-x64
+      --image-id ID        |
+      --image-name NAME    |
+      --size-slug NAME     | 512mb
+      --size-id ID         |
 
     Example:
-    $ overcast instance create db.01 --cluster=db --size-slug=1gb --region-slug=sfo1
+    $ overcast instance create db.01 --cluster db --size-slug 1gb --region-slug sfo1
 
   overcast digitalocean destroy [instance]
     Destroys a DigitalOcean droplet and removes it from your account.
@@ -202,12 +202,12 @@ The command `overcast init` will create a new configuration in the current direc
     retain the same IP address for your droplet."
 
       Option               | Default
-      --image-slug=SLUG    | ubuntu-12-04-x64
-      --image-name=NAME    |
-      --image-id=ID        |
+      --image-slug SLUG    | ubuntu-12-04-x64
+      --image-name NAME    |
+      --image-id ID        |
 
     Example:
-    $ overcast digitalocean rebuild app.01 --name=my.app.snapshot
+    $ overcast digitalocean rebuild app.01 --name my.app.snapshot
 
   overcast digitalocean regions
     List available DigitalOcean regions (nyc2, sfo1, etc).
@@ -217,12 +217,12 @@ The command `overcast init` will create a new configuration in the current direc
     If --skipboot flag is used, the droplet will stay in a powered-off state.
 
       Option               | Default
-      --size-slug=NAME     |
-      --size-id=ID         |
+      --size-slug NAME     |
+      --size-id ID         |
       --skipBoot           | false
 
     Example:
-    $ overcast instance resize db.01 --size-slug=2gb
+    $ overcast instance resize db.01 --size-slug 2gb
 
   overcast digitalocean sizes
     List available DigitalOcean sizes (512mb, 1gb, etc).
@@ -308,7 +308,7 @@ The command `overcast init` will create a new configuration in the current direc
 ### overcast help
 
 ```
-  Overcast v0.1.14
+  Overcast v0.1.15
 
   Code repo, issues, pull requests:
     https://github.com/andrewchilds/overcast
@@ -394,48 +394,55 @@ The command `overcast init` will create a new configuration in the current direc
     You can also specify an image or snapshot using --image-name.
 
       Option               | Default
-      --cluster=CLUSTER    |
-      --provider=NAME      | digitalocean
-      --ssh-port=PORT      | 22
-      --region-slug=NAME   | nyc2
-      --region-id=ID       |
-      --image-slug=NAME    | ubuntu-12-04-x64
-      --image-id=ID        |
-      --image-name=NAME    |
-      --size-slug=NAME     | 512mb
-      --size-id=ID         |
+      --cluster CLUSTER    |
+      --provider NAME      | digitalocean
+      --ssh-port PORT      | 22
+      --region-slug NAME   | nyc2
+      --region-id ID       |
+      --image-slug NAME    | ubuntu-12-04-x64
+      --image-id ID        |
+      --image-name NAME    |
+      --size-slug NAME     | 512mb
+      --size-id ID         |
 
     Example:
-    $ overcast instance create db.01 --cluster=db --host=digitalocean
+    $ overcast instance create db.01 --cluster db --host digitalocean
 
   overcast instance import [name] [options]
     Imports an existing instance to a cluster.
 
       Option               | Default
-      --cluster=CLUSTER    |
-      --ip=IP              |
-      --ssh-port=PORT      | 22
-      --ssh-key=PATH       | .overcast/keys/overcast.key
-      --user=USERNAME      | root
+      --cluster CLUSTER    |
+      --ip IP              |
+      --ssh-port PORT      | 22
+      --ssh-key PATH       | .overcast/keys/overcast.key
+      --user USERNAME      | root
 
     Example:
-    $ overcast instance import app.01 --cluster=app --ip=127.0.0.1 \
-        --ssh-port=22222 --ssh-key=$HOME/.ssh/id_rsa
+    $ overcast instance import app.01 --cluster app --ip 127.0.0.1 \
+        --ssh-port 22222 --ssh-key $HOME/.ssh/id_rsa
+
+  overcast instance list [cluster...]
+    Returns all instance names, one per line. Optionally limit to one or more clusters.
+
+    Examples:
+    $ overcast instance list
+    $ overcast instance list app-cluster db-cluster
 
   overcast instance update [name] [options]
     Update any instance property. Specifying --cluster will move the instance to
     that cluster. Specifying --name will rename the instance.
 
       Option               | Default
-      --name=NAME          |
-      --cluster=CLUSTER    |
-      --ip=IP              |
-      --ssh-port=PORT      |
-      --ssh-key=PATH       |
-      --user=USERNAME      |
+      --name NAME          |
+      --cluster CLUSTER    |
+      --ip IP              |
+      --ssh-port PORT      |
+      --ssh-key PATH       |
+      --user USERNAME      |
 
     Example:
-    $ overcast instance update app.01 --user=differentuser --ssh-key=/path/to/another/key
+    $ overcast instance update app.01 --user differentuser --ssh-key /path/to/another/key
 
   overcast instance remove [name]
     Removes an instance from the index.
@@ -460,11 +467,11 @@ The command `overcast init` will create a new configuration in the current direc
     Ping an instance or cluster.
 
       Option    | Default
-      --count=N | 3
+      --count N | 3
 
     Examples:
     $ overcast ping app.01
-    $ overcast ping db --count=5
+    $ overcast ping db --count 5
 ```
 
 ### overcast port
@@ -520,14 +527,14 @@ The command `overcast init` will create a new configuration in the current direc
     in which case each command will run on all instances simultanously.
 
       Option                          | Default
-      --env="KEY=VAL KEY='1 2 3'"   |
-      --parallel -p                   |
-      --user=NAME                     |
-      --ssh-key=PATH                  |
+      --env "KEY=VAL KEY='1 2 3'"     |
+      --user NAME                     |
+      --ssh-key PATH                  |
+      --parallel -p                   | false
       --continueOnError               | false
 
     Examples:
-    $ overcast run app --env="foo='bar bar' testing=123" env
+    $ overcast run app --env "foo='bar bar' testing=123" env
     $ overcast run all uptime "free -m" "df -h"
 
   overcast run [instance|cluster|all] [file...]
@@ -537,10 +544,10 @@ The command `overcast init` will create a new configuration in the current direc
     in which case each file will execute on all instances simultanously.
 
       Option                          | Default
-      --env="KEY=VAL KEY='1 2 3'"   |
-      --parallel -p                   |
-      --user=NAME                     |
-      --ssh-key=PATH                  |
+      --env "KEY=VAL KEY='1 2 3'"     |
+      --user NAME                     |
+      --ssh-key PATH                  |
+      --parallel -p                   | false
       --continueOnError               | false
 
     Relative paths are relative to this directory:
@@ -557,8 +564,8 @@ The command `overcast init` will create a new configuration in the current direc
     Opens an SSH connection to an instance.
 
     Option
-    --ssh-key=PATH
-    --user=NAME
+    --ssh-key PATH
+    --user NAME
 ```
 
 ## Design Goals &amp; Motivation

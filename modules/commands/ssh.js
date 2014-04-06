@@ -69,7 +69,7 @@ exports.help = function () {
     '  Opens an SSH connection to an instance.'.grey,
     '',
     '  Option'.grey,
-    '  --ssh-key=PATH'.grey,
-    '  --user=NAME'.grey
+    '  --ssh-key PATH'.grey,
+    '  --user NAME'.grey
   ]);
 };

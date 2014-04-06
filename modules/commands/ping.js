@@ -40,10 +40,10 @@ exports.help = function () {
     '  Ping an instance or cluster.'.grey,
     '',
     '    Option    | Default'.grey,
-    '    --count=N | 3'.grey,
+    '    --count N | 3'.grey,
     '',
     '  Examples:'.grey,
     '  $ overcast ping app.01'.grey,
-    '  $ overcast ping db --count=5'.grey
+    '  $ overcast ping db --count 5'.grey
   ]);
 };

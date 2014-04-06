@@ -85,6 +85,19 @@ subcommands.import = function (args) {
   });
 };
 
+subcommands.list = function (args) {
+  var clusters = utils.getClusters();
+  var scope = (args._ && args._.length > 0) ? args._ : _.keys(clusters);
+
+  _.each(clusters, function (cluster, clusterName) {
+    if (_.indexOf(scope, clusterName) !== -1) {
+      _.each(cluster.instances, function (instance) {
+        console.log(instance.name);
+      });
+    }
+  });
+};
+
 subcommands.remove = function (args) {
   var clusters = utils.getClusters();
   utils.argShift(args, 'name');
@@ -188,48 +201,55 @@ exports.help = function () {
     '  You can also specify an image or snapshot using --image-name.'.grey,
     '',
     '    Option               | Default'.grey,
-    '    --cluster=CLUSTER    |'.grey,
-    '    --provider=NAME      | digitalocean'.grey,
-    '    --ssh-port=PORT      | 22'.grey,
-    '    --region-slug=NAME   | nyc2'.grey,
-    '    --region-id=ID       |'.grey,
-    '    --image-slug=NAME    | ubuntu-12-04-x64'.grey,
-    '    --image-id=ID        |'.grey,
-    '    --image-name=NAME    |'.grey,
-    '    --size-slug=NAME     | 512mb'.grey,
-    '    --size-id=ID         |'.grey,
+    '    --cluster CLUSTER    |'.grey,
+    '    --provider NAME      | digitalocean'.grey,
+    '    --ssh-port PORT      | 22'.grey,
+    '    --region-slug NAME   | nyc2'.grey,
+    '    --region-id ID       |'.grey,
+    '    --image-slug NAME    | ubuntu-12-04-x64'.grey,
+    '    --image-id ID        |'.grey,
+    '    --image-name NAME    |'.grey,
+    '    --size-slug NAME     | 512mb'.grey,
+    '    --size-id ID         |'.grey,
     '',
     '  Example:'.grey,
-    '  $ overcast instance create db.01 --cluster=db --host=digitalocean'.grey,
+    '  $ overcast instance create db.01 --cluster db --host digitalocean'.grey,
     '',
     'overcast instance import [name] [options]',
     '  Imports an existing instance to a cluster.'.grey,
     '',
     '    Option               | Default'.grey,
-    '    --cluster=CLUSTER    |'.grey,
-    '    --ip=IP              |'.grey,
-    '    --ssh-port=PORT      | 22 '.grey,
-    '    --ssh-key=PATH       | .overcast/keys/overcast.key'.grey,
-    '    --user=USERNAME      | root'.grey,
+    '    --cluster CLUSTER    |'.grey,
+    '    --ip IP              |'.grey,
+    '    --ssh-port PORT      | 22 '.grey,
+    '    --ssh-key PATH       | .overcast/keys/overcast.key'.grey,
+    '    --user USERNAME      | root'.grey,
     '',
     '  Example:'.grey,
-    '  $ overcast instance import app.01 --cluster=app --ip=127.0.0.1 \\'.grey,
-    '      --ssh-port=22222 --ssh-key=$HOME/.ssh/id_rsa'.grey,
+    '  $ overcast instance import app.01 --cluster app --ip 127.0.0.1 \\'.grey,
+    '      --ssh-port 22222 --ssh-key $HOME/.ssh/id_rsa'.grey,
+    '',
+    'overcast instance list [cluster...]',
+    '  Returns all instance names, one per line. Optionally limit to one or more clusters.'.grey,
+    '',
+    '  Examples:'.grey,
+    '  $ overcast instance list'.grey,
+    '  $ overcast instance list app-cluster db-cluster'.grey,
     '',
     'overcast instance update [name] [options]',
     '  Update any instance property. Specifying --cluster will move the instance to'.grey,
     '  that cluster. Specifying --name will rename the instance.'.grey,
     '',
     '    Option               | Default'.grey,
-    '    --name=NAME          |'.grey,
-    '    --cluster=CLUSTER    |'.grey,
-    '    --ip=IP              |'.grey,
-    '    --ssh-port=PORT      |'.grey,
-    '    --ssh-key=PATH       |'.grey,
-    '    --user=USERNAME      |'.grey,
+    '    --name NAME          |'.grey,
+    '    --cluster CLUSTER    |'.grey,
+    '    --ip IP              |'.grey,
+    '    --ssh-port PORT      |'.grey,
+    '    --ssh-key PATH       |'.grey,
+    '    --user USERNAME      |'.grey,
     '',
     '  Example:'.grey,
-    '  $ overcast instance update app.01 --user=differentuser --ssh-key=/path/to/another/key'.grey,
+    '  $ overcast instance update app.01 --user differentuser --ssh-key /path/to/another/key'.grey,
     '',
     'overcast instance remove [name]',
     '  Removes an instance from the index.'.grey,

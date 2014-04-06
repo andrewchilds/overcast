@@ -9,8 +9,8 @@ describe 'info', ->
 
   it 'should display info when clusters and instances are defined', ->
     overcast 'cluster create info-test', ->
-      overcast 'instance import info.01 --cluster=info-test ' +
-      '--ip=127.0.0.1', ->
+      overcast 'instance import info.01 --cluster info-test ' +
+      '--ip 127.0.0.1', ->
         overcast 'info', (stdout) ->
           expect(stdout).toContain 'info-test'
 
