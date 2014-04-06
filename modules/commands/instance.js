@@ -17,33 +17,6 @@ exports.run = function (args) {
 
 var subcommands = {};
 
-subcommands.create = function (args) {
-  var clusters = utils.getClusters();
-  utils.argShift(args, 'name');
-
-  args.cluster = utils.sanitize(args.cluster);
-  args.provider = utils.sanitize(args.provider) || 'digitalocean';
-
-  if (!args.name) {
-    utils.red('Missing [name] parameter.');
-    return exports.help(args);
-  } else if (!args.cluster) {
-    utils.red('Missing --cluster parameter.');
-    return exports.help(args);
-  } else if (!clusters[args.cluster]) {
-    utils.die('No "' + args.cluster + '" cluster found. Known clusters are: ' +
-      _.keys(clusters).join(', ') + '.');
-  } else if (!args.provider || !providers[args.provider]) {
-    utils.die('Missing --provider parameter. Supported providers are: ' +
-      _.keys(providers).join(', ') + '.');
-  } else if (clusters[args.cluster].instances[args.name]) {
-    utils.red('Instance "' + args.name + '" already exists.');
-    return list.run(args);
-  }
-
-  providers[args.provider].create(args);
-};
-
 subcommands.import = function (args) {
   var clusters = utils.getClusters();
   utils.argShift(args, 'name');
@@ -180,7 +153,6 @@ subcommands.update = function (args) {
 
 exports.signatures = function () {
   return [
-    '  overcast instance create [name] [options]',
     '  overcast instance import [name] [options]',
     '  overcast instance remove [name]',
     '  overcast instance update [name] [options]'
@@ -189,32 +161,6 @@ exports.signatures = function () {
 
 exports.help = function () {
   utils.printArray([
-    'overcast instance create [name] [options]',
-    '  Creates a new instance on a hosting provider. You\'ll need to add your API'.grey,
-    '  credentials to the .overcast/variables.json file for this to work.'.grey,
-    '  See the .overcast/example.variables.json file for reference.'.grey,
-    '',
-    '  The instance will start out using the auto-generated SSH key found here:'.grey,
-    ('  ' + utils.CONFIG_DIR + '/keys/overcast.key.pub').cyan,
-    '',
-    '  You can specify region, image, and size of the droplet using -id or -slug.'.grey,
-    '  You can also specify an image or snapshot using --image-name.'.grey,
-    '',
-    '    Option               | Default'.grey,
-    '    --cluster CLUSTER    |'.grey,
-    '    --provider NAME      | digitalocean'.grey,
-    '    --ssh-port PORT      | 22'.grey,
-    '    --region-slug NAME   | nyc2'.grey,
-    '    --region-id ID       |'.grey,
-    '    --image-slug NAME    | ubuntu-12-04-x64'.grey,
-    '    --image-id ID        |'.grey,
-    '    --image-name NAME    |'.grey,
-    '    --size-slug NAME     | 512mb'.grey,
-    '    --size-id ID         |'.grey,
-    '',
-    '  Example:'.grey,
-    '  $ overcast instance create db.01 --cluster db --host digitalocean'.grey,
-    '',
     'overcast instance import [name] [options]',
     '  Imports an existing instance to a cluster.'.grey,
     '',

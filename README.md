@@ -1,6 +1,6 @@
 # Overcast
 
-![Screenshot](http://i.imgur.com/n8IKY6m.png)
+![Screenshot](http://i.imgur.com/qWUV684.png)
 
 Overcast is a simple terminal-based cloud management tool that was designed to make it easy to spin up and manage clusters of servers in a consistent, scriptable way. Inspired by [Packer.io](http://packer.io).
 
@@ -308,7 +308,7 @@ The command `overcast init` will create a new configuration in the current direc
 ### overcast help
 
 ```
-  Overcast v0.1.15
+  Overcast v0.1.16
 
   Code repo, issues, pull requests:
     https://github.com/andrewchilds/overcast
@@ -346,7 +346,6 @@ The command `overcast init` will create a new configuration in the current direc
     overcast health [instance|cluster|all]
     overcast info
     overcast init
-    overcast instance create [name] [options]
     overcast instance import [name] [options]
     overcast instance remove [name]
     overcast instance update [name] [options]
@@ -382,32 +381,6 @@ The command `overcast init` will create a new configuration in the current direc
 ### overcast instance
 
 ```
-  overcast instance create [name] [options]
-    Creates a new instance on a hosting provider. You'll need to add your API
-    credentials to the .overcast/variables.json file for this to work.
-    See the .overcast/example.variables.json file for reference.
-
-    The instance will start out using the auto-generated SSH key found here:
-    /path/to/.overcast/keys/overcast.key.pub
-
-    You can specify region, image, and size of the droplet using -id or -slug.
-    You can also specify an image or snapshot using --image-name.
-
-      Option               | Default
-      --cluster CLUSTER    |
-      --provider NAME      | digitalocean
-      --ssh-port PORT      | 22
-      --region-slug NAME   | nyc2
-      --region-id ID       |
-      --image-slug NAME    | ubuntu-12-04-x64
-      --image-id ID        |
-      --image-name NAME    |
-      --size-slug NAME     | 512mb
-      --size-id ID         |
-
-    Example:
-    $ overcast instance create db.01 --cluster db --host digitalocean
-
   overcast instance import [name] [options]
     Imports an existing instance to a cluster.
 
