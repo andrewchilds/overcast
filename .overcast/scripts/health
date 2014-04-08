@@ -11,33 +11,36 @@ disk_space=`df -m / | tail -n 1`
 memory_usage=`free -m | grep Mem`
 cache_usage=`free -m | grep "buffers/cache"`
 swap_usage=`free -m | grep Swap`
+io_usage=`cat /sys/block/xvda/stat 2>/dev/null || cat /sys/block/vda/stat 2>/dev/null || cat /sys/block/sda/stat 2>/dev/null`
 
 echo {
 
-echo \"cpu_load_1min\": \"`echo $cpu_load | awk '{ print $1 }'`\",
-echo \"cpu_load_5min\": \"`echo $cpu_load | awk '{ print $2 }'`\",
-echo \"cpu_load_15min\": \"`echo $cpu_load | awk '{ print $3 }'`\",
+echo \"cpu_1min\": \"`echo $cpu_load | awk '{ print $1 }'`\",
+echo \"cpu_5min\": \"`echo $cpu_load | awk '{ print $2 }'`\",
+echo \"cpu_15min\": \"`echo $cpu_load | awk '{ print $3 }'`\",
 
-echo \"disk_space_total\": \"`echo $disk_space | awk '{ print $2 }'`\",
-echo \"disk_space_used\": \"`echo $disk_space | awk '{ print $3 }'`\",
-echo \"disk_space_available\": \"`echo $disk_space | awk '{ print $4 }'`\",
-echo \"disk_space_used_percentage\": \"`echo $disk_space | awk '{ print $5 }'`\",
+echo \"disk_total\": \"`echo $disk_space | awk '{ print $2 }'`\",
+echo \"disk_used\": \"`echo $disk_space | awk '{ print $3 }'`\",
+echo \"disk_free\": \"`echo $disk_space | awk '{ print $4 }'`\",
 
-echo \"memory_total\": \"`echo $memory_usage | awk '{ print $2 }'`\",
-echo \"memory_used\": \"`echo $memory_usage | awk '{ print $3 }'`\",
-echo \"memory_free\": \"`echo $memory_usage | awk '{ print $4 }'`\",
+echo \"mem_total\": \"`echo $memory_usage | awk '{ print $2 }'`\",
+echo \"mem_used\": \"`echo $memory_usage | awk '{ print $3 }'`\",
+echo \"mem_free\": \"`echo $memory_usage | awk '{ print $4 }'`\",
 
-echo \"memory_used_with_cache\": \"`echo $cache_usage | awk '{ print $3 }'`\",
-echo \"memory_free_with_cache\": \"`echo $cache_usage | awk '{ print $4 }'`\",
+echo \"cache_used\": \"`echo $cache_usage | awk '{ print $3 }'`\",
+echo \"cache_free\": \"`echo $cache_usage | awk '{ print $4 }'`\",
 
 echo \"swap_total\": \"`echo $swap_usage | awk '{ print $2 }'`\",
 echo \"swap_used\": \"`echo $swap_usage | awk '{ print $3 }'`\",
 echo \"swap_free\": \"`echo $swap_usage | awk '{ print $4 }'`\",
 
-echo \"open_tcp_connections\": \"`wc -l /proc/net/tcp | awk '{ print $1 }'`\",
+echo \"tcp\": \"`wc -l /proc/net/tcp | awk '{ print $1 }'`\",
 
 echo \"rx_bytes\": \"`cat /sys/class/net/eth0/statistics/rx_bytes`\",
 echo \"tx_bytes\": \"`cat /sys/class/net/eth0/statistics/tx_bytes`\",
+
+echo \"io_reads\": \"`echo $io_usage | awk '{ print $3 }'`\",
+echo \"io_writes\": \"`echo $io_usage | awk '{ print $7 }'`\",
 
 echo \"processes\": [
 echo `ps aux | sed '1 d' | sed 's/"//g' | sed 's/\s\s*/ /g' | cut -d' ' -f1,2,3,4,10,11- | sed -e 's/\(.*\)/"\1",/'`

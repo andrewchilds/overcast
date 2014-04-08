@@ -275,22 +275,25 @@ The command `overcast init` will create a new configuration in the current direc
     Example JSON:
     {
       "my_instance_name": {
-        "cpu_load_1min": 0.53,
-        "cpu_load_5min": 0.05,
-        "cpu_load_15min": 0.10,
-        "disk_space_used_percentage": "72%",
-        "disk_space_total": 19592,            // in MB
-        "disk_space_used": 13445,             // in MB
-        "disk_space_available": 5339,         // in MB
-        "memory_total": 1000,                 // in MB
-        "memory_used": 904,                   // in MB
-        "memory_free": 96,                    // in MB
-        "memory_used_with_cache": 589,        // in MB
-        "memory_free_with_cache": 410,        // in MB
-        "swap_total": 255,                    // in MB
-        "swap_used": 124,                     // in MB
-        "swap_free": 131,                     // in MB
-        "open_tcp_connections": 152,
+        "cpu_1min": 0.53,
+        "cpu_5min": 0.05,
+        "cpu_15min": 0.10,
+        "disk_total": 19592,     // in MB
+        "disk_used": 13445,      // in MB
+        "disk_free": 5339,       // in MB
+        "mem_total": 1000,       // in MB
+        "mem_used": 904,         // in MB
+        "mem_free": 96,          // in MB
+        "cache_used": 589,       // in MB
+        "cache_free": 410,       // in MB
+        "swap_total": 255,       // in MB
+        "swap_used": 124,        // in MB
+        "swap_free": 131,        // in MB
+        "tcp": 152,              // open TCP connections
+        "rx_bytes": 196396703,   // total bytes received
+        "tx_bytes": 47183785,    // total bytes transmitted
+        "io_reads": 1871210,     // total bytes read
+        "io_writes": 6446448,    // total bytes written
         "processes": [
           {
             "user": "root",
@@ -308,7 +311,7 @@ The command `overcast init` will create a new configuration in the current direc
 ### overcast help
 
 ```
-  Overcast v0.1.17
+  Overcast v0.1.18
 
   Code repo, issues, pull requests:
     https://github.com/andrewchilds/overcast
