@@ -1,7 +1,10 @@
 #!/bin/bash
 
 # Basic health statistics
-# Tested on Ubuntu 12.04
+
+# Tested on:
+# Ubuntu 9.10
+# Ubuntu 12.04
 
 cpu_load=`cat /proc/loadavg`
 disk_space=`df -m / | tail -n 1`
@@ -32,6 +35,9 @@ echo \"swap_used\": \"`echo $swap_usage | awk '{ print $3 }'`\",
 echo \"swap_free\": \"`echo $swap_usage | awk '{ print $4 }'`\",
 
 echo \"open_tcp_connections\": \"`wc -l /proc/net/tcp | awk '{ print $1 }'`\",
+
+echo \"rx_bytes\": \"`cat /sys/class/net/eth0/statistics/rx_bytes`\",
+echo \"tx_bytes\": \"`cat /sys/class/net/eth0/statistics/tx_bytes`\",
 
 echo \"processes\": [
 echo `ps aux | sed '1 d' | sed 's/"//g' | sed 's/\s\s*/ /g' | cut -d' ' -f1,2,3,4,10,11- | sed -e 's/\(.*\)/"\1",/'`

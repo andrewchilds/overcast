@@ -308,7 +308,7 @@ The command `overcast init` will create a new configuration in the current direc
 ### overcast help
 
 ```
-  Overcast v0.1.16
+  Overcast v0.1.17
 
   Code repo, issues, pull requests:
     https://github.com/andrewchilds/overcast
@@ -523,8 +523,9 @@ The command `overcast init` will create a new configuration in the current direc
       --parallel -p                   | false
       --continueOnError               | false
 
-    Relative paths are relative to this directory:
+    Relative paths are looked for in these directories:
     /path/to/.overcast/scripts
+    /path/to/installed/overcast/.overcast/scripts
 
     Example:
     $ overcast run db install/core install/redis

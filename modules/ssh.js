@@ -85,9 +85,13 @@ function sshExec(options, next) {
     }
   }
 
-  var scriptFile = commandAsScriptFile(options.command);
+  var scriptFile = commandAsScriptFile(options.command, utils.CONFIG_DIR + '/scripts');
+  var bundledScriptFile = commandAsScriptFile(options.command, __dirname + '/../.overcast/scripts');
+
   if (fs.existsSync(scriptFile)) {
     sshEnv.overcast_script_file = scriptFile;
+  } else if (fs.existsSync(bundledScriptFile)) {
+    sshEnv.overcast_script_file = bundledScriptFile;
   } else {
     sshEnv.overcast_command = options.command;
   }
@@ -127,6 +131,6 @@ function sshExec(options, next) {
   });
 }
 
-function commandAsScriptFile(str) {
-  return str.charAt(0) === '/' ? str : utils.CONFIG_DIR + '/scripts/' + str;
+function commandAsScriptFile(str, scriptDir) {
+  return str.charAt(0) === '/' ? str : scriptDir + '/' + str;
 }

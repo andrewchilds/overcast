@@ -1,3 +1,4 @@
+var path = require('path');
 var _ = require('lodash');
 var utils = require('../utils');
 var ssh = require('../ssh');
@@ -24,6 +25,9 @@ exports.signatures = function () {
 };
 
 exports.help = function () {
+  var localScriptDir = utils.CONFIG_DIR + '/scripts';
+  var bundledScriptDir = path.normalize(__dirname + '/../../.overcast/scripts');
+
   utils.printArray([
     'overcast run [instance|cluster|all] [command...]',
     '  Runs a command or series of commands on an instance or cluster.'.grey,
@@ -54,8 +58,9 @@ exports.help = function () {
     '    --parallel -p                   | false'.grey,
     '    --continueOnError               | false'.grey,
     '',
-    '  Relative paths are relative to this directory:'.grey,
-    ('  ' + utils.CONFIG_DIR + '/scripts').cyan,
+    '  Relative paths are looked for in these directories:'.grey,
+    '  ' + localScriptDir.cyan,
+    '  ' + bundledScriptDir.cyan,
     '',
     '  Example:'.grey,
     '  $ overcast run db install/core install/redis'.grey

@@ -6,10 +6,9 @@ if [ -z "$overcast_src_dir" ] || [ -z "$overcast_dest_dir" ]; then
   exit 1
 fi
 
+mkdir -p $overcast_dest_dir/files
 mkdir -p $overcast_dest_dir/keys
-
-cp -r $overcast_src_dir/files $overcast_dest_dir/files
-cp -r $overcast_src_dir/scripts $overcast_dest_dir/scripts
+mkdir -p $overcast_dest_dir/scripts
 
 echo "{}" > $overcast_dest_dir/clusters.json
 echo "{}" > $overcast_dest_dir/variables.json
