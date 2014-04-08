@@ -311,7 +311,7 @@ The command `overcast init` will create a new configuration in the current direc
 ### overcast help
 
 ```
-  Overcast v0.1.18
+  Overcast v0.1.19
 
   Code repo, issues, pull requests:
     https://github.com/andrewchilds/overcast

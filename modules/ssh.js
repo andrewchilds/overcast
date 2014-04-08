@@ -85,10 +85,13 @@ function sshExec(options, next) {
     }
   }
 
+  var cwdScriptFile = commandAsScriptFile(options.command, process.cwd());
   var scriptFile = commandAsScriptFile(options.command, utils.CONFIG_DIR + '/scripts');
   var bundledScriptFile = commandAsScriptFile(options.command, __dirname + '/../.overcast/scripts');
 
-  if (fs.existsSync(scriptFile)) {
+  if (fs.existsSync(cwdScriptFile)) {
+    sshEnv.overcast_script_file = cwdScriptFile;
+  } else if (fs.existsSync(scriptFile)) {
     sshEnv.overcast_script_file = scriptFile;
   } else if (fs.existsSync(bundledScriptFile)) {
     sshEnv.overcast_script_file = bundledScriptFile;
@@ -97,6 +100,7 @@ function sshExec(options, next) {
   }
 
   var ssh = cp.spawn('bash', args, { env: sshEnv });
+  var connectionProblem = false;
 
   process.stdin.resume();
   process.stdin.on('data', function (chunk) {
@@ -111,7 +115,13 @@ function sshExec(options, next) {
   });
 
   ssh.stderr.on('data', function (data) {
-    data = (data + '').trim().split("\n");
+    data = data + '';
+    if (_.contains(data, 'Operation timed out') ||
+      _.contains(data, 'No route to host') || _.contains(data, 'Host is down')) {
+      connectionProblem = true;
+    }
+
+    data = data.trim().split("\n");
     _.each(data, function (line) {
       utils.prefixPrint(options.name, color, line, 'red');
     });
@@ -119,6 +129,23 @@ function sshExec(options, next) {
 
   ssh.on('exit', function (code) {
     process.stdin.pause();
+    if (connectionProblem && code === 255) {
+      options.retries = options.retries ? options.retries + 1 : 1;
+      options.maxRetries = options.maxRetries || 3;
+
+      if (options.retries <= options.maxRetries) {
+        utils.prefixPrint(options.name, color, 'Retrying (' +
+          options.retries + ' of ' + options.maxRetries + ' attempts)...', 'red');
+        console.log('');
+        utils.SSH_COUNT--;
+        sshExec(options, next);
+        return false;
+      } else {
+        // TODO: implement events
+        // events.trigger('ssh.timeout', options);
+        utils.prefixPrint(options.name, color, 'Giving up!', 'red');
+      }
+    }
     if (code !== 0 && !options.continueOnError) {
       var str = 'SSH connection exited with a non-zero code (' + code + '). Stopping execution...';
       utils.prefixPrint(options.name, color, str, 'red');
