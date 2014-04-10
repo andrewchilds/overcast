@@ -12,31 +12,34 @@
 cluster="example.cluster"
 instance="example.app.01"
 username="appuser"
+sshPort="50022"
 
-echo Creating DigitalOcean instance...
+echo "Creating DigitalOcean instance..."
 overcast cluster create $cluster
 overcast digitalocean create $instance --cluster $cluster
 
-echo Install core packages, Nginx, Redis, NodeJS, configure chrooted SFTP...
+echo "Install core packages, Nginx, Redis, NodeJS, configure SFTP..."
 overcast run $instance install/core install/sftp install/nginx install/redis install/nodejs
 
-echo Adding user $username...
+echo "Adding user $username..."
 overcast run $instance add_user --env "username=$username"
 
-echo Configure iptables...
-overcast expose $instance 22 80 443
+echo "Changing SSH port to $sshPort, configuring iptables to only expose HTTP, HTTPS, and SSH..."
+overcast expose $instance 22 80 443 $sshPort
+overcast port $instance $sshPort
+overcast expose $instance 80 443 $sshPort
 
-echo Push nginx configuration...
+echo "Pushing nginx configuration..."
 overcast push $instance nginx/example.conf /etc/nginx/sites-enabled/myapp.conf
 
-echo Switching default SSH user to $username...
-echo Going forward, to run commands on this instance as root, use --user root
+echo "Switching default SSH user to $username..."
+echo "Going forward, to run commands on this instance as root use --user root"
 overcast instance update $instance --user $username
-
-echo Creating snapshot...
-overcast digitalocean snapshot $instance $instance.snapshot
 
 # Run your own application install script, like so:
 # overcast run $instance /path/to/my-app-install-script
 
-echo Done.
+echo "Creating snapshot..."
+overcast digitalocean snapshot $instance $instance.snapshot
+
+echo "Done."

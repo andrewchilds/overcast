@@ -27,7 +27,16 @@ fi
 iptables -F
 
 for exposed_port in $exposed_ports; do
-  iptables -A INPUT -p tcp --dport $exposed_port -j ACCEPT
+  if [ -z "$ip_whitelist" ]; then
+    iptables -A INPUT -p tcp --dport $exposed_port -j ACCEPT
+  else
+    # examples:
+    # ip_whitelist="1.1.1.1"
+    # ip_whitelist="1.1.1.1 2.2.2.2 192.168.0.0/24"
+    for ip in $ip_whitelist; do
+      iptables -A INPUT -p tcp -s $ip --dport $exposed_port -j ACCEPT
+    done
+  fi
 done
 
 # Ping

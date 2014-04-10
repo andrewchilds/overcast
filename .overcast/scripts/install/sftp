@@ -12,7 +12,7 @@ set -x
 
 groupadd -f sftp
 
-sed -i"-orig" "s/Subsystem sftp \/usr\/lib\/openssh\/sftp\-server/# Subsystem sftp \/usr\/lib\/openssh\/sftp-server/" /etc/ssh/sshd_config
+sed -i "s/Subsystem sftp \/usr\/lib\/openssh\/sftp\-server/# Subsystem sftp \/usr\/lib\/openssh\/sftp-server/g" /etc/ssh/sshd_config
 
 cat >> /etc/ssh/sshd_config << EOF
 
