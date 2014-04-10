@@ -249,11 +249,17 @@ The command `overcast init` will create a new configuration in the current direc
   overcast expose [instance|cluster|all] [port...]
     Reset the exposed ports on the instance or cluster using iptables.
     This will fail if you don't include the current SSH port.
+    Specifying --whitelist will restrict all ports to the specified address(es).
+    These can be individual IPs or CIDR ranges, such as "192.168.0.0/24".
+
     Expects an Ubuntu server, untested on other distributions.
+
+      Option
+      --whitelist "IP IP IP"
 
     Examples:
     $ overcast expose redis 22 6379
-    $ overcast expose mysql 22 3306
+    $ overcast expose mysql 22 3306 --whitelist "1.1.1.1 2.2.2.2 192.168.100.0/24"
     $ overcast expose app 22 80 443
 ```
 
@@ -311,7 +317,7 @@ The command `overcast init` will create a new configuration in the current direc
 ### overcast help
 
 ```
-  Overcast v0.1.19
+  Overcast v0.1.20
 
   Code repo, issues, pull requests:
     https://github.com/andrewchilds/overcast
@@ -344,7 +350,7 @@ The command `overcast init` will create a new configuration in the current direc
     overcast digitalocean shutdown [instance]
     overcast digitalocean snapshot [instance] [snapshot-name]
     overcast digitalocean snapshots
-    overcast expose [instance|cluster|all] [port...]
+    overcast expose [instance|cluster|all] [port...] [options]
     overcast exposed [instance|cluster|all]
     overcast health [instance|cluster|all]
     overcast info
