@@ -3,6 +3,9 @@
 # Add new user account.
 # Tested on Ubuntu 12.04.
 
+# Usage:
+# overcast run myInstanceOrCluster add_user --env "username=newuser"
+
 # set -x
 
 if [ "$(id -u)" != "0" ]; then

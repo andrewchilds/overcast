@@ -9,37 +9,49 @@
 #
 # This script takes around 5 minutes to run.
 
-cluster="example.cluster"
-instance="example.app.01"
+cluster="example"
+# instance="example.001"
 username="appuser"
 sshPort="50022"
 
-echo "Creating DigitalOcean instance..."
+# You shouldn't have to edit anything below.
+
+echo "Creating cluster $cluster if it doesn't already exist..."
 overcast cluster create $cluster
+
+if [ -z "$instance" ]; then
+  # Autogenerate instance name based on number of existing instances in the cluster.
+  id=$(printf '%03d' $(expr $(overcast cluster count $cluster) + 1))
+  instance="$cluster.$id"
+fi
+
+echo "Creating instance $instance on DigitalOcean..."
 overcast digitalocean create $instance --cluster $cluster
 
-echo "Install core packages, Nginx, Redis, NodeJS, configure SFTP..."
-overcast run $instance install/core install/sftp install/nginx install/redis install/nodejs
-
-echo "Adding user $username..."
-overcast run $instance add_user --env "username=$username"
-
 echo "Changing SSH port to $sshPort, configuring iptables to only expose HTTP, HTTPS, and SSH..."
-overcast expose $instance 22 80 443 $sshPort
+overcast run $instance harden_ssh
+overcast expose $instance 22 $sshPort
 overcast port $instance $sshPort
 overcast expose $instance 80 443 $sshPort
+
+echo "System upgrade, installing core packages, Nginx, Redis, NodeJS, configure SFTP..."
+overcast run $instance install/core install/sftp install/nginx install/redis install/nodejs
 
 echo "Pushing nginx configuration..."
 overcast push $instance nginx/example.conf /etc/nginx/sites-enabled/myapp.conf
 
+echo "Adding user $username..."
+overcast run $instance add_user --env "username=$username"
+
 echo "Switching default SSH user to $username..."
-echo "Going forward, to run commands on this instance as root use --user root"
+echo "Going forward, to run commands on this instance as root, use --user root"
 overcast instance update $instance --user $username
 
 # Run your own application install script, like so:
 # overcast run $instance /path/to/my-app-install-script
+# overcast run $instance /path/to/my-app-start-script
 
-echo "Creating snapshot..."
-overcast digitalocean snapshot $instance $instance.snapshot
+# echo "Creating snapshot..."
+# overcast digitalocean snapshot $instance $instance.snapshot
 
 echo "Done."

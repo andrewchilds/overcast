@@ -6,6 +6,9 @@
 # Pipe the output to "sort -nk3" to get sorted output
 # http://stackoverflow.com/questions/479953/how-to-find-out-which-processes-are-swapping-in-linux
 
+# Usage:
+# overcast run myInstanceOrCluster swap_usage_by_pid
+
 SUM=0
 OVERALL=0
 for DIR in `find /proc/ -maxdepth 1 -type d -regex "^/proc/[0-9]+"`

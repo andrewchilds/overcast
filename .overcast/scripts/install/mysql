@@ -2,6 +2,9 @@
 
 # Install MySQL on Ubuntu 12.04.
 
+# Usage:
+# overcast run myInstanceOrCluster install/mysql
+
 # set -x
 
 if [ "$(id -u)" != "0" ]; then

@@ -2,6 +2,10 @@
 
 # Configure IPTables on Ubuntu 12.04.
 
+# Usage:
+# overcast expose myInstanceOrCluster 22 80 443 3000
+# overcast expose myInstanceOrCluster 22 80 443 3000 --whitelist "1.1.1.1 2.2.2.2 192.168.0.0/16"
+
 # set -x
 
 if [ "$(id -u)" != "0" ]; then

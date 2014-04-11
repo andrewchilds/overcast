@@ -1,0 +1,22 @@
+#!/bin/bash
+
+# Configure SSH to disallow password logins, decrease loginGraceTime.
+# Tested on Ubuntu 12.04.
+
+# Usage:
+# overcast run myInstanceOrCluster harden_ssh
+
+# set -x
+
+if [ "$(id -u)" != "0" ]; then
+  echo "This script must be run as root." 1>&2
+  exit 1
+fi
+
+cp /etc/ssh/sshd_config /etc/ssh/sshd_config-orig
+sed -i "s/LoginGraceTime [0-9]*/LoginGraceTime 30/g" /etc/ssh/sshd_config
+sed -i 's/#\?PasswordAuthentication yes/PasswordAuthentication no/g' /etc/ssh/sshd_config
+sed -i 's/ChallengeResponseAuthentication yes/ChallengeResponseAuthentication no/g' /etc/ssh/sshd_config
+sed -i 's/UsePAM yes/UsePAM no/g' /etc/ssh/sshd_config
+
+service ssh restart

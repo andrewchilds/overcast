@@ -3,6 +3,9 @@
 # Install NodeJS on Ubuntu 12.04.
 # https://github.com/joyent/node/wiki/Installing-Node.js-via-package-manager
 
+# Usage:
+# overcast run myInstanceOrCluster install/nodejs
+
 # set -x
 
 if [ "$(id -u)" != "0" ]; then

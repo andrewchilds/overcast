@@ -2,6 +2,9 @@
 
 # Install core packages on Ubuntu 12.04.
 
+# Usage:
+# overcast run myInstanceOrCluster install/core
+
 # set -x
 
 if [ "$(id -u)" != "0" ]; then
@@ -15,13 +18,3 @@ apt-get update
 apt-get install aptitude
 aptitude -y full-upgrade
 aptitude -y install git-core wget vim less build-essential iptables-persistent
-
-# Configure SSH to disallow password logins, decrease loginGraceTime
-
-cp /etc/ssh/sshd_config /etc/ssh/sshd_config-orig
-sed -i "s/LoginGraceTime [0-9]*/LoginGraceTime 30/g" /etc/ssh/sshd_config
-sed -i 's/#\?PasswordAuthentication yes/PasswordAuthentication no/g' /etc/ssh/sshd_config
-sed -i 's/ChallengeResponseAuthentication yes/ChallengeResponseAuthentication no/g' /etc/ssh/sshd_config
-sed -i 's/UsePAM yes/UsePAM no/g' /etc/ssh/sshd_config
-
-service ssh restart

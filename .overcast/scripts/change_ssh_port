@@ -3,6 +3,9 @@
 # Change SSH listener port.
 # Tested on Ubuntu 12.04.
 
+# Usage:
+# overcast port myInstanceOrCluster 55522
+
 # set -x
 
 if [ "$(id -u)" != "0" ]; then

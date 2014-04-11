@@ -6,6 +6,9 @@
 # Ubuntu 9.10
 # Ubuntu 12.04
 
+# Usage:
+# overcast health myInstanceOrCluster
+
 cpu_load=`cat /proc/loadavg`
 disk_space=`df -m / | tail -n 1`
 memory_usage=`free -m | grep Mem`

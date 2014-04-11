@@ -2,6 +2,9 @@
 
 # Install Redis on Ubuntu 12.04.
 
+# Usage:
+# overcast run myInstanceOrCluster install/redis
+
 # set -x
 
 if [ "$(id -u)" != "0" ]; then

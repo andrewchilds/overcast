@@ -8,6 +8,9 @@
 # $ usermod -G sftp myusername
 # That user then has SFTP access and is chrooted to their home directory.
 
+# Usage:
+# overcast run myInstanceOrCluster install/sftp
+
 # set -x
 
 if [ "$(id -u)" != "0" ]; then
