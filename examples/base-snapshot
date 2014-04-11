@@ -1,0 +1,44 @@
+#!/bin/bash
+
+# Recipe to create a base configuration snapshot on DigitalOcean.
+#
+#  - Ubuntu 12.04, 512mb, nyc2 region
+#  - iptables configured to only allow SSH connections, disable SSH password logins
+#  - Performs a full system upgrade, core packages installed (git, vim, less, wget)
+#  - A non-root user account created with SSH access using the overcast SSH key
+#  - Creates a snapshot of the configured instance
+#
+# This script takes around 4 minutes to run.
+
+cluster="base"
+instance="base.001"
+username="appuser"
+sshPort="50022"
+
+# You shouldn't have to edit anything below.
+
+echo "Creating cluster $cluster if it doesn't already exist..."
+overcast cluster create $cluster
+
+if [ -z "$instance" ]; then
+  # Autogenerate instance name based on number of existing instances in the cluster.
+  id=$(printf '%03d' $(expr $(overcast cluster count $cluster) + 1))
+  instance="$cluster.$id"
+fi
+
+# echo "Creating instance $instance on DigitalOcean..."
+# overcast digitalocean create $instance --cluster $cluster
+
+# echo "Changing SSH port to $sshPort, configuring iptables..."
+# overcast run $instance harden_ssh
+# overcast expose $instance 22 $sshPort
+# overcast port $instance $sshPort
+# overcast expose $instance $sshPort
+
+echo "System upgrade, installing core packages..."
+overcast run $instance install/core
+
+echo "Creating snapshot..."
+overcast digitalocean snapshot $instance $instance.snapshot
+
+echo "Done."
