@@ -42,7 +42,8 @@ function runOnInstance(instance, args, next) {
     ssh_port: instance.ssh_port,
     continueOnError: args.continueOnError,
     env: args.env,
-    command: command
+    command: command,
+    shell_command: args['shell-command']
   }, function () {
     if (args._.length > 0) {
       runOnInstance(instance, args, next);
@@ -97,6 +98,10 @@ function sshExec(options, next) {
     sshEnv.overcast_script_file = bundledScriptFile;
   } else {
     sshEnv.overcast_command = options.command;
+  }
+
+  if (options.shell_command) {
+    sshEnv.shell_command = options.shell_command;
   }
 
   var ssh = cp.spawn('bash', args, { env: sshEnv });

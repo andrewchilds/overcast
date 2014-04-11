@@ -41,6 +41,7 @@ exports.help = function (args) {
     '  Expects an Ubuntu server, untested on other distributions.'.grey,
     '',
     '    Option'.grey,
+    '    --user=NAME'.grey,
     '    --whitelist "IP IP IP"'.grey,
     '',
     '  Examples:'.grey,

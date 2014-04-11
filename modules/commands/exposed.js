@@ -24,6 +24,9 @@ exports.help = function (args) {
   utils.printArray([
     'overcast exposed [instance|cluster|all]',
     '  List the exposed ports on the instance or cluster.'.grey,
-    '  Expects an Ubuntu server, untested on other distributions.'.yellow
+    '  Expects an Ubuntu server, untested on other distributions.'.grey,
+    '',
+    '    Option        | Default'.grey,
+    '    --user NAME   |'.grey
   ]);
 };

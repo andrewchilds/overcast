@@ -5,7 +5,10 @@ if [ -z "$overcast_script_file" ]; then
   ssh -i $overcast_key -p $overcast_port $overcast_user@$overcast_ip \
     -o StrictHostKeyChecking=no "$overcast_env $overcast_command"
 else
-  echo \$ $overcast_env $overcast_script_file
+  if [ -z "$shell_command" ]; then
+    shell_command="/bin/bash -s"
+  fi
+  echo \$ $overcast_env $shell_command $overcast_script_file
   ssh -i $overcast_key -p $overcast_port $overcast_user@$overcast_ip \
-    -o StrictHostKeyChecking=no "$overcast_env bash -s" < "$overcast_script_file"
+    -o StrictHostKeyChecking=no "$overcast_env $shell_command" < "$overcast_script_file"
 fi
