@@ -3,7 +3,12 @@
 # Install NodeJS on Ubuntu 12.04.
 # https://github.com/joyent/node/wiki/Installing-Node.js-via-package-manager
 
-set -x
+# set -x
+
+if [ "$(id -u)" != "0" ]; then
+   echo "This script must be run as root." 1>&2
+   exit 1
+fi
 
 aptitude -y install python-software-properties
 add-apt-repository ppa:chris-lea/node.js

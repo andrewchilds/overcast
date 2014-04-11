@@ -3,4 +3,9 @@
 # List exposed TCP ports.
 # Tested on Ubuntu 12.04.
 
+if [ "$(id -u)" != "0" ]; then
+   echo "This script must be run as root." 1>&2
+   exit 1
+fi
+
 iptables -L -n | grep 'ACCEPT' | grep 'tcp dpt:' | awk '{ print $7 }' | tr -d 'dpt:' | paste -sd ' '

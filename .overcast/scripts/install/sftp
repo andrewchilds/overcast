@@ -8,7 +8,12 @@
 # $ usermod -G sftp myusername
 # That user then has SFTP access and is chrooted to their home directory.
 
-set -x
+# set -x
+
+if [ "$(id -u)" != "0" ]; then
+   echo "This script must be run as root." 1>&2
+   exit 1
+fi
 
 groupadd -f sftp
 

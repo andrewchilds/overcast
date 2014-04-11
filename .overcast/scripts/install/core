@@ -1,6 +1,13 @@
 #!/bin/bash
 
-set -x
+# Install core packages on Ubuntu 12.04.
+
+# set -x
+
+if [ "$(id -u)" != "0" ]; then
+   echo "This script must be run as root." 1>&2
+   exit 1
+fi
 
 # Install core packages
 
@@ -9,7 +16,7 @@ apt-get install aptitude
 aptitude -y full-upgrade
 aptitude -y install git-core wget vim less build-essential iptables-persistent
 
-# SSH Config
+# Configure SSH to disallow password logins, decrease loginGraceTime
 
 cp /etc/ssh/sshd_config /etc/ssh/sshd_config-orig
 sed -i "s/LoginGraceTime [0-9]*/LoginGraceTime 30/g" /etc/ssh/sshd_config
