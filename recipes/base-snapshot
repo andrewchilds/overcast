@@ -26,14 +26,14 @@ if [ -z "$instance" ]; then
   instance="$cluster.$id"
 fi
 
-# echo "Creating instance $instance on DigitalOcean..."
-# overcast digitalocean create $instance --cluster $cluster
+echo "Creating instance $instance on DigitalOcean..."
+overcast digitalocean create $instance --cluster $cluster
 
-# echo "Changing SSH port to $sshPort, configuring iptables..."
-# overcast run $instance harden_ssh
-# overcast expose $instance 22 $sshPort
-# overcast port $instance $sshPort
-# overcast expose $instance $sshPort
+echo "Changing SSH port to $sshPort, configuring iptables..."
+overcast run $instance harden_ssh
+overcast expose $instance 22 $sshPort
+overcast port $instance $sshPort
+overcast expose $instance $sshPort
 
 echo "System upgrade, installing core packages..."
 overcast run $instance install/core

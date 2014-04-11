@@ -47,7 +47,4 @@ echo "Switching default SSH user to $username..."
 echo "Going forward, to run commands on this instance as root, use --user root"
 overcast instance update $instance --user $username
 
-# echo "Creating snapshot..."
-# overcast digitalocean snapshot $instance $instance.snapshot
-
 echo "Done."
