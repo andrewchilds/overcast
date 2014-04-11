@@ -255,6 +255,7 @@ The command `overcast init` will create a new configuration in the current direc
     Expects an Ubuntu server, untested on other distributions.
 
       Option
+      --user=NAME
       --whitelist "IP IP IP"
 
     Examples:
@@ -269,6 +270,9 @@ The command `overcast init` will create a new configuration in the current direc
   overcast exposed [instance|cluster|all]
     List the exposed ports on the instance or cluster.
     Expects an Ubuntu server, untested on other distributions.
+
+      Option        | Default
+      --user NAME   |
 ```
 
 ### overcast health
@@ -317,7 +321,7 @@ The command `overcast init` will create a new configuration in the current direc
 ### overcast help
 
 ```
-  Overcast v0.1.20
+  Overcast v0.1.21
 
   Code repo, issues, pull requests:
     https://github.com/andrewchilds/overcast
@@ -529,10 +533,11 @@ The command `overcast init` will create a new configuration in the current direc
       --env "KEY=VAL KEY='1 2 3'"     |
       --user NAME                     |
       --ssh-key PATH                  |
+      --shell-command "COMMAND"       | bash -s
       --parallel -p                   | false
       --continueOnError               | false
 
-    Relative paths are looked for in these directories:
+    Relative paths are relative to the cwd, or to these directories:
     /path/to/.overcast/scripts
     /path/to/installed/overcast/.overcast/scripts
 
