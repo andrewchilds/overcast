@@ -321,7 +321,7 @@ The command `overcast init` will create a new configuration in the current direc
 ### overcast help
 
 ```
-  Overcast v0.1.21
+  Overcast v0.1.22
 
   Code repo, issues, pull requests:
     https://github.com/andrewchilds/overcast
@@ -359,7 +359,9 @@ The command `overcast init` will create a new configuration in the current direc
     overcast health [instance|cluster|all]
     overcast info
     overcast init
+    overcast instance get [name] [attr...]
     overcast instance import [name] [options]
+    overcast instance list [cluster...]
     overcast instance remove [name]
     overcast instance update [name] [options]
     overcast list
@@ -394,6 +396,16 @@ The command `overcast init` will create a new configuration in the current direc
 ### overcast instance
 
 ```
+  overcast instance get [name] [attr...]
+    Returns the instance attribute(s), one per line.
+
+    Examples:
+    $ overcast instance get app.01 ssh-port ip
+    > 22
+    > 127.0.0.1
+    $ overcast instance get app.01 user
+    > appuser
+
   overcast instance import [name] [options]
     Imports an existing instance to a cluster.
 
@@ -415,6 +427,13 @@ The command `overcast init` will create a new configuration in the current direc
     $ overcast instance list
     $ overcast instance list app-cluster db-cluster
 
+  overcast instance remove [name]
+    Removes an instance from the index.
+    The server itself is not affected by this action.
+
+    Example:
+    $ overcast instance remove app.01
+
   overcast instance update [name] [options]
     Update any instance property. Specifying --cluster will move the instance to
     that cluster. Specifying --name will rename the instance.
@@ -429,13 +448,6 @@ The command `overcast init` will create a new configuration in the current direc
 
     Example:
     $ overcast instance update app.01 --user differentuser --ssh-key /path/to/another/key
-
-  overcast instance remove [name]
-    Removes an instance from the index.
-    The server itself is not affected by this action.
-
-    Example:
-    $ overcast instance remove app.01
 ```
 
 ### overcast list

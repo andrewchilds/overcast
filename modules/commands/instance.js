@@ -17,6 +17,21 @@ exports.run = function (args) {
 
 var subcommands = {};
 
+subcommands.get = function (args) {
+  var clusters = utils.getClusters();
+  utils.argShift(args, 'name');
+
+  var instance = utils.findOnlyMatchingInstance(args.name);
+  utils.handleEmptyInstances(instance, args);
+
+  _.each(args._, function (attr) {
+    attr = attr.replace(/-/g, '_');
+    if (instance[attr]) {
+      console.log(instance[attr]);
+    }
+  });
+};
+
 subcommands.import = function (args) {
   var clusters = utils.getClusters();
   utils.argShift(args, 'name');
@@ -153,7 +168,9 @@ subcommands.update = function (args) {
 
 exports.signatures = function () {
   return [
+    '  overcast instance get [name] [attr...]',
     '  overcast instance import [name] [options]',
+    '  overcast instance list [cluster...]',
     '  overcast instance remove [name]',
     '  overcast instance update [name] [options]'
   ];
@@ -161,6 +178,16 @@ exports.signatures = function () {
 
 exports.help = function () {
   utils.printArray([
+    'overcast instance get [name] [attr...]',
+    '  Returns the instance attribute(s), one per line.'.grey,
+    '',
+    '  Examples:'.grey,
+    '  $ overcast instance get app.01 ssh-port ip'.grey,
+    '  > 22'.grey,
+    '  > 127.0.0.1'.grey,
+    '  $ overcast instance get app.01 user'.grey,
+    '  > appuser'.grey,
+    '',
     'overcast instance import [name] [options]',
     '  Imports an existing instance to a cluster.'.grey,
     '',
@@ -182,6 +209,13 @@ exports.help = function () {
     '  $ overcast instance list'.grey,
     '  $ overcast instance list app-cluster db-cluster'.grey,
     '',
+    'overcast instance remove [name]',
+    '  Removes an instance from the index.'.grey,
+    '  The server itself is not affected by this action.'.grey,
+    '',
+    '  Example:'.grey,
+    '  $ overcast instance remove app.01'.grey,
+    '',
     'overcast instance update [name] [options]',
     '  Update any instance property. Specifying --cluster will move the instance to'.grey,
     '  that cluster. Specifying --name will rename the instance.'.grey,
@@ -195,13 +229,6 @@ exports.help = function () {
     '    --user USERNAME      |'.grey,
     '',
     '  Example:'.grey,
-    '  $ overcast instance update app.01 --user differentuser --ssh-key /path/to/another/key'.grey,
-    '',
-    'overcast instance remove [name]',
-    '  Removes an instance from the index.'.grey,
-    '  The server itself is not affected by this action.'.grey,
-    '',
-    '  Example:'.grey,
-    '  $ overcast instance remove app.01'.grey
+    '  $ overcast instance update app.01 --user differentuser --ssh-key /path/to/another/key'.grey
   ]);
 };

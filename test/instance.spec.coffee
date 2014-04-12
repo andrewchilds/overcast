@@ -21,6 +21,12 @@ describe 'instance', ->
           expect(stdout).toContain 'Instance "instance.01" (127.0.0.1) has been imported ' +
           'to the "instance-test" cluster'
 
+  describe 'get', ->
+
+    it 'should output the instance attributes', ->
+      overcast 'instance get instance.01 ip', (stdout) ->
+        expect(stdout).toContain '127.0.0.1'
+
   describe 'list', ->
 
     it 'should list all instances with overcast instance list', ->
