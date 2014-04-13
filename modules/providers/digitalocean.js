@@ -272,7 +272,7 @@ exports.snapshot = function (instance, name, callback) {
       query: { name: name },
       callback: function (eventResult) {
         utils.success('Snapshot "' + name + '" created.');
-        (callback || _.noop)();
+        utils.waitForBoot(callback);
       }
     });
   });
