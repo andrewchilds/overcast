@@ -81,6 +81,8 @@ function sshExec(options, next) {
       sshEnv.overcast_env = _.map(options.env, function (val, key) {
         return key + '="' + (val + '').replace(/"/g, '\"') + '"';
       }).join(' ');
+    } else if (_.isArray(options.env)) {
+      sshEnv.overcast_env = options.env.join(' ');
     } else if (_.isString(options.env)) {
       sshEnv.overcast_env = options.env.trim();
     }

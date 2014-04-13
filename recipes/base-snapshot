@@ -37,6 +37,7 @@ overcast expose $instance $sshPort
 
 echo "System upgrade, installing core packages..."
 overcast run $instance install/core
+overcast digitalocean reboot $instance
 
 echo "Creating snapshot..."
 overcast digitalocean snapshot $instance $instance.snapshot

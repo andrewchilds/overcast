@@ -315,6 +315,14 @@ exports.waitForProgress = function (seconds, callback, percentage) {
   }, callback);
 };
 
+exports.waitForBoot = function (callback) {
+  exports.grey('Waiting 45 seconds for server to boot up...');
+  exports.waitForProgress(45, function () {
+    exports.success('OK, server should be responsive.');
+    (callback || _.noop)();
+  });
+};
+
 exports.printCollection = function (type, collection) {
   if (_.isEmpty(collection)) {
     return exports.red('No ' + type + ' found.');
