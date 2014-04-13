@@ -8,38 +8,76 @@
 #  - A non-root user account created with SSH access using the overcast SSH key
 #  - Creates a snapshot of the configured instance
 #
-# This script takes around 4 minutes to run.
+# This script takes around 5 minutes to run.
+
+###############################################################################
+
+# Instructions:
+
+# 1. Install Overcast:
+#
+#    npm -g install overcast
+#
+# 2. Add your DigitalOcean API credentials to $HOME/.overcast/variables.json:
+#
+#    {
+#      "DIGITALOCEAN_CLIENT_ID": "YOUR_CLIENT_ID",
+#      "DIGITALOCEAN_API_KEY": "YOUR_API_KEY"
+#    }
+#
+# 3. Download, configure and run this script from the terminal:
+#
+#    curl https://raw.githubusercontent.com/andrewchilds/overcast/master/recipes/base-snapshot > ./base-snapshot
+#    chmod +x ./base-snapshot
+#    (Configure with your favorite editor...)
+#    ./base-snapshot
+#
+# 4. Wait 5 minutes.
+#
+# 5. You can now use "base.001.snapshot" when creating new instances:
+#
+#    overcast digitalocean create db.001 --cluster db --image-name base.001.snapshot
+
+###############################################################################
+
+# Configuration:
 
 cluster="base"
 instance="base.001"
-username="appuser"
-sshPort="50022"
+
+# List droplet sizes with `overcast digitalocean sizes`
+sizeSlug="2gb"
+
+# List droplet regions with `overcast digitalocean regions`
+regionSlug="nyc2"
+
+###############################################################################
 
 # You shouldn't have to edit anything below.
 
 echo "Creating cluster $cluster if it doesn't already exist..."
 overcast cluster create $cluster
 
-if [ -z "$instance" ]; then
-  # Autogenerate instance name based on number of existing instances in the cluster.
-  id=$(printf '%03d' $(expr $(overcast cluster count $cluster) + 1))
-  instance="$cluster.$id"
-fi
-
 echo "Creating instance $instance on DigitalOcean..."
-overcast digitalocean create $instance --cluster $cluster
+overcast digitalocean create $instance --cluster $cluster --size-slug $sizeSlug \
+  --region-slug $regionSlug --image-slug "ubuntu-12-04-x64"
 
-echo "Changing SSH port to $sshPort, configuring iptables..."
+echo "Disallowing password access through SSH..."
 overcast run $instance harden_ssh
-overcast expose $instance 22 $sshPort
-overcast port $instance $sshPort
-overcast expose $instance $sshPort
 
-echo "System upgrade, installing core packages..."
+echo "Full system upgrade, installing core packages..."
 overcast run $instance install/core
 overcast digitalocean reboot $instance
 
-echo "Creating snapshot..."
+echo "Configuring iptables to only expose SSH..."
+overcast expose $instance 22 80
+
+echo "Creating snapshot \"$instance.snapshot\"..."
 overcast digitalocean snapshot $instance $instance.snapshot
 
+echo "Destroying instance"...
+overcast digitalocean destroy $instance
+overcast cluster remove $cluster
+
 echo "Done."
+overcast digitalocean snapshots

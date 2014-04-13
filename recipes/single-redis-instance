@@ -10,11 +10,17 @@
 #
 # This script takes around 5 minutes to run.
 
+###############################################################################
+
+# Configuration:
+
 cluster="redis"
 # instance="redis.001"
 username="appuser"
 sshPort="50022"
 ipWhitelist=""
+
+###############################################################################
 
 # You shouldn't have to edit anything below.
 

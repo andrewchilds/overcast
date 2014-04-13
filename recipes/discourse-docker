@@ -25,10 +25,10 @@
 #
 # 3. Download, configure and run this script from the terminal:
 #
-#    curl https://raw.githubusercontent.com/andrewchilds/overcast/master/recipes/discourse > ./discourse
-#    chmod +x ./discourse
-#    (edit with your favorite editor...)
-#    ./discourse
+#    curl https://raw.githubusercontent.com/andrewchilds/overcast/master/recipes/discourse-docker > ./discourse-docker
+#    chmod +x ./discourse-docker
+#    (Configure with your favorite editor...)
+#    ./discourse-docker
 #
 # 4. Wait 15-20 minutes.
 #
@@ -91,7 +91,8 @@ echo "Installing Docker..."
 overcast run $instance install/docker
 
 echo "Installing Discourse..."
-overcast run $instance install/discourse_docker --env "discourseHostname=\"$discourseHostname\"" \
+overcast run $instance install/discourse_docker \
+  --env "discourseHostname=\"$discourseHostname\"" \
   --env "discourseDevEmails=\"$discourseDevEmails\"" \
   --env "discourseSMTPAddress=\"$discourseSMTPAddress\"" \
   --env "discourseSMTPPort=\"$discourseSMTPPort\"" \

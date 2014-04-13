@@ -9,10 +9,16 @@
 #
 # This script takes around 5 minutes to run.
 
+###############################################################################
+
+# Configuration:
+
 cluster="example"
 # instance="example.001"
 username="appuser"
 sshPort="50022"
+
+###############################################################################
 
 # You shouldn't have to edit anything below.
 
