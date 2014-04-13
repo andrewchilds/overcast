@@ -23,9 +23,12 @@
 # 3. Sign up for an account on https://mandrillapp.com/ to handle email
 #    notifications, click "Get SMTP Credentials", and copy the SMTP info below.
 #
-# 3. Configure and run this script from the terminal:
+# 3. Download, configure and run this script from the terminal:
 #
-#    recipes/discourse
+#    curl https://raw.githubusercontent.com/andrewchilds/overcast/master/recipes/discourse > ./discourse
+#    chmod +x ./discourse
+#    (edit with your favorite editor...)
+#    ./discourse
 #
 # 4. Wait 15-20 minutes.
 #
@@ -88,12 +91,12 @@ echo "Installing Docker..."
 overcast run $instance install/docker
 
 echo "Installing Discourse..."
-overcast run $instance install/discourse --env 'discourseHostname="$discourseHostname"' \
-  --env 'discourseDevEmails="$discourseDevEmails"' \
-  --env 'discourseSMTPAddress="$discourseSMTPAddress"' \
-  --env 'discourseSMTPPort="$discourseSMTPPort"' \
-  --env 'discourseSMTPUsername="$discourseSMTPUsername"' \
-  --env 'discourseSMTPpassword="$discourseSMTPpassword"'
+overcast run $instance install/discourse --env "discourseHostname=\"$discourseHostname\"" \
+  --env "discourseDevEmails=\"$discourseDevEmails\"" \
+  --env "discourseSMTPAddress=\"$discourseSMTPAddress\"" \
+  --env "discourseSMTPPort=\"$discourseSMTPPort\"" \
+  --env "discourseSMTPUsername=\"$discourseSMTPUsername\"" \
+  --env "discourseSMTPpassword=\"$discourseSMTPpassword\""
 
 echo "Starting Discourse..."
 overcast run $instance "cd /var/docker; ./launcher start app --skip-prereqs"
