@@ -1,0 +1,106 @@
+#!/bin/bash
+
+# Recipe to deploy Discourse on DigitalOcean using Overcast.
+# Spins up a 2gb droplet in the nyc2 region running Ubuntu 12.04.
+
+# This script takes around 15-20 minutes to run.
+
+###############################################################################
+
+# Instructions:
+
+# 1. Install Overcast:
+#
+#    npm -g install overcast
+#
+# 2. Add your DigitalOcean API credentials to $HOME/.overcast/variables.json:
+#
+#    {
+#      "DIGITALOCEAN_CLIENT_ID": "YOUR_CLIENT_ID",
+#      "DIGITALOCEAN_API_KEY": "YOUR_API_KEY"
+#    }
+#
+# 3. Sign up for an account on https://mandrillapp.com/ to handle email
+#    notifications, click "Get SMTP Credentials", and copy the SMTP info below.
+#
+# 3. Configure and run this script from the terminal:
+#
+#    recipes/discourse
+#
+# 4. Wait 15-20 minutes.
+#
+# 5. Go to your assigned IP address and set up your new Discourse install.
+
+###############################################################################
+
+# Configuration:
+
+cluster="discourse"
+
+# Uncomment if you want a custom instance name:
+# instance="discourse.001"
+
+# List droplet sizes with `overcast digitalocean sizes`
+sizeSlug="2gb"
+
+# List droplet regions with `overcast digitalocean regions`
+regionSlug="nyc2"
+
+# Discourse configuration
+discourseDevEmails="email@example.com"
+discourseHostname="discourse.example.com"
+discourseSMTPAddress="smtp.mandrillapp.com"
+discourseSMTPPort="587"
+discourseSMTPUsername="email@example.com"
+discourseSMTPpassword="my.api.key"
+
+###############################################################################
+
+# You shouldn't need to edit anything below.
+
+echo "Creating cluster \"$cluster\" if it doesn't already exist..."
+overcast cluster create $cluster
+
+if [ -z "$instance" ]; then
+  # Autogenerate instance name based on number of existing instances in the cluster.
+  id=$(printf '%03d' $(expr $(overcast cluster count $cluster) + 1))
+  instance="$cluster.$id"
+fi
+
+echo "Creating instance \"$instance\" on DigitalOcean..."
+overcast digitalocean create $instance --cluster $cluster --size-slug $sizeSlug \
+  --region-slug $regionSlug --image-slug "ubuntu-12-04-x64"
+
+echo "Disallowing password access through SSH..."
+overcast run $instance harden_ssh
+
+echo "Full system upgrade, installing core packages..."
+overcast run $instance install/core
+overcast digitalocean reboot $instance
+
+echo "Configuring iptables to only expose HTTP and SSH..."
+overcast expose $instance 22 80
+
+echo "Creating SSH key for root that Discourse can use..."
+overcast run $instance "ssh-keygen -t rsa -N \"\" -f /root/.ssh/id_rsa"
+
+echo "Installing Docker..."
+overcast run $instance install/docker
+
+echo "Installing Discourse..."
+overcast run $instance install/discourse --env 'discourseHostname="$discourseHostname"' \
+  --env 'discourseDevEmails="$discourseDevEmails"' \
+  --env 'discourseSMTPAddress="$discourseSMTPAddress"' \
+  --env 'discourseSMTPPort="$discourseSMTPPort"' \
+  --env 'discourseSMTPUsername="$discourseSMTPUsername"' \
+  --env 'discourseSMTPpassword="$discourseSMTPpassword"'
+
+echo "Starting Discourse..."
+overcast run $instance "cd /var/docker; ./launcher start app --skip-prereqs"
+
+# Uncomment if you want to create a snapshot. May take a while.
+# echo "Creating snapshot \"$instance.snapshot\"..."
+# overcast digitalocean snapshot $instance $instance.snapshot
+
+echo "Done!"
+echo "Your new Discourse instance is ready to go at http://`overcast instance get $instance ip`. Enjoy!"
