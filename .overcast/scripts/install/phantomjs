@@ -13,6 +13,8 @@ if [ "$(id -u)" != "0" ]; then
    exit 1
 fi
 
+aptitude -y install libfontconfig
+
 cd /usr/local/share
 wget https://bitbucket.org/ariya/phantomjs/downloads/phantomjs-1.9.7-linux-x86_64.tar.bz2
 tar xvf phantomjs-1.9.7-linux-x86_64.tar.bz2

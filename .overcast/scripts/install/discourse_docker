@@ -39,7 +39,7 @@ sed -i "s/\#\? \?DISCOURSE_SMTP_PORT\: .*/DISCOURSE_SMTP_PORT\: \'$discourseSMTP
 sed -i "s/\#\? \?DISCOURSE_SMTP_USER_NAME\: .*/DISCOURSE_SMTP_USER_NAME\: \'$discourseSMTPUsername\'/g" containers/app.yml
 sed -i "s/\#\? \?DISCOURSE_SMTP_PASSWORD\: .*/DISCOURSE_SMTP_PASSWORD\: \'$discourseSMTPpassword\'/g" containers/app.yml
 
-./launcher bootstrap app --skip-prereqs
+./launcher bootstrap app
 
 # Running this separately in recipes/discourse.
 # ./launcher start app --skip-prereqs
