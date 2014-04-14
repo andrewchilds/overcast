@@ -91,7 +91,7 @@ echo "Installing Docker..."
 overcast run $instance install/docker
 
 echo "Installing Discourse..."
-overcast run $instance install/discourse_docker
+overcast run $instance install/discourse_docker \
   --env "discourseHostname=\"$discourseHostname\" \
   discourseDevEmails=\"$discourseDevEmails\" \
   discourseSMTPAddress=\"$discourseSMTPAddress\" \
