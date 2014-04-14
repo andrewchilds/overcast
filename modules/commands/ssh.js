@@ -16,16 +16,22 @@ exports.run = function (args) {
     utils.handleEmptyInstances({}, args);
   }
 
+  var privateKeyFile = args['ssh-key'] || instance.ssh_key || utils.CONFIG_DIR + '/keys/overcast.key';
+  var sshPort = instance.ssh_port || '22';
+  var host = (args.user || instance.user || 'root') + '@' + instance.ip;
+
   var ssh = cp.spawn('ssh', [
     '-tt',
     '-i',
-    (args['ssh-key'] || instance.ssh_key || utils.CONFIG_DIR + '/keys/overcast.key'),
+    privateKeyFile,
     '-p',
-    (instance.ssh_port || '22'),
+    sshPort,
     '-o',
     'StrictHostKeyChecking=no',
-    (args.user || instance.user || 'root') + '@' + instance.ip
+    host
   ]);
+
+  console.log('$ ssh -i ' + privateKeyFile + ' -p ' + sshPort + ' ' + host);
 
   process.stdin.resume();
   process.stdin.on('data', function (chunk) {
