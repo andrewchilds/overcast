@@ -55,7 +55,7 @@ discourseHostname="discourse.example.com"
 discourseSMTPAddress="smtp.mandrillapp.com"
 discourseSMTPPort="587"
 discourseSMTPUsername="email@example.com"
-discourseSMTPpassword="my.api.key"
+discourseSMTPPassword="my.api.key"
 
 ###############################################################################
 
@@ -81,8 +81,8 @@ echo "Full system upgrade, installing core packages..."
 overcast run $instance install/core
 overcast digitalocean reboot $instance
 
-echo "Configuring iptables to only expose HTTP and SSH..."
-overcast expose $instance 22 80
+echo "Configuring iptables to only expose HTTP, HTTPS and SSH..."
+overcast expose $instance 22 80 443
 
 echo "Creating SSH key for root that Discourse can use..."
 overcast run $instance "ssh-keygen -t rsa -N \"\" -f /root/.ssh/id_rsa"
@@ -91,13 +91,13 @@ echo "Installing Docker..."
 overcast run $instance install/docker
 
 echo "Installing Discourse..."
-overcast run $instance install/discourse_docker \
-  --env "discourseHostname=\"$discourseHostname\"" \
-  --env "discourseDevEmails=\"$discourseDevEmails\"" \
-  --env "discourseSMTPAddress=\"$discourseSMTPAddress\"" \
-  --env "discourseSMTPPort=\"$discourseSMTPPort\"" \
-  --env "discourseSMTPUsername=\"$discourseSMTPUsername\"" \
-  --env "discourseSMTPpassword=\"$discourseSMTPpassword\""
+overcast run $instance install/discourse_docker
+  --env "discourseHostname=\"$discourseHostname\" \
+  discourseDevEmails=\"$discourseDevEmails\" \
+  discourseSMTPAddress=\"$discourseSMTPAddress\" \
+  discourseSMTPPort=\"$discourseSMTPPort\" \
+  discourseSMTPUsername=\"$discourseSMTPUsername\" \
+  discourseSMTPPassword=\"$discourseSMTPPassword\""
 
 echo "Starting Discourse..."
 overcast run $instance "cd /var/docker; ./launcher start app --skip-prereqs"

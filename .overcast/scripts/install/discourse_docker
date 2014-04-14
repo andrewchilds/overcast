@@ -7,13 +7,13 @@
 # https://github.com/eviltrout/discourse-droplet
 
 # Usage:
-# overcast run myInstanceOrCluster install/discourse \
-#   --env "discourseHostname=\"$discourseHostname\"" \
-#   --env "discourseDevEmails=\"$discourseDevEmails\"" \
-#   --env "discourseSMTPAddress=\"$discourseSMTPAddress\"" \
-#   --env "discourseSMTPPort=\"$discourseSMTPPort\"" \
-#   --env "discourseSMTPUsername=\"$discourseSMTPUsername\"" \
-#   --env "discourseSMTPpassword=\"$discourseSMTPpassword\""
+# overcast run myInstanceOrCluster install/discourse_docker \
+#   --env "discourseHostname=\"$discourseHostname\" \
+#   discourseDevEmails=\"$discourseDevEmails\" \
+#   discourseSMTPAddress=\"$discourseSMTPAddress\" \
+#   discourseSMTPPort=\"$discourseSMTPPort\" \
+#   discourseSMTPUsername=\"$discourseSMTPUsername\" \
+#   discourseSMTPPassword=\"$discourseSMTPPassword\""
 
 # See also:
 # recipes/discourse-docker
@@ -37,9 +37,9 @@ sed -i "s/DISCOURSE_HOSTNAME\: .*/DISCOURSE_HOSTNAME\: \'$discourseHostname\'/g"
 sed -i "s/DISCOURSE_SMTP_ADDRESS\: .*/DISCOURSE_SMTP_ADDRESS\: \'$discourseSMTPAddress\'/g" containers/app.yml
 sed -i "s/\#\? \?DISCOURSE_SMTP_PORT\: .*/DISCOURSE_SMTP_PORT\: \'$discourseSMTPPort\'/g" containers/app.yml
 sed -i "s/\#\? \?DISCOURSE_SMTP_USER_NAME\: .*/DISCOURSE_SMTP_USER_NAME\: \'$discourseSMTPUsername\'/g" containers/app.yml
-sed -i "s/\#\? \?DISCOURSE_SMTP_PASSWORD\: .*/DISCOURSE_SMTP_PASSWORD\: \'$discourseSMTPpassword\'/g" containers/app.yml
+sed -i "s/\#\? \?DISCOURSE_SMTP_PASSWORD\: .*/DISCOURSE_SMTP_PASSWORD\: \'$discourseSMTPPassword\'/g" containers/app.yml
 
 ./launcher bootstrap app
 
-# Running this separately in recipes/discourse.
+# Running this separately in recipes/discourse-docker.
 # ./launcher start app --skip-prereqs
