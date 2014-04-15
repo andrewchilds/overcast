@@ -32,7 +32,7 @@ function runOnInstances(stack, args) {
 function runOnInstance(instance, args, next) {
   scpExec({
     ip: instance.ip,
-    user: instance.user,
+    user: args.user || instance.user,
     name: instance.name,
     ssh_key: instance.ssh_key,
     ssh_port: instance.ssh_port,
