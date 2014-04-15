@@ -256,12 +256,16 @@ The command `overcast init` will create a new configuration in the current direc
 
       Option
       --user=NAME
-      --whitelist "IP IP IP"
+      --whitelist "IP|RANGE..."
+      --whitelist-PORT "IP|RANGE..."
 
     Examples:
-    $ overcast expose redis 22 6379
-    $ overcast expose mysql 22 3306 --whitelist "1.1.1.1 2.2.2.2 192.168.100.0/24"
+    # Allow SSH, HTTP and HTTPS connections from anywhere:
     $ overcast expose app 22 80 443
+    # Allow SSH from anywhere, only allow Redis connections from 1.2.3.4:
+    $ overcast expose redis 22 6379 --whitelist-6379 "1.2.3.4"
+    # Only allow SSH and MySQL connections from 1.2.3.4 or from 5.6.7.xxx:
+    $ overcast expose mysql 22 3306 --whitelist "1.2.3.4 5.6.7.0/24"
 ```
 
 ### overcast exposed
@@ -321,7 +325,7 @@ The command `overcast init` will create a new configuration in the current direc
 ### overcast help
 
 ```
-  Overcast v0.1.26
+  Overcast v0.1.28
 
   Code repo, issues, pull requests:
     https://github.com/andrewchilds/overcast
@@ -493,6 +497,9 @@ The command `overcast init` will create a new configuration in the current direc
 
     Any reference to {instance} in the destination will be replaced with the instance name.
 
+      Option
+      --user NAME
+
     Example:
     Assuming instances "app.01" and "app.02", this will expand to:
       - .overcast/files/nginx/app.01.myapp.conf
@@ -508,6 +515,9 @@ The command `overcast init` will create a new configuration in the current direc
     absolute, or relative to the .overcast/files directory. Destination is absolute.
 
     Any reference to {instance} in the source will be replaced with the instance name.
+
+      Option
+      --user NAME
 
     Example:
     Assuming instances "app.01" and "app.02", this will expand to:

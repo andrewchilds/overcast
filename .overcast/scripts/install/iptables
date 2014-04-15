@@ -22,7 +22,7 @@ fi
 
 ssh_port_not_included=true
 for exposed_port in $exposed_ports; do
-  if [ "$current_ssh_port" -eq "$exposed_port" ]; then
+  if [ "$current_ssh_port" == "$exposed_port" ]; then
     ssh_port_not_included=false
   fi
 done
@@ -36,15 +36,19 @@ fi
 iptables -F
 
 for exposed_port in $exposed_ports; do
-  if [ -z "$ip_whitelist" ]; then
+  port_whitelist="whitelist_$exposed_port"
+  if [ -z "$whitelist" ] && [ -z "$port_whitelist" ]; then
     iptables -A INPUT -p tcp --dport $exposed_port -j ACCEPT
   else
-    # examples:
-    # ip_whitelist="1.1.1.1"
-    # ip_whitelist="1.1.1.1 2.2.2.2 192.168.0.0/24"
-    for ip in $ip_whitelist; do
-      iptables -A INPUT -p tcp -s $ip --dport $exposed_port -j ACCEPT
-    done
+    if [ -z "$port_whitelist" ]; then
+      for ip in $whitelist; do
+        iptables -A INPUT -p tcp -s $ip --dport $exposed_port -j ACCEPT
+      done
+    else
+      for ip in $port_whitelist; do
+        iptables -A INPUT -p tcp -s $ip --dport $exposed_port -j ACCEPT
+      done
+    fi
   fi
 done
 
