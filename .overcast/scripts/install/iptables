@@ -36,7 +36,8 @@ fi
 iptables -F
 
 for exposed_port in $exposed_ports; do
-  port_whitelist="whitelist_$exposed_port"
+  port_whitelist_attribute="whitelist_$exposed_port"
+  port_whitelist="${!port_whitelist_attribute}"
   if [ -z "$whitelist" ] && [ -z "$port_whitelist" ]; then
     iptables -A INPUT -p tcp --dport $exposed_port -j ACCEPT
   else
