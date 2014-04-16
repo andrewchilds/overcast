@@ -46,7 +46,7 @@ cluster="base"
 instance="base.001"
 
 # List droplet sizes with `overcast digitalocean sizes`
-sizeSlug="2gb"
+sizeSlug="512mb"
 
 # List droplet regions with `overcast digitalocean regions`
 regionSlug="nyc2"
