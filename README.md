@@ -1,8 +1,8 @@
 # ![Overcast Logo](http://i.imgur.com/eCBl2NI.png)
 
-![Screenshot](http://i.imgur.com/qWUV684.png)
+Overcast is a simple, SSH-based cloud management CLI that was designed to make it easy to spin up and manage clusters of servers in a consistent, scriptable way.
 
-Overcast is a simple terminal-based cloud management tool that was designed to make it easy to spin up and manage clusters of servers in a consistent, scriptable way. Inspired by [Packer.io](http://packer.io).
+![Screenshot](http://i.imgur.com/qWUV684.png)
 
 ## Concepts
 
