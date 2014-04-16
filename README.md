@@ -586,6 +586,11 @@ There are a lot of server management frameworks out there already (Chef, Puppet,
 
 I wanted something that had little to no learning curve, that just focused on multi-server provisioning and communication and leaves problems like process/state management and system monitoring to tools designed specifically for those problems (Monit, Munin, Nagios, etc).
 
+## Example App Deployments
+
+  - [Discourse](https://github.com/andrewchilds/overcast/blob/master/recipes/discourse-docker)
+  - [Overcast Charts](https://github.com/andrewchilds/overcast-charts)
+
 ## Running the Tests
 
 [![Build Status](https://travis-ci.org/andrewchilds/overcast.svg?branch=master)](https://travis-ci.org/andrewchilds/overcast)
