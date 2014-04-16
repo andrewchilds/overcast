@@ -186,25 +186,24 @@ footer {
 @media print, screen and (max-width: 3000px) {
   
   div.wrapper {
-    max-width: 900px;
+    max-width: 700px;
     margin: 0 auto;
     width: auto;
   }
   
+  #logo {
+    text-align: center;
+  }
+  
   header, section, footer {
     float: none;
-    max-width: 900px;
+    max-width: 860px;
     position: static;
     width: auto;
   }
   
-  header {
-    padding-right:320px;
-  }
-  
   section {
-    border:1px solid #e5e5e5;
-    border-width:1px 0;
+    border-bottom: 1px solid #e5e5e5;
     padding:20px 0;
     margin:0 0 20px;
   }
@@ -214,9 +213,19 @@ footer {
   }
   
   header ul {
-    position:absolute;
-    right:50px;
-    top:52px;
+    display: none;
+  }
+
+  body {
+    font-size: 17px;
+  }
+  
+  h2 {
+    margin: 30px 0 20px;
+  }
+  
+  p code {
+    font-size: 14px;
   }
 }
 
@@ -254,4 +263,8 @@ footer {
     font-size:12pt;
     color:#444;
   }
+}
+
+header {
+  display: none;
 }
