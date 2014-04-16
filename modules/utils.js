@@ -4,7 +4,7 @@ var _ = require('lodash');
 var colors = require('colors');
 var list = require('./commands/list');
 
-exports.VERSION = '0.1.29';
+exports.VERSION = '0.2.0';
 
 exports.clustersCache = null;
 exports.variablesCache = null;
@@ -34,7 +34,7 @@ exports.initOvercastDir = function (dest_dir, callback) {
 
   return cp.exec(__dirname + '/../bin/init', {
     env: _.extend({}, process.env, {
-      overcast_src_dir: __dirname + '/../.overcast',
+      overcast_fixture_dir: __dirname + '/../fixtures',
       overcast_dest_dir: dest_dir
     })
   }, function (err, stdout, stderr) {

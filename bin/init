@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if [ -z "$overcast_src_dir" ] || [ -z "$overcast_dest_dir" ]; then
+if [ -z "$overcast_fixture_dir" ] || [ -z "$overcast_dest_dir" ]; then
   echo "Don't use this script directly. Run 'overcast init' from the directory"
   echo "you want to install an overcast configuration in."
   exit 1
@@ -13,5 +13,5 @@ mkdir -p $overcast_dest_dir/scripts
 echo "{}" > $overcast_dest_dir/clusters.json
 echo "{}" > $overcast_dest_dir/variables.json
 
-cp $overcast_src_dir/example.clusters.json $overcast_dest_dir/example.clusters.json
-cp $overcast_src_dir/example.variables.json $overcast_dest_dir/example.variables.json
+cp $overcast_fixture_dir/example.clusters.json $overcast_dest_dir/example.clusters.json
+cp $overcast_fixture_dir/example.variables.json $overcast_dest_dir/example.variables.json

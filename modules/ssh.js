@@ -90,7 +90,7 @@ function sshExec(options, next) {
 
   var cwdScriptFile = commandAsScriptFile(options.command, process.cwd());
   var scriptFile = commandAsScriptFile(options.command, utils.CONFIG_DIR + '/scripts');
-  var bundledScriptFile = commandAsScriptFile(options.command, __dirname + '/../.overcast/scripts');
+  var bundledScriptFile = commandAsScriptFile(options.command, __dirname + '/../scripts');
 
   if (fs.existsSync(cwdScriptFile)) {
     sshEnv.overcast_script_file = cwdScriptFile;

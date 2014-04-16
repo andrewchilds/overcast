@@ -26,7 +26,7 @@ exports.signatures = function () {
 
 exports.help = function () {
   var localScriptDir = utils.CONFIG_DIR + '/scripts';
-  var bundledScriptDir = path.normalize(__dirname + '/../../.overcast/scripts');
+  var bundledScriptDir = path.normalize(__dirname + '/../../scripts');
 
   utils.printArray([
     'overcast run [instance|cluster|all] [command...]',
