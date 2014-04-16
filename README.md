@@ -1,4 +1,4 @@
-# Overcast
+# ![Overcast Logo](http://i.imgur.com/eCBl2NI.png)
 
 ![Screenshot](http://i.imgur.com/qWUV684.png)
 
