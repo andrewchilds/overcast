@@ -186,15 +186,16 @@ footer {
 @media print, screen and (max-width: 3000px) {
   
   div.wrapper {
-    width:auto;
     max-width: 900px;
-    margin:0;
+    margin: 0 auto;
+    width: auto;
   }
   
   header, section, footer {
-    float:none;
-    position:static;
-    width:auto;
+    float: none;
+    max-width: 900px;
+    position: static;
+    width: auto;
   }
   
   header {
