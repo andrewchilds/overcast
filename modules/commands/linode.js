@@ -146,7 +146,11 @@ subcommands.plans = function () {
 };
 
 subcommands.reboot = function (instance) {
-  API.rebootLinode({ 'linode-name': instance.name });
+  API.rebootLinode({ 'linode-name': instance.name })
+  .then(API.waitForPendingJobs)
+  .then(function () {
+    utils.success('Rebooted.');
+  });
 };
 
 subcommands.resize = function (instance, args) {

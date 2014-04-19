@@ -6,12 +6,17 @@ if [ -z "$overcast_fixture_dir" ] || [ -z "$overcast_dest_dir" ]; then
   exit 1
 fi
 
-mkdir -p $overcast_dest_dir/files
-mkdir -p $overcast_dest_dir/keys
-mkdir -p $overcast_dest_dir/scripts
+mkdir -p "$overcast_dest_dir/files"
+mkdir -p "$overcast_dest_dir/keys"
+mkdir -p "$overcast_dest_dir/scripts"
 
-echo "{}" > $overcast_dest_dir/clusters.json
-echo "{}" > $overcast_dest_dir/variables.json
+if [ ! -f "$overcast_dest_dir/clusters.json" ]; then
+  echo "{}" > "$overcast_dest_dir/clusters.json"
+fi
 
-cp $overcast_fixture_dir/example.clusters.json $overcast_dest_dir/example.clusters.json
-cp $overcast_fixture_dir/example.variables.json $overcast_dest_dir/example.variables.json
+if [ ! -f "$overcast_dest_dir/variables.json" ]; then
+  cp "$overcast_fixture_dir/example.variables.json" "$overcast_dest_dir/variables.json"
+fi
+
+cp "$overcast_fixture_dir/example.clusters.json" "$overcast_dest_dir/example.clusters.json"
+cp "$overcast_fixture_dir/example.variables.json" "$overcast_dest_dir/example.variables.json"

@@ -4,7 +4,7 @@ var _ = require('lodash');
 var colors = require('colors');
 var list = require('./commands/list');
 
-exports.VERSION = '0.2.2';
+exports.VERSION = '0.2.3';
 
 exports.clustersCache = null;
 exports.variablesCache = null;
@@ -54,7 +54,6 @@ exports.walkDir = function(dir, callback) {
   if (!dir || dir === '/') {
     // No config directory found!
     // Fallback to config directory in $HOME.
-    exports.alert('No config directory found!');
     return exports.initOvercastDir(process.env.HOME, function () {
       callback(process.env.HOME + '/.overcast');
     });
