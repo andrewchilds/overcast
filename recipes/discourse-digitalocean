@@ -1,0 +1,57 @@
+#!/bin/bash
+
+# Deploy Discourse on DigitalOcean.
+
+# This script takes around 15-20 minutes to run.
+
+###############################################################################
+
+# Instructions:
+
+# 1. Install Overcast:
+#
+#    npm -g install overcast
+#
+# 2. Add your DigitalOcean API credentials to $HOME/.overcast/variables.json:
+#
+#    {
+#      "DIGITALOCEAN_CLIENT_ID": "YOUR_CLIENT_ID",
+#      "DIGITALOCEAN_API_KEY": "YOUR_API_KEY"
+#    }
+#
+# 3. Sign up for an account on https://mandrillapp.com/ to handle email
+#    notifications, click "Get SMTP Credentials", and copy the SMTP info below.
+#
+# 3. Download, configure and run this script from the terminal:
+#
+#    git clone https://github.com/andrewchilds/overcast.git
+#    (Configure with your favorite editor...)
+#    overcast/recipes/discourse-docker
+#
+# 4. Wait 15-20 minutes.
+#
+# 5. Go to your assigned IP address and set up your new Discourse install.
+
+###############################################################################
+
+# Configuration:
+
+cluster="discourse"
+instance="discourse.001"
+
+# List droplet sizes with `overcast digitalocean sizes`
+sizeSlug="2gb"
+
+# List droplet regions with `overcast digitalocean regions`
+regionSlug="nyc2"
+
+###############################################################################
+
+# You shouldn't need to edit anything below.
+
+dirName=$(dirname "$0")
+
+overcast cluster create $cluster
+overcast digitalocean create $instance --cluster $cluster --size-slug $sizeSlug \
+  --region-slug $regionSlug --image-slug "ubuntu-12-04-x64"
+$dirName/discourse $instance

@@ -1,0 +1,74 @@
+#!/bin/bash
+
+# Discourse Recipe
+
+# Deploy on a DigitalOcean 2GB:
+#   overcast create cluster discourse
+#   overcast digitalocean create discourse-do-01 --cluster discourse --size-slug 2gb
+#   recipes/discourse discourse-do-01
+
+# Deploy on a Linode 2048:
+#   overcast create cluster discourse
+#   overcast linode create discourse-linode-01 --cluster discourse
+#   recipes/discourse discourse-linode-01
+
+###############################################################################
+
+# Configuration:
+if [ -z "$1" ]; then
+  echo "Usage: recipes/discourse [instance]"
+  exit 1
+fi
+
+instance=$1
+
+# Discourse configuration
+discourseDevEmails="email@example.com"
+discourseHostname="discourse.example.com"
+discourseSMTPAddress="smtp.mandrillapp.com"
+discourseSMTPPort="587"
+discourseSMTPUsername="email@example.com"
+discourseSMTPPassword="my.api.key"
+
+###############################################################################
+
+# You shouldn't need to edit anything below.
+
+echo "Disallowing password access through SSH..."
+overcast run $instance harden_ssh
+
+echo "Full system upgrade, installing core packages..."
+overcast run $instance install/core
+
+if [ -n "`overcast instance get $instance digitalocean`" ]; then
+  overcast digitalocean reboot $instance
+else
+  echo "Rebooting server..."
+  overcast run $instance reboot
+  echo "Waiting 1 minute for server to reboot..."
+  sleep 60
+fi
+
+echo "Configuring iptables to only expose HTTP, HTTPS and SSH..."
+overcast expose $instance 22 80 443
+
+echo "Creating SSH key for root that Discourse can use..."
+overcast run $instance "ssh-keygen -t rsa -N \"\" -f /root/.ssh/id_rsa"
+
+echo "Installing Docker..."
+overcast run $instance install/docker
+
+echo "Installing Discourse..."
+overcast run $instance install/discourse_docker \
+  --env "discourseHostname=\"$discourseHostname\" \
+  discourseDevEmails=\"$discourseDevEmails\" \
+  discourseSMTPAddress=\"$discourseSMTPAddress\" \
+  discourseSMTPPort=\"$discourseSMTPPort\" \
+  discourseSMTPUsername=\"$discourseSMTPUsername\" \
+  discourseSMTPPassword=\"$discourseSMTPPassword\""
+
+echo "Starting Discourse..."
+overcast run $instance "cd /var/docker; ./launcher start app --skip-prereqs"
+
+echo "Done!"
+echo "Your new Discourse instance is ready to go at http://`overcast instance get $instance ip`. Enjoy!"

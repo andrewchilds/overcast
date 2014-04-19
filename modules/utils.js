@@ -4,7 +4,7 @@ var _ = require('lodash');
 var colors = require('colors');
 var list = require('./commands/list');
 
-exports.VERSION = '0.2.1';
+exports.VERSION = '0.2.2';
 
 exports.clustersCache = null;
 exports.variablesCache = null;
@@ -306,6 +306,8 @@ exports.progressBar = function (testFn, doneFn) {
       (doneFn || _.noop)();
     }
   }, 250);
+
+  return interval;
 };
 
 exports.waitForProgress = function (seconds, callback, percentage) {
@@ -341,7 +343,7 @@ exports.prettyPrint = function (obj, indent, stepBy) {
   stepBy = stepBy || 2;
 
   _.each(obj, function (val, key) {
-    if (_.isPlainObject(val)) {
+    if (_.isArray(val) || _.isPlainObject(val)) {
       exports.grey(prefix + key + ':');
       exports.prettyPrint(val, indent + stepBy, stepBy);
     } else {

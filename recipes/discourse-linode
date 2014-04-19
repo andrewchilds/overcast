@@ -1,0 +1,47 @@
+#!/bin/bash
+
+# Deploy Discourse on Linode.
+
+# This script takes around 10-15 minutes to run.
+
+###############################################################################
+
+# Instructions:
+
+# 1. Install Overcast:
+#
+#    npm -g install overcast
+#
+# 2. Add your Linode API key to $HOME/.overcast/variables.json:
+#
+#    {
+#      "LINODE_API_KEY": "YOUR_API_KEY"
+#    }
+#
+# 3. Sign up for an account on https://mandrillapp.com/ to handle email
+#    notifications, click "Get SMTP Credentials", and copy the SMTP info below.
+#
+# 3. Download, configure and run this script from the terminal:
+#
+#    git clone https://github.com/andrewchilds/overcast.git
+#    (Configure with your favorite editor...)
+#    overcast/recipes/discourse-docker
+#
+# 4. Wait 10-15 minutes.
+#
+# 5. Go to your assigned IP address and set up your new Discourse install.
+
+###############################################################################
+
+# Configuration
+
+cluster="discourse"
+instance="discourse-01"
+
+###############################################################################
+
+dirName=$(dirname "$0")
+
+overcast cluster create $cluster
+overcast linode create $instance --cluster $cluster
+$dirName/discourse $instance

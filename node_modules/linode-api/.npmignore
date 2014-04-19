@@ -1,0 +1,5 @@
+.DS_Store
+.git*
+*.md
+Makefile
+src/
