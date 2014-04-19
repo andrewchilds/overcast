@@ -4,7 +4,7 @@ var _ = require('lodash');
 var colors = require('colors');
 var list = require('./commands/list');
 
-exports.VERSION = '0.2.3';
+exports.VERSION = '0.2.4';
 
 exports.clustersCache = null;
 exports.variablesCache = null;
@@ -39,12 +39,8 @@ exports.initOvercastDir = function (dest_dir, callback) {
     })
   }, function (err, stdout, stderr) {
     if (err) {
-      console.log(stdout);
-      exports.red(stderr);
       exports.die('Unable to create .overcast directory.');
     } else {
-      exports.grey('Created new config directory:');
-      exports.cyan(dest_dir);
       (callback || _.noop)(dest_dir);
     }
   });
