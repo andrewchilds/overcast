@@ -22,39 +22,37 @@ Overcast is a simple, SSH-based cloud management CLI that was designed to make i
     --ssh-port 22222 --ssh-key $HOME/.ssh/id_rsa
   ```
 
-- Create, snapshot and destroy instances on DigitalOcean (EC2/Linode support is on the roadmap).
+- Create, snapshot and destroy instances on DigitalOcean or Linode.
 
   ```sh
-  # Create a new Ubuntu 12.04 instance:
+  # Create a new Ubuntu 12.04 instance on DigitalOcean:
   $ overcast digitalocean create db.01 --cluster db
-  # Configure the instance to your liking:
-  $ overcast run db.01 install/core install/redis
-  $ overcast expose db.01 22 6379
-  # Create a snapshot:
-  $ overcast digitalocean snapshot db.01 my.db.snapshot
-  # Spin up a cluster using your snapshot:
-  $ overcast digitalocean create db.02 --cluster db --image-name my.db.snapshot
-  $ overcast digitalocean create db.03 --cluster db --image-name my.db.snapshot
-  $ overcast digitalocean create db.04 --cluster db --image-name my.db.snapshot
+
+  # Create a new Ubuntu 12.04 instance on Linode:
+  $ overcast linode create db.02 --cluster db
+
+  # Configure both instances in parallel:
+  $ overcast run db install/core install/redis --parallel
+  $ overcast expose db 22 6379 --parallel
   ```
 
-- Run commands or script files across any number of servers. Commands can be run sequentially or in parallel.
+- Run multiple commands or multiple scripts on any or all of your instances at once, over SSH. Commands can be run sequentially or in parallel using the `--parallel` flag.
 
   ```sh
   $ overcast run db install/core install/redis
   $ overcast run all uptime "free-m" "df -h" --parallel
   ```
 
-- Push and pull files between your local machine and an instance, a cluster, or all clusters. Dynamically rewrite file paths to include the instance name.
+- Push and pull files between your local machine and any or all of your instances at once. Dynamically rewrite file paths to include the instance name using `{instance}` in either source or destination path.
 
   ```sh
   $ overcast push app nginx/myapp.conf /etc/nginx/sites-enabled/myapp.conf
   $ overcast pull all /etc/nginx/sites-enabled/myapp.conf nginx/{instance}.myapp.conf
   ```
 
-- Overcast is a thin wrapper around your native SSH client, and doesn't install or leave anything on the servers you communicate with.
+- Overcast is a thin wrapper around your native SSH client, and doesn't install or leave anything on the servers you communicate with, so Overcast itself has no real attack surface.
 
-- A [script library](https://github.com/andrewchilds/overcast/tree/master/scripts) and [recipe library](https://github.com/andrewchilds/overcast/tree/master/recipes) are included to make it easy to deploy common software stacks and applications. The library was written for Ubuntu servers, but could be extended to include other distributions.
+- A [script library](https://github.com/andrewchilds/overcast/tree/master/scripts) and [recipe library](https://github.com/andrewchilds/overcast/tree/master/recipes) are included to make it easy to deploy common software stacks and applications. The library was written for Ubuntu, but could be extended to include other distributions.
 
 ## Installation
 
@@ -89,7 +87,7 @@ The command `overcast init` will create a new configuration in the current direc
   variables.json    # API keys, etc (see example.variables.json)
 ```
 
-## API Documentation
+## Commands
 
 ### overcast cluster
 
@@ -170,7 +168,7 @@ The command `overcast init` will create a new configuration in the current direc
       --size-id ID         |
 
     Example:
-    $ overcast instance create db.01 --cluster db --size-slug 1gb --region-slug sfo1
+    $ overcast digitalocean create db.01 --cluster db --size-slug 1gb --region-slug sfo1
 
   overcast digitalocean destroy [instance]
     Destroys a DigitalOcean droplet and removes it from your account.
@@ -224,7 +222,7 @@ The command `overcast init` will create a new configuration in the current direc
       --skipBoot           | false
 
     Example:
-    $ overcast instance resize db.01 --size-slug 2gb
+    $ overcast digitalocean resize db.01 --size-slug 2gb
 
   overcast digitalocean sizes
     List available DigitalOcean sizes (512mb, 1gb, etc).
@@ -370,6 +368,16 @@ The command `overcast init` will create a new configuration in the current direc
     overcast instance list [cluster...]
     overcast instance remove [name]
     overcast instance update [name] [options]
+    overcast linode boot [instance]
+    overcast linode create [instance] [options]
+    overcast linode datacenters
+    overcast linode destroy [instance]
+    overcast linode distributions
+    overcast linode kernels
+    overcast linode linodes
+    overcast linode plans
+    overcast linode reboot [instance]
+    overcast linode shutdown [instance]
     overcast list
     overcast ping [instance|cluster|all]
     overcast port [instance|cluster|all] [port]
@@ -454,6 +462,72 @@ The command `overcast init` will create a new configuration in the current direc
 
     Example:
     $ overcast instance update app.01 --user differentuser --ssh-key /path/to/another/key
+```
+
+### overcast linode
+
+```
+  These functions require LINODE_API_KEY property to be set in .overcast/variables.json.
+  API keys can be found at https://manager.linode.com/profile/api
+
+  overcast linode boot [instance]
+    Boot a powered off linode.
+
+  overcast linode create [name] [options]
+    Creates a new Linode.
+
+      Option                    | Default
+      --cluster CLUSTER         |
+      --datacenter-slug NAME    | newark
+      --datacenter-id ID        |
+      --distribution-slug NAME  | ubuntu-12-04-lts
+      --distribution-id ID      |
+      --kernel-id ID            |
+      --kernel-name NAME        | Latest 64 bit
+      --payment-term ID         | 1 (monthly, if not metered)
+      --plan-id ID              |
+      --plan-slug NAME          | 2048
+      --password PASSWORD       | autogenerated
+      --ssh-key KEY_PATH        | /path/to/.overcast/keys/overcast.key
+      --ssh-pub-key KEY_PATH    | /path/to/.overcast/keys/overcast.key.pub
+
+    Example:
+    $ overcast linode create db.01 --cluster db --datacenter-slug london
+
+  overcast linode datacenters
+    List available Linode datacenters.
+
+  overcast linode destroy [instance]
+    Destroys a linode and removes it from your account.
+    Using --force overrides the confirm dialog. This is irreversible.
+
+      Option                    | Default
+      --force                   | false
+
+  overcast linode distributions
+    List available Linode distributions.
+
+  overcast linode kernels
+    List available Linode kernels.
+
+  overcast linode linodes
+    List all linodes in your account.
+
+  overcast linode plans
+    List available Linode plans.
+
+  overcast linode resize [instance] [options]
+    Resizes a linode to the specified plan. This will immediately shutdown and migrate your linode.
+
+      Option                    | Default
+      --plan-id ID              |
+      --plan-slug NAME          |
+
+  overcast linode reboot [instance]
+    Reboots a linode.
+
+  overcast linode shutdown [instance]
+    Shut down a linode.
 ```
 
 ### overcast list
