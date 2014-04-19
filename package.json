@@ -14,7 +14,7 @@
   },
   "main": "overcast.js",
   "scripts": {
-    "postinstall": "overcast list",
+    "postinstall": "./bin/overcast list",
     "test": "rm -rf ./test/.overcast && ./node_modules/jasmine-node/bin/jasmine-node --coffee --color --verbose ./test"
   },
   "bin": {
