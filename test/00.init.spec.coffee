@@ -5,7 +5,7 @@ describe 'init', ->
 
   it 'should allow me to init in the cwd', ->
     overcast 'init', (stdout) ->
-      expect(stdout).toContain 'Created new config directory'
+      expect(stdout).toContain ''
 
   it 'should tell me if a config directory already exists', ->
     overcast 'init', (stdout) ->
