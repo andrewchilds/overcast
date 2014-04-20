@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <title>Overcast by andrewchilds</title>
+    <title>Overcast</title>
 
     <link rel="stylesheet" href="stylesheets/styles.css">
     <link rel="stylesheet" href="stylesheets/pygment_trac.css">
@@ -20,7 +20,6 @@
 
         <p class="view"><a href="https://github.com/andrewchilds/overcast">View the Project on GitHub <small>andrewchilds/overcast</small></a></p>
 
-
         <ul>
           <li><a href="https://github.com/andrewchilds/overcast/zipball/master">Download <strong>ZIP File</strong></a></li>
           <li><a href="https://github.com/andrewchilds/overcast/tarball/master">Download <strong>TAR Ball</strong></a></li>
@@ -28,28 +27,29 @@
         </ul>
       </header>
       <section>
-        <h1 id="logo">
+
+<h1 id="logo">
 <a href="https://github.com/andrewchilds/overcast"><img src="http://i.imgur.com/eCBl2NI.png" alt="Overcast Logo" /></a>
 </h1>
 
+<!-- Start README -->
+
 <p>Overcast is a simple, SSH-based cloud management CLI that was designed to make it easy to spin up and manage clusters of servers in a consistent, scriptable way.</p>
 
-<p><img src="http://i.imgur.com/qWUV684.png" alt="Screenshot"></p>
+<p><a href="http://i.imgur.com/qWUV684.png" target="_blank"><img src="http://i.imgur.com/qWUV684.png" alt="Screenshot style="max-width:100%;"></a></p>
 
 <h2>
-<a name="concepts" class="anchor" href="#concepts"><span class="octicon octicon-link"></span></a>Concepts</h2>
+<a name="user-content-concepts" class="anchor" href="#concepts"><span class="octicon octicon-link"></span></a>Concepts</h2>
 
 <ol>
 <li>
-<strong>Instances</strong> are any machine you can SSH into. Instances can be local or remote, virtual or physical. Each instance has a name, IP, SSH key and port.</li>
+<strong>Instances</strong> are any machine you can SSH into.</li>
 <li>
 <strong>Clusters</strong> are sets of instances.</li>
 </ol><h2>
-<a name="features" class="anchor" href="#features"><span class="octicon octicon-link"></span></a>Features</h2>
+<a name="user-content-features" class="anchor" href="#features"><span class="octicon octicon-link"></span></a>Features</h2>
 
-<ul>
-<li>
-<p>Define clusters and instances using the command line or by editing a simple JSON file.</p>
+<p>Define clusters and instances using the command line or by editing <code>.overcast/clusters.json</code>.</p>
 
 <div class="highlight highlight-sh"><pre><span class="nv">$ </span>overcast cluster create db
 <span class="nv">$ </span>overcast cluster create app
@@ -58,41 +58,38 @@
 <span class="nv">$ </span>overcast instance import app.02 --cluster app --ip 127.0.0.3 <span class="se">\</span>
   --ssh-port 22222 --ssh-key <span class="nv">$HOME</span>/.ssh/id_rsa
 </pre></div>
-</li>
-<li>
-<p>Create, snapshot and destroy instances on DigitalOcean (EC2/Linode support is on the roadmap).</p>
 
-<div class="highlight highlight-sh"><pre><span class="c"># Create a new Ubuntu 12.04 instance:</span>
+<p>Create, snapshot and destroy instances on DigitalOcean or Linode.</p>
+
+<div class="highlight highlight-sh"><pre><span class="c"># Create a new Ubuntu 12.04 instance on DigitalOcean:</span>
 <span class="nv">$ </span>overcast digitalocean create db.01 --cluster db
-<span class="c"># Configure the instance to your liking:</span>
-<span class="nv">$ </span>overcast run db.01 install/core install/redis
-<span class="nv">$ </span>overcast expose db.01 22 6379
-<span class="c"># Create a snapshot:</span>
-<span class="nv">$ </span>overcast digitalocean snapshot db.01 my.db.snapshot
-<span class="c"># Spin up a cluster using your snapshot:</span>
-<span class="nv">$ </span>overcast digitalocean create db.02 --cluster db --image-name my.db.snapshot
-<span class="nv">$ </span>overcast digitalocean create db.03 --cluster db --image-name my.db.snapshot
-<span class="nv">$ </span>overcast digitalocean create db.04 --cluster db --image-name my.db.snapshot
+
+<span class="c"># Create a new Ubuntu 12.04 instance on Linode:</span>
+<span class="nv">$ </span>overcast linode create db.02 --cluster db
+
+<span class="c"># Configure both instances in parallel:</span>
+<span class="nv">$ </span>overcast run db install/core install/redis --parallel
+<span class="nv">$ </span>overcast expose db 22 6379 --parallel
 </pre></div>
-</li>
-<li>
-<p>Run commands or script files across any number of servers. Commands can be run sequentially or in parallel.</p>
+
+<p>Run multiple commands or multiple scripts on any or all of your instances at once, over SSH. Commands can be run sequentially or in parallel using the <code>--parallel</code> flag.</p>
 
 <div class="highlight highlight-sh"><pre><span class="nv">$ </span>overcast run db install/core install/redis
 <span class="nv">$ </span>overcast run all uptime <span class="s2">"free-m"</span> <span class="s2">"df -h"</span> --parallel
 </pre></div>
-</li>
-<li>
-<p>Push and pull files between your local machine and an instance, a cluster, or all clusters. Dynamically rewrite file paths to include the instance name.</p>
+
+<p>Push and pull files between your local machine and any or all of your instances at once. Dynamically rewrite file paths to include the instance name using <code>{instance}</code> in either source or destination path.</p>
 
 <div class="highlight highlight-sh"><pre><span class="nv">$ </span>overcast push app nginx/myapp.conf /etc/nginx/sites-enabled/myapp.conf
 <span class="nv">$ </span>overcast pull all /etc/nginx/sites-enabled/myapp.conf nginx/<span class="o">{</span>instance<span class="o">}</span>.myapp.conf
 </pre></div>
-</li>
-<li><p>Overcast is a thin wrapper around your native SSH client, and doesn't install or leave anything on the servers you communicate with.</p></li>
-<li><p>A <a href="https://github.com/andrewchilds/overcast/tree/master/scripts">script library</a> and <a href="https://github.com/andrewchilds/overcast/tree/master/recipes">recipe library</a> are included to make it easy to deploy common software stacks and applications. The library was written for Ubuntu servers, but could be extended to include other distributions.</p></li>
-</ul><h2>
-<a name="installation" class="anchor" href="#installation"><span class="octicon octicon-link"></span></a>Installation</h2>
+
+<p>Overcast is a thin wrapper around your native SSH client, and doesn't install or leave anything on the servers you communicate with, so Overcast itself has no real attack surface.</p>
+
+<p>A <a href="https://github.com/andrewchilds/overcast/tree/master/scripts">script library</a> and <a href="https://github.com/andrewchilds/overcast/tree/master/recipes">recipe library</a> are included to make it easy to deploy common software stacks and applications. The library was written for Ubuntu, but could be extended to include other distributions.</p>
+
+<h2>
+<a name="user-content-installation-os-xlinux" class="anchor" href="#installation-os-xlinux"><span class="octicon octicon-link"></span></a>Installation (OS X/Linux)</h2>
 
 <ol>
 <li><p>Install <a href="https://github.com/joyent/node/wiki/Installing-Node.js-via-package-manager">Node.js</a> if not already installed.</p></li>
@@ -109,9 +106,20 @@
 </pre></div>
 </li>
 </ol><h2>
-<a name="configuration" class="anchor" href="#configuration"><span class="octicon octicon-link"></span></a>Configuration</h2>
+<a name="user-content-uninstallation" class="anchor" href="#uninstallation"><span class="octicon octicon-link"></span></a>Uninstallation</h2>
 
-<p>Overcast looks for an <code>.overcast</code> directory in the current directory, or in some parent directory, otherwise falling back to <code>$HOME/.overcast</code>. This allows you to have multiple configurations, and to check your cluster definitions and scripts into a repo, like source code.</p>
+<p>Since Overcast is just a wrapper around SSH, there is nothing on your remote machines to uninstall. To uninstall Overcast from your local machine:</p>
+
+<div class="highlight highlight-sh"><pre><span class="c"># To remove the Overcast package:</span>
+<span class="nv">$ </span>npm -g remove overcast
+<span class="c"># Optionally delete your Overcast SSH keys and configuration files:</span>
+<span class="nv">$ </span>rm -rf <span class="nv">$HOME</span>/.overcast
+</pre></div>
+
+<h2>
+<a name="user-content-configuration" class="anchor" href="#configuration"><span class="octicon octicon-link"></span></a>Configuration</h2>
+
+<p>Overcast looks for an <code>.overcast</code> directory in the current directory, or in some parent directory, otherwise falling back to <code>$HOME/.overcast</code>. This allows you to have multiple configurations, and to check your cluster definitions and scripts into a repo like source code.</p>
 
 <p>The command <code>overcast init</code> will create a new configuration in the current directory. The config directory looks like this:</p>
 
@@ -126,10 +134,10 @@
 </pre></div>
 
 <h2>
-<a name="api-documentation" class="anchor" href="#api-documentation"><span class="octicon octicon-link"></span></a>API Documentation</h2>
+<a name="user-content-commands" class="anchor" href="#commands"><span class="octicon octicon-link"></span></a>Commands</h2>
 
 <h3>
-<a name="overcast-cluster" class="anchor" href="#overcast-cluster"><span class="octicon octicon-link"></span></a>overcast cluster</h3>
+<a name="user-content-overcast-cluster" class="anchor" href="#overcast-cluster"><span class="octicon octicon-link"></span></a>overcast cluster</h3>
 
 <pre><code>  overcast cluster count [name]
     Return the number of instances in a cluster.
@@ -163,7 +171,7 @@
 </code></pre>
 
 <h3>
-<a name="overcast-completions" class="anchor" href="#overcast-completions"><span class="octicon octicon-link"></span></a>overcast completions</h3>
+<a name="user-content-overcast-completions" class="anchor" href="#overcast-completions"><span class="octicon octicon-link"></span></a>overcast completions</h3>
 
 <pre><code>  overcast completions
     Return an array of commands, cluster names, and instance names for use
@@ -180,7 +188,7 @@
 </code></pre>
 
 <h3>
-<a name="overcast-digitalocean" class="anchor" href="#overcast-digitalocean"><span class="octicon octicon-link"></span></a>overcast digitalocean</h3>
+<a name="user-content-overcast-digitalocean" class="anchor" href="#overcast-digitalocean"><span class="octicon octicon-link"></span></a>overcast digitalocean</h3>
 
 <pre><code>  These functions require the following values set in .overcast/variables.json:
     DIGITALOCEAN_CLIENT_ID
@@ -207,7 +215,7 @@
       --size-id ID         |
 
     Example:
-    $ overcast instance create db.01 --cluster db --size-slug 1gb --region-slug sfo1
+    $ overcast digitalocean create db.01 --cluster db --size-slug 1gb --region-slug sfo1
 
   overcast digitalocean destroy [instance]
     Destroys a DigitalOcean droplet and removes it from your account.
@@ -261,7 +269,7 @@
       --skipBoot           | false
 
     Example:
-    $ overcast instance resize db.01 --size-slug 2gb
+    $ overcast digitalocean resize db.01 --size-slug 2gb
 
   overcast digitalocean sizes
     List available DigitalOcean sizes (512mb, 1gb, etc).
@@ -283,7 +291,7 @@
 </code></pre>
 
 <h3>
-<a name="overcast-expose" class="anchor" href="#overcast-expose"><span class="octicon octicon-link"></span></a>overcast expose</h3>
+<a name="user-content-overcast-expose" class="anchor" href="#overcast-expose"><span class="octicon octicon-link"></span></a>overcast expose</h3>
 
 <pre><code>  overcast expose [instance|cluster|all] [port...]
     Reset the exposed ports on the instance or cluster using iptables.
@@ -308,7 +316,7 @@
 </code></pre>
 
 <h3>
-<a name="overcast-exposed" class="anchor" href="#overcast-exposed"><span class="octicon octicon-link"></span></a>overcast exposed</h3>
+<a name="user-content-overcast-exposed" class="anchor" href="#overcast-exposed"><span class="octicon octicon-link"></span></a>overcast exposed</h3>
 
 <pre><code>  overcast exposed [instance|cluster|all]
     List the exposed ports on the instance or cluster.
@@ -319,7 +327,7 @@
 </code></pre>
 
 <h3>
-<a name="overcast-health" class="anchor" href="#overcast-health"><span class="octicon octicon-link"></span></a>overcast health</h3>
+<a name="user-content-overcast-health" class="anchor" href="#overcast-health"><span class="octicon octicon-link"></span></a>overcast health</h3>
 
 <pre><code>  overcast health [instance|cluster|all]
     Export common health statistics in JSON format.
@@ -362,9 +370,9 @@
 </code></pre>
 
 <h3>
-<a name="overcast-help" class="anchor" href="#overcast-help"><span class="octicon octicon-link"></span></a>overcast help</h3>
+<a name="user-content-overcast-help" class="anchor" href="#overcast-help"><span class="octicon octicon-link"></span></a>overcast help</h3>
 
-<pre><code>  Overcast v0.2.1
+<pre><code>  Overcast v0.2.4
 
   Code repo, issues, pull requests:
     https://github.com/andrewchilds/overcast
@@ -407,6 +415,16 @@
     overcast instance list [cluster...]
     overcast instance remove [name]
     overcast instance update [name] [options]
+    overcast linode boot [instance]
+    overcast linode create [instance] [options]
+    overcast linode datacenters
+    overcast linode destroy [instance]
+    overcast linode distributions
+    overcast linode kernels
+    overcast linode linodes
+    overcast linode plans
+    overcast linode reboot [instance]
+    overcast linode shutdown [instance]
     overcast list
     overcast ping [instance|cluster|all]
     overcast port [instance|cluster|all] [port]
@@ -421,7 +439,7 @@
 </code></pre>
 
 <h3>
-<a name="overcast-info" class="anchor" href="#overcast-info"><span class="octicon octicon-link"></span></a>overcast info</h3>
+<a name="user-content-overcast-info" class="anchor" href="#overcast-info"><span class="octicon octicon-link"></span></a>overcast info</h3>
 
 <pre><code>  overcast info
     Pretty-prints the complete clusters.json file, stored here:
@@ -429,7 +447,7 @@
 </code></pre>
 
 <h3>
-<a name="overcast-init" class="anchor" href="#overcast-init"><span class="octicon octicon-link"></span></a>overcast init</h3>
+<a name="user-content-overcast-init" class="anchor" href="#overcast-init"><span class="octicon octicon-link"></span></a>overcast init</h3>
 
 <pre><code>  overcast init
     Create an .overcast config directory in the current working directory.
@@ -437,7 +455,7 @@
 </code></pre>
 
 <h3>
-<a name="overcast-instance" class="anchor" href="#overcast-instance"><span class="octicon octicon-link"></span></a>overcast instance</h3>
+<a name="user-content-overcast-instance" class="anchor" href="#overcast-instance"><span class="octicon octicon-link"></span></a>overcast instance</h3>
 
 <pre><code>  overcast instance get [name] [attr...]
     Returns the instance attribute(s), one per line.
@@ -494,7 +512,73 @@
 </code></pre>
 
 <h3>
-<a name="overcast-list" class="anchor" href="#overcast-list"><span class="octicon octicon-link"></span></a>overcast list</h3>
+<a name="user-content-overcast-linode" class="anchor" href="#overcast-linode"><span class="octicon octicon-link"></span></a>overcast linode</h3>
+
+<pre><code>  These functions require LINODE_API_KEY property to be set in .overcast/variables.json.
+  API keys can be found at https://manager.linode.com/profile/api
+
+  overcast linode boot [instance]
+    Boot a powered off linode.
+
+  overcast linode create [name] [options]
+    Creates a new Linode.
+
+      Option                    | Default
+      --cluster CLUSTER         |
+      --datacenter-slug NAME    | newark
+      --datacenter-id ID        |
+      --distribution-slug NAME  | ubuntu-12-04-lts
+      --distribution-id ID      |
+      --kernel-id ID            |
+      --kernel-name NAME        | Latest 64 bit
+      --payment-term ID         | 1 (monthly, if not metered)
+      --plan-id ID              |
+      --plan-slug NAME          | 2048
+      --password PASSWORD       | autogenerated
+      --ssh-key KEY_PATH        | /path/to/.overcast/keys/overcast.key
+      --ssh-pub-key KEY_PATH    | /path/to/.overcast/keys/overcast.key.pub
+
+    Example:
+    $ overcast linode create db.01 --cluster db --datacenter-slug london
+
+  overcast linode datacenters
+    List available Linode datacenters.
+
+  overcast linode destroy [instance]
+    Destroys a linode and removes it from your account.
+    Using --force overrides the confirm dialog. This is irreversible.
+
+      Option                    | Default
+      --force                   | false
+
+  overcast linode distributions
+    List available Linode distributions.
+
+  overcast linode kernels
+    List available Linode kernels.
+
+  overcast linode linodes
+    List all linodes in your account.
+
+  overcast linode plans
+    List available Linode plans.
+
+  overcast linode resize [instance] [options]
+    Resizes a linode to the specified plan. This will immediately shutdown and migrate your linode.
+
+      Option                    | Default
+      --plan-id ID              |
+      --plan-slug NAME          |
+
+  overcast linode reboot [instance]
+    Reboots a linode.
+
+  overcast linode shutdown [instance]
+    Shut down a linode.
+</code></pre>
+
+<h3>
+<a name="user-content-overcast-list" class="anchor" href="#overcast-list"><span class="octicon octicon-link"></span></a>overcast list</h3>
 
 <pre><code>  overcast list
     Short list of your cluster and instance definitions, stored here:
@@ -502,7 +586,7 @@
 </code></pre>
 
 <h3>
-<a name="overcast-ping" class="anchor" href="#overcast-ping"><span class="octicon octicon-link"></span></a>overcast ping</h3>
+<a name="user-content-overcast-ping" class="anchor" href="#overcast-ping"><span class="octicon octicon-link"></span></a>overcast ping</h3>
 
 <pre><code>  overcast ping [instance|cluster|all]
     Ping an instance or cluster.
@@ -516,7 +600,7 @@
 </code></pre>
 
 <h3>
-<a name="overcast-port" class="anchor" href="#overcast-port"><span class="octicon octicon-link"></span></a>overcast port</h3>
+<a name="user-content-overcast-port" class="anchor" href="#overcast-port"><span class="octicon octicon-link"></span></a>overcast port</h3>
 
 <pre><code>  overcast port [instance|cluster|all] [port]
     Change the SSH port for an instance or a cluster.
@@ -528,7 +612,7 @@
 </code></pre>
 
 <h3>
-<a name="overcast-pull" class="anchor" href="#overcast-pull"><span class="octicon octicon-link"></span></a>overcast pull</h3>
+<a name="user-content-overcast-pull" class="anchor" href="#overcast-pull"><span class="octicon octicon-link"></span></a>overcast pull</h3>
 
 <pre><code>  overcast pull [instance|cluster|all] [source] [dest]
     Pull a file or directory from an instance or cluster using scp. Source is absolute.
@@ -547,7 +631,7 @@
 </code></pre>
 
 <h3>
-<a name="overcast-push" class="anchor" href="#overcast-push"><span class="octicon octicon-link"></span></a>overcast push</h3>
+<a name="user-content-overcast-push" class="anchor" href="#overcast-push"><span class="octicon octicon-link"></span></a>overcast push</h3>
 
 <pre><code>  overcast push [instance|cluster|all] [source] [dest]
     Push a file or directory to an instance or cluster using scp. Source can be
@@ -566,7 +650,7 @@
 </code></pre>
 
 <h3>
-<a name="overcast-run" class="anchor" href="#overcast-run"><span class="octicon octicon-link"></span></a>overcast run</h3>
+<a name="user-content-overcast-run" class="anchor" href="#overcast-run"><span class="octicon octicon-link"></span></a>overcast run</h3>
 
 <pre><code>  overcast run [instance|cluster|all] [command...]
     Runs a command or series of commands on an instance or cluster.
@@ -607,7 +691,7 @@
 </code></pre>
 
 <h3>
-<a name="overcast-ssh" class="anchor" href="#overcast-ssh"><span class="octicon octicon-link"></span></a>overcast ssh</h3>
+<a name="user-content-overcast-ssh" class="anchor" href="#overcast-ssh"><span class="octicon octicon-link"></span></a>overcast ssh</h3>
 
 <pre><code>  overcast ssh [instance]
     Opens an SSH connection to an instance.
@@ -618,23 +702,29 @@
 </code></pre>
 
 <h2>
-<a name="design-goals--motivation" class="anchor" href="#design-goals--motivation"><span class="octicon octicon-link"></span></a>Design Goals &amp; Motivation</h2>
+<a name="user-content-design-goals--motivation" class="anchor" href="#design-goals--motivation"><span class="octicon octicon-link"></span></a>Design Goals &amp; Motivation</h2>
 
 <p>There are a lot of server management frameworks out there already (Chef, Puppet, Ansible, Salt), but they all involve either a complex server-client implementation, a steep learning curve or a giant, monolithic conceptual framework that requires taking a course to understand.</p>
 
 <p>I wanted something that had little to no learning curve, that just focused on multi-server provisioning and communication and leaves problems like process/state management and system monitoring to tools designed specifically for those problems (Monit, Munin, Nagios, etc).</p>
 
 <h2>
-<a name="running-the-tests" class="anchor" href="#running-the-tests"><span class="octicon octicon-link"></span></a>Running the Tests</h2>
+<a name="user-content-example-app-deployments" class="anchor" href="#example-app-deployments"><span class="octicon octicon-link"></span></a>Example App Deployments</h2>
 
-<p><a href="https://travis-ci.org/andrewchilds/overcast"><img src="https://travis-ci.org/andrewchilds/overcast.svg?branch=master" alt="Build Status"></a></p>
+<ul>
+<li><a href="https://github.com/andrewchilds/overcast/blob/master/recipes/discourse-docker">Discourse</a></li>
+<li><a href="https://github.com/andrewchilds/overcast-charts">Overcast Charts</a></li>
+</ul><h2>
+<a name="user-content-running-the-tests" class="anchor" href="#running-the-tests"><span class="octicon octicon-link"></span></a>Running the Tests</h2>
+
+<p><a href="https://travis-ci.org/andrewchilds/overcast"><img src="https://camo.githubusercontent.com/f779007e740c407c8aaf18b9d253aa4047d9e5e9/68747470733a2f2f7472617669732d63692e6f72672f616e647265776368696c64732f6f766572636173742e7376673f6272616e63683d6d6173746572" alt="Build Status" data-canonical-src="https://travis-ci.org/andrewchilds/overcast.svg?branch=master" style="max-width:100%;"></a></p>
 
 <div class="highlight highlight-sh"><pre>npm install
 npm <span class="nb">test</span>
 </pre></div>
 
 <h2>
-<a name="upgrading-overcast" class="anchor" href="#upgrading-overcast"><span class="octicon octicon-link"></span></a>Upgrading Overcast</h2>
+<a name="user-content-upgrading-overcast" class="anchor" href="#upgrading-overcast"><span class="octicon octicon-link"></span></a>Upgrading Overcast</h2>
 
 <div class="highlight highlight-sh"><pre>npm -g update overcast
 </pre></div>
@@ -642,22 +732,24 @@ npm <span class="nb">test</span>
 <p>Configuration files are left alone during an upgrade.</p>
 
 <h2>
-<a name="contributing" class="anchor" href="#contributing"><span class="octicon octicon-link"></span></a>Contributing</h2>
+<a name="user-content-contributing" class="anchor" href="#contributing"><span class="octicon octicon-link"></span></a>Contributing</h2>
 
-<p>Contributions are very welcome. If you've got an idea for a feature or found a bug, please <a href="https://github.com/andrewchilds/overcast/issues">open an issue</a>. If you're a developer and want to help make Overcast better, <a href="https://github.com/andrewchilds/overcast/pulls">open a pull request</a> with your changes.</p>
+<p>Contributions are welcome. If you've got an idea for a feature or found a bug, please <a href="https://github.com/andrewchilds/overcast/issues">open an issue</a>. If you're a developer and want to help improve Overcast, <a href="https://github.com/andrewchilds/overcast/pulls">open a pull request</a> with your changes.</p>
 
 <h2>
-<a name="roadmap" class="anchor" href="#roadmap"><span class="octicon octicon-link"></span></a>Roadmap</h2>
+<a name="user-content-roadmap" class="anchor" href="#roadmap"><span class="octicon octicon-link"></span></a>Roadmap</h2>
 
 <ul>
-<li>Linode support</li>
 <li>AWS EC2 support</li>
-<li>Better test coverage</li>
-<li>Improved script library bundle</li>
+<li>More comprehensive script/recipe library</li>
+<li>More test coverage</li>
 </ul><h2>
-<a name="license" class="anchor" href="#license"><span class="octicon octicon-link"></span></a>License</h2>
+<a name="user-content-license" class="anchor" href="#license"><span class="octicon octicon-link"></span></a>License</h2>
 
-<p>MIT. Copyright © 2014 <a href="http://twitter.com/andrewchilds">Andrew Childs</a>.</p>
+<p>MIT. Copyright © 2014 <a href="http://twitter.com/andrewchilds">Andrew Childs</a>.</p></article>
+
+<!-- End README -->
+
       </section>
       <footer>
         <p>This project is maintained by <a href="https://github.com/andrewchilds">andrewchilds</a></p>
