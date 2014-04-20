@@ -6,49 +6,49 @@ Overcast is a simple, SSH-based cloud management CLI that was designed to make i
 
 ## Concepts
 
-1. **Instances** are any machine you can SSH into. Instances can be local or remote, virtual or physical. Each instance has a name, IP, SSH key and port.
+1. **Instances** are any machine you can SSH into.
 2. **Clusters** are sets of instances.
 
 ## Features
 
-Define clusters and instances using the command line or by editing a simple JSON file.
+Define clusters and instances using the command line or by editing `.overcast/clusters.json`.
 
-  ```sh
-  $ overcast cluster create db
-  $ overcast cluster create app
-  $ overcast instance import app.01 --cluster app --ip 127.0.0.2 \
-    --ssh-port 22222 --ssh-key $HOME/.ssh/id_rsa
-  $ overcast instance import app.02 --cluster app --ip 127.0.0.3 \
-    --ssh-port 22222 --ssh-key $HOME/.ssh/id_rsa
-  ```
+```sh
+$ overcast cluster create db
+$ overcast cluster create app
+$ overcast instance import app.01 --cluster app --ip 127.0.0.2 \
+  --ssh-port 22222 --ssh-key $HOME/.ssh/id_rsa
+$ overcast instance import app.02 --cluster app --ip 127.0.0.3 \
+  --ssh-port 22222 --ssh-key $HOME/.ssh/id_rsa
+```
 
 Create, snapshot and destroy instances on DigitalOcean or Linode.
 
-  ```sh
-  # Create a new Ubuntu 12.04 instance on DigitalOcean:
-  $ overcast digitalocean create db.01 --cluster db
+```sh
+# Create a new Ubuntu 12.04 instance on DigitalOcean:
+$ overcast digitalocean create db.01 --cluster db
 
-  # Create a new Ubuntu 12.04 instance on Linode:
-  $ overcast linode create db.02 --cluster db
+# Create a new Ubuntu 12.04 instance on Linode:
+$ overcast linode create db.02 --cluster db
 
-  # Configure both instances in parallel:
-  $ overcast run db install/core install/redis --parallel
-  $ overcast expose db 22 6379 --parallel
-  ```
+# Configure both instances in parallel:
+$ overcast run db install/core install/redis --parallel
+$ overcast expose db 22 6379 --parallel
+```
 
 Run multiple commands or multiple scripts on any or all of your instances at once, over SSH. Commands can be run sequentially or in parallel using the `--parallel` flag.
 
-  ```sh
-  $ overcast run db install/core install/redis
-  $ overcast run all uptime "free-m" "df -h" --parallel
-  ```
+```sh
+$ overcast run db install/core install/redis
+$ overcast run all uptime "free-m" "df -h" --parallel
+```
 
 Push and pull files between your local machine and any or all of your instances at once. Dynamically rewrite file paths to include the instance name using `{instance}` in either source or destination path.
 
-  ```sh
-  $ overcast push app nginx/myapp.conf /etc/nginx/sites-enabled/myapp.conf
-  $ overcast pull all /etc/nginx/sites-enabled/myapp.conf nginx/{instance}.myapp.conf
-  ```
+```sh
+$ overcast push app nginx/myapp.conf /etc/nginx/sites-enabled/myapp.conf
+$ overcast pull all /etc/nginx/sites-enabled/myapp.conf nginx/{instance}.myapp.conf
+```
 
 Overcast is a thin wrapper around your native SSH client, and doesn't install or leave anything on the servers you communicate with, so Overcast itself has no real attack surface.
 
@@ -695,14 +695,13 @@ Configuration files are left alone during an upgrade.
 
 ## Contributing
 
-Contributions are very welcome. If you've got an idea for a feature or found a bug, please [open an issue](https://github.com/andrewchilds/overcast/issues). If you're a developer and want to help make Overcast better, [open a pull request](https://github.com/andrewchilds/overcast/pulls) with your changes.
+Contributions are welcome. If you've got an idea for a feature or found a bug, please [open an issue](https://github.com/andrewchilds/overcast/issues). If you're a developer and want to help improve Overcast, [open a pull request](https://github.com/andrewchilds/overcast/pulls) with your changes.
 
 ## Roadmap
 
-- Linode support
 - AWS EC2 support
-- Better test coverage
-- Improved script library bundle
+- More comprehensive script/recipe library
+- More test coverage
 
 ## License
 
