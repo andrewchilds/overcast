@@ -681,7 +681,8 @@ I wanted something that had little to no learning curve, that did only what you 
 [![Build Status](https://travis-ci.org/andrewchilds/overcast.svg?branch=master)](https://travis-ci.org/andrewchilds/overcast)
 
 ```sh
-npm install
+git clone https://github.com/andrewchilds/overcast.git
+cd overcast
 npm test
 ```
 
