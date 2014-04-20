@@ -70,9 +70,24 @@ Overcast is a simple, SSH-based cloud management CLI that was designed to make i
     $ overcast help
     ```
 
+## Uninstallation
+
+1. #### Locally
+  
+    ```sh
+    # Uninstall Overcast:
+    $ npm -g remove overcast
+    # Optionally delete your Overcast configuration:
+    $ rm -rf $HOME/.overcast
+    ```
+
+2. #### Remotely
+
+    Since nothing is installed on the servers managed with Overcast, there's nothing to uninstall on them.
+
 ## Configuration
 
-Overcast looks for an `.overcast` directory in the current directory, or in some parent directory, otherwise falling back to `$HOME/.overcast`. This allows you to have multiple configurations, and to check your cluster definitions and scripts into a repo, like source code.
+Overcast looks for an `.overcast` directory in the current directory, or in some parent directory, otherwise falling back to `$HOME/.overcast`. This allows you to have multiple configurations, and to check your cluster definitions and scripts into a repo like source code.
 
 The command `overcast init` will create a new configuration in the current directory. The config directory looks like this:
 
