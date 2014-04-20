@@ -667,9 +667,9 @@ The command `overcast init` will create a new configuration in the current direc
 
 ## Design Goals &amp; Motivation
 
-There are a lot of server management frameworks out there already (Chef, Puppet, Ansible, Salt), but they all involve either a complex server-client implementation, a steep learning curve or a giant, monolithic conceptual framework that requires taking a course to understand.
+There are many server management frameworks out there already, but they generally involve a complex server-client implementation, a steep learning curve, or a giant, monolithic conceptual framework that requires taking a course to understand.
 
-I wanted something that had little to no learning curve, that just focused on multi-server provisioning and communication and leaves problems like process/state management and system monitoring to tools designed specifically for those problems (Monit, Munin, Nagios, etc).
+I wanted something that had little to no learning curve, that did only what you asked it to do on the remote machines and nothing more, that just focused on multi-server provisioning and communication and leaves problems like process/state management and system monitoring to tools designed specifically for those problems.
 
 ## Example App Deployments
 
