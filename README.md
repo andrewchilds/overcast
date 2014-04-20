@@ -11,7 +11,7 @@ Overcast is a simple, SSH-based cloud management CLI that was designed to make i
 
 ## Features
 
-- Define clusters and instances using the command line or by editing a simple JSON file.
+Define clusters and instances using the command line or by editing a simple JSON file.
 
   ```sh
   $ overcast cluster create db
@@ -22,7 +22,7 @@ Overcast is a simple, SSH-based cloud management CLI that was designed to make i
     --ssh-port 22222 --ssh-key $HOME/.ssh/id_rsa
   ```
 
-- Create, snapshot and destroy instances on DigitalOcean or Linode.
+Create, snapshot and destroy instances on DigitalOcean or Linode.
 
   ```sh
   # Create a new Ubuntu 12.04 instance on DigitalOcean:
@@ -36,25 +36,25 @@ Overcast is a simple, SSH-based cloud management CLI that was designed to make i
   $ overcast expose db 22 6379 --parallel
   ```
 
-- Run multiple commands or multiple scripts on any or all of your instances at once, over SSH. Commands can be run sequentially or in parallel using the `--parallel` flag.
+Run multiple commands or multiple scripts on any or all of your instances at once, over SSH. Commands can be run sequentially or in parallel using the `--parallel` flag.
 
   ```sh
   $ overcast run db install/core install/redis
   $ overcast run all uptime "free-m" "df -h" --parallel
   ```
 
-- Push and pull files between your local machine and any or all of your instances at once. Dynamically rewrite file paths to include the instance name using `{instance}` in either source or destination path.
+Push and pull files between your local machine and any or all of your instances at once. Dynamically rewrite file paths to include the instance name using `{instance}` in either source or destination path.
 
   ```sh
   $ overcast push app nginx/myapp.conf /etc/nginx/sites-enabled/myapp.conf
   $ overcast pull all /etc/nginx/sites-enabled/myapp.conf nginx/{instance}.myapp.conf
   ```
 
-- Overcast is a thin wrapper around your native SSH client, and doesn't install or leave anything on the servers you communicate with, so Overcast itself has no real attack surface.
+Overcast is a thin wrapper around your native SSH client, and doesn't install or leave anything on the servers you communicate with, so Overcast itself has no real attack surface.
 
-- A [script library](https://github.com/andrewchilds/overcast/tree/master/scripts) and [recipe library](https://github.com/andrewchilds/overcast/tree/master/recipes) are included to make it easy to deploy common software stacks and applications. The library was written for Ubuntu, but could be extended to include other distributions.
+A [script library](https://github.com/andrewchilds/overcast/tree/master/scripts) and [recipe library](https://github.com/andrewchilds/overcast/tree/master/recipes) are included to make it easy to deploy common software stacks and applications. The library was written for Ubuntu, but could be extended to include other distributions.
 
-## Installation
+## Installation (OS X/Linux)
 
 1. Install [Node.js](https://github.com/joyent/node/wiki/Installing-Node.js-via-package-manager) if not already installed.
 
@@ -72,18 +72,14 @@ Overcast is a simple, SSH-based cloud management CLI that was designed to make i
 
 ## Uninstallation
 
-1. #### Locally
-  
-    ```sh
-    # Uninstall Overcast:
-    $ npm -g remove overcast
-    # Optionally delete your Overcast configuration:
-    $ rm -rf $HOME/.overcast
-    ```
+Since Overcast is just a wrapper around SSH, there is nothing on your remote machines to uninstall. To uninstall Overcast from your local machine:
 
-2. #### Remotely
-
-    Since nothing is installed on the servers managed with Overcast, there's nothing to uninstall on them.
+```sh
+# To remove the Overcast package:
+$ npm -g remove overcast
+# Optionally delete your Overcast SSH keys and configuration files:
+$ rm -rf $HOME/.overcast
+```
 
 ## Configuration
 
