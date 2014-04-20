@@ -372,7 +372,7 @@
 <h3>
 <a name="user-content-overcast-help" class="anchor" href="#overcast-help"><span class="octicon octicon-link"></span></a>overcast help</h3>
 
-<pre><code>  Overcast v0.2.4
+<pre><code>  Overcast v0.2.5
 
   Code repo, issues, pull requests:
     https://github.com/andrewchilds/overcast
@@ -704,9 +704,9 @@
 <h2>
 <a name="user-content-design-goals--motivation" class="anchor" href="#design-goals--motivation"><span class="octicon octicon-link"></span></a>Design Goals &amp; Motivation</h2>
 
-<p>There are a lot of server management frameworks out there already (Chef, Puppet, Ansible, Salt), but they all involve either a complex server-client implementation, a steep learning curve or a giant, monolithic conceptual framework that requires taking a course to understand.</p>
+<p>There are many server management frameworks out there already, but they generally involve a complex server-client implementation, a steep learning curve, or a giant, monolithic conceptual framework that requires taking a course to understand.</p>
 
-<p>I wanted something that had little to no learning curve, that just focused on multi-server provisioning and communication and leaves problems like process/state management and system monitoring to tools designed specifically for those problems (Monit, Munin, Nagios, etc).</p>
+<p>I wanted something that had little to no learning curve, that did only what you asked it to do on the remote machines and nothing more, that just focused on multi-server provisioning and communication and leaves problems like process/state management and system monitoring to tools designed specifically for those problems.</p>
 
 <h2>
 <a name="user-content-example-app-deployments" class="anchor" href="#example-app-deployments"><span class="octicon octicon-link"></span></a>Example App Deployments</h2>
@@ -719,7 +719,8 @@
 
 <p><a href="https://travis-ci.org/andrewchilds/overcast"><img src="https://camo.githubusercontent.com/f779007e740c407c8aaf18b9d253aa4047d9e5e9/68747470733a2f2f7472617669732d63692e6f72672f616e647265776368696c64732f6f766572636173742e7376673f6272616e63683d6d6173746572" alt="Build Status" data-canonical-src="https://travis-ci.org/andrewchilds/overcast.svg?branch=master" style="max-width:100%;"></a></p>
 
-<div class="highlight highlight-sh"><pre>npm install
+<div class="highlight highlight-sh"><pre>git clone https://github.com/andrewchilds/overcast.git
+<span class="nb">cd </span>overcast
 npm <span class="nb">test</span>
 </pre></div>
 
