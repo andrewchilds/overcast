@@ -184,6 +184,12 @@ footer {
 }
 
 @media print, screen and (max-width: 3000px) {
+  
+  #octocat {
+    right: 16px;
+    position: fixed;
+    top: 16px;
+  }
 
   div.wrapper {
     max-width: 700px;
@@ -230,6 +236,11 @@ footer {
 }
 
 @media print, screen and (max-width: 720px) {
+  
+  #octocat {
+    display: none;
+  }
+
   body {
     word-wrap:break-word;
   }
