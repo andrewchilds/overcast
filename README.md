@@ -673,7 +673,7 @@ I wanted something that had little to no learning curve, that did only what you 
 
 ## Example App Deployments
 
-  - [Discourse](https://github.com/andrewchilds/overcast/blob/master/recipes/discourse-docker)
+  - [Discourse](https://github.com/andrewchilds/overcast/blob/master/recipes/discourse)
   - [Overcast Charts](https://github.com/andrewchilds/overcast-charts)
 
 ## Running the Tests
