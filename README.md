@@ -700,6 +700,8 @@ Contributions are welcome. If you've got an idea for a feature or found a bug, p
 
 ## Roadmap
 
+- Tagging
+- Events
 - AWS EC2 support
 - More comprehensive script/recipe library
 - More test coverage
