@@ -66,8 +66,6 @@ subcommands.create = function (args) {
 
   args.name = args.instance;
   API.create(args).then(function (res) {
-    console.log(res);
-
     var instance = {
       ip: res.linode.ip,
       name: args.name,
