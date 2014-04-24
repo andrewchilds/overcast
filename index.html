@@ -41,7 +41,7 @@
 
 <p>Overcast is a simple, SSH-based cloud management CLI that was designed to make it easy to spin up and manage clusters of servers in a consistent, scriptable way.</p>
 
-<p><a href="http://i.imgur.com/qWUV684.png" target="_blank"><img src="http://i.imgur.com/qWUV684.png" alt="Screenshot style="max-width:100%;"></a></p>
+<p><a href="http://i.imgur.com/qWUV684.png" target="_blank"><img src="http://i.imgur.com/qWUV684.png" alt="Screenshot" style="max-width:100%;"></a></p>
 
 <h2>
 <a name="user-content-concepts" class="anchor" href="#concepts"><span class="octicon octicon-link"></span></a>Concepts</h2>
@@ -140,6 +140,19 @@
 
 <h2>
 <a name="user-content-commands" class="anchor" href="#commands"><span class="octicon octicon-link"></span></a>Commands</h2>
+
+<h3>
+<a name="user-content-overcast-aliases" class="anchor" href="#overcast-aliases"><span class="octicon octicon-link"></span></a>overcast aliases</h3>
+
+<pre><code>  overcast aliases
+    Return a list of bash aliases for SSHing to your instances.
+
+    To use, add this to your .bash_profile:
+    test -f $HOME/.overcast_aliases &amp;&amp; source $HOME/.overcast_aliases
+
+    And then create the .overcast_aliases file:
+    overcast aliases &gt; $HOME/.overcast_aliases
+</code></pre>
 
 <h3>
 <a name="user-content-overcast-cluster" class="anchor" href="#overcast-cluster"><span class="octicon octicon-link"></span></a>overcast cluster</h3>
@@ -377,7 +390,7 @@
 <h3>
 <a name="user-content-overcast-help" class="anchor" href="#overcast-help"><span class="octicon octicon-link"></span></a>overcast help</h3>
 
-<pre><code>  Overcast v0.2.5
+<pre><code>  Overcast v0.2.8
 
   Code repo, issues, pull requests:
     https://github.com/andrewchilds/overcast
@@ -391,6 +404,7 @@
     overcast [command] help
 
   Commands:
+    overcast aliases
     overcast cluster list
     overcast cluster count [name]
     overcast cluster create [name]
@@ -435,6 +449,7 @@
     overcast port [instance|cluster|all] [port]
     overcast pull [instance|cluster|all] [source] [dest]
     overcast push [instance|cluster|all] [source] [dest]
+    overcast reboot [instance|cluster|all]
     overcast run [instance|cluster|all] [command...]
     overcast run [instance|cluster|all] [file...]
     overcast ssh [instance]
@@ -655,6 +670,15 @@
 </code></pre>
 
 <h3>
+<a name="user-content-overcast-reboot" class="anchor" href="#overcast-reboot"><span class="octicon octicon-link"></span></a>overcast reboot</h3>
+
+<pre><code>  overcast reboot [instance|cluster|all]
+    Reboot an instance or cluster.
+    If the instance was created using DigitalOcean or Linode, this will use the provider API,
+    otherwise will execute "reboot" command on the server and wait for 60 seconds.
+</code></pre>
+
+<h3>
 <a name="user-content-overcast-run" class="anchor" href="#overcast-run"><span class="octicon octicon-link"></span></a>overcast run</h3>
 
 <pre><code>  overcast run [instance|cluster|all] [command...]
@@ -746,13 +770,15 @@ npm <span class="nb">test</span>
 <a name="user-content-roadmap" class="anchor" href="#roadmap"><span class="octicon octicon-link"></span></a>Roadmap</h2>
 
 <ul>
+<li>Tagging</li>
+<li>Events</li>
 <li>AWS EC2 support</li>
 <li>More comprehensive script/recipe library</li>
 <li>More test coverage</li>
 </ul><h2>
 <a name="user-content-license" class="anchor" href="#license"><span class="octicon octicon-link"></span></a>License</h2>
 
-<p>MIT. Copyright © 2014 <a href="http://twitter.com/andrewchilds">Andrew Childs</a>.</p></article>
+<p>MIT. Copyright © 2014 <a href="http://twitter.com/andrewchilds">Andrew Childs</a>.</p>
 
 <!-- End README -->
 
