@@ -63,9 +63,9 @@ function scpExec(options, next) {
   var args = [
     '-r',
     '-i',
-    options.ssh_key || options.CONFIG_DIR + '/keys/overcast.key',
+    options.ssh_key,
     '-P',
-    options.ssh_port || '22',
+    options.ssh_port,
     '-o',
     'StrictHostKeyChecking=no'
   ];
