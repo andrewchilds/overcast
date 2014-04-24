@@ -100,6 +100,19 @@ The command `overcast init` will create a new configuration in the current direc
 
 ## Commands
 
+### overcast aliases
+
+```
+  overcast aliases
+    Return a list of bash aliases for SSHing to your instances.
+
+    To use, add this to your .bash_profile:
+    test -f $HOME/.overcast_aliases && source $HOME/.overcast_aliases
+
+    And then create the .overcast_aliases file:
+    overcast aliases > $HOME/.overcast_aliases
+```
+
 ### overcast cluster
 
 ```
@@ -336,7 +349,7 @@ The command `overcast init` will create a new configuration in the current direc
 ### overcast help
 
 ```
-  Overcast v0.2.5
+  Overcast v0.2.6
 
   Code repo, issues, pull requests:
     https://github.com/andrewchilds/overcast
@@ -350,6 +363,7 @@ The command `overcast init` will create a new configuration in the current direc
     overcast [command] help
 
   Commands:
+    overcast aliases
     overcast cluster list
     overcast cluster count [name]
     overcast cluster create [name]
