@@ -41,7 +41,7 @@ overcast expose $instance 6379 $sshPort --whitelist "$ipWhitelist"
 
 echo "System upgrade, installing core packages, installing redis..."
 overcast run $instance install/core install/redis
-overcast digitalocean reboot $instance
+overcast reboot $instance
 
 echo "Setting redis password..."
 overcast run $instance set_redis_password

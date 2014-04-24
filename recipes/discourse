@@ -39,15 +39,7 @@ overcast run $instance harden_ssh
 
 echo "Full system upgrade, installing core packages..."
 overcast run $instance install/core
-
-if [ -n "`overcast instance get $instance digitalocean`" ]; then
-  overcast digitalocean reboot $instance
-else
-  echo "Rebooting server..."
-  overcast run $instance reboot
-  echo "Waiting 1 minute for server to reboot..."
-  sleep 60
-fi
+overcast reboot $instance
 
 echo "Configuring iptables to only expose HTTP, HTTPS and SSH..."
 overcast expose $instance 22 80 443

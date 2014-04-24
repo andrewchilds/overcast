@@ -349,7 +349,7 @@ The command `overcast init` will create a new configuration in the current direc
 ### overcast help
 
 ```
-  Overcast v0.2.7
+  Overcast v0.2.8
 
   Code repo, issues, pull requests:
     https://github.com/andrewchilds/overcast
@@ -408,6 +408,7 @@ The command `overcast init` will create a new configuration in the current direc
     overcast port [instance|cluster|all] [port]
     overcast pull [instance|cluster|all] [source] [dest]
     overcast push [instance|cluster|all] [source] [dest]
+    overcast reboot [instance|cluster|all]
     overcast run [instance|cluster|all] [command...]
     overcast run [instance|cluster|all] [file...]
     overcast ssh [instance]
@@ -625,6 +626,15 @@ The command `overcast init` will create a new configuration in the current direc
       - .overcast/files/nginx/app.01.myapp.conf
       - .overcast/files/nginx/app.02.myapp.conf
     $ overcast push app nginx/{instance}.myapp.conf /etc/nginx/sites-enabled/myapp.conf
+```
+
+### overcast reboot
+
+```
+  overcast reboot [instance|cluster|all]
+    Reboot an instance or cluster.
+    If the instance was created using DigitalOcean or Linode, this will use the provider API,
+    otherwise will execute "reboot" command on the server and wait for 60 seconds.
 ```
 
 ### overcast run

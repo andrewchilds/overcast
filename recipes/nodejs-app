@@ -36,7 +36,7 @@ overcast digitalocean create $instance --cluster $cluster
 
 echo "System upgrade, installing core packages, Nginx, Redis, NodeJS, configure SFTP..."
 overcast run $instance install/core install/sftp install/nginx install/redis install/nodejs
-overcast digitalocean reboot $instance
+overcast reboot $instance
 
 echo "Changing SSH port to $sshPort, configuring iptables to only expose HTTP, HTTPS, and SSH..."
 overcast run $instance harden_ssh
