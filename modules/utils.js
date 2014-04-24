@@ -1,10 +1,11 @@
 var fs = require('fs');
+var path = require('path');
 var cp = require('child_process');
 var _ = require('lodash');
 var colors = require('colors');
 var list = require('./commands/list');
 
-exports.VERSION = '0.2.6';
+exports.VERSION = '0.2.7';
 
 exports.clustersCache = null;
 exports.variablesCache = null;
@@ -27,6 +28,18 @@ exports.setConfigDir = function (dir) {
   exports.CONFIG_DIR = dir;
   exports.CLUSTERS_JSON = dir + '/clusters.json';
   exports.VARIABLES_JSON = dir + '/variables.json';
+};
+
+exports.normalizeKeyPath = function (keyPath) {
+  if (!keyPath) {
+    return exports.CONFIG_DIR + '/keys/overcast.key';
+  }
+
+  if (keyPath.charAt(0) === '/') {
+    return keyPath;
+  } else {
+    return path.normalize(exports.CONFIG_DIR + '/keys/' + keyPath);
+  }
 };
 
 exports.initOvercastDir = function (dest_dir, callback) {

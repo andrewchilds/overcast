@@ -8,12 +8,6 @@ exports.run = function (args) {
   args.dest = args._.shift();
   args.direction = 'pull';
 
-  exports.validate(args);
-
-  scp(args);
-};
-
-exports.validate = function (args) {
   if (!args.name) {
     utils.red('Missing [name] parameter.');
     return exports.help(args);
@@ -24,6 +18,8 @@ exports.validate = function (args) {
     utils.red('Missing [dest] parameter.');
     return exports.help(args);
   }
+
+  scp(args);
 };
 
 exports.signatures = function () {

@@ -349,7 +349,7 @@ The command `overcast init` will create a new configuration in the current direc
 ### overcast help
 
 ```
-  Overcast v0.2.6
+  Overcast v0.2.7
 
   Code repo, issues, pull requests:
     https://github.com/andrewchilds/overcast

@@ -60,7 +60,7 @@ function sshExec(options, next) {
 
   var color = utils.SSH_COLORS[utils.SSH_COUNT++ % 5];
 
-  options.ssh_key = options.ssh_key || utils.CONFIG_DIR + '/keys/overcast.key';
+  options.ssh_key = utils.normalizeKeyPath(options.ssh_key);
   options.ssh_port = options.ssh_port || '22';
   options.user = options.user || 'root';
   options.name = options.name || 'Unknown';
