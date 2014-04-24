@@ -325,9 +325,10 @@ exports.waitForProgress = function (seconds, callback, percentage) {
   }, callback);
 };
 
-exports.waitForBoot = function (callback) {
-  exports.grey('Waiting 45 seconds for server to boot up...');
-  exports.waitForProgress(45, function () {
+exports.waitForBoot = function (callback, seconds) {
+  seconds = seconds || 45;
+  exports.grey('Waiting ' + seconds + ' seconds for server to boot up...');
+  exports.waitForProgress(seconds, function () {
     exports.success('OK, server should be responsive.');
     (callback || _.noop)();
   });

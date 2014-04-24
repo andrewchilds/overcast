@@ -47,7 +47,11 @@ exports.run = function (args) {
 var subcommands = {};
 
 subcommands.boot = function (instance) {
-  API.bootLinode({ 'linode-name': instance.name });
+  API.bootLinode({ 'linode-name': instance.name })
+    .then(API.waitForPendingJobs)
+    .then(function () {
+      utils.waitForBoot();
+    });
 };
 
 subcommands.create = function (args) {
@@ -66,6 +70,12 @@ subcommands.create = function (args) {
 
   args.name = args.instance;
   API.create(args).then(function (res) {
+    return new Promise(function (resolve) {
+      utils.waitForBoot(function () {
+        resolve(res);
+      });
+    });
+  }).then(function (res) {
     var instance = {
       ip: res.linode.ip,
       name: args.name,
@@ -145,10 +155,10 @@ subcommands.plans = function () {
 
 subcommands.reboot = function (instance) {
   API.rebootLinode({ 'linode-name': instance.name })
-  .then(API.waitForPendingJobs)
-  .then(function () {
-    utils.success('Rebooted.');
-  });
+    .then(API.waitForPendingJobs)
+    .then(function () {
+      utils.waitForBoot();
+    });
 };
 
 subcommands.resize = function (instance, args) {
@@ -164,7 +174,11 @@ subcommands.resize = function (instance, args) {
 };
 
 subcommands.shutdown = function (instance) {
-  API.shutdownLinode({ 'linode-name': instance.name });
+  API.shutdownLinode({ 'linode-name': instance.name })
+    .then(API.waitForPendingJobs)
+    .then(function () {
+      utils.success('OK, server is shutdown.');
+    });
 };
 
 exports.signatures = function () {

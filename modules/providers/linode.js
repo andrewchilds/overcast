@@ -489,6 +489,7 @@ exports.deleteDisks = function (args) {
 _.each(['boot', 'delete', 'reboot', 'shutdown'], function (methodName) {
   exports[methodName + 'Linode'] = function (args) {
     return exports.normalizeArgs(args).then(function (args) {
+      utils.grey('Starting ' + methodName + ' of Linode "' + args['linode-id'] + '"...');
       var data = { LinodeID: args['linode-id'] };
       if (args['config-id']) {
         data.ConfigID = args['config-id'];
