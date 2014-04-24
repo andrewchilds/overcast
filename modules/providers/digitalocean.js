@@ -47,10 +47,6 @@ exports.createKey = function (callback) {
     },
     callback: function (result) {
       if (result && result.ssh_key) {
-        utils.grey('Setting DIGITALOCEAN_OVERCAST_KEY_ID to ' + result.ssh_key.id + ' in variables.json.');
-        var variables = utils.getVariables();
-        variables.DIGITALOCEAN_OVERCAST_KEY_ID = result.ssh_key.id;
-        utils.saveVariables(variables);
         callback(result.ssh_key);
       }
     }
@@ -201,22 +197,18 @@ exports.create = function (options) {
 exports.getOrCreateOvercastKeyID = function (callback) {
   var variables = utils.getVariables();
 
-  if (variables.DIGITALOCEAN_OVERCAST_KEY_ID) {
-    callback(variables.DIGITALOCEAN_OVERCAST_KEY_ID);
-  } else {
-    exports.getKeys(function (keys) {
-      var key = _.find(keys, {
-        name: exports.getHashedKeyName()
-      });
-      if (key) {
-        callback(key.id);
-      } else {
-        exports.createKey(function (key) {
-          callback(key.id);
-        });
-      }
+  exports.getKeys(function (keys) {
+    var key = _.find(keys, {
+      name: exports.getHashedKeyName()
     });
-  }
+    if (key) {
+      callback(key.id);
+    } else {
+      exports.createKey(function (key) {
+        callback(key.id);
+      });
+    }
+  });
 };
 
 function handleCreateResponse(droplet) {
