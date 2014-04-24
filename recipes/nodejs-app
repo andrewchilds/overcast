@@ -22,6 +22,8 @@ sshPort="50022"
 
 # You shouldn't have to edit anything below.
 
+set -e
+
 echo "Creating cluster $cluster if it doesn't already exist..."
 overcast cluster create $cluster
 

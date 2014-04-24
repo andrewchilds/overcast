@@ -34,6 +34,8 @@ discourseSMTPPassword="my.api.key"
 
 # You shouldn't need to edit anything below.
 
+set -e
+
 echo "Disallowing password access through SSH..."
 overcast run $instance harden_ssh
 
