@@ -26,7 +26,8 @@ commands.count = function (args) {
 
   if (!args.name) {
     utils.red('Missing [name] parameter.');
-    return exports.help(args);
+    exports.help(args);
+    process.exit(1);
   } else if (!clusters[args.name]) {
     utils.die('The cluster "' + args.name + '" wasn\'t found.');
   }
@@ -39,9 +40,10 @@ commands.create = function (args) {
 
   if (!args.name) {
     utils.red('Missing [name] parameter.');
-    return exports.help(args);
+    exports.help(args);
+    process.exit(1);
   } else if (clusters[args.name]) {
-    utils.die('The cluster "' + args.name + '" already exists.');
+    return utils.grey('The cluster "' + args.name + '" already exists, no action taken.');
   }
 
   clusters[args.name] = { instances: {} };
@@ -58,10 +60,12 @@ commands.rename = function (args) {
 
   if (!args.name) {
     utils.red('Missing [name] parameter.');
-    return exports.help(args);
+    exports.help(args);
+    process.exit(1);
   } else if (!args.newName) {
     utils.red('Missing [new-name] parameter.');
-    return exports.help(args);
+    exports.help(args);
+    process.exit(1);
   } else if (!clusters[args.name]) {
     utils.die('The cluster "' + args.name + '" wasn\'t found.');
   }
@@ -80,7 +84,8 @@ commands.remove = function (args) {
 
   if (!args.name) {
     utils.red('Missing [name] parameter.');
-    return exports.help(args);
+    exports.help(args);
+    process.exit(1);
   } else if (!clusters[args.name]) {
     utils.die('The cluster "' + args.name + '" wasn\'t found.');
   }
