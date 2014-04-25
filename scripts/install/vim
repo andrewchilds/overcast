@@ -1,13 +1,13 @@
 #!/bin/bash
 
-# Install Emacs.
+# Install vim.
 
 # Tested on:
 # Ubuntu 12.04
 # Ubuntu 14.04
 
 # Usage:
-# overcast run myInstanceOrCluster install/emacs
+# overcast run myInstanceOrCluster install/vim
 
 # set -x
 
@@ -18,4 +18,4 @@ fi
 
 # Install emacs
 
-aptitude -y install emacs
+aptitude -y install vim

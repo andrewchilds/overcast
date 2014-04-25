@@ -1,7 +1,9 @@
 #!/bin/bash
 
 # Configure chrooted SFTP.
-# Tested on Ubuntu 12.04.
+
+# Tested on:
+# Ubuntu 12.04
 
 # Once configured, users requiring SFTP access must be added to the "sftp" group, like so:
 # $ useradd -d /home/myusername -p password myusername

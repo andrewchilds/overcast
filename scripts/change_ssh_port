@@ -1,7 +1,10 @@
 #!/bin/bash
 
 # Change SSH listener port.
-# Tested on Ubuntu 12.04.
+
+# Tested on:
+# Ubuntu 12.04
+# Ubuntu 14.04
 
 # Usage:
 # overcast port myInstanceOrCluster 55522

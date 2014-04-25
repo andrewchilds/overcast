@@ -6,6 +6,10 @@
 # Pipe the output to "sort -nk3" to get sorted output
 # http://stackoverflow.com/questions/479953/how-to-find-out-which-processes-are-swapping-in-linux
 
+# Tested on:
+# Ubuntu 12.04
+# Ubuntu 14.04
+
 # Usage:
 # overcast run myInstanceOrCluster swap_usage_by_pid
 

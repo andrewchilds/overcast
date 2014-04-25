@@ -1,7 +1,10 @@
 #!/bin/bash
 
 # List exposed TCP ports.
-# Tested on Ubuntu 12.04.
+
+# Tested on:
+# Ubuntu 12.04
+# Ubuntu 14.04
 
 # Usage:
 # overcast exposed myInstanceOrCluster

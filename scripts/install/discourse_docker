@@ -1,6 +1,10 @@
 #!/bin/bash
 
-# Install a Discourse Docker container on Ubuntu 12.04
+# Install a Discourse Docker container.
+
+# Tested on:
+# Ubuntu 12.04
+# Ubuntu 14.04
 
 # References:
 # https://github.com/discourse/discourse/blob/master/docs/INSTALL-digital-ocean.md

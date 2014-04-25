@@ -1,7 +1,10 @@
 #!/bin/bash
 
-# Install PhantomJS 1.9.7 on Ubuntu 12.04.
+# Install PhantomJS 1.9.7.
 # http://phantomjs.org/download.html
+
+# Tested on:
+# Ubuntu 12.04
 
 # Usage:
 # overcast run myInstanceOrCluster install/phantomjs

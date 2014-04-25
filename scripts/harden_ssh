@@ -1,7 +1,10 @@
 #!/bin/bash
 
 # Configure SSH to disallow password logins, decrease loginGraceTime.
-# Tested on Ubuntu 12.04.
+
+# Tested on:
+# Ubuntu 12.04
+# Ubuntu 14.04
 
 # Usage:
 # overcast run myInstanceOrCluster harden_ssh

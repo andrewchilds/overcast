@@ -1,7 +1,11 @@
 #!/bin/bash
 
-# Install NodeJS on Ubuntu 12.04.
+# Install NodeJS.
 # https://github.com/joyent/node/wiki/Installing-Node.js-via-package-manager
+
+# Tested on:
+# Ubuntu 12.04
+# Ubuntu 14.04
 
 # Usage:
 # overcast run myInstanceOrCluster install/nodejs

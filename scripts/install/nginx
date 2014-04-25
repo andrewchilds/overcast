@@ -1,6 +1,10 @@
 #!/bin/bash
 
-# Install Nginx on Ubuntu 12.04.
+# Install Nginx.
+
+# Tested on:
+# Ubuntu 12.04
+# Ubuntu 14.04
 
 # Usage:
 # overcast run myInstanceOrCluster install/nginx

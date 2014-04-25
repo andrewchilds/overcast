@@ -1,6 +1,10 @@
 #!/bin/bash
 
-# Configure IPTables on Ubuntu 12.04.
+# Configure iptables.
+
+# Tested on:
+# Ubuntu 12.04
+# Ubuntu 14.04
 
 # Usage:
 # overcast expose myInstanceOrCluster 22 80 443 3000

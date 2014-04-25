@@ -1,6 +1,10 @@
 #!/bin/bash
 
-# Install core packages on Ubuntu 12.04.
+# Full system upgrade and install core packages.
+
+# Tested on:
+# Ubuntu 12.04
+# Ubuntu 14.04
 
 # Usage:
 # overcast run myInstanceOrCluster install/core
@@ -17,4 +21,4 @@ fi
 apt-get update
 apt-get install aptitude
 aptitude -y full-upgrade
-aptitude -y install git-core wget vim less build-essential iptables-persistent
+aptitude -y install git-core wget less build-essential iptables-persistent

@@ -5,6 +5,7 @@
 # Tested on:
 # Ubuntu 9.10
 # Ubuntu 12.04
+# Ubuntu 14.04
 
 # Usage:
 # overcast health myInstanceOrCluster
