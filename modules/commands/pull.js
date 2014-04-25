@@ -9,14 +9,11 @@ exports.run = function (args) {
   args.direction = 'pull';
 
   if (!args.name) {
-    utils.red('Missing [name] parameter.');
-    return exports.help(args);
+    utils.missingParameter('[instance|cluster|all]', exports.help);
   } else if (!args.source) {
-    utils.red('Missing [source] parameter.');
-    return exports.help(args);
+    utils.missingParameter('[source]', exports.help);
   } else if (!args.dest) {
-    utils.red('Missing [dest] parameter.');
-    return exports.help(args);
+    utils.missingParameter('[dest]', exports.help);
   }
 
   scp(args);
@@ -28,7 +25,7 @@ exports.signatures = function () {
   ];
 };
 
-exports.help = function (args) {
+exports.help = function () {
   utils.printArray([
     'overcast pull [instance|cluster|all] [source] [dest]',
     '  Pull a file or directory from an instance or cluster using scp. Source is absolute.'.grey,

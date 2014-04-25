@@ -10,8 +10,7 @@ exports.run = function (args) {
   if (args.subcommand && commands[args.subcommand]) {
     commands[args.subcommand](args);
   } else {
-    utils.red('Missing or unknown subcommand.');
-    exports.help(args);
+    utils.missingCommand(exports.help);
   }
 };
 
@@ -25,9 +24,7 @@ commands.count = function (args) {
   var clusters = utils.getClusters();
 
   if (!args.name) {
-    utils.red('Missing [name] parameter.');
-    exports.help(args);
-    process.exit(1);
+    utils.missingParameter('[name]', exports.help);
   } else if (!clusters[args.name]) {
     utils.die('The cluster "' + args.name + '" wasn\'t found.');
   }
@@ -39,9 +36,7 @@ commands.create = function (args) {
   var clusters = utils.getClusters();
 
   if (!args.name) {
-    utils.red('Missing [name] parameter.');
-    exports.help(args);
-    process.exit(1);
+    utils.missingParameter('[name]', exports.help);
   } else if (clusters[args.name]) {
     return utils.grey('The cluster "' + args.name + '" already exists, no action taken.');
   }
@@ -59,13 +54,9 @@ commands.rename = function (args) {
   utils.argShift(args, 'newName');
 
   if (!args.name) {
-    utils.red('Missing [name] parameter.');
-    exports.help(args);
-    process.exit(1);
+    utils.missingParameter('[name]', exports.help);
   } else if (!args.newName) {
-    utils.red('Missing [new-name] parameter.');
-    exports.help(args);
-    process.exit(1);
+    utils.missingParameter('[new-name]', exports.help);
   } else if (!clusters[args.name]) {
     utils.die('The cluster "' + args.name + '" wasn\'t found.');
   }
@@ -83,9 +74,7 @@ commands.remove = function (args) {
   var clusters = utils.getClusters();
 
   if (!args.name) {
-    utils.red('Missing [name] parameter.');
-    exports.help(args);
-    process.exit(1);
+    utils.missingParameter('[name]', exports.help);
   } else if (!clusters[args.name]) {
     utils.die('The cluster "' + args.name + '" wasn\'t found.');
   }

@@ -6,11 +6,9 @@ exports.run = function (args) {
   utils.argShift(args, 'name');
 
   if (!args.name) {
-    utils.red('Missing [name] parameter.');
-    return exports.help(args);
+    utils.missingParameter('[instance|cluster|all]', exports.help);
   } else if (args._.length === 0) {
-    utils.red('Missing [port] parameter.');
-    return exports.help(args);
+    utils.missingParameter('[port]', exports.help);
   }
 
   args.env = {
@@ -32,7 +30,7 @@ exports.signatures = function () {
   ];
 };
 
-exports.help = function (args) {
+exports.help = function () {
   utils.printArray([
     'overcast expose [instance|cluster|all] [port...]',
     '  Reset the exposed ports on the instance or cluster using iptables.'.grey,

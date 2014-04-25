@@ -143,10 +143,6 @@ exports.create = function (options) {
     });
   }
 
-  if (!options.name) {
-    options.name = options.instance;
-  }
-
   var instance = {
     name: options.name || 'overcast.instance.' + _.now(),
     ip: '127.0.0.1',

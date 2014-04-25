@@ -19,17 +19,17 @@ exports.run = function (args) {
     if (fs.existsSync(__dirname + '/' + moduleName + '.js')) {
       var module = require('./' + moduleName);
       if (module && module.help) {
-        return module.help(args);
+        return module.help();
       }
     } else {
       utils.unknownCommand();
     }
   }
 
-  exports.help(args);
+  exports.help();
 };
 
-exports.help = function (args) {
+exports.help = function () {
   var signatures = [];
   _.each(utils.getCommands(), function (command, name) {
     if (name !== 'help' && command.signatures) {
@@ -40,7 +40,7 @@ exports.help = function (args) {
   utils.printArray([
     ('Overcast v' + utils.VERSION).grey,
     '',
-    'Code repo, issues, pull requests:'.grey,
+    'Source code, issues, pull requests:'.grey,
     '  https://github.com/andrewchilds/overcast',
     '',
     'Usage:'.grey,

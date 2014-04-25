@@ -6,15 +6,13 @@ exports.run = function (args) {
   utils.argShift(args, 'name');
 
   if (!args.name) {
-    utils.red('Missing [name] parameter.');
-    return exports.help(args);
+    utils.missingParameter('[instance|cluster|all]', exports.help);
   } else if (args._.length === 0) {
-    utils.red('Missing [port] parameter.');
-    return exports.help(args);
+    utils.missingParameter('[port]', exports.help);
   }
 
   var instances = utils.findMatchingInstances(args.name);
-  utils.handleEmptyInstances(instances, args);
+  utils.handleInstanceOrClusterNotFound(instances, args);
 
   var new_ssh_port = args._[0] + '';
 
@@ -42,7 +40,7 @@ exports.help = function () {
   utils.printArray([
     'overcast port [instance|cluster|all] [port]',
     '  Change the SSH port for an instance or a cluster.'.grey,
-    '  This command will fail if the new port is not opened by iptables.'.yellow,
+    '  This command will fail if the new port is not opened by iptables.'.grey,
     '',
     '  Examples:'.grey,
     '  $ overcast port app.01 22222'.grey,

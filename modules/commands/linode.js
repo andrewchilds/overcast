@@ -7,31 +7,22 @@ var instanceCommand = require('./instance.js');
 
 exports.run = function (args) {
   utils.argShift(args, 'subcommand');
-  utils.argShift(args, 'instance');
+  utils.argShift(args, 'name');
 
-  if (!args.subcommand) {
-    utils.red('Missing subcommand.');
-    return exports.help(args);
+  if (!args.subcommand || !subcommands[args.subcommand]) {
+    utils.missingCommand(exports.help);
   }
 
   if (/^(create|datacenters|distributions|kernels|linodes|plans)$/.test(args.subcommand)) {
     return subcommands[args.subcommand](args);
   }
 
-  if (!args.instance) {
-    utils.red('Missing [instance] parameter.');
-    return exports.help(args);
-  }
-  if (!subcommands[args.subcommand]) {
-    utils.red('Unknown subcommand.');
-    return exports.help(args);
+  if (!args.name) {
+    utils.missingParameter('[name]', exports.help);
   }
 
-  var instance = utils.findOnlyMatchingInstance(args.instance);
-  if (!instance) {
-    utils.red('No instance found matching "' + args.instance + '".');
-    return list.run(args);
-  }
+  var instance = utils.findFirstMatchingInstance(args.name);
+  utils.handleInstanceNotFound(instance, args);
 
   if (instance.linode && instance.linode.id) {
     subcommands[args.subcommand](instance, args);
@@ -58,17 +49,16 @@ subcommands.create = function (args) {
   var clusters = utils.getClusters();
 
   if (!args.cluster) {
-    utils.red('Missing --cluster parameter.');
-    return exports.help(args);
+    utils.missingParameter('--cluster', exports.help);
   } else if (!clusters[args.cluster]) {
     utils.die('No "' + args.cluster + '" cluster found. Known clusters are: ' +
       _.keys(clusters).join(', ') + '.');
   } else if (clusters[args.cluster].instances[args.name]) {
     utils.red('Instance "' + args.name + '" already exists.');
-    return list.run(args);
+    list.run(args);
+    process.exit(1);
   }
 
-  args.name = args.instance;
   API.create(args).then(function (res) {
     return new Promise(function (resolve) {
       utils.waitForBoot(function () {
@@ -183,16 +173,16 @@ subcommands.shutdown = function (instance) {
 
 exports.signatures = function () {
   return [
-    '  overcast linode boot [instance]',
-    '  overcast linode create [instance] [options]',
+    '  overcast linode boot [name]',
+    '  overcast linode create [name] [options]',
     '  overcast linode datacenters',
-    '  overcast linode destroy [instance]',
+    '  overcast linode destroy [name]',
     '  overcast linode distributions',
     '  overcast linode kernels',
     '  overcast linode linodes',
     '  overcast linode plans',
-    '  overcast linode reboot [instance]',
-    '  overcast linode shutdown [instance]'
+    '  overcast linode reboot [name]',
+    '  overcast linode shutdown [name]'
   ];
 };
 
@@ -201,7 +191,7 @@ exports.help = function () {
     'These functions require LINODE_API_KEY property to be set in .overcast/variables.json.',
     'API keys can be found at https://manager.linode.com/profile/api',
     '',
-    'overcast linode boot [instance]',
+    'overcast linode boot [name]',
     '  Boot a powered off linode.'.grey,
     '',
     'overcast linode create [name] [options]',
@@ -228,7 +218,7 @@ exports.help = function () {
     'overcast linode datacenters',
     '  List available Linode datacenters.'.grey,
     '',
-    'overcast linode destroy [instance]',
+    'overcast linode destroy [name]',
     '  Destroys a linode and removes it from your account.'.grey,
     '  Using --force overrides the confirm dialog. This is irreversible.'.grey,
     '',
@@ -247,17 +237,17 @@ exports.help = function () {
     'overcast linode plans',
     '  List available Linode plans.'.grey,
     '',
-    'overcast linode resize [instance] [options]',
+    'overcast linode resize [name] [options]',
     '  Resizes a linode to the specified plan. This will immediately shutdown and migrate your linode.'.grey,
     '',
     '    Option                    | Default'.grey,
     '    --plan-id ID              |'.grey,
     '    --plan-slug NAME          |'.grey,
     '',
-    'overcast linode reboot [instance]',
+    'overcast linode reboot [name]',
     '  Reboots a linode.'.grey,
     '',
-    'overcast linode shutdown [instance]',
+    'overcast linode shutdown [name]',
     '  Shut down a linode.'.grey
   ]);
 };

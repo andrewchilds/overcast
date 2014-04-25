@@ -6,14 +6,13 @@ exports.run = function (args) {
   utils.argShift(args, 'name');
 
   if (!args.name) {
-    utils.red('Missing [name] parameter.');
-    return exports.help(args);
+    utils.missingParameter('[instance|cluster|all]', exports.help);
   }
 
   var count = args.count || 3;
 
   var instances = utils.findMatchingInstances(args.name);
-  utils.handleEmptyInstances(instances, args);
+  utils.handleInstanceOrClusterNotFound(instances, args);
 
   _.each(instances, function (instance) {
     var color = utils.SSH_COLORS[utils.SSH_COUNT++ % 5];

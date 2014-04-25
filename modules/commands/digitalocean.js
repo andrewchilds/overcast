@@ -6,31 +6,22 @@ var API = require('../providers/digitalocean.js');
 
 exports.run = function (args) {
   utils.argShift(args, 'subcommand');
-  utils.argShift(args, 'instance');
+  utils.argShift(args, 'name');
 
-  if (!args.subcommand) {
-    utils.red('Missing subcommand.');
-    return exports.help(args);
+  if (!args.subcommand || !subcommands[args.subcommand]) {
+    utils.missingCommand(exports.help);
   }
 
   if (/^(create|droplets|images|regions|sizes|snapshots)$/.test(args.subcommand)) {
     return subcommands[args.subcommand](args);
   }
 
-  if (!args.instance) {
-    utils.red('Missing [instance] parameter.');
-    return exports.help(args);
-  }
-  if (!subcommands[args.subcommand]) {
-    utils.red('Unknown subcommand.');
-    return exports.help(args);
+  if (!args.name) {
+    utils.missingParameter('[name]', exports.help);
   }
 
-  var instance = utils.findOnlyMatchingInstance(args.instance);
-  if (!instance) {
-    utils.red('No instance found matching "' + args.instance + '".');
-    return list.run(args);
-  }
+  var instance = utils.findFirstMatchingInstance(args.name);
+  utils.handleInstanceNotFound(instance, args);
 
   if (instance.digitalocean && instance.digitalocean.id) {
     subcommands[args.subcommand](instance, args);
@@ -51,8 +42,7 @@ subcommands.create = function (args) {
   var clusters = utils.getClusters();
 
   if (!args.cluster) {
-    utils.red('Missing --cluster parameter.');
-    return exports.help(args);
+    utils.missingParameter('--cluster', exports.help);
   } else if (!clusters[args.cluster]) {
     utils.die('No "' + args.cluster + '" cluster found. Known clusters are: ' +
       _.keys(clusters).join(', ') + '.');
@@ -74,7 +64,7 @@ subcommands.destroy = function (instance, args) {
     output: process.stdout
   });
 
-  rl.question('Do you really want to destroy this instance? [Y/n]'.yellow, function (answer) {
+  rl.question('Do you really want to destroy this droplet? [Y/n]'.yellow, function (answer) {
     rl.close();
     if (answer === 'n' || answer === 'N') {
       utils.grey('No action taken.');
@@ -133,13 +123,13 @@ subcommands.shutdown = function (instance) {
 };
 
 subcommands.snapshot = function (instance, args) {
-  utils.argShift(args, 'name');
+  utils.argShift(args, 'snapshotName');
 
-  if (!args.name) {
-    utils.die('Missing snapshot name.');
+  if (!args.snapshotName) {
+    utils.missingParameter('[snapshot-name]', exports.help);
   }
 
-  API.snapshot(instance, args.name);
+  API.snapshot(instance, args.snapshotName);
 };
 
 subcommands.snapshots = function () {
@@ -150,18 +140,18 @@ subcommands.snapshots = function () {
 
 exports.signatures = function () {
   return [
-    '  overcast digitalocean create [instance] [options]',
-    '  overcast digitalocean destroy [instance]',
+    '  overcast digitalocean create [name] [options]',
+    '  overcast digitalocean destroy [name]',
     '  overcast digitalocean droplets',
     '  overcast digitalocean images',
-    '  overcast digitalocean poweron [instance]',
-    '  overcast digitalocean reboot [instance]',
-    '  overcast digitalocean rebuild [instance] [options]',
+    '  overcast digitalocean poweron [name]',
+    '  overcast digitalocean reboot [name]',
+    '  overcast digitalocean rebuild [name] [options]',
     '  overcast digitalocean regions',
     '  overcast digitalocean resize',
     '  overcast digitalocean sizes',
-    '  overcast digitalocean shutdown [instance]',
-    '  overcast digitalocean snapshot [instance] [snapshot-name]',
+    '  overcast digitalocean shutdown [name]',
+    '  overcast digitalocean snapshot [name] [snapshot-name]',
     '  overcast digitalocean snapshots'
   ];
 };
@@ -195,15 +185,12 @@ exports.help = function () {
     '  Example:'.grey,
     '  $ overcast digitalocean create db.01 --cluster db --size-slug 1gb --region-slug sfo1'.grey,
     '',
-    'overcast digitalocean destroy [instance]',
+    'overcast digitalocean destroy [name]',
     '  Destroys a DigitalOcean droplet and removes it from your account.'.grey,
     '  Using --force overrides the confirm dialog. This is irreversible.'.grey,
     '',
     '    Option               | Default'.grey,
     '    --force              | false'.grey,
-    '',
-    '  Example:'.grey,
-    '  $ overcast digitalocean destroy app.01'.grey,
     '',
     'overcast digitalocean droplets',
     '  List all DigitalOcean droplets in your account.'.grey,
@@ -211,17 +198,14 @@ exports.help = function () {
     'overcast digitalocean images',
     '  List all available DigitalOcean images. Includes snapshots.'.grey,
     '',
-    'overcast digitalocean poweron [instance]',
+    'overcast digitalocean poweron [name]',
     '  Power on a powered off droplet.'.grey,
     '',
-    'overcast digitalocean reboot [instance]',
+    'overcast digitalocean reboot [name]',
     '  Reboots a DigitalOcean droplet. According to the API docs, "this is the'.grey,
     '  preferred method to use if a server is not responding."'.grey,
     '',
-    '  Example:'.grey,
-    '  $ overcast digitalocean reboot app.01'.grey,
-    '',
-    'overcast digitalocean rebuild [instance] [options]',
+    'overcast digitalocean rebuild [name] [options]',
     '  Rebuild a DigitalOcean droplet using a specified image name, slug or ID.'.grey,
     '  According to the API docs, "This is useful if you want to start again but'.grey,
     '  retain the same IP address for your droplet."'.grey,
@@ -252,17 +236,11 @@ exports.help = function () {
     'overcast digitalocean sizes',
     '  List available DigitalOcean sizes (512mb, 1gb, etc).'.grey,
     '',
-    'overcast digitalocean shutdown [instance]',
+    'overcast digitalocean shutdown [name]',
     '  Shut down a DigitalOcean droplet.'.grey,
     '',
-    '  Example:'.grey,
-    '  $ overcast digitalocean shutdown app.01'.grey,
-    '',
-    'overcast digitalocean snapshot [instance] [snapshot-name]',
+    'overcast digitalocean snapshot [name] [snapshot-name]',
     '  Creates a named snapshot of a droplet. This process will reboot the instance.'.grey,
-    '',
-    '  Example:'.grey,
-    '  $ overcast digitalocean snapshot app.01'.grey,
     '',
     'overcast digitalocean snapshots',
     '  Lists available snapshots in your DigitalOcean account.'.grey

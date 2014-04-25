@@ -9,7 +9,7 @@ exports.run = function (args) {
 
   if (_.isEmpty(clusters)) {
     console.log('');
-    utils.note('No clusters found.');
+    utils.grey('No clusters found.');
     return false;
   }
 

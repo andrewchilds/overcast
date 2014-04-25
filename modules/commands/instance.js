@@ -10,8 +10,7 @@ exports.run = function (args) {
   if (args.subcommand && subcommands[args.subcommand]) {
     subcommands[args.subcommand](args);
   } else {
-    utils.red('Missing or unknown subcommand.');
-    exports.help(args);
+    utils.missingCommand(exports.help);
   }
 };
 
@@ -21,8 +20,8 @@ subcommands.get = function (args) {
   var clusters = utils.getClusters();
   utils.argShift(args, 'name');
 
-  var instance = utils.findOnlyMatchingInstance(args.name);
-  utils.handleEmptyInstances(instance, args);
+  var instance = utils.findFirstMatchingInstance(args.name);
+  utils.handleInstanceNotFound(instance, args);
 
   _.each(args._, function (attr) {
     attr = attr.replace(/-/g, '_');
@@ -38,19 +37,13 @@ subcommands.import = function (args) {
 
   var cluster = utils.sanitize(args.cluster);
   var ip = utils.sanitize(args.ip);
-  var user = utils.sanitize(args.user) || 'root';
-  var ssh_port = utils.sanitize(args['ssh-port']) || '22';
-  var ssh_key = args['ssh-key'] || utils.CONFIG_DIR + '/keys/overcast.key';
 
   if (!args.name) {
-    utils.red('Missing [name] parameter.');
-    return exports.help(args);
+    utils.missingParameter('[name]', exports.help);
   } else if (!cluster) {
-    utils.red('Missing --cluster parameter.');
-    return exports.help(args);
+    utils.missingParameter('--cluster', exports.help);
   } else if (!ip) {
-    utils.red('Missing --ip parameter.');
-    return exports.help(args);
+    utils.missingParameter('--ip', exports.help);
   } else if (!clusters[cluster]) {
     utils.die('No "' + cluster + '" cluster found.' + "\n" +
       'You can create one by running: ' +
@@ -61,9 +54,9 @@ subcommands.import = function (args) {
   clusters[cluster].instances[args.name] = {
     ip: ip,
     name: args.name,
-    ssh_port: ssh_port,
-    ssh_key: ssh_key,
-    user: user
+    ssh_port: utils.sanitize(args['ssh-port']) || '22',
+    ssh_key: args['ssh-key'] || utils.CONFIG_DIR + '/keys/overcast.key',
+    user: utils.sanitize(args.user) || 'root'
   };
 
   utils.saveClusters(clusters, function () {
@@ -91,7 +84,7 @@ subcommands.remove = function (args) {
   utils.argShift(args, 'name');
 
   if (!args.name) {
-    utils.die('Missing [name] parameter.');
+    utils.missingParameter('[name]', exports.help);
   }
 
   var deletedFrom;
@@ -121,8 +114,12 @@ subcommands.update = function (args) {
     utils.argShift(args, 'name');
   }
 
-  var instance = utils.findOnlyMatchingInstance(args.oldName || args.name);
-  utils.handleEmptyInstances(instance, args);
+  if (!args.name) {
+    utils.missingParameter('[name]', exports.help);
+  }
+
+  var instance = utils.findFirstMatchingInstance(args.oldName || args.name);
+  utils.handleInstanceNotFound(instance, args);
 
   var parentClusterName = utils.findClusterNameForInstance(instance);
   var messages = [];

@@ -6,8 +6,7 @@ exports.run = function (args) {
   utils.argShift(args, 'name');
 
   if (!args.name) {
-    utils.red('Missing [name] parameter.');
-    return exports.help(args);
+    utils.missingParameter('[instance|cluster|all]', exports.help);
   }
 
   args._ = ['list_exposed_ports'];
@@ -20,7 +19,7 @@ exports.signatures = function () {
   ];
 };
 
-exports.help = function (args) {
+exports.help = function () {
   utils.printArray([
     'overcast exposed [instance|cluster|all]',
     '  List the exposed ports on the instance or cluster.'.grey,

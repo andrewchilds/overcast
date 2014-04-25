@@ -12,12 +12,11 @@ exports.run = function (args) {
   utils.argShift(args, 'name');
 
   if (!args.name) {
-    utils.red('Missing [instance|cluster|all] parameter.');
-    return exports.help(args);
+    utils.missingParameter('[instance|cluster|all]', exports.help);
   }
 
   var instances = utils.findMatchingInstances(args.name);
-  utils.handleEmptyInstances(instances, args);
+  utils.handleInstanceOrClusterNotFound(instances, args);
 
   var self = { queue: Promise.resolve() };
 

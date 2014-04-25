@@ -5,16 +5,18 @@ var utils = require('../utils');
 exports.run = function (args) {
   utils.argShift(args, 'name');
 
-  var color = utils.SSH_COLORS[utils.SSH_COUNT++ % 5];
-
   if (!args.name) {
-    utils.die('Missing [name] parameter.');
+    utils.missingParameter('[name]', exports.help);
   }
 
-  var instance = utils.findOnlyMatchingInstance(args.name);
-  if (!instance) {
-    utils.handleEmptyInstances({}, args);
-  }
+  var instance = utils.findFirstMatchingInstance(args.name);
+  utils.handleInstanceNotFound(instance, args);
+
+  connect(instance, args);
+};
+
+function connect(instance, args) {
+  var color = utils.SSH_COLORS[utils.SSH_COUNT++ % 5];
 
   var privateKeyFile = args['ssh-key'] || instance.ssh_key || utils.CONFIG_DIR + '/keys/overcast.key';
   var sshPort = instance.ssh_port || '22';
@@ -61,18 +63,18 @@ exports.run = function (args) {
     }
     console.log('');
   });
-};
+}
 
 exports.signatures = function () {
   return [
-    '  overcast ssh [instance]'
+    '  overcast ssh [name]'
   ];
 };
 
 exports.help = function () {
   utils.printArray([
-    'overcast ssh [instance]',
-    '  Opens an SSH connection to an instance.'.grey,
+    'overcast ssh [name]',
+    '  Opens an interactive SSH connection to an instance.'.grey,
     '',
     '  Option'.grey,
     '  --ssh-key PATH'.grey,

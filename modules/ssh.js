@@ -5,7 +5,7 @@ var utils = require('./utils');
 
 module.exports = function (args, callback) {
   var instances = utils.findMatchingInstances(args.name);
-  utils.handleEmptyInstances(instances, args);
+  utils.handleInstanceOrClusterNotFound(instances, args);
 
   if (args.parallel || args.p) {
     _.each(instances, function (instance) {

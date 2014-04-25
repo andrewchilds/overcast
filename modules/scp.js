@@ -5,7 +5,7 @@ var utils = require('./utils');
 
 module.exports = function (args) {
   var instances = utils.findMatchingInstances(args.name);
-  utils.handleEmptyInstances(instances, args);
+  utils.handleInstanceOrClusterNotFound(instances, args);
 
   if (instances.length > 1) {
     args.multipleInstances = true;

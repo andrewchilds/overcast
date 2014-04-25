@@ -7,11 +7,9 @@ exports.run = function (args) {
   utils.argShift(args, 'name');
 
   if (!args.name) {
-    utils.red('Missing [name] parameter.');
-    return exports.help(args);
+    utils.missingParameter('[instance|cluster|all]', exports.help);
   } else if (args._.length === 0) {
-    utils.red('Missing [command|script] parameter.');
-    return exports.help(args);
+    utils.missingParameter('[command|script]', exports.help);
   }
 
   ssh(args);

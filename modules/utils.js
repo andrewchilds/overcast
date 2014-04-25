@@ -3,7 +3,7 @@ var path = require('path');
 var cp = require('child_process');
 var _ = require('lodash');
 var colors = require('colors');
-var list = require('./commands/list');
+var listCommand = require('./commands/list');
 
 exports.VERSION = '0.2.10';
 
@@ -119,7 +119,7 @@ exports.findMatchingInstances = function (name) {
   return instances;
 };
 
-exports.findOnlyMatchingInstance = function (name) {
+exports.findFirstMatchingInstance = function (name) {
   var clusters = exports.getClusters();
   var instance;
 
@@ -145,10 +145,18 @@ exports.findClusterNameForInstance = function (instance) {
   return foundName;
 };
 
-exports.handleEmptyInstances = function (instances, args) {
+exports.handleInstanceOrClusterNotFound = function (instances, args) {
   if (_.isEmpty(instances)) {
-    exports.red('No cluster or instance found matching "' + args.name + '".');
-    list.run(args);
+    exports.red('No instance or cluster found matching "' + args.name + '".');
+    listCommand.run();
+    process.exit(1);
+  }
+};
+
+exports.handleInstanceNotFound = function (instance, args) {
+  if (!instance) {
+    utils.red('No instance found matching "' + args.name + '".');
+    listCommand.run();
     process.exit(1);
   }
 };
@@ -248,6 +256,18 @@ exports.printArray = function (arr) {
 
 exports.die = function (str) {
   exports.red(str);
+  process.exit(1);
+};
+
+exports.missingParameter = function (name, helpFn) {
+  exports.red('Missing ' + name + ' parameter.');
+  helpFn();
+  process.exit(1);
+};
+
+exports.missingCommand = function (helpFn) {
+  exports.red('Missing or unknown command.');
+  helpFn();
   process.exit(1);
 };
 
