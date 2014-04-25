@@ -1,0 +1,17 @@
+#!/bin/bash
+
+# Install Emacs on Ubuntu 14.04.
+
+# Usage:
+# overcast run myInstanceOrCluster install/emacs
+
+# set -x
+
+if [ "$(id -u)" != "0" ]; then
+   echo "This script must be run as root." 1>&2
+   exit 1
+fi
+
+# Install emacs
+
+aptitude -y install emacs

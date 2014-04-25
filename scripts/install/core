@@ -17,4 +17,4 @@ fi
 apt-get update
 apt-get install aptitude
 aptitude -y full-upgrade
-aptitude -y install git-core wget emacs vim less build-essential iptables-persistent
+aptitude -y install git-core wget vim less build-essential iptables-persistent
