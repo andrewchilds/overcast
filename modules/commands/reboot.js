@@ -12,7 +12,7 @@ exports.run = function (args) {
   utils.argShift(args, 'name');
 
   if (!args.name) {
-    utils.missingParameter('[instance|cluster|all]', exports.help);
+    return utils.missingParameter('[instance|cluster|all]', exports.help);
   }
 
   var instances = utils.findMatchingInstances(args.name);
@@ -40,7 +40,7 @@ exports.run = function (args) {
       });
     } else {
       addPromise(function (resolve) {
-        ssh({ name: instance.name, _: ['reboot'] }, function () {
+        ssh.run({ name: instance.name, _: ['reboot'] }, function () {
           // Bumping delay to 60 seconds for shutdown time.
           utils.waitForBoot(resolve, 60);
         });

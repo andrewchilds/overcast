@@ -14,7 +14,7 @@
   },
   "main": "overcast.js",
   "scripts": {
-    "test": "rm -rf ./test/.overcast && ./node_modules/jasmine-node/bin/jasmine-node --coffee --color --verbose ./test"
+    "test": "rm -rf ./test/integration/.overcast && ./node_modules/jasmine-node/bin/jasmine-node --coffee --color --verbose ./test"
   },
   "bin": {
     "overcast": "bin/overcast"

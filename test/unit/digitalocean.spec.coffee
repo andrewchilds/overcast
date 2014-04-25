@@ -1,8 +1,5 @@
-specUtils = require('./utils')
-overcast = specUtils.overcast
-
-utils = require('../modules/utils')
-digitalocean = require('../modules/providers/digitalocean')
+utils = require('../../modules/utils')
+digitalocean = require('../../modules/providers/digitalocean')
 
 utils.setConfigDir(__dirname + '/.overcast')
 

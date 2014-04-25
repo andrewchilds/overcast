@@ -6,7 +6,7 @@ exports.run = function (args) {
   utils.argShift(args, 'name');
 
   if (!args.name) {
-    utils.missingParameter('[name]', exports.help);
+    return utils.missingParameter('[name]', exports.help);
   }
 
   var instance = utils.findFirstMatchingInstance(args.name);

@@ -1,4 +1,4 @@
-test/.overcast
+test/integration/.overcast
 .DS_Store
 .idea
 npm-debug.log

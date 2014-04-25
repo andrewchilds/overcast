@@ -7,12 +7,12 @@ exports.run = function (args) {
   utils.argShift(args, 'name');
 
   if (!args.name) {
-    utils.missingParameter('[instance|cluster|all]', exports.help);
+    return utils.missingParameter('[instance|cluster|all]', exports.help);
   } else if (args._.length === 0) {
-    utils.missingParameter('[command|script]', exports.help);
+    return utils.missingParameter('[command|script]', exports.help);
   }
 
-  ssh(args);
+  ssh.run(args);
 };
 
 exports.signatures = function () {

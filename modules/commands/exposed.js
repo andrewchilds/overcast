@@ -6,11 +6,11 @@ exports.run = function (args) {
   utils.argShift(args, 'name');
 
   if (!args.name) {
-    utils.missingParameter('[instance|cluster|all]', exports.help);
+    return utils.missingParameter('[instance|cluster|all]', exports.help);
   }
 
   args._ = ['list_exposed_ports'];
-  ssh(args);
+  ssh.run(args);
 };
 
 exports.signatures = function () {

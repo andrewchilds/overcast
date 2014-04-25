@@ -3,7 +3,7 @@ var cp = require('child_process');
 var _ = require('lodash');
 var utils = require('./utils');
 
-module.exports = function (args, callback) {
+exports.run = function (args, callback) {
   var instances = utils.findMatchingInstances(args.name);
   utils.handleInstanceOrClusterNotFound(instances, args);
 

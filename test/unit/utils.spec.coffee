@@ -1,4 +1,4 @@
-utils = require('../modules/utils')
+utils = require('../../modules/utils')
 
 beforeEach ->
   utils.setConfigDir(__dirname + '/.overcast')

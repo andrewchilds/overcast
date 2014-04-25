@@ -6,7 +6,7 @@ exports.run = function (args) {
   utils.argShift(args, 'name');
 
   if (!args.name) {
-    utils.missingParameter('[instance|cluster|all]', exports.help);
+    return utils.missingParameter('[instance|cluster|all]', exports.help);
   }
 
   args.continueOnError = true;
@@ -18,7 +18,7 @@ exports.run = function (args) {
     data[name] = data[name] || '';
     data[name] += line;
   };
-  ssh(args, function () {
+  ssh.run(args, function () {
     var output = {};
     utils.prefixPrint = old;
     _.each(data, function (raw, name) {

@@ -6,9 +6,9 @@ exports.run = function (args) {
   utils.argShift(args, 'name');
 
   if (!args.name) {
-    utils.missingParameter('[instance|cluster|all]', exports.help);
+    return utils.missingParameter('[instance|cluster|all]', exports.help);
   } else if (args._.length === 0) {
-    utils.missingParameter('[port]', exports.help);
+    return utils.missingParameter('[port]', exports.help);
   }
 
   var instances = utils.findMatchingInstances(args.name);
@@ -21,7 +21,7 @@ exports.run = function (args) {
   };
 
   args._ = ['change_ssh_port'];
-  ssh(args, function () {
+  ssh.run(args, function () {
     _.each(instances, function (instance) {
       utils.updateInstance(instance.name, {
         ssh_port: new_ssh_port

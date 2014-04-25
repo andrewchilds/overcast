@@ -6,9 +6,9 @@ exports.run = function (args) {
   utils.argShift(args, 'name');
 
   if (!args.name) {
-    utils.missingParameter('[instance|cluster|all]', exports.help);
+    return utils.missingParameter('[instance|cluster|all]', exports.help);
   } else if (args._.length === 0) {
-    utils.missingParameter('[port]', exports.help);
+    return utils.missingParameter('[port]', exports.help);
   }
 
   args.env = {
@@ -21,7 +21,7 @@ exports.run = function (args) {
     }
   });
 
-  ssh(args);
+  ssh.run(args);
 };
 
 exports.signatures = function () {

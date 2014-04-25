@@ -9,7 +9,7 @@ exports.run = function (args) {
   utils.argShift(args, 'name');
 
   if (!args.subcommand || !subcommands[args.subcommand]) {
-    utils.missingCommand(exports.help);
+    return utils.missingCommand(exports.help);
   }
 
   if (/^(create|droplets|images|regions|sizes|snapshots)$/.test(args.subcommand)) {
@@ -17,7 +17,7 @@ exports.run = function (args) {
   }
 
   if (!args.name) {
-    utils.missingParameter('[name]', exports.help);
+    return utils.missingParameter('[name]', exports.help);
   }
 
   var instance = utils.findFirstMatchingInstance(args.name);
@@ -42,7 +42,7 @@ subcommands.create = function (args) {
   var clusters = utils.getClusters();
 
   if (!args.cluster) {
-    utils.missingParameter('--cluster', exports.help);
+    return utils.missingParameter('--cluster', exports.help);
   } else if (!clusters[args.cluster]) {
     utils.die('No "' + args.cluster + '" cluster found. Known clusters are: ' +
       _.keys(clusters).join(', ') + '.');
@@ -126,7 +126,7 @@ subcommands.snapshot = function (instance, args) {
   utils.argShift(args, 'snapshotName');
 
   if (!args.snapshotName) {
-    utils.missingParameter('[snapshot-name]', exports.help);
+    return utils.missingParameter('[snapshot-name]', exports.help);
   }
 
   API.snapshot(instance, args.snapshotName);

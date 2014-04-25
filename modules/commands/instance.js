@@ -10,7 +10,7 @@ exports.run = function (args) {
   if (args.subcommand && subcommands[args.subcommand]) {
     subcommands[args.subcommand](args);
   } else {
-    utils.missingCommand(exports.help);
+    return utils.missingCommand(exports.help);
   }
 };
 
@@ -39,11 +39,11 @@ subcommands.import = function (args) {
   var ip = utils.sanitize(args.ip);
 
   if (!args.name) {
-    utils.missingParameter('[name]', exports.help);
+    return utils.missingParameter('[name]', exports.help);
   } else if (!cluster) {
-    utils.missingParameter('--cluster', exports.help);
+    return utils.missingParameter('--cluster', exports.help);
   } else if (!ip) {
-    utils.missingParameter('--ip', exports.help);
+    return utils.missingParameter('--ip', exports.help);
   } else if (!clusters[cluster]) {
     utils.die('No "' + cluster + '" cluster found.' + "\n" +
       'You can create one by running: ' +
@@ -84,7 +84,7 @@ subcommands.remove = function (args) {
   utils.argShift(args, 'name');
 
   if (!args.name) {
-    utils.missingParameter('[name]', exports.help);
+    return utils.missingParameter('[name]', exports.help);
   }
 
   var deletedFrom;
@@ -115,7 +115,7 @@ subcommands.update = function (args) {
   }
 
   if (!args.name) {
-    utils.missingParameter('[name]', exports.help);
+    return utils.missingParameter('[name]', exports.help);
   }
 
   var instance = utils.findFirstMatchingInstance(args.oldName || args.name);

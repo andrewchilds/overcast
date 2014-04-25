@@ -9,14 +9,14 @@ exports.run = function (args) {
   args.direction = 'pull';
 
   if (!args.name) {
-    utils.missingParameter('[instance|cluster|all]', exports.help);
+    return utils.missingParameter('[instance|cluster|all]', exports.help);
   } else if (!args.source) {
-    utils.missingParameter('[source]', exports.help);
+    return utils.missingParameter('[source]', exports.help);
   } else if (!args.dest) {
-    utils.missingParameter('[dest]', exports.help);
+    return utils.missingParameter('[dest]', exports.help);
   }
 
-  scp(args);
+  scp.run(args);
 };
 
 exports.signatures = function () {
