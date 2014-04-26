@@ -386,3 +386,17 @@ exports.prettyPrint = function (obj, indent, stepBy) {
     }
   });
 };
+
+exports.printCommandHelp = function (commands) {
+  var first = true;
+  _.each(commands, function (command) {
+    if (command.help) {
+      if (first) {
+        first = false;
+      } else {
+        console.log('');
+      }
+      command.help();
+    }
+  });
+};
