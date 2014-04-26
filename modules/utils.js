@@ -77,8 +77,8 @@ exports.keyExists = function (keyName) {
 
 exports.createKey = function (keyName, callback) {
   var keyFile = exports.getKeyFileFromName(keyName);
-  cp.exec('mkdir -p ' + exports.CONFIG_DIR + '/keys && ssh-keygen -t rsa -N "" -f ' +
-    keyFile + ' && chmod 600 ' + keyFile, function (err) {
+  cp.exec('bash -c \'mkdir -p ' + exports.CONFIG_DIR + '/keys && ssh-keygen -t rsa -N "" -f ' +
+    keyFile + ' && chmod 600 ' + keyFile + '\'', function (err) {
     if (err) {
       exports.red('Error generating SSH key.');
       exports.die(err);
@@ -111,13 +111,13 @@ exports.normalizeKeyPath = function (keyPath, keyName) {
   keyName = keyName || 'overcast.key';
 
   if (!keyPath) {
-    return exports.CONFIG_DIR + '/keys/' + keyName;
+    return path.resolve(exports.CONFIG_DIR, 'keys', keyName);
   }
 
-  if (keyPath.charAt(0) === '/') {
+  if (exports.isAbsolute(keyPath)) {
     return keyPath;
   } else {
-    return path.normalize(exports.CONFIG_DIR + '/keys/' + keyPath);
+    return path.resolve(exports.CONFIG_DIR, 'keys', keyPath);
   }
 };
 
@@ -125,13 +125,35 @@ exports.createHashedKeyName = function (keyData) {
   return 'overcast.' + crypto.createHash('md5').update(keyData).digest('hex');
 };
 
+exports.isAbsolute = function (p) {
+  return path.resolve(p) === path.normalize(p) || p.charAt(0) === '/';
+};
+
+exports.convertToAbsolute = function (p) {
+  return exports.fixPath(exports.isAbsolute(p) ? p : path.resolve(exports.CONFIG_DIR, 'files', p));
+};
+
+exports.fixPath = function (p) {
+  if (process.platform === 'win32') {
+    return p.replace(/^[A-Z]:(\\|\/)/i, function(m) {
+      return '/' + m[0].toLowerCase() + '/';
+    });
+  }
+
+  return p;
+};
+
+exports.escapePath = function (p) {
+  return p.replace(/\\/g, '\\\\');
+};
+
 exports.initOvercastDir = function (dest_dir, callback) {
   dest_dir += '/.overcast';
 
-  return cp.exec(__dirname + '/../bin/init', {
+  return cp.exec('bash ' + exports.escapePath(__dirname + '/../bin/init'), {
     env: _.extend({}, process.env, {
-      overcast_fixture_dir: __dirname + '/../fixtures',
-      overcast_dest_dir: dest_dir
+      OVERCAST_FIXTURE_DIR: exports.escapePath(__dirname + '/../fixtures'),
+      OVERCAST_DEST_DIR: exports.escapePath(dest_dir)
     })
   }, function (err, stdout, stderr) {
     if (err) {

@@ -1,3 +1,4 @@
+path = require('path')
 utils = require('../../modules/utils')
 
 beforeEach ->
@@ -93,13 +94,13 @@ describe 'utils', ->
     subject = utils.normalizeKeyPath
 
     it 'should use the default path if none specified', ->
-      expect(subject()).toBe utils.CONFIG_DIR + '/keys/overcast.key'
+      expect(subject()).toBe path.resolve(utils.CONFIG_DIR, 'keys', 'overcast.key')
 
     it 'should handle absolute paths', ->
       expect(subject('/path/to/overcast.key')).toBe '/path/to/overcast.key'
 
     it 'should handle relative paths', ->
-      expect(subject('foo.key')).toBe utils.CONFIG_DIR + '/keys/foo.key'
+      expect(subject('foo.key')).toBe path.resolve(utils.CONFIG_DIR, 'keys', 'foo.key')
 
   describe 'sanitize', ->
     subject = utils.sanitize

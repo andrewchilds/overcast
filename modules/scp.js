@@ -66,12 +66,12 @@ function scpExec(options, next) {
   ];
 
   if (options.direction === 'pull') {
-    options.dest = convertToAbsolute(options.dest);
+    options.dest = utils.convertToAbsolute(options.dest);
     options.dest = replaceInstanceName(options.name, options.dest);
     args.push((options.user || 'root') + '@' + options.ip + ':' + options.source);
     args.push(options.dest);
   } else if (options.direction === 'push') {
-    options.source = convertToAbsolute(options.source);
+    options.source = utils.convertToAbsolute(options.source);
     options.source = replaceInstanceName(options.name, options.source);
     args.push(options.source);
     args.push((options.user || 'root') + '@' + options.ip + ':' + options.dest);
@@ -101,10 +101,6 @@ function scpExec(options, next) {
       next();
     }
   });
-}
-
-function convertToAbsolute(str) {
-  return str.charAt(0) === '/' ? str : utils.CONFIG_DIR + '/files/' + str;
 }
 
 function replaceInstanceName(name, path) {
