@@ -48,7 +48,9 @@ subcommands.boot = function (instance) {
 subcommands.create = function (args) {
   var clusters = utils.getClusters();
 
-  if (!args.cluster) {
+  if (!args.name) {
+    return utils.missingParameter('[name]', exports.help);
+  } else if (!args.cluster) {
     return utils.missingParameter('--cluster', exports.help);
   } else if (!clusters[args.cluster]) {
     utils.die('No "' + args.cluster + '" cluster found. Known clusters are: ' +

@@ -26,7 +26,7 @@ exports.promiseWhile = function (condition, action) {
   return resolver.promise;
 };
 
-exports.getClient = function () {
+exports.request = function (action, data, callback) {
   if (!exports.client) {
     var variables = utils.getVariables();
     if (!variables.LINODE_API_KEY) {
@@ -37,7 +37,7 @@ exports.getClient = function () {
     exports.client = new(require('linode-api').LinodeClient)(variables.LINODE_API_KEY);
   }
 
-  return exports.client;
+  return exports.client.call(action, data, callback);
 };
 
 // linode-id
@@ -336,7 +336,7 @@ exports.createLinode = function (args) {
 exports.resizeLinode = function (args) {
   return new Promise(function (resolve, reject) {
     exports.normalizeArgs(args).then(function (args) {
-      exports.getClient().call('linode.resize', {
+      exports.request('linode.resize', {
         LinodeID: args['linode-id'],
         PlanID: args['plan-id'] || 1 // Defaults to Linode 2048
       }, function (err, res) {
@@ -634,7 +634,7 @@ function apiPromise(options) {
   }
 
   return new Promise(function (resolve, reject) {
-    exports.getClient().call(options.action, options.data || {}, function (err, collection) {
+    exports.request(options.action, options.data || {}, function (err, collection) {
       if (DEBUG) {
         console.log(err, collection);
       }
