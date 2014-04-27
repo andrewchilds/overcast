@@ -73,6 +73,8 @@ subcommands.import = function (args) {
     return utils.die('No "' + cluster + '" cluster found.' + "\n" +
       'You can create one by running: ' +
       'overcast cluster create ' + cluster);
+  } else if (clusters[cluster].instances[args.name]) {
+    return utils.die('Instance "' + args.name + '" already exists.');
   }
 
   clusters[cluster].instances = clusters[cluster].instances || {};
@@ -191,11 +193,11 @@ subcommands.update = function (args) {
 
   if (args.cluster) {
     if (!clusters[args.cluster]) {
-      utils.die('No "' + args.cluster + '" cluster found. Known clusters are: ' +
+      return utils.die('No "' + args.cluster + '" cluster found. Known clusters are: ' +
         _.keys(clusters).join(', ') + '.');
     }
     if (clusters[args.cluster].instances[instance.name]) {
-      utils.die('An instance named "' + instance.name + '" already exists in the "' + args.cluster + '" cluster.');
+      return utils.die('An instance named "' + instance.name + '" already exists in the "' + args.cluster + '" cluster.');
     }
 
     delete clusters[parentClusterName].instances[instance.name];
