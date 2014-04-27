@@ -11,7 +11,7 @@ var API_URL = 'https://api.digitalocean.com/';
 var EVENT_TIMEOUT = 1000 * 60 * 10;
 var EVENT_TIMEOUT_NAME = 'ten minutes';
 
-exports.debug = false;
+exports.DEBUG = false;
 
 exports.getKeys = function (callback) {
   // GET https://api.digitalocean.com/ssh_keys
@@ -375,7 +375,7 @@ exports.destroy = function (instance, callback) {
   exports.eventedRequest({
     endpoint: 'droplets/' + instance.digitalocean.id + '/destroy',
     query: {
-      scrub_data: false
+      scrub_data: 1
     },
     callback: function (eventResult) {
       utils.success('Instance "' + instance.name + '" has been destroyed.');
@@ -455,7 +455,7 @@ exports.request = function (options) {
 
   var args = constructCurlArgs(options);
 
-  if (exports.debug) {
+  if (exports.DEBUG) {
     console.log('curl ' + args.join(' '));
   }
 
@@ -482,7 +482,7 @@ exports.request = function (options) {
       utils.die('Exception thrown while parsing DigitalOcean API output: ' + stdout);
     }
 
-    if (exports.debug) {
+    if (exports.DEBUG) {
       console.log(JSON.stringify(stdout, null, 4));
     }
 
