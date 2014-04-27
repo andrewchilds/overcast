@@ -41,17 +41,11 @@ function connect(instance, args) {
   });
 
   ssh.stdout.on('data', function (data) {
-    data = (data + '').trim().split("\n");
-    _.each(data, function (line) {
-      utils.prefixPrint(instance.name, color, line, 'white');
-    });
+    utils.prefixPrint(instance.name, color, data);
   });
 
   ssh.stderr.on('data', function (data) {
-    data = (data + '').trim().split("\n");
-    _.each(data, function (line) {
-      utils.prefixPrint(instance.name, color, line, 'red');
-    });
+    utils.prefixPrint(instance.name, color, data, 'grey');
   });
 
   ssh.on('exit', function (code) {

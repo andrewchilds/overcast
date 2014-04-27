@@ -87,17 +87,11 @@ function scpExec(options, next) {
   var scp = cp.spawn('scp', args);
 
   scp.stdout.on('data', function (data) {
-    data = (data + '').trim().split("\n");
-    _.each(data, function (line) {
-      utils.prefixPrint(options.name, color, line, 'white');
-    });
+    utils.prefixPrint(options.name, color, data);
   });
 
   scp.stderr.on('data', function (data) {
-    data = (data + '').trim().split("\n");
-    _.each(data, function (line) {
-      utils.prefixPrint(options.name, color, line, 'red');
-    });
+    utils.prefixPrint(options.name, color, data, 'grey');
   });
 
   scp.on('exit', function (code) {

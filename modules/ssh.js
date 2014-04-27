@@ -1,4 +1,5 @@
 var fs = require('fs');
+var path = require('path');
 var cp = require('child_process');
 var _ = require('lodash');
 var utils = require('./utils');
@@ -86,6 +87,9 @@ function sshExec(options, next) {
     } else if (_.isString(options.env)) {
       sshEnv.overcast_env = options.env.trim();
     }
+    if (sshEnv.overcast_env) {
+      sshEnv.overcast_env += ' ';
+    }
   }
 
   var cwdScriptFile = commandAsScriptFile(options.command, process.cwd());
@@ -115,23 +119,17 @@ function sshExec(options, next) {
   });
 
   ssh.stdout.on('data', function (data) {
-    data = (data + '').trim().split("\n");
-    _.each(data, function (line) {
-      utils.prefixPrint(options.name, color, line, 'white');
-    });
+    utils.prefixPrint(options.name, color, data);
   });
 
   ssh.stderr.on('data', function (data) {
-    data = data + '';
-    if (_.contains(data, 'Operation timed out') ||
-      _.contains(data, 'No route to host') || _.contains(data, 'Host is down')) {
+    if (_.contains(data.toString(), 'Operation timed out') ||
+      _.contains(data.toString(), 'No route to host') ||
+      _.contains(data.toString(), 'Host is down')) {
       connectionProblem = true;
     }
 
-    data = data.trim().split("\n");
-    _.each(data, function (line) {
-      utils.prefixPrint(options.name, color, line, 'red');
-    });
+    utils.prefixPrint(options.name, color, data, 'grey');
   });
 
   ssh.on('exit', function (code) {
@@ -166,5 +164,5 @@ function sshExec(options, next) {
 }
 
 function commandAsScriptFile(str, scriptDir) {
-  return str.charAt(0) === '/' ? str : scriptDir + '/' + str;
+  return str.charAt(0) === '/' ? str : path.normalize(scriptDir + '/' + str);
 }

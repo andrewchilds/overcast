@@ -18,10 +18,7 @@ exports.run = function (args) {
     var color = utils.SSH_COLORS[utils.SSH_COUNT++ % 5];
 
     cp.exec('ping -c ' + count + ' ' + instance.ip, function (err, stdout) {
-      stdout = (stdout + '').trim().split("\n");
-      _.each(stdout, function (line) {
-        utils.prefixPrint(instance.name, color, line, 'white');
-      });
+      utils.prefixPrint(instance.name, color, "\n" + stdout.trim());
       console.log('');
     });
   });

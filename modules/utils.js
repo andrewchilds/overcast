@@ -286,8 +286,11 @@ _.each({
   };
 });
 
-exports.prefixPrint = function (prefix, prefixColor, str, textColor) {
-  console.log((prefix + ': ')[prefixColor] + str[textColor || 'white']);
+exports.prefixPrint = function (prefix, prefixColor, buffer, textColor) {
+  prefix = (prefix + ': ')[prefixColor];
+  var str = textColor ? buffer.toString()[textColor] : buffer.toString();
+  str = str.replace(/\r/g, "\r" + prefix).replace(/\n/g, "\n" + prefix);
+  process.stdout.write(str);
 };
 
 exports.progress = function (percentage, elapsed) {
@@ -316,7 +319,7 @@ exports.progress = function (percentage, elapsed) {
 };
 
 exports.clearLine = function () {
-  var str = _.times(80, function () { return ' '; });
+  var str = _.times(120, function () { return ' '; });
   process.stdout.write(str.join('') + "\r");
 };
 
