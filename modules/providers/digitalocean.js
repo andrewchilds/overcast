@@ -372,17 +372,19 @@ exports.destroy = function (instance, callback) {
   // GET https://api.digitalocean.com/droplets/[droplet_id]/destroy
 
   utils.grey('Destroying instance "' + instance.name + '", please wait...');
-  exports.eventedRequest({
+  exports.request({
     endpoint: 'droplets/' + instance.digitalocean.id + '/destroy',
     query: {
       scrub_data: 1
     },
-    callback: function (eventResult) {
-      utils.success('Instance "' + instance.name + '" has been destroyed.');
-      instanceCommand.run({
-        '_': [ 'remove', instance.name ]
-      });
-      (callback || _.noop)();
+    callback: function (result) {
+      if (result && result.event_id) {
+        utils.success('Instance "' + instance.name + '" is being destroyed.');
+        instanceCommand.run({
+          '_': [ 'remove', instance.name ]
+        });
+        (callback || _.noop)();
+      }
     }
   });
 };
