@@ -15,3 +15,5 @@ if [ "$(id -u)" != "0" ]; then
 fi
 
 iptables -L -n | grep 'ACCEPT' | grep 'tcp dpt:' | awk '{ print $7 }' | tr -d 'dpt:' | paste -sd ' '
+
+exit 0

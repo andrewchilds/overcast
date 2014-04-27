@@ -17,3 +17,5 @@ if [ "$(id -u)" != "0" ]; then
 fi
 
 aptitude install -y nginx
+
+exit 0

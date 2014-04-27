@@ -17,3 +17,5 @@ if [ "$(id -u)" != "0" ]; then
 fi
 
 aptitude install -y redis-server
+
+exit 0

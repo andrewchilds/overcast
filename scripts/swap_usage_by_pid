@@ -30,3 +30,5 @@ do
     SUM=0
 done
 echo "Overall swap used: $OVERALL KB"
+
+exit 0

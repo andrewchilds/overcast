@@ -22,3 +22,5 @@ apt-get update
 apt-get install aptitude
 aptitude -y full-upgrade
 aptitude -y install git-core wget less build-essential iptables-persistent
+
+exit 0

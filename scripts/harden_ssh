@@ -23,3 +23,5 @@ sed -i 's/ChallengeResponseAuthentication yes/ChallengeResponseAuthentication no
 sed -i 's/UsePAM yes/UsePAM no/g' /etc/ssh/sshd_config
 
 service ssh restart
+
+exit 0

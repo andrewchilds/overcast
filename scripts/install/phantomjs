@@ -23,3 +23,5 @@ wget https://bitbucket.org/ariya/phantomjs/downloads/phantomjs-1.9.7-linux-x86_6
 tar xvf phantomjs-1.9.7-linux-x86_64.tar.bz2
 rm -f phantomjs-1.9.7-linux-x86_64.tar.bz2
 ln -s /usr/local/share/phantomjs-1.9.7-linux-x86_64/bin/phantomjs /usr/local/bin/phantomjs
+
+exit 0

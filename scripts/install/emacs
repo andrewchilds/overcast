@@ -19,3 +19,5 @@ fi
 # Install emacs
 
 aptitude -y install emacs
+
+exit 0

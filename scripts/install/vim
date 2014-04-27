@@ -19,3 +19,5 @@ fi
 # Install emacs
 
 aptitude -y install vim
+
+exit 0

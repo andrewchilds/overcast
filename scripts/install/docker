@@ -17,3 +17,5 @@ if [ "$(id -u)" != "0" ]; then
 fi
 
 wget -qO- https://get.docker.io/ | sh
+
+exit 0

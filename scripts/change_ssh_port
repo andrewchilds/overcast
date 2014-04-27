@@ -41,3 +41,5 @@ echo Setting port to $new_ssh_port...
 sed -i "s/Port [0-9]*/Port $new_ssh_port/g" /etc/ssh/sshd_config
 
 service ssh restart
+
+exit 0

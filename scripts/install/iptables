@@ -80,3 +80,5 @@ iptables -L -v
 
 mkdir -p /etc/iptables
 iptables-save > /etc/iptables/rules.v4
+
+exit 0

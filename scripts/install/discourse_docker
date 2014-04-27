@@ -47,3 +47,5 @@ sed -i "s/\#\? \?DISCOURSE_SMTP_PASSWORD\: .*/DISCOURSE_SMTP_PASSWORD\: \'$disco
 
 # Running this separately in recipes/discourse-docker.
 # ./launcher start app --skip-prereqs
+
+exit 0

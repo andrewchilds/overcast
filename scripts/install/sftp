@@ -34,3 +34,5 @@ Match group sftp
   AllowTcpForwarding no
   ForceCommand internal-sftp
 EOF
+
+exit 0

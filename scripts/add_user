@@ -48,3 +48,5 @@ groupadd -f sftp
 usermod -G sftp $username
 
 echo "User $username created. Home directory is /home/$username."
+
+exit 0
