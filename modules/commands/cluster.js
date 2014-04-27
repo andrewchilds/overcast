@@ -7,24 +7,26 @@ exports.run = function (args) {
   utils.argShift(args, 'subcommand');
   utils.argShift(args, 'name');
 
-  if (args.subcommand && commands[args.subcommand]) {
-    commands[args.subcommand](args);
+  if (args.name === 'help' && subcommands[args.subcommand].help) {
+    return subcommands[args.subcommand].help();
+  } else if (args.subcommand && subcommands[args.subcommand]) {
+    return subcommands[args.subcommand](args);
   } else {
     return utils.missingCommand(exports.help);
   }
 };
 
-var commands = {};
+var subcommands = {};
 
-commands.list = function (args) {
+subcommands.list = function (args) {
   list.run(args);
 };
 
-commands.count = function (args) {
+subcommands.count = function (args) {
   var clusters = utils.getClusters();
 
   if (!args.name) {
-    return utils.missingParameter('[name]', commands.count.help);
+    return utils.missingParameter('[name]', subcommands.count.help);
   } else if (!clusters[args.name]) {
     return utils.die('The cluster "' + args.name + '" wasn\'t found.');
   }
@@ -32,7 +34,7 @@ commands.count = function (args) {
   console.log(_.keys(clusters[args.name].instances).length);
 };
 
-commands.count.help = function () {
+subcommands.count.help = function () {
   utils.printArray([
     'overcast cluster count [name]',
     '  Return the number of instances in a cluster.'.grey,
@@ -47,11 +49,11 @@ commands.count.help = function () {
   ]);
 };
 
-commands.create = function (args) {
+subcommands.create = function (args) {
   var clusters = utils.getClusters();
 
   if (!args.name) {
-    return utils.missingParameter('[name]', commands.create.help);
+    return utils.missingParameter('[name]', subcommands.create.help);
   } else if (clusters[args.name]) {
     return utils.grey('The cluster "' + args.name + '" already exists, no action taken.');
   }
@@ -64,7 +66,7 @@ commands.create = function (args) {
   });
 };
 
-commands.create.help = function () {
+subcommands.create.help = function () {
   utils.printArray([
     'overcast cluster create [name]',
     '  Creates a new cluster.'.grey,
@@ -74,14 +76,14 @@ commands.create.help = function () {
   ]);
 };
 
-commands.rename = function (args) {
+subcommands.rename = function (args) {
   var clusters = utils.getClusters();
   utils.argShift(args, 'newName');
 
   if (!args.name) {
-    return utils.missingParameter('[name]', commands.rename.help);
+    return utils.missingParameter('[name]', subcommands.rename.help);
   } else if (!args.newName) {
-    return utils.missingParameter('[new-name]', commands.rename.help);
+    return utils.missingParameter('[new-name]', subcommands.rename.help);
   } else if (!clusters[args.name]) {
     return utils.die('The cluster "' + args.name + '" wasn\'t found.');
   } else if (clusters[args.newName]) {
@@ -97,7 +99,7 @@ commands.rename = function (args) {
   });
 };
 
-commands.rename.help = function () {
+subcommands.rename.help = function () {
   utils.printArray([
     'overcast cluster rename [name] [new-name]',
     '  Renames a cluster.'.grey,
@@ -107,11 +109,11 @@ commands.rename.help = function () {
   ]);
 };
 
-commands.remove = function (args) {
+subcommands.remove = function (args) {
   var clusters = utils.getClusters();
 
   if (!args.name) {
-    return utils.missingParameter('[name]', commands.remove.help);
+    return utils.missingParameter('[name]', subcommands.remove.help);
   } else if (!clusters[args.name]) {
     return utils.die('The cluster "' + args.name + '" wasn\'t found.');
   }
@@ -138,7 +140,7 @@ commands.remove = function (args) {
   });
 };
 
-commands.remove.help = function () {
+subcommands.remove.help = function () {
   utils.printArray([
     'overcast cluster remove [name]',
     '  Removes a cluster from the index. If the cluster has any instances'.grey,
@@ -160,5 +162,5 @@ exports.signatures = function () {
 };
 
 exports.help = function () {
-  utils.printCommandHelp(commands);
+  utils.printCommandHelp(subcommands);
 };

@@ -145,22 +145,6 @@ exports.findClusterNameForInstance = function (instance) {
   return foundName;
 };
 
-exports.handleInstanceOrClusterNotFound = function (instances, args) {
-  if (_.isEmpty(instances)) {
-    exports.red('No instance or cluster found matching "' + args.name + '".');
-    listCommand.run();
-    process.exit(1);
-  }
-};
-
-exports.handleInstanceNotFound = function (instance, args) {
-  if (!instance) {
-    utils.red('No instance found matching "' + args.name + '".');
-    listCommand.run();
-    process.exit(1);
-  }
-};
-
 exports.updateInstance = function (name, updates) {
   var clusters = exports.getClusters();
   _.each(clusters, function (cluster, clusterName) {
@@ -259,14 +243,34 @@ exports.die = function (str) {
   process.exit(1);
 };
 
+exports.handleInstanceOrClusterNotFound = function (instances, args) {
+  if (_.isEmpty(instances)) {
+    exports.red('No instance or cluster found matching "' + args.name + '".');
+    console.log('');
+    listCommand.run();
+    process.exit(1);
+  }
+};
+
+exports.handleInstanceNotFound = function (instance, args) {
+  if (!instance) {
+    exports.red('No instance found matching "' + args.name + '".');
+    console.log('');
+    listCommand.run();
+    process.exit(1);
+  }
+};
+
 exports.missingParameter = function (name, helpFn) {
   exports.red('Missing ' + name + ' parameter.');
+  console.log('');
   helpFn();
   process.exit(1);
 };
 
 exports.missingCommand = function (helpFn) {
   exports.red('Missing or unknown command.');
+  console.log('');
   helpFn();
   process.exit(1);
 };
