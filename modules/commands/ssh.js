@@ -6,13 +6,15 @@ exports.run = function (args) {
   utils.argShift(args, 'name');
 
   if (!args.name) {
-    return utils.missingParameter('[name]', exports.help);
+    return utils.missingParameter('[instance|cluster|all]', exports.help);
   }
 
-  var instance = utils.findFirstMatchingInstance(args.name);
-  utils.handleInstanceNotFound(instance, args);
+  var instances = utils.findMatchingInstances(args.name);
+  utils.handleInstanceOrClusterNotFound(instances, args);
 
-  connect(instance, args);
+  _.each(instances, function (instance) {
+    connect(instance, args);
+  });
 };
 
 function connect(instance, args) {
@@ -67,8 +69,9 @@ exports.signatures = function () {
 
 exports.help = function () {
   utils.printArray([
-    'overcast ssh [name]',
-    '  Opens an interactive SSH connection to an instance.'.grey,
+    'overcast ssh [instance|cluster|all]',
+    '  Opens an interactive SSH connection to an instance or cluster.'.grey,
+    '  Because what could possibly go wrong?'.grey,
     '',
     '  Option'.grey,
     '  --ssh-key PATH'.grey,
