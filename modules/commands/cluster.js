@@ -8,6 +8,7 @@ exports.run = function (args) {
   utils.argShift(args, 'name');
 
   if (args.name === 'help' && subcommands[args.subcommand].help) {
+    console.log('');
     return subcommands[args.subcommand].help();
   } else if (args.subcommand && subcommands[args.subcommand]) {
     return subcommands[args.subcommand](args);
