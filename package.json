@@ -1,7 +1,7 @@
 {
   "name": "overcast",
   "description": "A terminal-focused cloud management tool.",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "repository": "https://github.com/andrewchilds/overcast.git",
   "author": {
     "name": "Andrew Childs",

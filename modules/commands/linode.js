@@ -104,7 +104,7 @@ subcommands.create.help = function () {
     '    --cluster CLUSTER         |'.grey,
     '    --datacenter-slug NAME    | newark'.grey,
     '    --datacenter-id ID        |'.grey,
-    '    --distribution-slug NAME  | ubuntu-12-04-lts'.grey,
+    '    --distribution-slug NAME  | ubuntu-14-04-lts'.grey,
     '    --distribution-id ID      |'.grey,
     '    --kernel-id ID            |'.grey,
     '    --kernel-name NAME        | Latest 64 bit'.grey,

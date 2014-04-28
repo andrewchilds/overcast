@@ -76,7 +76,7 @@ subcommands.create.help = function () {
     '    --ssh-port PORT      | 22'.grey,
     '    --region-slug NAME   | nyc2'.grey,
     '    --region-id ID       |'.grey,
-    '    --image-slug NAME    | ubuntu-12-04-x64'.grey,
+    '    --image-slug NAME    | ubuntu-14-04-x64'.grey,
     '    --image-id ID        |'.grey,
     '    --image-name NAME    |'.grey,
     '    --size-slug NAME     | 512mb'.grey,

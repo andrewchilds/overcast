@@ -25,7 +25,7 @@ describe 'digitalocean', ->
           name: 'name'
           ssh_key_ids: '123'
           size_slug: '512mb'
-          image_slug: 'ubuntu-12-04-x64'
+          image_slug: 'ubuntu-14-04-x64'
           region_slug: 'nyc2'
         }
         callback: jasmine.any(Function)

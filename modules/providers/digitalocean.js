@@ -170,7 +170,7 @@ exports.create = function (options) {
 
     _.each({
       size: '512mb',
-      image: 'ubuntu-12-04-x64',
+      image: 'ubuntu-14-04-x64',
       region: 'nyc2'
     }, function (defaultSlug, type) {
       if (!query[type + '_id'] && !query[type + '_slug']) {

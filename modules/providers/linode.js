@@ -256,7 +256,7 @@ exports.getDatacenters = function () {
 // datacenter-id || 6 (Newark)
 // datacenter-slug
 // distribution-id
-// distribution-slug || 'ubuntu-12-04-lts'
+// distribution-slug || 'ubuntu-14-04-lts'
 // kernel-id
 // kernel-name || 'Latest 64 bit'
 // plan-id || 1 (Linode 2048)
@@ -398,7 +398,7 @@ exports.createDiskFromDistribution = function (args) {
   args['ssh-key-data'] = fs.readFileSync(args['ssh-pub-key'], 'utf8') + '';
 
   if (!args['distribution-id'] && !args['distribution-slug']) {
-    args['distribution-slug'] = 'ubuntu-12-04-lts';
+    args['distribution-slug'] = 'ubuntu-14-04-lts';
   }
 
   return exports.normalizeArgs(args).then(exports.addLinodeToArgs).then(function (args) {
