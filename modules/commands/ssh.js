@@ -63,7 +63,7 @@ function connect(instance, args) {
 
 exports.signatures = function () {
   return [
-    '  overcast ssh [name]'
+    '  overcast ssh [instance|cluster|all]'
   ];
 };
 

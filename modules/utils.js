@@ -5,7 +5,7 @@ var _ = require('lodash');
 var colors = require('colors');
 var listCommand = require('./commands/list');
 
-exports.VERSION = '0.2.10';
+exports.VERSION = '0.3.0';
 
 exports.clustersCache = null;
 exports.variablesCache = null;

@@ -194,15 +194,12 @@ The command `overcast init` will create a new configuration in the current direc
     Example:
     $ overcast digitalocean create db.01 --cluster db --size-slug 1gb --region-slug sfo1
 
-  overcast digitalocean destroy [instance]
+  overcast digitalocean destroy [name]
     Destroys a DigitalOcean droplet and removes it from your account.
     Using --force overrides the confirm dialog. This is irreversible.
 
       Option               | Default
       --force              | false
-
-    Example:
-    $ overcast digitalocean destroy app.01
 
   overcast digitalocean droplets
     List all DigitalOcean droplets in your account.
@@ -210,17 +207,14 @@ The command `overcast init` will create a new configuration in the current direc
   overcast digitalocean images
     List all available DigitalOcean images. Includes snapshots.
 
-  overcast digitalocean poweron [instance]
+  overcast digitalocean poweron [name]
     Power on a powered off droplet.
 
-  overcast digitalocean reboot [instance]
+  overcast digitalocean reboot [name]
     Reboots a DigitalOcean droplet. According to the API docs, "this is the
     preferred method to use if a server is not responding."
 
-    Example:
-    $ overcast digitalocean reboot app.01
-
-  overcast digitalocean rebuild [instance] [options]
+  overcast digitalocean rebuild [name] [options]
     Rebuild a DigitalOcean droplet using a specified image name, slug or ID.
     According to the API docs, "This is useful if you want to start again but
     retain the same IP address for your droplet."
@@ -251,17 +245,14 @@ The command `overcast init` will create a new configuration in the current direc
   overcast digitalocean sizes
     List available DigitalOcean sizes (512mb, 1gb, etc).
 
-  overcast digitalocean shutdown [instance]
+  overcast digitalocean shutdown [name]
     Shut down a DigitalOcean droplet.
 
-    Example:
-    $ overcast digitalocean shutdown app.01
-
-  overcast digitalocean snapshot [instance] [snapshot-name]
+  overcast digitalocean snapshot [name] [snapshot-name]
     Creates a named snapshot of a droplet. This process will reboot the instance.
 
     Example:
-    $ overcast digitalocean snapshot app.01
+    $ overcast digitalocean snapshot db.01 db.01.snapshot
 
   overcast digitalocean snapshots
     Lists available snapshots in your DigitalOcean account.
@@ -349,9 +340,9 @@ The command `overcast init` will create a new configuration in the current direc
 ### overcast help
 
 ```
-  Overcast v0.2.10
+  Overcast v0.3.0
 
-  Code repo, issues, pull requests:
+  Source code, issues, pull requests:
     https://github.com/andrewchilds/overcast
 
   Usage:
@@ -370,39 +361,39 @@ The command `overcast init` will create a new configuration in the current direc
     overcast cluster rename [name] [new-name]
     overcast cluster remove [name]
     overcast completions
-    overcast digitalocean create [instance] [options]
-    overcast digitalocean destroy [instance]
+    overcast digitalocean create [name] [options]
+    overcast digitalocean destroy [name]
     overcast digitalocean droplets
     overcast digitalocean images
-    overcast digitalocean poweron [instance]
-    overcast digitalocean reboot [instance]
-    overcast digitalocean rebuild [instance] [options]
+    overcast digitalocean poweron [name]
+    overcast digitalocean reboot [name]
+    overcast digitalocean rebuild [name] [options]
     overcast digitalocean regions
     overcast digitalocean resize
     overcast digitalocean sizes
-    overcast digitalocean shutdown [instance]
-    overcast digitalocean snapshot [instance] [snapshot-name]
+    overcast digitalocean shutdown [name]
+    overcast digitalocean snapshot [name] [snapshot-name]
     overcast digitalocean snapshots
     overcast expose [instance|cluster|all] [port...] [options]
     overcast exposed [instance|cluster|all]
     overcast health [instance|cluster|all]
     overcast info
     overcast init
-    overcast instance get [name] [attr...]
-    overcast instance import [name] [options]
+    overcast instance get [instance|cluster|all] [attr...]
+    overcast instance import [name] [options...]
     overcast instance list [cluster...]
     overcast instance remove [name]
-    overcast instance update [name] [options]
-    overcast linode boot [instance]
-    overcast linode create [instance] [options]
+    overcast instance update [name] [options...]
+    overcast linode boot [name]
+    overcast linode create [name] [options]
     overcast linode datacenters
-    overcast linode destroy [instance]
+    overcast linode destroy [name]
     overcast linode distributions
     overcast linode kernels
     overcast linode linodes
     overcast linode plans
-    overcast linode reboot [instance]
-    overcast linode shutdown [instance]
+    overcast linode reboot [name]
+    overcast linode shutdown [name]
     overcast list
     overcast ping [instance|cluster|all]
     overcast port [instance|cluster|all] [port]
@@ -411,7 +402,7 @@ The command `overcast init` will create a new configuration in the current direc
     overcast reboot [instance|cluster|all]
     overcast run [instance|cluster|all] [command...]
     overcast run [instance|cluster|all] [file...]
-    overcast ssh [instance]
+    overcast ssh [instance|cluster|all]
 
   Config directory:
     /path/to/.overcast
@@ -436,15 +427,16 @@ The command `overcast init` will create a new configuration in the current direc
 ### overcast instance
 
 ```
-  overcast instance get [name] [attr...]
-    Returns the instance attribute(s), one per line.
+  overcast instance get [instance|cluster|all] [attr...]
+    Returns the attribute(s) for the instance or cluster, one per line.
 
     Examples:
-    $ overcast instance get app.01 ssh-port ip
+    $ overcast instance get app.01 ssh-port
     > 22
+    $ overcast instance get app-cluster ip
     > 127.0.0.1
-    $ overcast instance get app.01 user
-    > appuser
+    > 127.0.0.2
+    > 127.0.0.3
 
   overcast instance import [name] [options]
     Imports an existing instance to a cluster.
@@ -496,7 +488,7 @@ The command `overcast init` will create a new configuration in the current direc
   These functions require LINODE_API_KEY property to be set in .overcast/variables.json.
   API keys can be found at https://manager.linode.com/profile/api
 
-  overcast linode boot [instance]
+  overcast linode boot [name]
     Boot a powered off linode.
 
   overcast linode create [name] [options]
@@ -523,7 +515,7 @@ The command `overcast init` will create a new configuration in the current direc
   overcast linode datacenters
     List available Linode datacenters.
 
-  overcast linode destroy [instance]
+  overcast linode destroy [name]
     Destroys a linode and removes it from your account.
     Using --force overrides the confirm dialog. This is irreversible.
 
@@ -542,17 +534,17 @@ The command `overcast init` will create a new configuration in the current direc
   overcast linode plans
     List available Linode plans.
 
-  overcast linode resize [instance] [options]
+  overcast linode reboot [name]
+    Reboots a linode.
+
+  overcast linode resize [name] [options]
     Resizes a linode to the specified plan. This will immediately shutdown and migrate your linode.
 
       Option                    | Default
       --plan-id ID              |
       --plan-slug NAME          |
 
-  overcast linode reboot [instance]
-    Reboots a linode.
-
-  overcast linode shutdown [instance]
+  overcast linode shutdown [name]
     Shut down a linode.
 ```
 
@@ -681,8 +673,9 @@ The command `overcast init` will create a new configuration in the current direc
 ### overcast ssh
 
 ```
-  overcast ssh [instance]
-    Opens an SSH connection to an instance.
+  overcast ssh [instance|cluster|all]
+    Opens an interactive SSH connection to an instance or cluster.
+    Because what could possibly go wrong?
 
     Option
     --ssh-key PATH
