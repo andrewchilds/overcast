@@ -11,7 +11,7 @@
       "dummy.app.02": {
         "ip": "127.0.0.2",
         "name": "dummy.02",
-        "ssh_key": "/path/to/.overcast/keys/overcast.key",
+        "ssh_key": "overcast.key",
         "ssh_port": "22",
         "user": "root"
       }
@@ -22,7 +22,7 @@
       "dummy.db.01": {
         "ip": "127.0.0.3",
         "name": "dummy.03",
-        "ssh_key": "/path/to/.overcast/keys/overcast.key",
+        "ssh_key": "overcast.key",
         "ssh_port": "22",
         "user": "root"
       }

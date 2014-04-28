@@ -8,14 +8,14 @@ exports.notFound = function () {
   return !fs.existsSync(keyfile);
 };
 
-exports.create = function (done) {
+exports.create = function (callback) {
   var keyfile = utils.CONFIG_DIR + '/keys/overcast.key';
   exec('mkdir -p ' + utils.CONFIG_DIR + '/keys && ssh-keygen -t rsa -N "" -f ' + keyfile + ' && chmod 600 ' + keyfile, function (err) {
     if (err) {
-      console.log('Error generating SSH key.');
-      console.log(err);
+      utils.red('Error generating SSH key.');
+      utils.die(err);
     } else {
-      done();
+      (callback || _.noop)();
     }
   });
 };

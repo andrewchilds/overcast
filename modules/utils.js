@@ -30,9 +30,11 @@ exports.setConfigDir = function (dir) {
   exports.VARIABLES_JSON = dir + '/variables.json';
 };
 
-exports.normalizeKeyPath = function (keyPath) {
+exports.normalizeKeyPath = function (keyPath, keyName) {
+  keyName = keyName || 'overcast.key';
+
   if (!keyPath) {
-    return exports.CONFIG_DIR + '/keys/overcast.key';
+    return exports.CONFIG_DIR + '/keys/' + keyName;
   }
 
   if (keyPath.charAt(0) === '/') {
@@ -243,6 +245,13 @@ exports.die = function (str) {
   process.exit(1);
 };
 
+exports.dieWithList = function (str) {
+  exports.red(str);
+  console.log('');
+  listCommand.run();
+  process.exit(1);
+};
+
 exports.handleInstanceOrClusterNotFound = function (instances, args) {
   if (_.isEmpty(instances)) {
     exports.red('No instance or cluster found matching "' + args.name + '".');
@@ -329,7 +338,7 @@ exports.clearLine = function () {
 
 exports.progressComplete = exports.clearLine;
 
-exports.progressBar = function (testFn, doneFn) {
+exports.progressBar = function (testFn, callback) {
   var startTime = _.now();
   var interval = setInterval(function () {
     var percentage = testFn();
@@ -338,7 +347,7 @@ exports.progressBar = function (testFn, doneFn) {
     } else {
       clearInterval(interval);
       exports.progressComplete();
-      (doneFn || _.noop)();
+      (callback || _.noop)();
     }
   }, 250);
 

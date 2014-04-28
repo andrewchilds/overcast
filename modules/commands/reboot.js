@@ -49,8 +49,7 @@ exports.run = function (args) {
   });
 
   self.queue.catch(function (err) {
-    utils.red('Error: ', err);
-    process.exit(1);
+    utils.die('Error: ' + err);
   }).then(function () {
     utils.success('All instances rebooted.');
   });

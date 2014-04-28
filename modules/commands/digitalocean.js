@@ -51,11 +51,10 @@ subcommands.create = function (args) {
   } else if (!args.cluster) {
     return utils.missingParameter('--cluster', subcommands.create.help);
   } else if (!clusters[args.cluster]) {
-    utils.die('No "' + args.cluster + '" cluster found. Known clusters are: ' +
+    return utils.die('No "' + args.cluster + '" cluster found. Known clusters are: ' +
       _.keys(clusters).join(', ') + '.');
   } else if (clusters[args.cluster].instances[args.name]) {
-    utils.red('Instance "' + args.name + '" already exists.');
-    return list.run(args);
+    return utils.dieWithList('Instance "' + args.name + '" already exists.');
   }
 
   API.create(args);

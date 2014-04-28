@@ -31,9 +31,9 @@ exports.request = function (action, data, callback) {
     var variables = utils.getVariables();
     if (!variables.LINODE_API_KEY) {
       utils.red('Missing LINODE_API_KEY.');
-      utils.red('Please add to ' + utils.VARIABLES_JSON);
-      process.exit(1);
+      return utils.die('Please add to ' + utils.VARIABLES_JSON);
     }
+
     exports.client = new(require('linode-api').LinodeClient)(variables.LINODE_API_KEY);
   }
 
@@ -263,8 +263,8 @@ exports.getDatacenters = function () {
 // plan-slug
 // password || (randomly generated)
 // payment-term || 1 (Monthly, if not metered)
-// ssh-key || .overcast/keys/overcast.key
-// ssh-pub-key || .overcast/keys/overcast.key.pub
+// ssh-key || overcast.key
+// ssh-pub-key || overcast.key.pub
 exports.create = function (args) {
   var linode = {};
 
@@ -394,9 +394,7 @@ exports.createDiskFromDistribution = function (args) {
     console.log(args.password);
   }
 
-  if (!args['ssh-pub-key']) {
-    args['ssh-pub-key'] = utils.CONFIG_DIR + '/keys/overcast.key.pub';
-  }
+  args['ssh-pub-key'] = utils.normalizeKeyPath(args['ssh-pub-key'], 'overcast.key.pub');
   args['ssh-key-data'] = fs.readFileSync(args['ssh-pub-key'], 'utf8') + '';
 
   if (!args['distribution-id'] && !args['distribution-slug']) {

@@ -56,7 +56,7 @@ function runOnInstance(instance, args, next) {
 
 function sshExec(options, next) {
   if (!options.ip) {
-    utils.die('IP missing.');
+    return utils.die('IP missing.');
   }
 
   var color = utils.SSH_COLORS[utils.SSH_COUNT++ % 5];

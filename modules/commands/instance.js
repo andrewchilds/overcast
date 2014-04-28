@@ -83,7 +83,7 @@ subcommands.import = function (args) {
     ip: ip,
     name: args.name,
     ssh_port: utils.sanitize(args['ssh-port']) || '22',
-    ssh_key: args['ssh-key'] || utils.CONFIG_DIR + '/keys/overcast.key',
+    ssh_key: args['ssh-key'] || 'overcast.key',
     user: utils.sanitize(args.user) || 'root'
   };
 
@@ -103,7 +103,7 @@ subcommands.import.help = function () {
     '    --cluster CLUSTER    |'.grey,
     '    --ip IP              |'.grey,
     '    --ssh-port PORT      | 22 '.grey,
-    '    --ssh-key PATH       | .overcast/keys/overcast.key'.grey,
+    '    --ssh-key PATH       | overcast.key'.grey,
     '    --user USERNAME      | root'.grey,
     '',
     '  Example:'.grey,
@@ -154,11 +154,11 @@ subcommands.remove = function (args) {
 
   utils.saveClusters(clusters, function () {
     if (!deletedFrom) {
-      utils.die('No instance found with the name "' + args.name + '".');
-    } else {
-      utils.success('Instance "' + args.name +
-        '" has been removed from the "' + deletedFrom + '" cluster.');
+      return utils.die('No instance found with the name "' + args.name + '".');
     }
+
+    utils.success('Instance "' + args.name +
+      '" has been removed from the "' + deletedFrom + '" cluster.');
   });
 };
 
@@ -209,7 +209,7 @@ subcommands.update = function (args) {
 
   if (args.oldName) {
     if (clusters[parentClusterName].instances[args.name]) {
-      utils.die('An instance named "' + args.name + '" already exists in the "' + parentClusterName + '" cluster.');
+      return utils.die('An instance named "' + args.name + '" already exists in the "' + parentClusterName + '" cluster.');
     }
 
     instance.name = args.name;

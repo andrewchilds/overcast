@@ -138,7 +138,7 @@ exports.create = function (options) {
         options['image-id'] = foundImage.id;
         exports.create(options);
       } else {
-        utils.die('Image with name "' + options['image-name'] + '" not found, no action taken.');
+        return utils.die('Image with name "' + options['image-name'] + '" not found, no action taken.');
       }
     });
   }
@@ -146,8 +146,8 @@ exports.create = function (options) {
   var instance = {
     name: options.name || 'overcast.instance.' + _.now(),
     ip: '127.0.0.1',
-    ssh_key: options['ssh-key'] || utils.CONFIG_DIR + '/keys/overcast.key',
-    ssh_port: options['ssh-port'] || 22,
+    ssh_key: options['ssh-key'] || 'overcast.key',
+    ssh_port: options['ssh-port'] || '22',
     user: 'root'
   };
 
@@ -226,7 +226,7 @@ exports.getDropletInfoByInstanceName = function (name, callback) {
     if (foundDroplet && _.isFunction(callback)) {
       callback(foundDroplet);
     } else {
-      utils.die('No droplet with name "' + name + '" found. Please check your ' +
+      return utils.die('No droplet with name "' + name + '" found. Please check your ' +
         'instance names in your DigitalOcean account');
     }
   });
@@ -451,8 +451,7 @@ exports.request = function (options) {
 
   if (!variables.DIGITALOCEAN_CLIENT_ID || !variables.DIGITALOCEAN_API_KEY) {
     utils.red('Missing DIGITALOCEAN_CLIENT_ID and DIGITALOCEAN_API_KEY values.');
-    utils.red('Please add them to ' + utils.VARIABLES_JSON);
-    process.exit(1);
+    return utils.die('Please add them to ' + utils.VARIABLES_JSON);
   }
 
   var args = constructCurlArgs(options);
@@ -475,13 +474,13 @@ exports.request = function (options) {
 
   curl.on('close', function (code) {
     if (code !== 0) {
-      utils.die('Got a non-zero exit code from DigitalOcean API (' + code + ').');
+      return utils.die('Got a non-zero exit code from DigitalOcean API (' + code + ').');
     }
 
     try {
       stdout = JSON.parse(stdout);
     } catch (e) {
-      utils.die('Exception thrown while parsing DigitalOcean API output: ' + stdout);
+      return utils.die('Exception thrown while parsing DigitalOcean API output: ' + stdout);
     }
 
     if (exports.DEBUG) {

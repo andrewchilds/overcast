@@ -50,7 +50,7 @@ function runOnInstance(instance, args, next) {
 
 function scpExec(options, next) {
   if (!options.ip) {
-    utils.die('IP missing.');
+    return utils.die('IP missing.');
   }
 
   var color = utils.SSH_COLORS[utils.SSH_COUNT++ % 5];
@@ -81,7 +81,7 @@ function scpExec(options, next) {
     args.push(options.source);
     args.push((options.user || 'root') + '@' + options.ip + ':' + options.dest);
   } else {
-    utils.die('No direction specified.');
+    return utils.die('No direction specified.');
   }
 
   var scp = cp.spawn('scp', args);
