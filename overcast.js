@@ -1,15 +1,14 @@
 var minimist = require('minimist');
 var spawn = require('child_process').spawn;
 var utils = require('./modules/utils');
-var keys = require('./modules/keys');
 var commands = require('./modules/commands');
 
 function init() {
   utils.findConfig(function () {
-    if (keys.notFound()) {
-      keys.create(execute);
-    } else {
+    if (utils.keyExists('overcast')) {
       execute();
+    } else {
+      utils.createKey('overcast', execute);
     }
   });
 }

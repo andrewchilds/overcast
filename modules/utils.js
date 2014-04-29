@@ -5,13 +5,19 @@ var _ = require('lodash');
 var colors = require('colors');
 var listCommand = require('./commands/list');
 
-exports.VERSION = '0.3.1';
+exports.VERSION = '0.3.2';
 
 exports.clustersCache = null;
 exports.variablesCache = null;
 
 exports.SSH_COUNT = 0;
 exports.SSH_COLORS = ['cyan', 'green', 'red', 'yellow', 'magenta', 'blue'];
+
+exports.module = function (fn) {
+  var obj = {};
+  fn(obj);
+  return obj;
+};
 
 exports.getCommands = function () {
   return require('./commands');
@@ -28,6 +34,46 @@ exports.setConfigDir = function (dir) {
   exports.CONFIG_DIR = dir;
   exports.CLUSTERS_JSON = dir + '/clusters.json';
   exports.VARIABLES_JSON = dir + '/variables.json';
+};
+
+exports.getKeyFileFromName = function (keyName) {
+  return exports.CONFIG_DIR + '/keys/' + keyName + '.key';
+};
+
+exports.keyExists = function (keyName) {
+  return fs.existsSync(exports.getKeyFileFromName(keyName));
+};
+
+exports.createKey = function (keyName, callback) {
+  var keyFile = exports.getKeyFileFromName(keyName);
+  cp.exec('mkdir -p ' + exports.CONFIG_DIR + '/keys && ssh-keygen -t rsa -N "" -f ' +
+    keyFile + ' && chmod 600 ' + keyFile, function (err) {
+    if (err) {
+      exports.red('Error generating SSH key.');
+      exports.die(err);
+    } else {
+      (callback || _.noop)(keyFile);
+    }
+  });
+};
+
+exports.deleteKey = function (keyName, callback) {
+  var keyFile = exports.getKeyFileFromName(keyName);
+  var pubKeyFile = keyFile + '.pub';
+
+  function handleError(e, name) {
+    if (e) {
+      exports.grey('Unable to delete ' + name + ' - perhaps it wasn\'t found.');
+    }
+  }
+
+  fs.unlink(keyFile, function (e) {
+    handleError(e, keyFile);
+    fs.unlink(pubKeyFile, function (e) {
+      handleError(e, pubKeyFile);
+      (callback || _.noop)();
+    });
+  });
 };
 
 exports.normalizeKeyPath = function (keyPath, keyName) {
@@ -400,6 +446,12 @@ exports.prettyPrint = function (obj, indent, stepBy) {
       }
       exports.grey(prefix + key + ': ' + valStr);
     }
+  });
+};
+
+exports.printSignatures = function (commands) {
+  return _.map(commands, function (command) {
+    return command.signature ? '  ' + command.signature : '';
   });
 };
 

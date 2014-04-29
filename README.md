@@ -101,7 +101,18 @@ The command `overcast init` will create a new configuration in the current direc
   variables.json    # API keys, etc (see example.variables.json)
 ```
 
-## Commands
+## Design Goals &amp; Motivation
+
+There are many server management frameworks out there already, but they generally involve a complex server-client implementation, a steep learning curve, or a giant, monolithic conceptual framework that requires taking a course to understand.
+
+I wanted something that had little to no learning curve, that did only what you asked it to do on the remote machines and nothing more, that just focused on multi-server provisioning and communication and leaves problems like process/state management and system monitoring to tools designed specifically for those problems.
+
+## Example App Deployment Recipes
+
+  - [Discourse](https://github.com/andrewchilds/overcast/blob/master/recipes/discourse)
+  - [Overcast Charts](https://github.com/andrewchilds/overcast-charts)
+
+## Command Reference
 
 ### overcast aliases
 
@@ -343,7 +354,7 @@ The command `overcast init` will create a new configuration in the current direc
 ### overcast help
 
 ```
-  Overcast v0.3.1
+  Overcast v0.3.2
 
   Source code, issues, pull requests:
     https://github.com/andrewchilds/overcast
@@ -387,6 +398,10 @@ The command `overcast init` will create a new configuration in the current direc
     overcast instance list [cluster...]
     overcast instance remove [name]
     overcast instance update [name] [options...]
+    overcast key create [name]
+    overcast key delete [name]
+    overcast key get [name] [option]
+    overcast key list
     overcast linode boot [name]
     overcast linode create [name] [options]
     overcast linode datacenters
@@ -483,6 +498,50 @@ The command `overcast init` will create a new configuration in the current direc
 
     Example:
     $ overcast instance update app.01 --user differentuser --ssh-key /path/to/another/key
+```
+
+### overcast key
+
+```
+  overcast key create [name]
+    Creates a new SSH key in the current .overcast config.
+
+    Example:
+    $ overcast key create myKeyName
+    > New SSH key "myKeyName" created.
+    > /path/to/.overcast/keys/myKeyName.key
+    > /path/to/.overcast/keys/myKeyName.key.pub
+
+  overcast key delete [name]
+    Deletes SSH public/private key files from the current .overcast config.
+
+    Example:
+    $ overcast key delete myKeyName
+    > SSH key "myKeyName" deleted.
+
+  overcast key get [name] [option]
+    Display the requested SSH key data or path from the current .overcast config.
+    Defaults to displaying the public key data if no option found.
+
+      Option
+      --public-data
+      --private-data
+      --public-path
+      --private-path
+
+    Examples:
+    $ overcast key get myKeyName
+    > [public key data]
+    $ overcast key get myKeyName --private-data
+    > [private key data]
+
+  overcast key list
+    List the found SSH key names in the current .overcast config.
+
+    Examples:
+    $ overcast key list
+    > myKeyName
+    > overcast
 ```
 
 ### overcast linode
@@ -684,17 +743,6 @@ The command `overcast init` will create a new configuration in the current direc
     --ssh-key PATH
     --user NAME
 ```
-
-## Design Goals &amp; Motivation
-
-There are many server management frameworks out there already, but they generally involve a complex server-client implementation, a steep learning curve, or a giant, monolithic conceptual framework that requires taking a course to understand.
-
-I wanted something that had little to no learning curve, that did only what you asked it to do on the remote machines and nothing more, that just focused on multi-server provisioning and communication and leaves problems like process/state management and system monitoring to tools designed specifically for those problems.
-
-## Example App Deployments
-
-  - [Discourse](https://github.com/andrewchilds/overcast/blob/master/recipes/discourse)
-  - [Overcast Charts](https://github.com/andrewchilds/overcast-charts)
 
 ## Running the Tests
 
