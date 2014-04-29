@@ -20,7 +20,7 @@ exports.run = function (args) {
 function connect(instance, args) {
   var color = utils.SSH_COLORS[utils.SSH_COUNT++ % 5];
 
-  var privateKeyFile = args['ssh-key'] || instance.ssh_key || utils.CONFIG_DIR + '/keys/overcast.key';
+  var privateKeyFile = utils.normalizeKeyPath(args['ssh-key'] || instance.ssh_key || utils.CONFIG_DIR + '/keys/overcast.key');
   var sshPort = instance.ssh_port || '22';
   var host = (args.user || instance.user || 'root') + '@' + instance.ip;
 
