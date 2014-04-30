@@ -1,7 +1,6 @@
 var fs = require('fs');
 var _ = require('lodash');
 var utils = require('../utils');
-var list = require('./list');
 
 exports.signatures = function () {
   return utils.printSignatures(subcommands);
