@@ -1,6 +1,6 @@
 # ![Overcast Logo](http://i.imgur.com/eCBl2NI.png)
 
-Overcast is a simple, SSH-based cloud management CLI that was designed to make it easy to spin up and manage clusters of servers in a consistent, scriptable way.
+Overcast is an SSH-based devops CLI designed to make it easy to spin up, configure and manage clusters of machines, without the learning curve or complexity of existing devops tools.
 
 ![Screenshot](http://i.imgur.com/qWUV684.png)
 
