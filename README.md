@@ -354,7 +354,7 @@ I wanted something that had little to no learning curve, that did only what you 
 ### overcast help
 
 ```
-  Overcast v0.3.3
+  Overcast v0.3.4
 
   Source code, issues, pull requests:
     https://github.com/andrewchilds/overcast
