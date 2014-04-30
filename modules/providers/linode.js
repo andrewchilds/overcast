@@ -10,22 +10,6 @@ exports.generateRandomPassword = function (length) {
   return crypto.randomBytes(length || 20).toString('hex');
 };
 
-// https://gist.github.com/victorquinn/8030190
-exports.promiseWhile = function (condition, action) {
-  var resolver = Promise.defer();
-
-  var loop = function() {
-    if (!condition()) {
-      return resolver.resolve();
-    }
-    return Promise.cast(action()).then(loop).catch(resolver.reject);
-  };
-
-  process.nextTick(loop);
-
-  return resolver.promise;
-};
-
 exports.request = function (action, data, callback) {
   if (!exports.client) {
     var variables = utils.getVariables();
@@ -174,18 +158,18 @@ exports.waitForPendingJobs = function (args) {
     }
 
     function checkPendingJobCount() {
-      return new Promise(function (resolve, reject) {
-        exports.getJobs(args).then(function (pendingJobs) {
-          pendingJobCount = pendingJobs.length;
-          if (!startingJobCount) {
-            startingJobCount = pendingJobCount;
-          }
-          resolve();
-        });
-      }).delay(3000);
+      return Promise.delay(3000).then(function () {
+        return exports.getJobs(args);
+      }).then(function (pendingJobs) {
+        pendingJobCount = pendingJobs.length;
+        if (!startingJobCount) {
+          startingJobCount = pendingJobCount;
+        }
+        return Promise.resolve();
+      });
     }
 
-    return exports.promiseWhile(whileFn, checkPendingJobCount).then(function () {
+    return utils.promiseWhile(whileFn, checkPendingJobCount).then(function () {
       clearInterval(progressBarInterval);
       utils.progressComplete();
       utils.success(startingJobCount + ' jobs finished.');

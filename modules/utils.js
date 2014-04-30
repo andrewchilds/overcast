@@ -1,8 +1,10 @@
 var fs = require('fs');
 var path = require('path');
+var crypto = require('crypto');
 var cp = require('child_process');
 var _ = require('lodash');
 var colors = require('colors');
+var Promise = require('bluebird');
 var listCommand = require('./commands/list');
 
 exports.VERSION = '0.3.3';
@@ -17,6 +19,22 @@ exports.module = function (fn) {
   var obj = {};
   fn(obj);
   return obj;
+};
+
+// https://gist.github.com/victorquinn/8030190
+exports.promiseWhile = function (condition, action, value) {
+  var resolver = Promise.defer();
+
+  var loop = function() {
+    if (!condition()) {
+      return resolver.resolve(value);
+    }
+    return Promise.cast(action()).then(loop).catch(resolver.reject);
+  };
+
+  process.nextTick(loop);
+
+  return resolver.promise;
 };
 
 exports.runSubcommand = function (args, subcommands, helpFn) {
