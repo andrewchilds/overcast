@@ -26,9 +26,9 @@ exports.getKeys = function (callback) {
   });
 };
 
-exports.getHashedKeyName = function (pubKey) {
-  pubKey = (pubKey || fs.readFileSync(utils.CONFIG_DIR + '/keys/overcast.key.pub', 'utf8')) + '';
-  return 'overcast.' + crypto.createHash('md5').update(pubKey).digest('hex');
+exports.getHashedKeyName = function (keyData) {
+  keyData = (keyData || fs.readFileSync(utils.CONFIG_DIR + '/keys/overcast.key.pub', 'utf8')) + '';
+  return utils.createHashedKeyName(keyData);
 };
 
 exports.createKey = function (callback) {
@@ -36,14 +36,13 @@ exports.createKey = function (callback) {
   //   name=[ssh_key_name]
   //   ssh_pub_key=[ssh_public_key]
 
-  var pubKey = fs.readFileSync(utils.CONFIG_DIR + '/keys/overcast.key.pub', 'utf8');
-  var hash = crypto.createHash('md5').update(pubKey).digest('hex');
+  var keyData = fs.readFileSync(utils.CONFIG_DIR + '/keys/overcast.key.pub', 'utf8');
 
   exports.request({
     endpoint: 'ssh_keys/new',
     query: {
-      name: exports.getHashedKeyName(pubKey),
-      ssh_pub_key: pubKey + ''
+      name: exports.getHashedKeyName(keyData),
+      ssh_pub_key: keyData + ''
     },
     callback: function (result) {
       if (result && result.ssh_key) {

@@ -121,6 +121,10 @@ exports.normalizeKeyPath = function (keyPath, keyName) {
   }
 };
 
+exports.createHashedKeyName = function (keyData) {
+  return 'overcast.' + crypto.createHash('md5').update(keyData).digest('hex');
+};
+
 exports.initOvercastDir = function (dest_dir, callback) {
   dest_dir += '/.overcast';
 
