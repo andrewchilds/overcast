@@ -13,16 +13,7 @@ exports.help = function () {
 
 exports.run = function (args) {
   utils.argShift(args, 'subcommand');
-  utils.argShift(args, 'name');
-
-  if (args.name === 'help' && subcommands[args.subcommand].help) {
-    console.log('');
-    return subcommands[args.subcommand].help();
-  } else if (args.subcommand && subcommands[args.subcommand] && subcommands[args.subcommand].run) {
-    return subcommands[args.subcommand].run(args);
-  } else {
-    return utils.missingCommand(exports.help);
-  }
+  utils.runSubcommand(args, subcommands, exports.help);
 };
 
 var subcommands = {};
@@ -44,6 +35,8 @@ subcommands.create = utils.module(function (exports) {
   };
 
   exports.run = function (args) {
+    utils.argShift(args, 'name');
+
     if (!args.name) {
       return utils.missingParameter('[name]', exports.help);
     } else if (utils.keyExists(args.name)) {
@@ -73,6 +66,8 @@ subcommands.delete = utils.module(function (exports) {
   };
 
   exports.run = function (args) {
+    utils.argShift(args, 'name');
+
     if (!args.name) {
       return utils.missingParameter('[name]', exports.help);
     } else if (!utils.keyExists(args.name)) {
@@ -109,6 +104,8 @@ subcommands.get = utils.module(function (exports) {
   };
 
   exports.run = function (args) {
+    utils.argShift(args, 'name');
+
     if (!args.name) {
       return utils.missingParameter('[name]', exports.help);
     } else if (!utils.keyExists(args.name)) {

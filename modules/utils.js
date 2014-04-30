@@ -19,6 +19,19 @@ exports.module = function (fn) {
   return obj;
 };
 
+exports.runSubcommand = function (args, subcommands, helpFn) {
+  if (args.subcommand && subcommands[args.subcommand]) {
+    if (args.name === 'help' || args._[0] === 'help') {
+      console.log('');
+      return subcommands[args.subcommand].help();
+    }
+
+    return subcommands[args.subcommand].run(args);
+  }
+
+  return exports.missingCommand(helpFn);
+};
+
 exports.getCommands = function () {
   return require('./commands');
 };
