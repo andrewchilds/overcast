@@ -228,6 +228,26 @@ exports.findClusterNameForInstance = function (instance) {
   return foundName;
 };
 
+exports.saveInstanceToCluster = function (cluster, instance) {
+  var clusters = exports.getClusters();
+  clusters[cluster] = clusters[cluster] || { instances: {} };
+  clusters[cluster].instances[instance.name] = instance;
+  exports.saveClusters(clusters);
+};
+
+exports.deleteInstance = function (instance) {
+  var clusters = exports.getClusters();
+
+  _.each(clusters, function (cluster) {
+    if (cluster.instances[instance.name] &&
+      cluster.instances[instance.name].ip === instance.ip) {
+      delete cluster.instances[instance.name];
+    }
+  });
+
+  exports.saveClusters(clusters);
+};
+
 exports.updateInstance = function (name, updates) {
   var clusters = exports.getClusters();
   _.each(clusters, function (cluster, clusterName) {

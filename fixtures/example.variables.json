@@ -1,4 +1,6 @@
 {
+  "AWS_KEY": "",
+  "AWS_SECRET": "",
   "DIGITALOCEAN_CLIENT_ID": "",
   "DIGITALOCEAN_API_KEY": "",
   "LINODE_API_KEY": ""
