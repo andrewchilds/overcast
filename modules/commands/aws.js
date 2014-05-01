@@ -12,7 +12,7 @@ exports.signatures = function () {
 
 exports.help = function () {
   utils.printArray([
-    'These functions require the following values set in .overcast/variables.json:',
+    'These commands require the following values set in .overcast/variables.json:',
     '  AWS_KEY',
     '  AWS_SECRET',
     ''
@@ -46,7 +46,7 @@ subcommands.create = utils.module(function (exports) {
       ('    --ssh-pub-key KEY_PATH   | overcast.key.pub').grey,
       '',
       '  Example:'.grey,
-      '  $ overcast aws create db.01 --cluster db --region us-west-1'.grey
+      '  $ overcast aws create db.01 --cluster db --size m1.small --user ubuntu'.grey
     ]);
   };
 

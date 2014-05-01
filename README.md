@@ -6,37 +6,45 @@ Overcast is an SSH-based devops CLI designed to make it easy to spin up, configu
 
 ## Concepts
 
-1. **Instances** are any machine you can SSH into.
-2. **Clusters** are sets of instances.
+- **Instances** are any machine you can SSH into.
+- **Clusters** are sets of instances.
 
 ## Features
 
-Define clusters and instances using the command line or by editing `.overcast/clusters.json`.
+Create, reboot and destroy instances across DigitalOcean, Linode and EC2:
 
 ```sh
+# Create a new cluster called "DB":
 $ overcast cluster create db
-$ overcast cluster create app
-$ overcast instance import app.01 --cluster app --ip 127.0.0.2 \
-  --ssh-port 22222 --ssh-key $HOME/.ssh/id_rsa
-$ overcast instance import app.02 --cluster app --ip 127.0.0.3 \
-  --ssh-port 22222 --ssh-key $HOME/.ssh/id_rsa
-```
 
-Create, snapshot and destroy instances on DigitalOcean or Linode.
-
-```sh
-# Create a new Ubuntu 14.04 instance on DigitalOcean:
+# Spin up a new Ubuntu 14.04 instance on DigitalOcean:
 $ overcast digitalocean create db.01 --cluster db
 
-# Create a new Ubuntu 14.04 instance on Linode:
+# Spin up a new Ubuntu 14.04 instance on Linode:
 $ overcast linode create db.02 --cluster db
 
-# Configure both instances in parallel:
-$ overcast run db install/core install/redis --parallel
-$ overcast expose db 22 6379 --parallel
+# Spin up a new Ubuntu 14.04 instance on EC2:
+$ overcast aws create db.03 --cluster db --user ubuntu
+$ overcast run db.03 allow_root_access_on_ec2
+$ overcast instance update db.03 --user root
 
-# Interact with both instances at once over SSH:
+# Install Redis across all instances in parallel:
+$ overcast run db install/core install/redis --parallel
+
+# SSH into any instance:
+$ overcast ssh db.01
+
+# SSH into a whole cluster:
 $ overcast ssh db
+```
+
+Import your already-running machines, wherever they are, using `overcast instance import` or by editing [`~/.overcast/clusters.json`](https://github.com/andrewchilds/overcast/tree/master/fixtures/example.clusters.json):
+
+```sh
+$ overcast instance import app.01 --cluster app --ip 127.0.0.2 \
+  --ssh-port 22222 --ssh-key ~/.ssh/id_rsa
+$ overcast instance import app.02 --cluster app --ip 127.0.0.3 \
+  --ssh-port 22222 --ssh-key ~/.ssh/id_rsa
 ```
 
 Run multiple commands or multiple scripts on any or all of your instances at once, over SSH. Commands can be run sequentially or in parallel using the `--parallel` flag.
@@ -81,12 +89,12 @@ Since Overcast is just a wrapper around SSH, there is nothing on your remote mac
 # To remove the Overcast package:
 $ npm -g remove overcast
 # Optionally delete your Overcast SSH keys and configuration files:
-$ rm -rf $HOME/.overcast
+$ rm -rf ~/.overcast
 ```
 
 ## Configuration
 
-Overcast looks for an `.overcast` directory in the current directory, or in some parent directory, otherwise falling back to `$HOME/.overcast`. This allows you to have multiple configurations, and to check your cluster definitions and scripts into a repo like source code.
+Overcast looks for an `.overcast` directory in the current directory, a parent directory, or `~/.overcast`, in that order. This means you can have multiple configurations and treat your server infrastructure like source code.
 
 The command `overcast init` will create a new configuration in the current directory. The config directory looks like this:
 
@@ -127,9 +135,62 @@ I wanted something that had little to no learning curve, that did only what you 
     overcast aliases > $HOME/.overcast_aliases
 ```
 
+### overcast aws
+
+```
+  These commands require the following values set in .overcast/variables.json:
+    AWS_KEY
+    AWS_SECRET
+
+  overcast aws create [name] [options...]
+    Creates a new EC2 instance.
+
+      Option                   | Default
+      --cluster CLUSTER        |
+      --ami NAME               | ami-018c9568 (Ubuntu 14.04 LTS, 64bit, EBS)
+      --size NAME              | t1.micro
+      --monitoring BOOLEAN     | false
+      --user NAME              | root
+      --ssh-key KEY_PATH       | overcast.key
+      --ssh-pub-key KEY_PATH   | overcast.key.pub
+
+    Example:
+    $ overcast aws create db.01 --cluster db --size m1.small --user ubuntu
+
+  overcast aws destroy [name]
+    Destroys an EC2 instance.
+
+      Option                   | Default
+      --force                  | false
+
+    Example:
+    $ overcast aws destroy db.01
+
+  overcast aws reboot [name]
+    Reboots an EC2 instance.
+
+    Example:
+    $ overcast aws reboot db.01
+
+  overcast aws start [name]
+    Starts an EC2 instance.
+
+    Example:
+    $ overcast aws start db.01
+
+  overcast aws stop [name]
+    Stop an EC2 instance.
+
+    Example:
+    $ overcast aws stop db.01
+```
+
 ### overcast cluster
 
 ```
+  overcast cluster list
+    Alias for overcast list.
+
   overcast cluster count [name]
     Return the number of instances in a cluster.
 
@@ -354,7 +415,7 @@ I wanted something that had little to no learning curve, that did only what you 
 ### overcast help
 
 ```
-  Overcast v0.3.4
+  Overcast v0.4.0
 
   Source code, issues, pull requests:
     https://github.com/andrewchilds/overcast
@@ -369,6 +430,11 @@ I wanted something that had little to no learning curve, that did only what you 
 
   Commands:
     overcast aliases
+    overcast aws create [name] [options...]
+    overcast aws destroy [name]
+    overcast aws reboot [name]
+    overcast aws start [name]
+    overcast aws stop [name]
     overcast cluster list
     overcast cluster count [name]
     overcast cluster create [name]
@@ -770,7 +836,6 @@ Contributions are welcome. If you've got an idea for a feature or found a bug, p
 
 - Tagging
 - Events
-- AWS EC2 support
 - More comprehensive script/recipe library
 - More test coverage
 
