@@ -46,38 +46,46 @@
 <h2>
 <a name="user-content-concepts" class="anchor" href="#concepts"><span class="octicon octicon-link"></span></a>Concepts</h2>
 
-<ol>
+<ul>
 <li>
 <strong>Instances</strong> are any machine you can SSH into.</li>
 <li>
 <strong>Clusters</strong> are sets of instances.</li>
-</ol><h2>
+</ul><h2>
 <a name="user-content-features" class="anchor" href="#features"><span class="octicon octicon-link"></span></a>Features</h2>
 
-<p>Define clusters and instances using the command line or by editing <code>.overcast/clusters.json</code>.</p>
+<p>Create, reboot and destroy instances across DigitalOcean, Linode and EC2:</p>
 
-<div class="highlight highlight-sh"><pre><span class="nv">$ </span>overcast cluster create db
-<span class="nv">$ </span>overcast cluster create app
-<span class="nv">$ </span>overcast instance import app.01 --cluster app --ip 127.0.0.2 <span class="se">\</span>
-  --ssh-port 22222 --ssh-key <span class="nv">$HOME</span>/.ssh/id_rsa
-<span class="nv">$ </span>overcast instance import app.02 --cluster app --ip 127.0.0.3 <span class="se">\</span>
-  --ssh-port 22222 --ssh-key <span class="nv">$HOME</span>/.ssh/id_rsa
-</pre></div>
+<div class="highlight highlight-sh"><pre><span class="c"># Create a new cluster called "DB":</span>
+<span class="nv">$ </span>overcast cluster create db
 
-<p>Create, snapshot and destroy instances on DigitalOcean or Linode.</p>
-
-<div class="highlight highlight-sh"><pre><span class="c"># Create a new Ubuntu 14.04 instance on DigitalOcean:</span>
+<span class="c"># Spin up a new Ubuntu 14.04 instance on DigitalOcean:</span>
 <span class="nv">$ </span>overcast digitalocean create db.01 --cluster db
 
-<span class="c"># Create a new Ubuntu 14.04 instance on Linode:</span>
+<span class="c"># Spin up a new Ubuntu 14.04 instance on Linode:</span>
 <span class="nv">$ </span>overcast linode create db.02 --cluster db
 
-<span class="c"># Configure both instances in parallel:</span>
-<span class="nv">$ </span>overcast run db install/core install/redis --parallel
-<span class="nv">$ </span>overcast expose db 22 6379 --parallel
+<span class="c"># Spin up a new Ubuntu 14.04 instance on EC2:</span>
+<span class="nv">$ </span>overcast aws create db.03 --cluster db --user ubuntu
+<span class="nv">$ </span>overcast run db.03 allow_root_access_on_ec2
+<span class="nv">$ </span>overcast instance update db.03 --user root
 
-<span class="c"># Interact with both instances at once over SSH:</span>
+<span class="c"># Install Redis across all instances in parallel:</span>
+<span class="nv">$ </span>overcast run db install/core install/redis --parallel
+
+<span class="c"># SSH into any instance:</span>
+<span class="nv">$ </span>overcast ssh db.01
+
+<span class="c"># SSH into a whole cluster:</span>
 <span class="nv">$ </span>overcast ssh db
+</pre></div>
+
+<p>Import your already-running machines, wherever they are, using <code>overcast instance import</code> or by editing <a href="https://github.com/andrewchilds/overcast/tree/master/fixtures/example.clusters.json"><code>~/.overcast/clusters.json</code></a>:</p>
+
+<div class="highlight highlight-sh"><pre><span class="nv">$ </span>overcast instance import app.01 --cluster app --ip 127.0.0.2 <span class="se">\</span>
+  --ssh-port 22222 --ssh-key ~/.ssh/id_rsa
+<span class="nv">$ </span>overcast instance import app.02 --cluster app --ip 127.0.0.3 <span class="se">\</span>
+  --ssh-port 22222 --ssh-key ~/.ssh/id_rsa
 </pre></div>
 
 <p>Run multiple commands or multiple scripts on any or all of your instances at once, over SSH. Commands can be run sequentially or in parallel using the <code>--parallel</code> flag.</p>
@@ -121,13 +129,13 @@
 <div class="highlight highlight-sh"><pre><span class="c"># To remove the Overcast package:</span>
 <span class="nv">$ </span>npm -g remove overcast
 <span class="c"># Optionally delete your Overcast SSH keys and configuration files:</span>
-<span class="nv">$ </span>rm -rf <span class="nv">$HOME</span>/.overcast
+<span class="nv">$ </span>rm -rf ~/.overcast
 </pre></div>
 
 <h2>
 <a name="user-content-configuration" class="anchor" href="#configuration"><span class="octicon octicon-link"></span></a>Configuration</h2>
 
-<p>Overcast looks for an <code>.overcast</code> directory in the current directory, or in some parent directory, otherwise falling back to <code>$HOME/.overcast</code>. This allows you to have multiple configurations, and to check your cluster definitions and scripts into a repo like source code.</p>
+<p>Overcast looks for an <code>.overcast</code> directory in the current directory, a parent directory, or <code>~/.overcast</code>, in that order. This means you can have multiple configurations and treat your server infrastructure like source code.</p>
 
 <p>The command <code>overcast init</code> will create a new configuration in the current directory. The config directory looks like this:</p>
 
@@ -171,9 +179,62 @@
 </code></pre>
 
 <h3>
+<a name="user-content-overcast-aws" class="anchor" href="#overcast-aws"><span class="octicon octicon-link"></span></a>overcast aws</h3>
+
+<pre><code>  These commands require the following values set in .overcast/variables.json:
+    AWS_KEY
+    AWS_SECRET
+
+  overcast aws create [name] [options...]
+    Creates a new EC2 instance.
+
+      Option                   | Default
+      --cluster CLUSTER        |
+      --ami NAME               | ami-018c9568 (Ubuntu 14.04 LTS, 64bit, EBS)
+      --size NAME              | t1.micro
+      --monitoring BOOLEAN     | false
+      --user NAME              | root
+      --ssh-key KEY_PATH       | overcast.key
+      --ssh-pub-key KEY_PATH   | overcast.key.pub
+
+    Example:
+    $ overcast aws create db.01 --cluster db --size m1.small --user ubuntu
+
+  overcast aws destroy [name]
+    Destroys an EC2 instance.
+
+      Option                   | Default
+      --force                  | false
+
+    Example:
+    $ overcast aws destroy db.01
+
+  overcast aws reboot [name]
+    Reboots an EC2 instance.
+
+    Example:
+    $ overcast aws reboot db.01
+
+  overcast aws start [name]
+    Starts an EC2 instance.
+
+    Example:
+    $ overcast aws start db.01
+
+  overcast aws stop [name]
+    Stop an EC2 instance.
+
+    Example:
+    $ overcast aws stop db.01
+</code></pre>
+
+<h3>
 <a name="user-content-overcast-cluster" class="anchor" href="#overcast-cluster"><span class="octicon octicon-link"></span></a>overcast cluster</h3>
 
-<pre><code>  overcast cluster count [name]
+<pre><code>  overcast cluster list
+    Alias for overcast list.
+
+  overcast cluster count [name]
     Return the number of instances in a cluster.
 
     Example:
@@ -397,7 +458,7 @@
 <h3>
 <a name="user-content-overcast-help" class="anchor" href="#overcast-help"><span class="octicon octicon-link"></span></a>overcast help</h3>
 
-<pre><code>  Overcast v0.3.2
+<pre><code>  Overcast v0.4.0
 
   Source code, issues, pull requests:
     https://github.com/andrewchilds/overcast
@@ -412,6 +473,11 @@
 
   Commands:
     overcast aliases
+    overcast aws create [name] [options...]
+    overcast aws destroy [name]
+    overcast aws reboot [name]
+    overcast aws start [name]
+    overcast aws stop [name]
     overcast cluster list
     overcast cluster count [name]
     overcast cluster create [name]
@@ -816,7 +882,6 @@ npm <span class="nb">test</span>
 <ul>
 <li>Tagging</li>
 <li>Events</li>
-<li>AWS EC2 support</li>
 <li>More comprehensive script/recipe library</li>
 <li>More test coverage</li>
 </ul><h2>
