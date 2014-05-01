@@ -4,11 +4,17 @@ var Promise = require('bluebird');
 var _ = require('lodash');
 var utils = require('../utils');
 
-var self = {};
+var DEBUG = true;
+
+function debugLog(data) {
+  if (DEBUG) {
+    console.log(JSON.stringify(data, null, 2));
+  }
+}
 
 var ec2 = function () {
-  if (self.ec2) {
-    return self.ec2;
+  if (exports.ec2) {
+    return exports.ec2;
   }
 
   var vars = utils.getVariables();
@@ -27,8 +33,8 @@ var ec2 = function () {
     region: 'us-east-1'
   });
 
-  self.ec2 = new AWS.EC2();
-  return self.ec2;
+  exports.ec2 = new AWS.EC2();
+  return exports.ec2;
 };
 
 exports.setRegion = function (args) {
@@ -63,6 +69,7 @@ exports.createKey = function (args) {
       if (err) {
         reject(err);
       } else {
+        debugLog(data);
         utils.grey('Created keyPair "' + keyName + '".');
         resolve(args);
       }
@@ -74,10 +81,11 @@ exports.getKeys = function (args) {
   args = args || {};
 
   return new Promise(function (resolve, reject) {
-    ec2().describeKeyPairs(function (err, data) {
+    ec2().describeKeyPairs({}, function (err, data) {
       if (err) {
         reject(err);
       } else {
+        debugLog(data);
         args.KeyPairs = data.KeyPairs;
         resolve(args);
       }
@@ -93,6 +101,7 @@ exports.getRegions = function (args) {
       if (err) {
         reject(err);
       } else {
+        debugLog(data);
         args.Regions = data.Regions;
         resolve(args);
       }
@@ -112,6 +121,7 @@ exports.getImages = function (args) {
       if (err) {
         reject(err);
       } else {
+        debugLog(data);
         args.Images = data.Images;
         resolve(args);
       }
@@ -130,6 +140,7 @@ exports.getInstances = function (args) {
       if (err) {
         reject(err);
       } else {
+        debugLog(data);
         args.Instances = data.Reservations[0].Instances;
         resolve(args);
       }
@@ -185,6 +196,7 @@ exports.createInstance = function (args) {
       if (err) {
         reject(err);
       } else {
+        debugLog(data);
         args.CreatedInstances = data.Instances;
         utils.success('Instance ' + args.CreatedInstances[0].InstanceId + ' created.');
         resolve(args);
@@ -204,6 +216,7 @@ exports.destroyInstance = function (args) {
       if (err) {
         reject(err);
       } else {
+        debugLog(data);
         resolve(args);
       }
     });
@@ -221,6 +234,7 @@ exports.rebootInstance = function (args) {
       if (err) {
         reject(err);
       } else {
+        debugLog(data);
         resolve(args);
       }
     });
@@ -238,6 +252,7 @@ exports.stopInstance = function (args) {
       if (err) {
         reject(err);
       } else {
+        debugLog(data);
         resolve(args);
       }
     });
@@ -255,6 +270,7 @@ exports.startInstance = function (args) {
       if (err) {
         reject(err);
       } else {
+        debugLog(data);
         resolve(args);
       }
     });
@@ -266,5 +282,5 @@ exports.catch = function (err) {
 };
 
 exports.log = function (args) {
-  console.log(JSON.stringify(args || {}, null, 2));
+  console.log(JSON.stringify(args, null, 2));
 };
