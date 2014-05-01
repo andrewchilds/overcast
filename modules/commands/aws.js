@@ -1,4 +1,5 @@
 var fs = require('fs');
+var readline = require('readline');
 var _ = require('lodash');
 var Promise = require('bluebird');
 var utils = require('../utils');
@@ -38,7 +39,6 @@ subcommands.create = utils.module(function (exports) {
       '    Option                   | Default'.grey,
       '    --cluster CLUSTER        |'.grey,
       '    --ami NAME               | ami-018c9568 (Ubuntu 14.04 LTS, 64bit, EBS)'.grey,
-      '    --region NAME            | us-east-1'.grey,
       '    --size NAME              | t1.micro'.grey,
       '    --monitoring BOOLEAN     | false'.grey,
       '    --user NAME              | root'.grey,
@@ -69,18 +69,17 @@ subcommands.create = utils.module(function (exports) {
       args.keyPath = args['ssh-pub-key'];
     }
 
-    API.setRegion(args)
-      .then(API.getKeys)
+    API.getKeys(args)
       .then(API.createKey)
       .then(API.createInstance)
       .then(function (args) {
         args.InstanceId = args.CreatedInstances[0].InstanceId;
         args.state = 'running';
-
         return Promise.resolve(args);
       })
       .then(API.waitForInstanceState)
       .then(API.getInstances)
+      .catch(API.catch)
       .then(function (args) {
         var instance = {
           name: args.name,
@@ -98,13 +97,8 @@ subcommands.create = utils.module(function (exports) {
 
         utils.saveInstanceToCluster(args.cluster, instance);
         utils.success('New instance "' + instance.name + '" (' + instance.ip + ') created on EC2.');
-
-        return Promise.resolve(args);
-      })
-      .then(function (args) {
         utils.waitForBoot();
-      })
-      .catch(API.catch);
+      });
   };
 });
 
@@ -115,6 +109,9 @@ subcommands.destroy = utils.module(function (exports) {
     utils.printArray([
       exports.signature,
       '  Destroys an EC2 instance.'.grey,
+      '',
+      '    Option                   | Default'.grey,
+      '    --force                  | false'.grey,
       '',
       '  Example:'.grey,
       '  $ overcast aws destroy db.01'.grey
@@ -136,11 +133,159 @@ subcommands.destroy = utils.module(function (exports) {
       return utils.die('This instance has no EC2 id attached.');
     }
 
-    API.destroyInstance({ InstanceId: instance.aws.id })
+    if (args.force) {
+      return destroy(instance);
+    }
+
+    var rl = readline.createInterface({
+      input: process.stdin,
+      output: process.stdout
+    });
+
+    rl.question('Do you really want to destroy this instance? [Y/n]'.yellow, function (answer) {
+      rl.close();
+      if (answer === 'n' || answer === 'N') {
+        utils.grey('No action taken.');
+      } else {
+        destroy(instance);
+      }
+    });
+
+    function destroy(instance) {
+      API.destroyInstance({ InstanceId: instance.aws.id })
+        .catch(API.catch)
+        .then(function (args) {
+          utils.deleteInstance(instance);
+          utils.success('Instance destroyed.');
+        });
+    }
+  };
+});
+
+subcommands.reboot = utils.module(function (exports) {
+  exports.signature = 'overcast aws reboot [name]';
+
+  exports.help = function () {
+    utils.printArray([
+      exports.signature,
+      '  Reboots an EC2 instance.'.grey,
+      '',
+      '  Example:'.grey,
+      '  $ overcast aws reboot db.01'.grey
+    ]);
+  };
+
+  exports.run = function (args) {
+    var clusters = utils.getClusters();
+    utils.argShift(args, 'name');
+
+    if (!args.name) {
+      return utils.missingParameter('[name]', exports.help);
+    }
+
+    var instance = utils.findFirstMatchingInstance(args.name);
+    utils.handleInstanceNotFound(instance, args);
+
+    if (!instance.aws || !instance.aws.id) {
+      return utils.die('This instance has no EC2 id attached.');
+    }
+
+    var params = {
+      InstanceId: instance.aws.id,
+      state: 'running'
+    };
+
+    API.rebootInstance(params)
+      .then(API.waitForInstanceState)
+      .catch(API.catch)
       .then(function (args) {
-        utils.deleteInstance(instance);
-        utils.success('Instance destroyed.');
-      })
-      .catch(API.catch);
+        utils.success('Instance rebooted.');
+        utils.waitForBoot();
+      });
+  };
+});
+
+subcommands.start = utils.module(function (exports) {
+  exports.signature = 'overcast aws start [name]';
+
+  exports.help = function () {
+    utils.printArray([
+      exports.signature,
+      '  Starts an EC2 instance.'.grey,
+      '',
+      '  Example:'.grey,
+      '  $ overcast aws start db.01'.grey
+    ]);
+  };
+
+  exports.run = function (args) {
+    var clusters = utils.getClusters();
+    utils.argShift(args, 'name');
+
+    if (!args.name) {
+      return utils.missingParameter('[name]', exports.help);
+    }
+
+    var instance = utils.findFirstMatchingInstance(args.name);
+    utils.handleInstanceNotFound(instance, args);
+
+    if (!instance.aws || !instance.aws.id) {
+      return utils.die('This instance has no EC2 id attached.');
+    }
+
+    var params = {
+      InstanceId: instance.aws.id,
+      state: 'running'
+    };
+
+    API.startInstance(params)
+      .then(API.waitForInstanceState)
+      .catch(API.catch)
+      .then(function (args) {
+        utils.success('Instance started.');
+        utils.waitForBoot();
+      });
+  };
+});
+
+subcommands.stop = utils.module(function (exports) {
+  exports.signature = 'overcast aws stop [name]';
+
+  exports.help = function () {
+    utils.printArray([
+      exports.signature,
+      '  Stop an EC2 instance.'.grey,
+      '',
+      '  Example:'.grey,
+      '  $ overcast aws stop db.01'.grey
+    ]);
+  };
+
+  exports.run = function (args) {
+    var clusters = utils.getClusters();
+    utils.argShift(args, 'name');
+
+    if (!args.name) {
+      return utils.missingParameter('[name]', exports.help);
+    }
+
+    var instance = utils.findFirstMatchingInstance(args.name);
+    utils.handleInstanceNotFound(instance, args);
+
+    if (!instance.aws || !instance.aws.id) {
+      return utils.die('This instance has no EC2 id attached.');
+    }
+
+    var params = {
+      InstanceId: instance.aws.id,
+      state: 'stopped'
+    };
+
+    API.stopInstance(params)
+      .then(API.waitForInstanceState)
+      .catch(API.catch)
+      .then(function (args) {
+        utils.success('Instance stopped.');
+      });
   };
 });

@@ -50,7 +50,6 @@ exports.createKey = function (args) {
 
     if (args.KeyPairs) {
       if (_.find(args.KeyPairs, { KeyName: keyName })) {
-        utils.grey('Key "' + keyName + '" already exists.');
         return resolve(args);
       }
     }
@@ -64,6 +63,7 @@ exports.createKey = function (args) {
       if (err) {
         reject(err);
       } else {
+        utils.grey('Created keyPair "' + keyName + '".');
         resolve(args);
       }
     });
@@ -176,7 +176,7 @@ exports.createInstance = function (args) {
     MinCount: 1,
     MaxCount: 1,
     Monitoring: {
-      Enabled: args.monitoring || false
+      Enabled: !!args.monitoring
     }
   };
 
@@ -185,8 +185,8 @@ exports.createInstance = function (args) {
       if (err) {
         reject(err);
       } else {
-        utils.success('Instance ' + args.CreatedInstances[0].InstanceId + ' created.');
         args.CreatedInstances = data.Instances;
+        utils.success('Instance ' + args.CreatedInstances[0].InstanceId + ' created.');
         resolve(args);
       }
     });
@@ -204,7 +204,57 @@ exports.destroyInstance = function (args) {
       if (err) {
         reject(err);
       } else {
-        args.TerminatingInstances = data.TerminatingInstances;
+        resolve(args);
+      }
+    });
+  });
+};
+
+exports.rebootInstance = function (args) {
+  args = args || {};
+  var params = {
+    InstanceIds: args.InstanceIds || [args.InstanceId]
+  };
+
+  return new Promise(function (resolve, reject) {
+    ec2().rebootInstances(params, function (err, data) {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(args);
+      }
+    });
+  });
+};
+
+exports.stopInstance = function (args) {
+  args = args || {};
+  var params = {
+    InstanceIds: args.InstanceIds || [args.InstanceId]
+  };
+
+  return new Promise(function (resolve, reject) {
+    ec2().stopInstances(params, function (err, data) {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(args);
+      }
+    });
+  });
+};
+
+exports.startInstance = function (args) {
+  args = args || {};
+  var params = {
+    InstanceIds: args.InstanceIds || [args.InstanceId]
+  };
+
+  return new Promise(function (resolve, reject) {
+    ec2().startInstances(params, function (err, data) {
+      if (err) {
+        reject(err);
+      } else {
         resolve(args);
       }
     });
