@@ -1,0 +1,15 @@
+#!/bin/bash
+
+# Allow root access on EC2 instances.
+
+# Tested on:
+# Ubuntu 14.04
+
+# Usage:
+# overcast aws create dev.01 --cluster dev --user ubuntu
+# overcast run dev.01 allow_root_access_on_ec2
+# overcast instance update dev.01 --user root
+
+# set -x
+
+sudo sed -i "s/\,command\=.* ssh\-rsa/ ssh\-rsa/g" /root/.ssh/authorized_keys

@@ -2,7 +2,6 @@ utils = require('../../modules/utils')
 API = require('../../modules/providers/linode')
 linode = require('../../modules/commands/linode')
 mockArgs = require('./utils').mockArgs
-mockPromise = require('./utils').mockPromise
 
 describe 'linode', ->
 
