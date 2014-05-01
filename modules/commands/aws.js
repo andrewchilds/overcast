@@ -85,7 +85,7 @@ subcommands.create = utils.module(function (exports) {
           name: args.name,
           ip: args.Instances[0].PublicIpAddress,
           ssh_key: utils.normalizeKeyPath(args['ssh-key']),
-          ssh_port: 22,
+          ssh_port: '22',
           user: args.user || 'root',
           aws: {
             id: args.InstanceId,

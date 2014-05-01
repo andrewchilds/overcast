@@ -16,14 +16,3 @@ exports.overcast = (args, callback) ->
   runs ->
     console.error done.stderr if done.stderr
     callback(done.stdout, done.stderr)
-
-exports.getClusters = (callback) ->
-  clusters = null
-  if (utils.CLUSTERS_JSON)
-    clusters = require(utils.CLUSTERS_JSON)
-  else
-    utils.findConfig ->
-      clusters = require(utils.CLUSTERS_JSON)
-  waitsFor -> clusters
-  runs ->
-    callback(clusters)

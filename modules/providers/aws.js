@@ -4,7 +4,9 @@ var Promise = require('bluebird');
 var _ = require('lodash');
 var utils = require('../utils');
 
-var DEBUG = true;
+var DEBUG = false;
+
+exports.pollDelay = 3000;
 
 function debugLog(data) {
   if (DEBUG) {
@@ -159,7 +161,7 @@ exports.waitForInstanceState = function (args) {
   }
 
   function checkState() {
-    return Promise.delay(3000)
+    return Promise.delay(exports.pollDelay)
       .then(function () {
         return exports.getInstances(args);
       }).then(function (args) {
