@@ -22,7 +22,9 @@ describe 'digitalocean', ->
       expect(API.request).toHaveBeenCalledWith
         endpoint: 'droplets/new'
         query: {
+          backups_enabled: false
           name: 'name'
+          private_networking: false
           ssh_key_ids: '123'
           size_slug: '512mb'
           image_slug: 'ubuntu-14-04-x64'
@@ -36,7 +38,9 @@ describe 'digitalocean', ->
       options['region-id'] = '3'
       subject(options)
       expect(API.request.mostRecentCall.args[0].query).toEqual
+        backups_enabled: false
         name: 'name'
+        private_networking: false
         ssh_key_ids: '123'
         size_id: '1'
         image_id: '2'
@@ -48,7 +52,9 @@ describe 'digitalocean', ->
       options['image-name'] = 'my.image.name'
       subject(options)
       expect(API.request.mostRecentCall.args[0].query).toEqual
+        backups_enabled: false
         name: 'name'
+        private_networking: false
         ssh_key_ids: '123'
         image_id: 12345
         size_slug: '512mb'
