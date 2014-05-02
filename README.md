@@ -838,6 +838,8 @@ Contributions are welcome. If you've got an idea for a feature or found a bug, p
 
 - Tagging
 - Events
+- Google Compute Engine support
+- [pkgcloud.compute](https://github.com/pkgcloud/pkgcloud#compute) integration (for Joyent, Openstack, Rackspace support)
 - More comprehensive script/recipe library
 - More test coverage
 
