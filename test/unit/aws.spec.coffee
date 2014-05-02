@@ -7,6 +7,8 @@ API = require('../../modules/providers/aws')
 specUtils = require('./utils')
 mockArgs = specUtils.mockArgs
 
+PROMISE_DELAY = 50
+
 describe 'aws', ->
   mockEC2 = specUtils.mock.ec2()
   pubKeyPath = path.normalize(__dirname + '/../fixtures/overcast.key.pub')
@@ -57,7 +59,7 @@ describe 'aws', ->
 
     it 'otherwise should create the instance', ->
       subject(mockArgs('aws create dummy.02 --cluster dummy --user ubuntu --ssh-key /path/to/id_rsa --ssh-pub-key ' + pubKeyPath))
-      waits 20
+      waits PROMISE_DELAY
       runs ->
         runParams = specUtils.spies.ec2.runInstances.mostRecentCall.args[0]
         saveParams = utils.saveInstanceToCluster.mostRecentCall.args[1]
@@ -86,7 +88,7 @@ describe 'aws', ->
 
     it 'otherwise should destroy the instance', ->
       subject(mockArgs('aws destroy dummy.01 --force'))
-      waits 20
+      waits PROMISE_DELAY
       runs ->
         expect(specUtils.spies.ec2.terminateInstances.mostRecentCall.args[0]).toEqual({
           InstanceIds: [ 'InstanceId' ]
@@ -103,7 +105,7 @@ describe 'aws', ->
 
     it 'otherwise should reboot the instance', ->
       subject(mockArgs('aws reboot dummy.01'))
-      waits 20
+      waits PROMISE_DELAY
       runs ->
         expect(specUtils.spies.ec2.rebootInstances.mostRecentCall.args[0]).toEqual({
           InstanceIds: [ 'InstanceId' ]
@@ -119,7 +121,7 @@ describe 'aws', ->
 
     it 'otherwise should start the instance', ->
       subject(mockArgs('aws start dummy.01'))
-      waits 20
+      waits PROMISE_DELAY
       runs ->
         expect(specUtils.spies.ec2.startInstances.mostRecentCall.args[0]).toEqual({
           InstanceIds: [ 'InstanceId' ]
@@ -143,7 +145,7 @@ describe 'aws', ->
 
     it 'otherwise should stop the instance', ->
       subject(mockArgs('aws stop dummy.01'))
-      waits 20
+      waits PROMISE_DELAY
       runs ->
         expect(specUtils.spies.ec2.stopInstances.mostRecentCall.args[0]).toEqual({
           InstanceIds: [ 'InstanceId' ]
