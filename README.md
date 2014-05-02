@@ -255,16 +255,18 @@ I wanted something that had little to no learning curve, that did only what you 
     You can specify region, image, and size of the droplet using -id or -slug.
     You can also specify an image or snapshot using --image-name.
 
-      Option               | Default
-      --cluster CLUSTER    |
-      --ssh-port PORT      | 22
-      --region-slug NAME   | nyc2
-      --region-id ID       |
-      --image-slug NAME    | ubuntu-14-04-x64
-      --image-id ID        |
-      --image-name NAME    |
-      --size-slug NAME     | 512mb
-      --size-id ID         |
+      Option                | Default
+      --cluster CLUSTER     |
+      --ssh-port PORT       | 22
+      --region-slug NAME    | nyc2
+      --region-id ID        |
+      --image-slug NAME     | ubuntu-14-04-x64
+      --image-id ID         |
+      --image-name NAME     |
+      --size-slug NAME      | 512mb
+      --size-id ID          |
+      --backups-enabled     | false
+      --private-networking  | false
 
     Example:
     $ overcast digitalocean create db.01 --cluster db --size-slug 1gb --region-slug sfo1
@@ -273,8 +275,8 @@ I wanted something that had little to no learning curve, that did only what you 
     Destroys a DigitalOcean droplet and removes it from your account.
     Using --force overrides the confirm dialog. This is irreversible.
 
-      Option               | Default
-      --force              | false
+      Option                | Default
+      --force               | false
 
   overcast digitalocean droplets
     List all DigitalOcean droplets in your account.
@@ -294,10 +296,10 @@ I wanted something that had little to no learning curve, that did only what you 
     According to the API docs, "This is useful if you want to start again but
     retain the same IP address for your droplet."
 
-      Option               | Default
-      --image-slug SLUG    | ubuntu-12-04-x64
-      --image-name NAME    |
-      --image-id ID        |
+      Option                | Default
+      --image-slug SLUG     | ubuntu-12-04-x64
+      --image-name NAME     |
+      --image-id ID         |
 
     Example:
     $ overcast digitalocean rebuild app.01 --name my.app.snapshot
@@ -309,10 +311,10 @@ I wanted something that had little to no learning curve, that did only what you 
     Shutdown, resize, and reboot a DigitalOcean droplet.
     If --skipboot flag is used, the droplet will stay in a powered-off state.
 
-      Option               | Default
-      --size-slug NAME     |
-      --size-id ID         |
-      --skipBoot           | false
+      Option                | Default
+      --size-slug NAME      |
+      --size-id ID          |
+      --skipBoot            | false
 
     Example:
     $ overcast digitalocean resize db.01 --size-slug 2gb
@@ -415,7 +417,7 @@ I wanted something that had little to no learning curve, that did only what you 
 ### overcast help
 
 ```
-  Overcast v0.4.0
+  Overcast v0.4.1
 
   Source code, issues, pull requests:
     https://github.com/andrewchilds/overcast
