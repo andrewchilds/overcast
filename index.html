@@ -114,9 +114,15 @@
 </pre></div>
 </li>
 <li>
-<p>You can now use Overcast from any directory.</p>
+<p>You can now use Overcast from any directory. Running any overcast command will create the ~/.overcast config directory if it doesn't already exist.</p>
 
-<div class="highlight highlight-sh"><pre><span class="nv">$ </span>overcast <span class="nb">help</span>
+<div class="highlight highlight-sh"><pre><span class="nv">$ </span>overcast list
+</pre></div>
+</li>
+<li>
+<p>Add your AWS/DigitalOcean/Linode API keys to <code>~/.overcast/variables.json</code> to use their respective commands:</p>
+
+<div class="highlight highlight-sh"><pre><span class="nv">$ </span>vim ~/.overcast/variables.json
 </pre></div>
 </li>
 </ol><h2>
