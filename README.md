@@ -73,10 +73,16 @@ A [script library](https://github.com/andrewchilds/overcast/tree/master/scripts)
     $ npm -g install overcast
     ```
 
-3. You can now use Overcast from any directory.
+3. You can now use Overcast from any directory. Running any overcast command will create the ~/.overcast config directory if it doesn't already exist.
 
     ```sh
-    $ overcast help
+    $ overcast list
+    ```
+
+4. Add your AWS/DigitalOcean/Linode API keys to `~/.overcast/variables.json` to use their respective commands:
+
+    ```sh
+    $ vim ~/.overcast/variables.json
     ```
 
 ## Uninstallation
