@@ -45,20 +45,12 @@ describe 'aws', ->
       subject(mockArgs('aws create'))
       expect(utils.missingParameter).toHaveBeenCalled()
 
-    it 'should fail if cluster is missing', ->
-      subject(mockArgs('aws create dummy.02'))
-      expect(utils.missingParameter).toHaveBeenCalled()
-
-    it 'should fail if cluster does not exist', ->
-      subject(mockArgs('aws create dummy.02 --cluster missing'))
-      expect(utils.die.mostRecentCall.args[0]).toContain('No "missing" cluster found')
-
     it 'should fail if instance already exists', ->
       subject(mockArgs('aws create dummy.01 --cluster dummy'))
       expect(utils.dieWithList.mostRecentCall.args[0]).toContain('"dummy.01" already exists')
 
     it 'otherwise should create the instance', ->
-      subject(mockArgs('aws create dummy.02 --cluster dummy --user ubuntu --ssh-key /path/to/id_rsa --ssh-pub-key ' + pubKeyPath))
+      subject(mockArgs('aws create dummy.02 --user ubuntu --ssh-key /path/to/id_rsa --ssh-pub-key ' + pubKeyPath))
       waits PROMISE_DELAY
       runs ->
         runParams = specUtils.spies.ec2.runInstances.mostRecentCall.args[0]

@@ -14,25 +14,25 @@ Overcast is an SSH-based devops CLI designed to make it easy to spin up, configu
 Create, reboot and destroy instances across DigitalOcean, Linode and EC2:
 
 ```sh
-# Create a new cluster called "DB":
+# Create a new cluster called "db":
 $ overcast cluster create db
 
 # Spin up a new Ubuntu 14.04 instance on DigitalOcean:
-$ overcast digitalocean create db.01 --cluster db
+$ overcast digitalocean create db-01 --cluster db
 
 # Spin up a new Ubuntu 14.04 instance on Linode:
-$ overcast linode create db.02 --cluster db
+$ overcast linode create db-02 --cluster db
 
 # Spin up a new Ubuntu 14.04 instance on EC2:
-$ overcast aws create db.03 --cluster db --user ubuntu
-$ overcast run db.03 allow_root_access_on_ec2
-$ overcast instance update db.03 --user root
+$ overcast aws create db-03 --cluster db --user ubuntu
+$ overcast run db-03 allow_root_access_on_ec2
+$ overcast instance update db-03 --user root
 
 # Install Redis across all instances in parallel:
 $ overcast run db install/core install/redis --parallel
 
 # SSH into any instance:
-$ overcast ssh db.01
+$ overcast ssh db-01
 
 # SSH into a whole cluster:
 $ overcast ssh db
@@ -41,10 +41,8 @@ $ overcast ssh db
 Import your already-running machines, wherever they are, using `overcast instance import` or by editing [`~/.overcast/clusters.json`](https://github.com/andrewchilds/overcast/tree/master/fixtures/example.clusters.json):
 
 ```sh
-$ overcast instance import app.01 --cluster app --ip 127.0.0.2 \
-  --ssh-port 22222 --ssh-key ~/.ssh/id_rsa
-$ overcast instance import app.02 --cluster app --ip 127.0.0.3 \
-  --ssh-port 22222 --ssh-key ~/.ssh/id_rsa
+$ overcast instance import app-01 --ip 1.1.1.1 --ssh-key ~/.ssh/id_rsa
+$ overcast instance import app-02 --ip 2.2.2.2 --ssh-key ~/.ssh/id_rsa
 ```
 
 Run multiple commands or multiple scripts on any or all of your instances at once, over SSH. Commands can be run sequentially or in parallel using the `--parallel` flag.
@@ -54,7 +52,7 @@ $ overcast run db install/core install/redis
 $ overcast run all uptime "free-m" "df -h" --parallel
 ```
 
-Push and pull files between your local machine and any or all of your instances at once. Dynamically rewrite file paths to include the instance name using `{instance}` in either source or destination path.
+Push and pull files between your local machine and any or all of your instances at once. Dynamically rewrite file paths to include the instance name using `{instance}` in either source or destination.
 
 ```sh
 $ overcast push app nginx/myapp.conf /etc/nginx/sites-enabled/myapp.conf
@@ -417,7 +415,7 @@ I wanted something that had little to no learning curve, that did only what you 
 ### overcast help
 
 ```
-  Overcast v0.4.1
+  Overcast v0.4.2
 
   Source code, issues, pull requests:
     https://github.com/andrewchilds/overcast

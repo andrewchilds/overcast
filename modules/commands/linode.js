@@ -34,7 +34,9 @@ exports.run = function (args) {
   } else {
     API.getLinodes({ 'linode-name': instance.name }).then(function (linodes) {
       instance.linode = linodes[0];
-      utils.updateInstance(instance.name, { linode: instance.linode });
+      utils.updateInstance(instance.name, {
+        linode: instance.linode
+      });
       subcommands[args.subcommand](instance, args);
     }).catch(API.errorCatcher);
   }
@@ -60,38 +62,31 @@ subcommands.boot.help = function () {
 subcommands.create = function (args) {
   var clusters = utils.getClusters();
 
+  if (!args.cluster) {
+    utils.grey('Using "default" cluster.');
+    args.cluster = 'default';
+  }
+
   if (!args.name) {
     return utils.missingParameter('[name]', subcommands.create.help);
-  } else if (!args.cluster) {
-    return utils.missingParameter('--cluster', subcommands.create.help);
-  } else if (!clusters[args.cluster]) {
-    return utils.die('No "' + args.cluster + '" cluster found. Known clusters are: ' +
-      _.keys(clusters).join(', ') + '.');
-  } else if (clusters[args.cluster].instances[args.name]) {
+  } else if (clusters[args.cluster] && clusters[args.cluster].instances[args.name]) {
     return utils.dieWithList('Instance "' + args.name + '" already exists.');
   }
 
   API.create(args).then(function (res) {
-    return new Promise(function (resolve) {
-      utils.waitForBoot(function () {
-        resolve(res);
-      });
-    });
-  }).then(function (res) {
-    var instance = {
-      ip: res.linode.ip,
-      name: args.name,
-      ssh_key: args['ssh-key'] || 'overcast.key',
-      ssh_port: '22',
-      user: 'root',
-      linode: res.linode
-    };
+    utils.waitForBoot(function () {
+      var instance = {
+        ip: res.linode.ip,
+        name: args.name,
+        ssh_key: args['ssh-key'] || 'overcast.key',
+        ssh_port: '22',
+        user: 'root',
+        linode: res.linode
+      };
 
-    var clusters = utils.getClusters();
-    clusters[args.cluster] = clusters[args.cluster] || { instances: {} };
-    clusters[args.cluster].instances[args.name] = instance;
-    utils.saveClusters(clusters);
-    utils.success('Instance "' + args.name + '" (' + instance.ip + ') saved.');
+      utils.saveInstanceToCluster(args.cluster, instance);
+      utils.success('Instance "' + args.name + '" (' + instance.ip + ') saved.');
+    });
   });
 };
 
@@ -101,7 +96,7 @@ subcommands.create.help = function () {
     '  Creates a new Linode.'.grey,
     '',
     '    Option                    | Default'.grey,
-    '    --cluster CLUSTER         |'.grey,
+    '    --cluster CLUSTER         | default'.grey,
     '    --datacenter-slug NAME    | newark'.grey,
     '    --datacenter-id ID        |'.grey,
     '    --distribution-slug NAME  | ubuntu-14-04-lts'.grey,

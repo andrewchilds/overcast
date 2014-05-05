@@ -150,10 +150,7 @@ exports.create = function (options) {
     user: 'root'
   };
 
-  var clusters = utils.getClusters();
-  clusters[options.cluster] = clusters[options.cluster] || { instances: {} };
-  clusters[options.cluster].instances[options.name] = instance;
-  utils.saveClusters(clusters);
+  utils.saveInstanceToCluster(options.cluster, instance);
 
   exports.getOrCreateOvercastKeyID(function (keyID) {
     var query = {

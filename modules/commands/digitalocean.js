@@ -46,14 +46,14 @@ var subcommands = {};
 subcommands.create = function (args) {
   var clusters = utils.getClusters();
 
+  if (!args.cluster) {
+    utils.grey('Using "default" cluster.');
+    args.cluster = 'default';
+  }
+
   if (!args.name) {
     return utils.missingParameter('[name]', subcommands.create.help);
-  } else if (!args.cluster) {
-    return utils.missingParameter('--cluster', subcommands.create.help);
-  } else if (!clusters[args.cluster]) {
-    return utils.die('No "' + args.cluster + '" cluster found. Known clusters are: ' +
-      _.keys(clusters).join(', ') + '.');
-  } else if (clusters[args.cluster].instances[args.name]) {
+  } else if (clusters[args.cluster] && clusters[args.cluster].instances[args.name]) {
     return utils.dieWithList('Instance "' + args.name + '" already exists.');
   }
 
@@ -72,7 +72,7 @@ subcommands.create.help = function () {
     '  You can also specify an image or snapshot using --image-name.'.grey,
     '',
     '    Option                | Default'.grey,
-    '    --cluster CLUSTER     |'.grey,
+    '    --cluster CLUSTER     | default'.grey,
     '    --ssh-port PORT       | 22'.grey,
     '    --region-slug NAME    | nyc2'.grey,
     '    --region-id ID        |'.grey,

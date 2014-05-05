@@ -43,7 +43,3 @@ describe 'linode', ->
     it 'should call missingParameter if name is missing during create', ->
       subject(mockArgs('linode create'))
       expect(utils.missingParameter).toHaveBeenCalled()
-
-    it 'should call missingParameter if --cluster is missing during create', ->
-      subject(mockArgs('linode create myInstance'))
-      expect(utils.missingParameter).toHaveBeenCalled()

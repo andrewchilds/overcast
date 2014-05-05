@@ -37,7 +37,7 @@ subcommands.create = utils.module(function (exports) {
       '  Creates a new EC2 instance.'.grey,
       '',
       '    Option                   | Default'.grey,
-      '    --cluster CLUSTER        |'.grey,
+      '    --cluster CLUSTER        | default'.grey,
       '    --ami NAME               | ami-018c9568 (Ubuntu 14.04 LTS, 64bit, EBS)'.grey,
       '    --size NAME              | t1.micro'.grey,
       '    --monitoring BOOLEAN     | false'.grey,
@@ -54,14 +54,14 @@ subcommands.create = utils.module(function (exports) {
     var clusters = utils.getClusters();
     utils.argShift(args, 'name');
 
+    if (!args.cluster) {
+      utils.grey('Using "default" cluster.');
+      args.cluster = 'default';
+    }
+
     if (!args.name) {
       return utils.missingParameter('[name]', exports.help);
-    } else if (!args.cluster) {
-      return utils.missingParameter('--cluster', exports.help);
-    } else if (!clusters[args.cluster]) {
-      return utils.die('No "' + args.cluster + '" cluster found. Known clusters are: ' +
-        _.keys(clusters).join(', ') + '.');
-    } else if (clusters[args.cluster].instances[args.name]) {
+    } else if (clusters[args.cluster] && clusters[args.cluster].instances[args.name]) {
       return utils.dieWithList('Instance "' + args.name + '" already exists.');
     }
 
