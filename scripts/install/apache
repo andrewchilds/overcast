@@ -1,0 +1,32 @@
+#!/bin/bash
+
+# Install Apache 2.x.
+
+# Tested on:
+# Ubuntu 14.04
+
+# Usage:
+# overcast run myInstanceOrCluster install/apache
+
+# set -x
+
+if [ "$(id -u)" != "0" ]; then
+   echo "This script must be run as root." 1>&2
+   exit 1
+fi
+
+aptitude install -y apache2
+
+# Create self-signed SSL certificate
+mkdir /etc/apache2/ssl
+openssl req -new -x509 -days 365 -nodes -out /etc/apache2/ssl/apache.pem -keyout /etc/apache2/ssl/apache.key
+
+# Disable default Apache virtualhost
+a2dissite default
+
+# Enable rewrite and SSL modules
+a2enmod rewrite ssl
+
+service apache2 restart
+
+exit 0

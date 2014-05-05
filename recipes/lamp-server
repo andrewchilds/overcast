@@ -1,0 +1,42 @@
+#!/bin/bash
+
+# Ubuntu 14.04 LAMP Server Recipe
+
+# Deploy on a DigitalOcean 512mb:
+#   overcast digitalocean create lamp-do-01
+#   recipes/lamp-server lamp-do-01
+
+# Deploy on a Linode 2048:
+#   overcast linode create lamp-linode-01
+#   recipes/lamp-server lamp-linode-01
+
+# Deploy on EC2:
+#   overcast aws create lamp-ec2-01 --user ubuntu
+#   overcast run lamp-ec2-01 allow_root_access_on_ec2
+#   overcast instance update lamp-ec2-01 --user root
+#   recipes/lamp-server lamp-ec2-01
+
+###############################################################################
+
+# Configuration:
+if [ -z "$1" ]; then
+  echo "Usage: recipes/lamp-server [instance]"
+  exit 1
+fi
+
+instance=$1
+
+###############################################################################
+
+# You shouldn't need to edit anything below.
+
+set -e
+
+echo "Full system upgrade, installing core packages..."
+overcast run $instance install/core install/sftp install/apache install/mysql install/php
+overcast reboot $instance
+
+echo "Configuring iptables to only expose HTTP, HTTPS and SSH..."
+overcast expose $instance 22 80 443
+
+echo "Done!"

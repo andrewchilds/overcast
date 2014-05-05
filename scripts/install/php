@@ -1,0 +1,20 @@
+#!/bin/bash
+
+# Install PHP 5.x.
+
+# Tested on:
+# Ubuntu 14.04
+
+# Usage:
+# overcast run myInstanceOrCluster install/php
+
+# set -x
+
+if [ "$(id -u)" != "0" ]; then
+   echo "This script must be run as root." 1>&2
+   exit 1
+fi
+
+aptitude install -y php5 php5-mysql php5-gd libapache-mod-ssl libapache2-mod-php5 php5-curl
+
+exit 0
