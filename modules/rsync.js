@@ -26,7 +26,7 @@ function runOnInstances(stack, args) {
 }
 
 function runOnInstance(instance, args, next) {
-  scpExec({
+  rsync({
     ip: instance.ip,
     user: args.user || instance.user,
     name: instance.name,
@@ -43,7 +43,7 @@ function runOnInstance(instance, args, next) {
   });
 }
 
-function scpExec(options, next) {
+function rsync(options, next) {
   if (!options.ip) {
     return utils.die('IP missing.');
   }
@@ -56,42 +56,41 @@ function scpExec(options, next) {
   options.name = options.name || 'Unknown';
 
   var args = [
-    '-r',
-    '-i',
-    options.ssh_key,
-    '-P',
-    options.ssh_port,
-    '-o',
-    'StrictHostKeyChecking=no'
+    'rsync',
+    '-e "ssh -p ' + options.ssh_port + ' -i ' + options.ssh_key + '"',
+    '-varuzP',
+    // '--dry-run',
+    // '--delete',
+    '--ignore-errors'
   ];
 
   if (options.direction === 'pull') {
     options.dest = convertToAbsolute(options.dest);
     options.dest = replaceInstanceName(options.name, options.dest);
-    args.push((options.user || 'root') + '@' + options.ip + ':' + options.source);
+    args.push(options.user + '@' + options.ip + ':' + options.source);
     args.push(options.dest);
   } else if (options.direction === 'push') {
     options.source = convertToAbsolute(options.source);
     options.source = replaceInstanceName(options.name, options.source);
     args.push(options.source);
-    args.push((options.user || 'root') + '@' + options.ip + ':' + options.dest);
+    args.push(options.user + '@' + options.ip + ':' + options.dest);
   } else {
     return utils.die('No direction specified.');
   }
 
-  var scp = cp.spawn('scp', args);
+  var rsyncProcess = utils.spawn(args.join(' '));
 
-  scp.stdout.on('data', function (data) {
+  rsyncProcess.stdout.on('data', function (data) {
     utils.prefixPrint(options.name, color, data);
   });
 
-  scp.stderr.on('data', function (data) {
+  rsyncProcess.stderr.on('data', function (data) {
     utils.prefixPrint(options.name, color, data, 'grey');
   });
 
-  scp.on('exit', function (code) {
+  rsyncProcess.on('exit', function (code) {
     if (code !== 0) {
-      var str = 'SCP connection exited with a non-zero code (' + code + '). Stopping execution...';
+      var str = 'rsync exited with a non-zero code (' + code + '). Stopping execution...';
       utils.prefixPrint(options.name, color, str, 'red');
       process.exit(1);
     }

@@ -144,7 +144,7 @@ I wanted something that had little to no learning curve, that did only what you 
     Creates a new EC2 instance.
 
       Option                   | Default
-      --cluster CLUSTER        |
+      --cluster CLUSTER        | default
       --ami NAME               | ami-018c9568 (Ubuntu 14.04 LTS, 64bit, EBS)
       --size NAME              | t1.micro
       --monitoring BOOLEAN     | false
@@ -254,7 +254,7 @@ I wanted something that had little to no learning curve, that did only what you 
     You can also specify an image or snapshot using --image-name.
 
       Option                | Default
-      --cluster CLUSTER     |
+      --cluster CLUSTER     | default
       --ssh-port PORT       | 22
       --region-slug NAME    | nyc2
       --region-id ID        |
@@ -481,8 +481,8 @@ I wanted something that had little to no learning curve, that did only what you 
     overcast list
     overcast ping [instance|cluster|all]
     overcast port [instance|cluster|all] [port]
-    overcast pull [instance|cluster|all] [source] [dest]
-    overcast push [instance|cluster|all] [source] [dest]
+    overcast pull [instance|cluster|all] [source] [dest] [options]
+    overcast push [instance|cluster|all] [source] [dest] [options]
     overcast reboot [instance|cluster|all]
     overcast run [instance|cluster|all] [command...]
     overcast run [instance|cluster|all] [file...]
@@ -623,7 +623,7 @@ I wanted something that had little to no learning curve, that did only what you 
     Creates a new Linode.
 
       Option                    | Default
-      --cluster CLUSTER         |
+      --cluster CLUSTER         | default
       --datacenter-slug NAME    | newark
       --datacenter-id ID        |
       --distribution-slug NAME  | ubuntu-14-04-lts
@@ -714,13 +714,15 @@ I wanted something that had little to no learning curve, that did only what you 
 
 ```
   overcast pull [instance|cluster|all] [source] [dest]
-    Pull a file or directory from an instance or cluster using scp. Source is absolute.
-    Destination can be absolute or relative to the .overcast/files directory.
+    Pull a file or directory from an instance or cluster using scp by default, or rsync if
+    the --rsync flag is used. Source is absolute or relative to the home directory,
+    destination can be absolute or relative to the .overcast/files directory.
 
     Any reference to {instance} in the destination will be replaced with the instance name.
 
-      Option
-      --user NAME
+      Option         | Default
+      --rsync        | false
+      --user NAME    |
 
     Example:
     Assuming instances "app.01" and "app.02", this will expand to:
@@ -733,13 +735,15 @@ I wanted something that had little to no learning curve, that did only what you 
 
 ```
   overcast push [instance|cluster|all] [source] [dest]
-    Push a file or directory to an instance or cluster using scp. Source can be
-    absolute, or relative to the .overcast/files directory. Destination is absolute.
+    Push a file or directory to an instance or cluster using scp by default, or rsync if
+    the --rsync flag is used. Source can be absolute or relative to the
+    .overcast/files directory, destination can be absolute or relative to the home directory.
 
     Any reference to {instance} in the source will be replaced with the instance name.
 
-      Option
-      --user NAME
+      Option         | Default
+      --rsync        | false
+      --user NAME    |
 
     Example:
     Assuming instances "app.01" and "app.02", this will expand to:

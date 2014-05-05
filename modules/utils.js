@@ -523,3 +523,12 @@ exports.printCommandHelp = function (commands) {
     }
   });
 };
+
+// Based on https://github.com/mattijs/node-rsync/blob/master/rsync.js#L436
+exports.spawn = function (command) {
+  if (process.platform === 'win32') {
+    return cp.spawn('cmd.exe', ['/s', '/c', '"' + command + '"'],
+      { stdio: 'pipe', windowsVerbatimArguments: true });
+  }
+  return cp.spawn('/bin/sh', ['-c', command], { stdio: 'pipe' });
+};
