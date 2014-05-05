@@ -36,7 +36,7 @@ useradd -m -s /bin/bash -p $password $username
 mkdir -p /home/$username/.ssh
 cp /root/.ssh/authorized_keys /home/$username/.ssh/authorized_keys
 chown -R $username:$username /home/$username/.ssh
-chmod 655 /home/$username/.ssh/authorized_keys
+chmod 600 /home/$username/.ssh/authorized_keys
 chmod 700 /home/$username/.ssh
 
 # Add sftp group if it doesn't already exist.
