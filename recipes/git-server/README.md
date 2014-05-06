@@ -4,7 +4,7 @@ A private git server is a nice and easy way to securely work with sensitive data
 
 ## Instructions
 
-Spin up and configure your git server on DigitalOcean. This uses a Ubuntu 14.04 image on a 512mb machine in the nyc2 region with backups enabled.
+Spin up and configure your git server on DigitalOcean. This uses a Ubuntu 14.04 image on a 512mb machine in the nyc2 region with backups enabled. The instance will be named `git-001`.
 
 ```sh
 ./deploy-digitalocean
