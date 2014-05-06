@@ -1,0 +1,54 @@
+#!/bin/bash
+
+# Install Git on an existing instance.
+
+###############################################################################
+
+# Configuration:
+
+if [ -z "$1" ]; then
+  echo "Usage: ./install [instance]"
+  exit 1
+fi
+
+instance="$1"
+username="git"
+
+###############################################################################
+
+# You shouldn't have to edit anything below.
+
+set -e
+
+echo "Disallowing password access through SSH..."
+overcast run $instance harden_ssh
+
+echo "Full system upgrade, installing core packages..."
+overcast run $instance install/core
+overcast reboot $instance
+
+echo "Configure iptables to only expose SSH..."
+overcast expose $instance 22
+
+echo "Switching to user \"$username\" instead of root..."
+overcast run $instance add_user --env "username=$username"
+overcast instance update $instance --user $username
+
+echo ""
+echo "Done! Your new git server is ready."
+echo ""
+echo "To create a repo on this server:"
+echo "$ overcast run $instance \"git init --bare my-repo-name.git\""
+echo ""
+echo "To connect to this server using git, add this to your ~/.ssh/config:"
+echo "Host git.mydomain.com"
+echo "  HostName `overcast instance get $instance ip`"
+echo "  IdentityFile `overcast key get overcast --private-path`"
+echo "  Port 22"
+echo "  User $username"
+echo ""
+echo "To use that repo on your local machine:"
+echo "$ cd /path/to/my/project"
+echo "$ git init"
+echo "$ git remote add origin git.mydomain.com:my-repo-name.git"
+echo "$ git push origin master"

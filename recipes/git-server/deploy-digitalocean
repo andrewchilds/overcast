@@ -1,0 +1,23 @@
+#!/bin/bash
+
+# Deploy a Git server on DigitalOcean.
+
+###############################################################################
+
+# Configuration:
+
+instance="git-001"
+
+###############################################################################
+
+# You shouldn't have to edit anything below.
+
+set -e
+
+dirName="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+echo "Creating new DigitalOcean droplet..."
+overcast digitalocean create $instance --backups-enabled --size-slug 512mb \
+  --region-slug nyc2 --image-slug ubuntu-14-04-x64
+
+$dirName/install $instance
