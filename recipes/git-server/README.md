@@ -1,6 +1,6 @@
 # Creating a Private Git Server
 
-A private git server is a nice and easy way to securely work with sensitive data. There is no giant web application to install and maintain and worry about. SSH passwords are disabled by default (using the `harden_ssh` script), iptables is configured to only allow connections on port 22, and all repos are owned by the `git` user.
+A private git server is a nice and easy way to securely work with sensitive data. You directly control who has access to the server, and there is no giant web application to install and maintain and worry about. SSH passwords are disabled by default (using the `harden_ssh` script), iptables is configured to only allow connections on port 22, and all repos are owned by the `git` user.
 
 ## Instructions
 
