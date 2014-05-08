@@ -61,7 +61,7 @@ $ overcast pull all /etc/nginx/sites-enabled/myapp.conf nginx/{instance}.myapp.c
 
 Overcast is a thin wrapper around your native SSH client, and doesn't install or leave anything on the servers you communicate with, so Overcast itself has no real attack surface.
 
-A [script library](https://github.com/andrewchilds/overcast/tree/master/scripts) and [recipe library](https://github.com/andrewchilds/overcast/tree/master/recipes) are included to make it easy to deploy common software stacks and applications. The library was written for Ubuntu, but could be extended to include other distributions.
+A [script library](https://github.com/andrewchilds/overcast/tree/master/scripts) and [recipe library](https://github.com/andrewchilds/overcast/tree/master/recipes) are included to make it trivial to deploy common software stacks and applications. The libraries were written for and tested against Ubuntu/Debian systems.
 
 ## Installation (OS X/Linux)
 

@@ -3,6 +3,7 @@
 # Configure chrooted SFTP.
 
 # Tested on:
+# Debian 7.0
 # Ubuntu 12.04
 
 # Once configured, users requiring SFTP access must be added to the "sftp" group, like so:

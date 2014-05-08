@@ -7,6 +7,9 @@
 # Ubuntu 12.04
 # Ubuntu 14.04
 
+# Does not work on:
+# Debian 7.0
+
 # Usage:
 # overcast run myInstanceOrCluster install/nodejs
 
