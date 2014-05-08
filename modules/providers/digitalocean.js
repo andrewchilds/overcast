@@ -484,14 +484,17 @@ exports.request = function (options) {
       console.log(JSON.stringify(stdout, null, 4));
     }
 
-    if (_.isFunction(options.callback)) {
-      if (stdout && stdout.status && stdout.status === 'ERROR') {
-        utils.die('Error response from API: ' + stdout.error_message);
-      } else if (stdout && stdout.status === 'OK') {
-        options.callback(stdout);
-      } else {
-        utils.die('Error response from API: ' + stderr);
+    if (stdout && stdout.status && stdout.status === 'ERROR') {
+      if (_.isFunction(options.onError)) {
+        options.onError(stdout);
       }
+      utils.die('Error response from API: ' + stdout.error_message);
+    } else if (stdout && stdout.status && stdout.status === 'OK') {
+      if (_.isFunction(options.callback)) {
+        options.callback(stdout);
+      }
+    } else {
+      utils.die('Error response from API: ' + stderr);
     }
   });
 };
