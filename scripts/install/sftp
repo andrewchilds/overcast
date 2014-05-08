@@ -22,9 +22,10 @@ fi
 
 groupadd -f sftp
 
-sed -i "s/Subsystem sftp \/usr\/lib\/openssh\/sftp\-server/# Subsystem sftp \/usr\/lib\/openssh\/sftp-server/g" /etc/ssh/sshd_config
+sed -i "s/^Subsystem sftp \/usr\/lib\/openssh\/sftp\-server/# Subsystem sftp \/usr\/lib\/openssh\/sftp-server/g" /etc/ssh/sshd_config
 
-cat >> /etc/ssh/sshd_config << EOF
+if ! grep -q 'Subsystem sftp internal-sftp' /etc/ssh/sshd_config; then
+  cat >> /etc/ssh/sshd_config << EOF
 
 Subsystem sftp internal-sftp
 
@@ -34,5 +35,6 @@ Match group sftp
   AllowTcpForwarding no
   ForceCommand internal-sftp
 EOF
+fi
 
 exit 0
