@@ -142,20 +142,10 @@ exports.create = function (options) {
     });
   }
 
-  var instance = {
-    name: options.name || 'overcast.instance.' + _.now(),
-    ip: '127.0.0.1',
-    ssh_key: options['ssh-key'] || 'overcast.key',
-    ssh_port: options['ssh-port'] || '22',
-    user: 'root'
-  };
-
-  utils.saveInstanceToCluster(options.cluster, instance);
-
   exports.getOrCreateOvercastKeyID(function (keyID) {
     var query = {
       backups_enabled: !!(options['backups-enabled'] && options['backups-enabled'] !== 'false'),
-      name: instance.name,
+      name: options.name,
       private_networking: !!(options['private-networking'] && options['private-networking'] !== 'false'),
       ssh_key_ids: keyID
     };
@@ -181,7 +171,7 @@ exports.create = function (options) {
       query: query,
       callback: function (result) {
         if (result && result.droplet && result.droplet.event_id) {
-          handleCreateResponse(result.droplet);
+          handleCreateResponse(options, result.droplet);
         }
       }
     });
@@ -205,13 +195,22 @@ exports.getOrCreateOvercastKeyID = function (callback) {
   });
 };
 
-function handleCreateResponse(droplet) {
-  utils.grey('Creating droplet ' + droplet.id + ' on DigitalOcean, please wait...');
-  waitForEventToFinish(droplet.event_id, function () {
+function handleCreateResponse(options, createResponse) {
+  utils.grey('Creating droplet ' + createResponse.id + ' on DigitalOcean, please wait...');
+  waitForEventToFinish(createResponse.event_id, function () {
     utils.success('Droplet created!');
     utils.waitForBoot(function () {
-      exports.getDroplet(droplet.id, function (droplet) {
-        exports.updateInstanceWithDropletInfo(droplet.name, droplet);
+      exports.getDroplet(createResponse.id, function (droplet) {
+        var instance = {
+          name: droplet.name,
+          ip: droplet.ip_address,
+          ssh_key: options['ssh-key'] || 'overcast.key',
+          ssh_port: options['ssh-port'] || '22',
+          user: 'root',
+          digitalocean: droplet
+        };
+        utils.saveInstanceToCluster(options.cluster, instance);
+
         utils.success('Instance "' + droplet.name + '" (' + droplet.ip_address + ') saved.');
       });
     });
