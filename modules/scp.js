@@ -56,6 +56,7 @@ function scpExec(options, next) {
   options.name = options.name || 'Unknown';
 
   var args = [
+    'scp',
     '-r',
     '-i',
     options.ssh_key,
@@ -66,20 +67,20 @@ function scpExec(options, next) {
   ];
 
   if (options.direction === 'pull') {
-    options.dest = utils.convertToAbsolute(options.dest);
-    options.dest = replaceInstanceName(options.name, options.dest);
+    options.dest = utils.convertToAbsoluteFilePath(options.dest);
+    options.dest = utils.replaceInstanceName(options.name, options.dest);
     args.push((options.user || 'root') + '@' + options.ip + ':' + options.source);
     args.push(options.dest);
   } else if (options.direction === 'push') {
-    options.source = utils.convertToAbsolute(options.source);
-    options.source = replaceInstanceName(options.name, options.source);
+    options.source = utils.convertToAbsoluteFilePath(options.source);
+    options.source = utils.replaceInstanceName(options.name, options.source);
     args.push(options.source);
     args.push((options.user || 'root') + '@' + options.ip + ':' + options.dest);
   } else {
     return utils.die('No direction specified.');
   }
 
-  var scp = cp.spawn('scp', args);
+  var scp = utils.spawn(args);
 
   scp.stdout.on('data', function (data) {
     utils.prefixPrint(options.name, color, data);
@@ -101,8 +102,4 @@ function scpExec(options, next) {
       next();
     }
   });
-}
-
-function replaceInstanceName(name, path) {
-  return path.replace(/\{instance\}/g, name);
 }

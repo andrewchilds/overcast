@@ -77,9 +77,11 @@ exports.keyExists = function (keyName) {
 
 exports.createKey = function (keyName, callback) {
   var keyFile = exports.getKeyFileFromName(keyName);
-  cp.exec('bash -c \'mkdir -p ' + exports.CONFIG_DIR + '/keys && ssh-keygen -t rsa -N "" -f ' +
-    keyFile + ' && chmod 600 ' + keyFile + '\'', function (err) {
-    if (err) {
+  var sh = exports.spawn('mkdir -p ' + exports.CONFIG_DIR +
+    '/keys && ssh-keygen -t rsa -N "" -f ' + keyFile);
+
+  sh.on('exit', function (code) {
+    if (code !== 0) {
       exports.red('Error generating SSH key.');
       exports.die(err);
     } else {
@@ -125,15 +127,20 @@ exports.createHashedKeyName = function (keyData) {
   return 'overcast.' + crypto.createHash('md5').update(keyData).digest('hex');
 };
 
+exports.replaceInstanceName = function (name, str) {
+  return str.replace(/\{instance\}/g, name);
+};
+
 exports.isAbsolute = function (p) {
   return path.resolve(p) === path.normalize(p) || p.charAt(0) === '/';
 };
 
-exports.convertToAbsolute = function (p) {
-  return exports.fixPath(exports.isAbsolute(p) ? p : path.resolve(exports.CONFIG_DIR, 'files', p));
+exports.convertToAbsoluteFilePath = function (p) {
+  p = exports.isAbsolute(p) ? p : path.resolve(exports.CONFIG_DIR, 'files', p);
+  return exports.normalizeWindowsPath(p);
 };
 
-exports.fixPath = function (p) {
+exports.normalizeWindowsPath = function (p) {
   if (process.platform === 'win32') {
     return p.replace(/^[A-Z]:(\\|\/)/i, function(m) {
       return '/' + m[0].toLowerCase() + '/';
@@ -143,17 +150,17 @@ exports.fixPath = function (p) {
   return p;
 };
 
-exports.escapePath = function (p) {
+exports.escapeWindowsPath = function (p) {
   return p.replace(/\\/g, '\\\\');
 };
 
 exports.initOvercastDir = function (dest_dir, callback) {
   dest_dir += '/.overcast';
 
-  return cp.exec('bash ' + exports.escapePath(__dirname + '/../bin/init'), {
+  return cp.exec('bash ' + exports.escapeWindowsPath(__dirname + '/../bin/init'), {
     env: _.extend({}, process.env, {
-      OVERCAST_FIXTURE_DIR: exports.escapePath(__dirname + '/../fixtures'),
-      OVERCAST_DEST_DIR: exports.escapePath(dest_dir)
+      OVERCAST_FIXTURE_DIR: exports.escapeWindowsPath(__dirname + '/../fixtures'),
+      OVERCAST_DEST_DIR: exports.escapeWindowsPath(dest_dir)
     })
   }, function (err, stdout, stderr) {
     if (err) {
@@ -567,9 +574,15 @@ exports.printCommandHelp = function (commands) {
 
 // Based on https://github.com/mattijs/node-rsync/blob/master/rsync.js#L436
 exports.spawn = function (command) {
+  if (_.isArray(command)) {
+    command = command.join(' ');
+  }
+
   if (process.platform === 'win32') {
-    return cp.spawn('cmd.exe', ['/s', '/c', '"' + command + '"'],
-      { stdio: 'pipe', windowsVerbatimArguments: true });
+    return cp.spawn('cmd.exe', ['/s', '/c', '"' + command + '"'], {
+      stdio: 'pipe',
+      windowsVerbatimArguments: true
+    });
   }
   return cp.spawn('/bin/sh', ['-c', command], { stdio: 'pipe' });
 };

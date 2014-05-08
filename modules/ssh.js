@@ -67,11 +67,11 @@ function sshExec(options, next) {
   options.name = options.name || 'Unknown';
 
   var args = [
-    utils.escapePath(__dirname + '/../bin/ssh')
+    utils.escapeWindowsPath(__dirname + '/../bin/ssh')
   ];
 
   var sshEnv = _.extend({}, process.env, {
-    OVERCAST_KEY: utils.escapePath(options.ssh_key),
+    OVERCAST_KEY: utils.escapeWindowsPath(options.ssh_key),
     OVERCAST_PORT: options.ssh_port,
     OVERCAST_USER: options.user,
     OVERCAST_IP: options.ip
@@ -97,11 +97,11 @@ function sshExec(options, next) {
   var bundledScriptFile = commandAsScriptFile(options.command, __dirname + '/../scripts');
 
   if (fs.existsSync(cwdScriptFile)) {
-    sshEnv.OVERCAST_SCRIPT_FILE = utils.escapePath(cwdScriptFile);
+    sshEnv.OVERCAST_SCRIPT_FILE = utils.escapeWindowsPath(cwdScriptFile);
   } else if (fs.existsSync(scriptFile)) {
-    sshEnv.OVERCAST_SCRIPT_FILE = utils.escapePath(scriptFile);
+    sshEnv.OVERCAST_SCRIPT_FILE = utils.escapeWindowsPath(scriptFile);
   } else if (fs.existsSync(bundledScriptFile)) {
-    sshEnv.OVERCAST_SCRIPT_FILE = utils.escapePath(bundledScriptFile);
+    sshEnv.OVERCAST_SCRIPT_FILE = utils.escapeWindowsPath(bundledScriptFile);
   } else {
     sshEnv.OVERCAST_COMMAND = options.command;
   }
