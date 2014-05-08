@@ -77,10 +77,14 @@ exports.keyExists = function (keyName) {
 
 exports.createKey = function (keyName, callback) {
   var keyFile = exports.getKeyFileFromName(keyName);
-  var sh = exports.spawn('mkdir -p ' + exports.CONFIG_DIR +
-    '/keys && ssh-keygen -t rsa -N "" -f ' + keyFile);
+  var keysDir = exports.CONFIG_DIR + '/keys';
 
-  sh.on('exit', function (code) {
+  if (!fs.existsSync(keysDir)) {
+    fs.mkdirSync(keysDir);
+  }
+
+  var keygen = exports.spawn('ssh-keygen -t rsa -N "" -f ' + keyFile);
+  keygen.on('exit', function (code) {
     if (code !== 0) {
       exports.red('Error generating SSH key.');
       exports.die(err);
