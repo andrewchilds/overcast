@@ -5,8 +5,9 @@ var commands = require('./index');
 exports.run = function (args) {
   _.each(utils.getClusters(), function (cluster) {
     _.each(cluster.instances, function (instance) {
-      console.log('alias ssh.' + instance.name + '="ssh -i ' + instance.ssh_key +
-        ' -p ' + instance.ssh_port + ' ' + instance.user + '@' + instance.ip + '"');
+      console.log('alias ssh.' + instance.name + '="ssh -i ' +
+        utils.normalizeKeyPath(instance.ssh_key) + ' -p ' + instance.ssh_port +
+        ' ' + instance.user + '@' + instance.ip + '"');
     });
   });
 };
