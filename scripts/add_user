@@ -12,13 +12,17 @@
 
 # set -x
 
+usage="Usage: overcast run myInstanceOrCluster add_user --env \"username=newuser\""
+
 if [ "$(id -u)" != "0" ]; then
-   echo "This script must be run as root." 1>&2
-   exit 1
+  echo "This script must be run as root." 1>&2
+  echo $usage
+  exit 1
 fi
 
 if [ -z "$username" ]; then
   echo "No username defined."
+  echo $usage
   exit 1
 fi
 

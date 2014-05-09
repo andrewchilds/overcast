@@ -59,8 +59,7 @@ function rsync(options, next) {
     'rsync',
     '-e "ssh -p ' + options.ssh_port + ' -i ' + options.ssh_key + '"',
     '-varuzP',
-    // '--dry-run',
-    // '--delete',
+    '--delete',
     '--ignore-errors'
   ];
 
