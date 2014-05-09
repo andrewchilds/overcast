@@ -1,0 +1,78 @@
+#!/bin/bash
+
+# Create a new Apache Virtualhost and enable it.
+
+# Tested on:
+# Ubuntu 14.04
+
+# Usage:
+# overcast run myInstanceOrCluster create_apache_virtualhost --env "site_path=/path/to/site site_domain=domain.com"
+
+# set -x
+# set -e
+
+usage="Usage: overcast run myInstanceOrCluster create_apache_virtualhost --env \"site_path=/path/to/site site_domain=domain.com\""
+
+if [ "$(id -u)" != "0" ]; then
+  echo "This script must be run as root." 1>&2
+  echo $usage
+  exit 1
+fi
+
+if [ -z "$site_path" ]; then
+  echo "No site_path defined, no action taken."
+  echo $usage
+  exit 1
+fi
+
+if [ -z "$site_domain" ]; then
+  echo "No site_domain defined, no action taken."
+  echo $usage
+  exit 1
+fi
+
+virtualhost_file="/etc/apache2/sites-available/$site_domain.conf"
+
+if [ -f "$virtualhost_file" ]; then
+  echo "$virtualhost_file already exists, no action taken."
+  exit 1
+fi
+
+mkdir -p $site_path
+
+cat >> $virtualhost_file << EOF
+
+<Directory $site_path/>
+  AllowOverride All
+  Options FollowSymLinks
+  Require all granted
+</Directory>
+
+<VirtualHost *:80>
+  ServerName $site_domain
+  ServerAlias www.$site_domain
+  ServerAdmin admin@$site_domain
+  DocumentRoot $site_path
+  ErrorLog \${APACHE_LOG_DIR}/error.log
+  CustomLog \${APACHE_LOG_DIR}/access.log vhost_combined
+</VirtualHost>
+
+# <VirtualHost *:443>
+#   SSLEngine On
+#   SSLCertificateFile /etc/apache2/ssl/apache.pem
+#   SSLCertificateKeyFile /etc/apache2/ssl/apache.key
+#   ServerAdmin admin@$site_domain
+#   ServerName $site_domain
+#   ServerAlias www.$site_domain
+#   DocumentRoot $site_path
+#   ErrorLog \${APACHE_LOG_DIR}/secure.error.log
+#   CustomLog \${APACHE_LOG_DIR}/secure.access.log vhost_combined
+# </VirtualHost>
+
+EOF
+
+a2ensite "$site_domain.conf"
+
+service apache2 reload
+
+exit 0
