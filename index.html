@@ -100,7 +100,10 @@
 
 <p>Overcast is a thin wrapper around your native SSH client, and doesn't install or leave anything on the servers you communicate with, so Overcast itself has no real attack surface.</p>
 
-<p>A <a href="https://github.com/andrewchilds/overcast/tree/master/scripts">script library</a> and <a href="https://github.com/andrewchilds/overcast/tree/master/recipes">recipe library</a> are included to make it easy to deploy common software stacks and applications. The library was written for Ubuntu, but could be extended to include other distributions.</p>
+<p>A <a href="https://github.com/andrewchilds/overcast/tree/master/scripts">script library</a> and <a href="https://github.com/andrewchilds/overcast/tree/master/recipes">recipe library</a> are included to make it trivial to deploy common software stacks and applications. The libraries were written for and tested against Ubuntu/Debian systems, but you can just as easily run your own custom scripts as well:</p>
+
+<div class="highlight highlight-sh"><pre><span class="nv">$ </span>overcast run all /path/to/my/script /path/to/my/other/script
+</pre></div>
 
 <h2>
 <a name="user-content-installation-os-xlinux" class="anchor" href="#installation-os-xlinux"><span class="octicon octicon-link"></span></a>Installation (OS X/Linux)</h2>
@@ -464,7 +467,7 @@
 <h3>
 <a name="user-content-overcast-help" class="anchor" href="#overcast-help"><span class="octicon octicon-link"></span></a>overcast help</h3>
 
-<pre><code>  Overcast v0.4.2
+<pre><code>  Overcast v0.4.5
 
   Source code, issues, pull requests:
     https://github.com/andrewchilds/overcast
