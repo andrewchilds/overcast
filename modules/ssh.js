@@ -113,10 +113,12 @@ function sshExec(options, next) {
   var ssh = cp.spawn('bash', args, { env: sshEnv });
   var connectionProblem = false;
 
-  process.stdin.resume();
-  process.stdin.on('data', function (chunk) {
+  var stdinDataCallback = function (chunk) {
     ssh.stdin.write(chunk);
-  });
+  };
+
+  process.stdin.resume();
+  process.stdin.on('data', stdinDataCallback);
 
   ssh.stdout.on('data', function (data) {
     utils.prefixPrint(options.name, color, data);
@@ -134,6 +136,8 @@ function sshExec(options, next) {
 
   ssh.on('exit', function (code) {
     process.stdin.pause();
+    process.stdin.removeListener('data', stdinDataCallback);
+
     if (connectionProblem && code === 255) {
       options.retries = options.retries ? options.retries + 1 : 1;
       options.maxRetries = options.maxRetries || 3;
