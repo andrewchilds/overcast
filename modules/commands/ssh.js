@@ -37,10 +37,12 @@ function connect(instance, args) {
 
   console.log('$ ssh -i ' + privateKeyFile + ' -p ' + sshPort + ' ' + host);
 
-  process.stdin.resume();
-  process.stdin.on('data', function (chunk) {
+  var stdinDataCallback = function (chunk) {
     ssh.stdin.write(chunk);
-  });
+  };
+
+  process.stdin.resume();
+  process.stdin.on('data', stdinDataCallback);
 
   ssh.stdout.on('data', function (data) {
     utils.prefixPrint(instance.name, color, data);
@@ -52,6 +54,8 @@ function connect(instance, args) {
 
   ssh.on('exit', function (code) {
     process.stdin.pause();
+    process.stdin.removeListener('data', stdinDataCallback);
+
     if (code !== 0) {
       var str = 'SSH connection exited with a non-zero code (' + code + '). Stopping execution...';
       utils.prefixPrint(instance.name, color, str, 'red');
