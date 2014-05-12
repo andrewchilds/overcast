@@ -45,8 +45,12 @@ $ overcast instance import app-02 --ip 2.2.2.2 --ssh-key ~/.ssh/id_rsa
 Run multiple commands or multiple scripts on any or all of your instances at once, over SSH. Commands can be run sequentially or in parallel using the `--parallel` flag.
 
 ```sh
-$ overcast run db install/core install/redis
-$ overcast run all uptime "free-m" "df -h" --parallel
+# Run bundled scripts:
+$ overcast run db install/core install/apache install/mysql install/php
+# Run scripts relative to the current working directory or using absolute path:
+$ overcast run app-cluster ./recipes/my-app/install /path/to/script
+# Run sequences of commands and scripts across multiple machines in parallel:
+$ overcast run db ./script.sh uptime "free-m" "df -h" --parallel
 ```
 
 Push and pull files between your local machine and any or all of your instances at once. Dynamically rewrite file paths to include the instance name using `{instance}` in either source or destination.
@@ -61,7 +65,7 @@ Overcast is a thin wrapper around your native SSH client, and doesn't install or
 A [script library](https://github.com/andrewchilds/overcast/tree/master/scripts) and [recipe library](https://github.com/andrewchilds/overcast/tree/master/recipes) are included to make it trivial to deploy common software stacks and applications. The libraries were written for and tested against Ubuntu/Debian systems, but you can just as easily run your own custom scripts as well:
 
 ```sh
-$ overcast run all /path/to/my/script /path/to/my/other/script
+$ overcast run all /absolute/path/to/script ./relative/path/to/other/script
 ```
 
 ## Installation (OS X/Linux)
