@@ -75,9 +75,6 @@
 
 <span class="c"># SSH into any instance:</span>
 <span class="nv">$ </span>overcast ssh db-01
-
-<span class="c"># SSH into a whole cluster:</span>
-<span class="nv">$ </span>overcast ssh db
 </pre></div>
 
 <p>Import your already-running machines, wherever they are, using <code>overcast instance import</code> or by editing <a href="https://github.com/andrewchilds/overcast/tree/master/fixtures/example.clusters.json"><code>~/.overcast/clusters.json</code></a>:</p>
@@ -88,8 +85,12 @@
 
 <p>Run multiple commands or multiple scripts on any or all of your instances at once, over SSH. Commands can be run sequentially or in parallel using the <code>--parallel</code> flag.</p>
 
-<div class="highlight highlight-sh"><pre><span class="nv">$ </span>overcast run db install/core install/redis
-<span class="nv">$ </span>overcast run all uptime <span class="s2">"free-m"</span> <span class="s2">"df -h"</span> --parallel
+<div class="highlight highlight-sh"><pre><span class="c"># Run bundled scripts:</span>
+<span class="nv">$ </span>overcast run db install/core install/apache install/mysql install/php
+<span class="c"># Run scripts relative to the current working directory or using absolute path:</span>
+<span class="nv">$ </span>overcast run app-cluster ./recipes/my-app/install /path/to/script
+<span class="c"># Run sequences of commands and scripts across multiple machines in parallel:</span>
+<span class="nv">$ </span>overcast run db ./script.sh uptime <span class="s2">"free-m"</span> <span class="s2">"df -h"</span> --parallel
 </pre></div>
 
 <p>Push and pull files between your local machine and any or all of your instances at once. Dynamically rewrite file paths to include the instance name using <code>{instance}</code> in either source or destination.</p>
@@ -102,7 +103,7 @@
 
 <p>A <a href="https://github.com/andrewchilds/overcast/tree/master/scripts">script library</a> and <a href="https://github.com/andrewchilds/overcast/tree/master/recipes">recipe library</a> are included to make it trivial to deploy common software stacks and applications. The libraries were written for and tested against Ubuntu/Debian systems, but you can just as easily run your own custom scripts as well:</p>
 
-<div class="highlight highlight-sh"><pre><span class="nv">$ </span>overcast run all /path/to/my/script /path/to/my/other/script
+<div class="highlight highlight-sh"><pre><span class="nv">$ </span>overcast run all /absolute/path/to/script ./relative/path/to/other/script
 </pre></div>
 
 <h2>
@@ -129,6 +130,11 @@
 </pre></div>
 </li>
 </ol><h2>
+<a name="user-content-installation-windows" class="anchor" href="#installation-windows"><span class="octicon octicon-link"></span></a>Installation (Windows)</h2>
+
+<p>Using Overcast on Windows is possible, but <strong>unsupported</strong>. Instructions TBD.</p>
+
+<h2>
 <a name="user-content-uninstallation" class="anchor" href="#uninstallation"><span class="octicon octicon-link"></span></a>Uninstallation</h2>
 
 <p>Since Overcast is just a wrapper around SSH, there is nothing on your remote machines to uninstall. To uninstall Overcast from your local machine:</p>
@@ -467,7 +473,7 @@
 <h3>
 <a name="user-content-overcast-help" class="anchor" href="#overcast-help"><span class="octicon octicon-link"></span></a>overcast help</h3>
 
-<pre><code>  Overcast v0.4.5
+<pre><code>  Overcast v0.4.7
 
   Source code, issues, pull requests:
     https://github.com/andrewchilds/overcast
