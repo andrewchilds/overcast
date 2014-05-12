@@ -1,16 +1,16 @@
 #!/bin/bash
 
-if [ -z "$overcast_script_file" ]; then
+if [ -z "$OVERCAST_SCRIPT_FILE" ]; then
   echo ""
-  echo "\$ $overcast_env$overcast_command"
-  ssh -i $overcast_key -p $overcast_port $overcast_user@$overcast_ip \
-    -o StrictHostKeyChecking=no "$overcast_env $overcast_command"
+  echo "\$ $OVERCAST_ENV$OVERCAST_COMMAND"
+  ssh -i $OVERCAST_KEY -p $OVERCAST_PORT $OVERCAST_USER@$OVERCAST_IP \
+    -o StrictHostKeyChecking=no "$OVERCAST_ENV $OVERCAST_COMMAND"
 else
-  if [ -z "$shell_command" ]; then
-    shell_command="/bin/bash -s"
+  if [ -z "$SHELL_COMMAND" ]; then
+    SHELL_COMMAND="/bin/bash -s"
   fi
   echo ""
-  echo "\$ $overcast_env$shell_command $overcast_script_file"
-  ssh -i $overcast_key -p $overcast_port $overcast_user@$overcast_ip \
-    -o StrictHostKeyChecking=no "$overcast_env $shell_command" < "$overcast_script_file"
+  echo "\$ $OVERCAST_ENV$SHELL_COMMAND $OVERCAST_SCRIPT_FILE"
+  ssh -i $OVERCAST_KEY -p $OVERCAST_PORT $OVERCAST_USER@$OVERCAST_IP \
+    -o StrictHostKeyChecking=no "$OVERCAST_ENV $SHELL_COMMAND" < "$OVERCAST_SCRIPT_FILE"
 fi

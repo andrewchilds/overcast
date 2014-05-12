@@ -1,22 +1,22 @@
 #!/bin/bash
 
-if [ -z "$overcast_fixture_dir" ] || [ -z "$overcast_dest_dir" ]; then
+if [ -z "$OVERCAST_FIXTURE_DIR" ] || [ -z "$OVERCAST_DEST_DIR" ]; then
   echo "Don't use this script directly. Run 'overcast init' from the directory"
   echo "you want to install an overcast configuration in."
   exit 1
 fi
 
-mkdir -p "$overcast_dest_dir/files"
-mkdir -p "$overcast_dest_dir/keys"
-mkdir -p "$overcast_dest_dir/scripts"
+mkdir -p "$OVERCAST_DEST_DIR/files"
+mkdir -p "$OVERCAST_DEST_DIR/keys"
+mkdir -p "$OVERCAST_DEST_DIR/scripts"
 
-if [ ! -f "$overcast_dest_dir/clusters.json" ]; then
-  echo "{}" > "$overcast_dest_dir/clusters.json"
+if [ ! -f "$OVERCAST_DEST_DIR/clusters.json" ]; then
+  echo "{}" > "$OVERCAST_DEST_DIR/clusters.json"
 fi
 
-if [ ! -f "$overcast_dest_dir/variables.json" ]; then
-  cp "$overcast_fixture_dir/example.variables.json" "$overcast_dest_dir/variables.json"
+if [ ! -f "$OVERCAST_DEST_DIR/variables.json" ]; then
+  cp "$OVERCAST_FIXTURE_DIR/example.variables.json" "$OVERCAST_DEST_DIR/variables.json"
 fi
 
-cp "$overcast_fixture_dir/example.clusters.json" "$overcast_dest_dir/example.clusters.json"
-cp "$overcast_fixture_dir/example.variables.json" "$overcast_dest_dir/example.variables.json"
+cp "$OVERCAST_FIXTURE_DIR/example.clusters.json" "$OVERCAST_DEST_DIR/example.clusters.json"
+cp "$OVERCAST_FIXTURE_DIR/example.variables.json" "$OVERCAST_DEST_DIR/example.variables.json"

@@ -90,6 +90,10 @@ $ overcast run all /absolute/path/to/script ./relative/path/to/other/script
     $ vim ~/.overcast/variables.json
     ```
 
+## Installation (Windows)
+
+Using Overcast on Windows is possible, but **unsupported**. Instructions TBD.
+
 ## Uninstallation
 
 Since Overcast is just a wrapper around SSH, there is nothing on your remote machines to uninstall. To uninstall Overcast from your local machine:

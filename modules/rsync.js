@@ -64,20 +64,20 @@ function rsync(options, next) {
   ];
 
   if (options.direction === 'pull') {
-    options.dest = convertToAbsolute(options.dest);
-    options.dest = replaceInstanceName(options.name, options.dest);
+    options.dest = utils.convertToAbsoluteFilePath(options.dest);
+    options.dest = utils.replaceInstanceName(options.name, options.dest);
     args.push(options.user + '@' + options.ip + ':' + options.source);
     args.push(options.dest);
   } else if (options.direction === 'push') {
-    options.source = convertToAbsolute(options.source);
-    options.source = replaceInstanceName(options.name, options.source);
+    options.source = utils.convertToAbsoluteFilePath(options.source);
+    options.source = utils.replaceInstanceName(options.name, options.source);
     args.push(options.source);
     args.push(options.user + '@' + options.ip + ':' + options.dest);
   } else {
     return utils.die('No direction specified.');
   }
 
-  var rsyncProcess = utils.spawn(args.join(' '));
+  var rsyncProcess = utils.spawn(args);
 
   rsyncProcess.stdout.on('data', function (data) {
     utils.prefixPrint(options.name, color, data);
@@ -99,12 +99,4 @@ function rsync(options, next) {
       next();
     }
   });
-}
-
-function convertToAbsolute(str) {
-  return str.charAt(0) === '/' ? str : utils.CONFIG_DIR + '/files/' + str;
-}
-
-function replaceInstanceName(name, path) {
-  return path.replace(/\{instance\}/g, name);
 }

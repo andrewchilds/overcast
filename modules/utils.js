@@ -77,9 +77,15 @@ exports.keyExists = function (keyName) {
 
 exports.createKey = function (keyName, callback) {
   var keyFile = exports.getKeyFileFromName(keyName);
-  cp.exec('mkdir -p ' + exports.CONFIG_DIR + '/keys && ssh-keygen -t rsa -N "" -f ' +
-    keyFile + ' && chmod 600 ' + keyFile, function (err) {
-    if (err) {
+  var keysDir = exports.CONFIG_DIR + '/keys';
+
+  if (!fs.existsSync(keysDir)) {
+    fs.mkdirSync(keysDir);
+  }
+
+  var keygen = exports.spawn('ssh-keygen -t rsa -N "" -f ' + keyFile);
+  keygen.on('exit', function (code) {
+    if (code !== 0) {
       exports.red('Error generating SSH key.');
       exports.die(err);
     } else {
@@ -111,13 +117,13 @@ exports.normalizeKeyPath = function (keyPath, keyName) {
   keyName = keyName || 'overcast.key';
 
   if (!keyPath) {
-    return exports.CONFIG_DIR + '/keys/' + keyName;
+    return path.resolve(exports.CONFIG_DIR, 'keys', keyName);
   }
 
-  if (keyPath.charAt(0) === '/') {
+  if (exports.isAbsolute(keyPath)) {
     return keyPath;
   } else {
-    return path.normalize(exports.CONFIG_DIR + '/keys/' + keyPath);
+    return path.resolve(exports.CONFIG_DIR, 'keys', keyPath);
   }
 };
 
@@ -125,13 +131,40 @@ exports.createHashedKeyName = function (keyData) {
   return 'overcast.' + crypto.createHash('md5').update(keyData).digest('hex');
 };
 
+exports.replaceInstanceName = function (name, str) {
+  return str.replace(/\{instance\}/g, name);
+};
+
+exports.isAbsolute = function (p) {
+  return path.resolve(p) === path.normalize(p) || p.charAt(0) === '/';
+};
+
+exports.convertToAbsoluteFilePath = function (p) {
+  p = exports.isAbsolute(p) ? p : path.resolve(exports.CONFIG_DIR, 'files', p);
+  return exports.normalizeWindowsPath(p);
+};
+
+exports.normalizeWindowsPath = function (p) {
+  if (process.platform === 'win32') {
+    return p.replace(/^[A-Z]:(\\|\/)/i, function(m) {
+      return '/' + m[0].toLowerCase() + '/';
+    });
+  }
+
+  return p;
+};
+
+exports.escapeWindowsPath = function (p) {
+  return p.replace(/\\/g, '\\\\');
+};
+
 exports.initOvercastDir = function (dest_dir, callback) {
   dest_dir += '/.overcast';
 
-  return cp.exec(__dirname + '/../bin/init', {
+  return cp.exec('bash ' + exports.escapeWindowsPath(__dirname + '/../bin/init'), {
     env: _.extend({}, process.env, {
-      overcast_fixture_dir: __dirname + '/../fixtures',
-      overcast_dest_dir: dest_dir
+      OVERCAST_FIXTURE_DIR: exports.escapeWindowsPath(__dirname + '/../fixtures'),
+      OVERCAST_DEST_DIR: exports.escapeWindowsPath(dest_dir)
     })
   }, function (err, stdout, stderr) {
     if (err) {
@@ -545,9 +578,15 @@ exports.printCommandHelp = function (commands) {
 
 // Based on https://github.com/mattijs/node-rsync/blob/master/rsync.js#L436
 exports.spawn = function (command) {
+  if (_.isArray(command)) {
+    command = command.join(' ');
+  }
+
   if (process.platform === 'win32') {
-    return cp.spawn('cmd.exe', ['/s', '/c', '"' + command + '"'],
-      { stdio: 'pipe', windowsVerbatimArguments: true });
+    return cp.spawn('cmd.exe', ['/s', '/c', '"' + command + '"'], {
+      stdio: 'pipe',
+      windowsVerbatimArguments: true
+    });
   }
   return cp.spawn('/bin/sh', ['-c', command], { stdio: 'pipe' });
 };

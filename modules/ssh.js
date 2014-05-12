@@ -67,28 +67,28 @@ function sshExec(options, next) {
   options.name = options.name || 'Unknown';
 
   var args = [
-    __dirname + '/../bin/ssh'
+    utils.escapeWindowsPath(__dirname + '/../bin/ssh')
   ];
 
   var sshEnv = _.extend({}, process.env, {
-    overcast_key: options.ssh_key,
-    overcast_port: options.ssh_port,
-    overcast_user: options.user,
-    overcast_ip: options.ip
+    OVERCAST_KEY: utils.escapeWindowsPath(options.ssh_key),
+    OVERCAST_PORT: options.ssh_port,
+    OVERCAST_USER: options.user,
+    OVERCAST_IP: options.ip
   });
 
   if (options.env) {
     if (_.isPlainObject(options.env)) {
-      sshEnv.overcast_env = _.map(options.env, function (val, key) {
+      sshEnv.OVERCAST_ENV = _.map(options.env, function (val, key) {
         return key + '="' + (val + '').replace(/"/g, '\"') + '"';
       }).join(' ');
     } else if (_.isArray(options.env)) {
-      sshEnv.overcast_env = options.env.join(' ');
+      sshEnv.OVERCAST_ENV = options.env.join(' ');
     } else if (_.isString(options.env)) {
-      sshEnv.overcast_env = options.env.trim();
+      sshEnv.OVERCAST_ENV = options.env.trim();
     }
-    if (sshEnv.overcast_env) {
-      sshEnv.overcast_env += ' ';
+    if (sshEnv.OVERCAST_ENV) {
+      sshEnv.OVERCAST_ENV += ' ';
     }
   }
 
@@ -97,17 +97,17 @@ function sshExec(options, next) {
   var bundledScriptFile = commandAsScriptFile(options.command, __dirname + '/../scripts');
 
   if (fs.existsSync(cwdScriptFile)) {
-    sshEnv.overcast_script_file = cwdScriptFile;
+    sshEnv.OVERCAST_SCRIPT_FILE = utils.escapeWindowsPath(cwdScriptFile);
   } else if (fs.existsSync(scriptFile)) {
-    sshEnv.overcast_script_file = scriptFile;
+    sshEnv.OVERCAST_SCRIPT_FILE = utils.escapeWindowsPath(scriptFile);
   } else if (fs.existsSync(bundledScriptFile)) {
-    sshEnv.overcast_script_file = bundledScriptFile;
+    sshEnv.OVERCAST_SCRIPT_FILE = utils.escapeWindowsPath(bundledScriptFile);
   } else {
-    sshEnv.overcast_command = options.command;
+    sshEnv.OVERCAST_COMMAND = options.command;
   }
 
   if (options.shell_command) {
-    sshEnv.shell_command = options.shell_command;
+    sshEnv.SHELL_COMMAND = options.shell_command;
   }
 
   var ssh = cp.spawn('bash', args, { env: sshEnv });
