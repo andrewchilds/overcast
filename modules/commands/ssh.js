@@ -5,6 +5,8 @@ var utils = require('../utils');
 exports.run = function (args) {
   utils.argShift(args, 'name');
 
+  process.stdin.setMaxListeners(0);
+
   if (!args.name) {
     return utils.missingParameter('[instance|cluster|all]', exports.help);
   }
