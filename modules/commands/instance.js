@@ -220,7 +220,7 @@ subcommands.update = function (args) {
 
   _.each(['ip', 'ssh-key', 'ssh-port', 'user'], function (prop) {
     if (args[prop]) {
-      clusters[parentClusterName].instances[args.name][prop.replace('-', '_')] = args[prop];
+      clusters[parentClusterName].instances[instance.name][prop.replace('-', '_')] = args[prop];
       messages.push('Instance "' + prop + '" has been updated to "' + args[prop] + '".');
     }
   });

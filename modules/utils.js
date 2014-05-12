@@ -181,38 +181,56 @@ exports.requireDirectory = function (dir) {
 
 exports.findMatchingInstances = function (name) {
   var clusters = exports.getClusters();
-  var instances = {};
+  var instances = [];
 
   if (name === 'all') {
     _.each(clusters, function (cluster) {
       _.each(cluster.instances, function (instance) {
-        instances[instance.name] = instance;
+        instances.push(instance);
       });
     });
   } else if (clusters[name]) {
-    instances = clusters[name].instances;
+    instances = _.toArray(clusters[name].instances);
   } else {
-    _.each(clusters, function (cluster) {
-      if (cluster.instances[name]) {
-        instances[name] = cluster.instances[name];
-      }
-    });
+    instances = exports.findMatchingInstancesByInstanceName(name);
   }
 
   return instances;
 };
 
-exports.findFirstMatchingInstance = function (name) {
+exports.findMatchingInstancesByInstanceName = function (name) {
   var clusters = exports.getClusters();
-  var instance;
+  var instances = [];
+
+  var hasWildcard = name.indexOf('*') !== -1;
+  if (hasWildcard) {
+    name = exports.convertWildcard(name);
+  }
 
   _.each(clusters, function (cluster) {
-    if (!instance && cluster.instances[name]) {
-      instance = cluster.instances[name];
+    if (hasWildcard) {
+      _.each(cluster.instances, function (instance, instanceName) {
+        if (name.test(instanceName)) {
+          instances.push(instance);
+        }
+      });
+    } else {
+      if (cluster.instances[name]) {
+        instances.push(cluster.instances[name]);
+      }
     }
   });
 
-  return instance;
+  return instances;
+};
+
+exports.findFirstMatchingInstance = function (name) {
+  return exports.findMatchingInstancesByInstanceName(name)[0];
+};
+
+exports.convertWildcard = function (name) {
+  // Instance names are sanitized, so we don't have to worry about regexp edge cases.
+  return new RegExp(name.replace(/-/g, '\\-').replace(/\./g, '\\.').replace(/\*/g, '.*'));
 };
 
 exports.findClusterNameForInstance = function (instance) {
@@ -334,7 +352,8 @@ exports.sanitize = function (str) {
   } else if (!str.replace) {
     str = str + '';
   }
-  return str.replace(/[^0-9a-zA-Z\.\-\_ ]/g, '');
+
+  return str.replace(/[^0-9a-zA-Z\.\-\_\* ]/g, '');
 };
 
 exports.printArray = function (arr) {
