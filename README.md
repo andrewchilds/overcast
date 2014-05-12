@@ -33,9 +33,6 @@ $ overcast run db install/core install/redis --parallel
 
 # SSH into any instance:
 $ overcast ssh db-01
-
-# SSH into a whole cluster:
-$ overcast ssh db
 ```
 
 Import your already-running machines, wherever they are, using `overcast instance import` or by editing [`~/.overcast/clusters.json`](https://github.com/andrewchilds/overcast/tree/master/fixtures/example.clusters.json):
@@ -425,7 +422,7 @@ I wanted something that had little to no learning curve, that did only what you 
 ### overcast help
 
 ```
-  Overcast v0.4.5
+  Overcast v0.4.6
 
   Source code, issues, pull requests:
     https://github.com/andrewchilds/overcast
