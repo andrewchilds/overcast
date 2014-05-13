@@ -1,0 +1,21 @@
+#!/bin/bash
+
+# Install CouchDB.
+
+# Tested on:
+# Ubuntu 12.04
+# Ubuntu 14.04
+
+# Usage:
+# overcast run myInstanceOrCluster install/couchdb
+
+# set -x
+
+if [ "$(id -u)" != "0" ]; then
+   echo "This script must be run as root." 1>&2
+   exit 1
+fi
+
+aptitude install couchdb
+
+exit 0
