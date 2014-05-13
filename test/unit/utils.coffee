@@ -13,6 +13,17 @@ exports.mockArgs = (argStr = '') ->
 
 exports.mock = {}
 
+exports.mock.emitter = ->
+  {
+    stdout: {
+      on: ->
+    }
+    stderr: {
+      on: ->
+    }
+    on: ->
+  }
+
 exports.mock.ec2 = ->
   obj = {}
 

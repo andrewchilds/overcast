@@ -430,7 +430,7 @@ I wanted something that had little to no learning curve, that did only what you 
 ### overcast help
 
 ```
-  Overcast v0.4.7
+  Overcast v0.4.8
 
   Source code, issues, pull requests:
     https://github.com/andrewchilds/overcast
@@ -502,6 +502,7 @@ I wanted something that had little to no learning curve, that did only what you 
     overcast run [instance|cluster|all] [command...]
     overcast run [instance|cluster|all] [file...]
     overcast ssh [instance|cluster|all]
+    overcast tunnel [instance] [local-port((:hostname):remote-port)...]
 
   Config directory:
     /path/to/.overcast
@@ -827,6 +828,27 @@ I wanted something that had little to no learning curve, that did only what you 
     Option
     --ssh-key PATH
     --user NAME
+```
+
+### overcast tunnel
+
+```
+  overcast tunnel [instance] [local-port((:hostname):remote-port)...]
+    Opens an SSH tunnel to the port(s) specified.
+    If only one port is specified, assume the same port for local/remote.
+    If no remote host is specified, assume the remote host itself (127.0.0.1).
+    Multiple tunnels can be opened over a single connection.
+
+    Examples:
+
+    # Tunnel local 5984 to remote 5984:
+    $ overcast tunnel app-01 5984
+
+    # Tunnel local 8000 to remote 5984, local 8001 to remote 3000.
+    $ overcast tunnel app-01 8000:5984 8001:3000
+
+    # Tunnel local 3000 to otherhost.com:4000.
+    $ overcast tunnel app-01 3000:otherhost.com:4000
 ```
 
 ## Running the Tests
