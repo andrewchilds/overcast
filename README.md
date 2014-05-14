@@ -430,7 +430,7 @@ I wanted something that had little to no learning curve, that did only what you 
 ### overcast help
 
 ```
-  Overcast v0.4.8
+  Overcast v0.4.9
 
   Source code, issues, pull requests:
     https://github.com/andrewchilds/overcast
@@ -501,6 +501,7 @@ I wanted something that had little to no learning curve, that did only what you 
     overcast reboot [instance|cluster|all]
     overcast run [instance|cluster|all] [command...]
     overcast run [instance|cluster|all] [file...]
+    overcast slack [message] [options...]
     overcast ssh [instance|cluster|all]
     overcast tunnel [instance] [local-port((:hostname):remote-port)...]
 
@@ -816,6 +817,25 @@ I wanted something that had little to no learning curve, that did only what you 
 
     Example:
     $ overcast run db install/core install/redis
+```
+
+### overcast slack
+
+```
+  overcast slack [message] [options...]
+    Sends a message to a Slack channel.
+    Expects SLACK_WEBHOOK_URL property to be set in variables.json.
+
+      Option               | Default
+      --channel NAME       | #alerts
+      --icon-emoji EMOJI   | :cloud:
+      --icon-url URL       |
+      --user NAME          | Overcast
+      --KEY VALUE          |
+
+    Examples:
+    $ overcast slack "Deploy completed." --icon-emoji ":satelite:"
+    $ overcast slack "Server stats" --channel "#general" --cpu "0.54 0.14 0.09" --free-ram "256mb"
 ```
 
 ### overcast ssh

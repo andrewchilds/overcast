@@ -1,7 +1,7 @@
 {
   "name": "overcast",
   "description": "A simple, SSH-based cloud management CLI.",
-  "version": "0.4.8",
+  "version": "0.4.9",
   "repository": "https://github.com/andrewchilds/overcast.git",
   "author": {
     "name": "Andrew Childs",
@@ -25,7 +25,8 @@
     "colors": "0.6.2",
     "linode-api": "0.1.2",
     "lodash": "2.4.1",
-    "minimist": "0.0.8"
+    "minimist": "0.0.8",
+    "slack-notify": "0.1.1"
   },
   "devDependencies": {
     "jasmine-node": "1.14.3"
