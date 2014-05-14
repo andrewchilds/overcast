@@ -46,7 +46,7 @@
 <h2>
 <a name="user-content-concepts" class="anchor" href="#concepts"><span class="octicon octicon-link"></span></a>Concepts</h2>
 
-<ul>
+<ul class="task-list">
 <li>
 <strong>Instances</strong> are any machine you can SSH into.</li>
 <li>
@@ -109,7 +109,7 @@
 <h2>
 <a name="user-content-installation-os-xlinux" class="anchor" href="#installation-os-xlinux"><span class="octicon octicon-link"></span></a>Installation (OS X/Linux)</h2>
 
-<ol>
+<ol class="task-list">
 <li><p>Install <a href="https://github.com/joyent/node/wiki/Installing-Node.js-via-package-manager">Node.js</a> if not already installed.</p></li>
 <li>
 <p>Install Overcast using npm.</p>
@@ -172,7 +172,7 @@
 <h2>
 <a name="user-content-example-app-deployment-recipes" class="anchor" href="#example-app-deployment-recipes"><span class="octicon octicon-link"></span></a>Example App Deployment Recipes</h2>
 
-<ul>
+<ul class="task-list">
 <li><a href="https://github.com/andrewchilds/overcast/blob/master/recipes/discourse">Discourse</a></li>
 <li><a href="https://github.com/andrewchilds/overcast-charts">Overcast Charts</a></li>
 </ul><h2>
@@ -473,7 +473,7 @@
 <h3>
 <a name="user-content-overcast-help" class="anchor" href="#overcast-help"><span class="octicon octicon-link"></span></a>overcast help</h3>
 
-<pre><code>  Overcast v0.4.7
+<pre><code>  Overcast v0.4.9
 
   Source code, issues, pull requests:
     https://github.com/andrewchilds/overcast
@@ -544,7 +544,9 @@
     overcast reboot [instance|cluster|all]
     overcast run [instance|cluster|all] [command...]
     overcast run [instance|cluster|all] [file...]
+    overcast slack [message] [options...]
     overcast ssh [instance|cluster|all]
+    overcast tunnel [instance] [local-port((:hostname):remote-port)...]
 
   Config directory:
     /path/to/.overcast
@@ -861,6 +863,25 @@
 </code></pre>
 
 <h3>
+<a name="user-content-overcast-slack" class="anchor" href="#overcast-slack"><span class="octicon octicon-link"></span></a>overcast slack</h3>
+
+<pre><code>  overcast slack [message] [options...]
+    Sends a message to a Slack channel.
+    Expects SLACK_WEBHOOK_URL property to be set in variables.json.
+
+      Option               | Default
+      --channel NAME       | #alerts
+      --icon-emoji EMOJI   | :cloud:
+      --icon-url URL       |
+      --user NAME          | Overcast
+      --KEY VALUE          |
+
+    Examples:
+    $ overcast slack "Deploy completed." --icon-emoji ":satelite:"
+    $ overcast slack "Server stats" --channel "#general" --cpu "0.54 0.14 0.09" --free-ram "256mb"
+</code></pre>
+
+<h3>
 <a name="user-content-overcast-ssh" class="anchor" href="#overcast-ssh"><span class="octicon octicon-link"></span></a>overcast ssh</h3>
 
 <pre><code>  overcast ssh [instance|cluster|all]
@@ -870,6 +891,27 @@
     Option
     --ssh-key PATH
     --user NAME
+</code></pre>
+
+<h3>
+<a name="user-content-overcast-tunnel" class="anchor" href="#overcast-tunnel"><span class="octicon octicon-link"></span></a>overcast tunnel</h3>
+
+<pre><code>  overcast tunnel [instance] [local-port((:hostname):remote-port)...]
+    Opens an SSH tunnel to the port(s) specified.
+    If only one port is specified, assume the same port for local/remote.
+    If no remote host is specified, assume the remote host itself (127.0.0.1).
+    Multiple tunnels can be opened over a single connection.
+
+    Examples:
+
+    # Tunnel local 5984 to remote 5984:
+    $ overcast tunnel app-01 5984
+
+    # Tunnel local 8000 to remote 5984, local 8001 to remote 3000.
+    $ overcast tunnel app-01 8000:5984 8001:3000
+
+    # Tunnel local 3000 to otherhost.com:4000.
+    $ overcast tunnel app-01 3000:otherhost.com:4000
 </code></pre>
 
 <h2>
@@ -898,7 +940,7 @@ npm <span class="nb">test</span>
 <h2>
 <a name="user-content-roadmap" class="anchor" href="#roadmap"><span class="octicon octicon-link"></span></a>Roadmap</h2>
 
-<ul>
+<ul class="task-list">
 <li>Tagging</li>
 <li>Events</li>
 <li>Google Compute Engine support</li>
