@@ -4,7 +4,7 @@ if [ -z "$OVERCAST_SCRIPT_FILE" ]; then
   echo ""
   echo "\$ $OVERCAST_ENV$OVERCAST_COMMAND"
   ssh -i $OVERCAST_KEY -p $OVERCAST_PORT $OVERCAST_USER@$OVERCAST_IP \
-    -o StrictHostKeyChecking=no "$OVERCAST_ENV $OVERCAST_COMMAND"
+    -o StrictHostKeyChecking=no $OVERCAST_SSH_ARGS "$OVERCAST_ENV $OVERCAST_COMMAND"
 else
   if [ -z "$SHELL_COMMAND" ]; then
     SHELL_COMMAND="/bin/bash -s"
@@ -12,5 +12,5 @@ else
   echo ""
   echo "\$ $OVERCAST_ENV$SHELL_COMMAND $OVERCAST_SCRIPT_FILE"
   ssh -i $OVERCAST_KEY -p $OVERCAST_PORT $OVERCAST_USER@$OVERCAST_IP \
-    -o StrictHostKeyChecking=no "$OVERCAST_ENV $SHELL_COMMAND" < "$OVERCAST_SCRIPT_FILE"
+    -o StrictHostKeyChecking=no $OVERCAST_SSH_ARGS "$OVERCAST_ENV $SHELL_COMMAND" < "$OVERCAST_SCRIPT_FILE"
 fi

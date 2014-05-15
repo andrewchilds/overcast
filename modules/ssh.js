@@ -5,6 +5,15 @@ var _ = require('lodash');
 var utils = require('./utils');
 
 exports.run = function (args, callback) {
+  // Handle cases where minimist mistakenly parses ssh-args (e.g. "-tt" becomes { t: true }).
+  if (args['ssh-args'] === true) {
+    var rawArgs = process.argv.slice(2);
+    var rawArgsIndex = _.indexOf(rawArgs, '--ssh-args') + 1;
+    if (rawArgs[rawArgsIndex]) {
+      args['ssh-args'] = rawArgs[rawArgsIndex];
+    }
+  }
+
   var instances = utils.findMatchingInstances(args.name);
   utils.handleInstanceOrClusterNotFound(instances, args);
 
@@ -41,6 +50,7 @@ function runOnInstance(instance, args, next) {
     name: instance.name,
     ssh_key: args['ssh-key'] || instance.ssh_key,
     ssh_port: instance.ssh_port,
+    ssh_args: _.isString(args['ssh-args']) ? args['ssh-args'] : '',
     continueOnError: args.continueOnError,
     env: args.env,
     command: command,
@@ -74,7 +84,8 @@ function sshExec(options, next) {
     OVERCAST_KEY: utils.escapeWindowsPath(options.ssh_key),
     OVERCAST_PORT: options.ssh_port,
     OVERCAST_USER: options.user,
-    OVERCAST_IP: options.ip
+    OVERCAST_IP: options.ip,
+    OVERCAST_SSH_ARGS: options.ssh_args
   });
 
   if (options.env) {

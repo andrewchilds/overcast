@@ -38,6 +38,7 @@ exports.help = function () {
     '    --ssh-key PATH                  |'.grey,
     '    --parallel -p                   | false'.grey,
     '    --continueOnError               | false'.grey,
+    '    --ssh-args ARGS                 |'.grey,
     '',
     '  Examples:'.grey,
     '  $ overcast run app --env "foo=\'bar bar\' testing=123" env'.grey,
@@ -56,12 +57,15 @@ exports.help = function () {
     '    --shell-command "COMMAND"       | bash -s'.grey,
     '    --parallel -p                   | false'.grey,
     '    --continueOnError               | false'.grey,
+    '    --ssh-args ARGS                 |'.grey,
     '',
     '  Relative paths are relative to the cwd, or to these directories:'.grey,
     '  ' + localScriptDir.cyan,
     '  ' + bundledScriptDir.cyan,
     '',
     '  Example:'.grey,
-    '  $ overcast run db install/core install/redis'.grey
+    '  $ overcast run db install/core install/redis'.grey,
+    '  # Pass along arbitrary SSH arguments, such as to force a pseudo-tty:'.grey,
+    '  $ overcast run all /my/install/script --ssh-args "-tt"'.grey
   ]);
 };
