@@ -198,6 +198,10 @@ exports.argShift = function (args, key) {
   args[key] = exports.sanitize(args._.shift());
 };
 
+exports.argIsTruthy = function (arg) {
+  return !!(arg && arg !== 'false');
+};
+
 // http://stackoverflow.com/questions/5364928/node-js-require-all-files-in-a-folder
 exports.requireDirectory = function (dir) {
   var output = {};

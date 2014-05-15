@@ -17,7 +17,7 @@ exports.run = function (args) {
     return utils.missingParameter('[dest]', exports.help);
   }
 
-  if (args.rsync && args.rsync !== 'false') {
+  if (utils.argIsTruthy(args.rsync)) {
     rsync.run(args);
   } else {
     scp.run(args);

@@ -144,9 +144,9 @@ exports.create = function (options) {
 
   exports.getOrCreateOvercastKeyID(function (keyID) {
     var query = {
-      backups_enabled: !!(options['backups-enabled'] && options['backups-enabled'] !== 'false'),
+      backups_enabled: utils.argIsTruthy(options['backups-enabled']),
       name: options.name,
-      private_networking: !!(options['private-networking'] && options['private-networking'] !== 'false'),
+      private_networking: utils.argIsTruthy(options['private-networking']),
       ssh_key_ids: keyID
     };
 
