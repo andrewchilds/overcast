@@ -430,7 +430,7 @@ I wanted something that had little to no learning curve, that did only what you 
 ### overcast help
 
 ```
-  Overcast v0.4.9
+  Overcast v0.4.10
 
   Source code, issues, pull requests:
     https://github.com/andrewchilds/overcast
@@ -792,6 +792,7 @@ I wanted something that had little to no learning curve, that did only what you 
       --ssh-key PATH                  |
       --parallel -p                   | false
       --continueOnError               | false
+      --ssh-args ARGS                 |
 
     Examples:
     $ overcast run app --env "foo='bar bar' testing=123" env
@@ -810,6 +811,7 @@ I wanted something that had little to no learning curve, that did only what you 
       --shell-command "COMMAND"       | bash -s
       --parallel -p                   | false
       --continueOnError               | false
+      --ssh-args ARGS                 |
 
     Relative paths are relative to the cwd, or to these directories:
     /path/to/.overcast/scripts
@@ -817,6 +819,8 @@ I wanted something that had little to no learning curve, that did only what you 
 
     Example:
     $ overcast run db install/core install/redis
+    # Pass along arbitrary SSH arguments, such as to force a pseudo-tty:
+    $ overcast run all /my/install/script --ssh-args "-tt"
 ```
 
 ### overcast slack
