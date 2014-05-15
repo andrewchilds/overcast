@@ -140,7 +140,14 @@ exports.isAbsolute = function (p) {
 };
 
 exports.convertToAbsoluteFilePath = function (p) {
-  p = exports.isAbsolute(p) ? p : path.resolve(exports.CONFIG_DIR, 'files', p);
+  if (!exports.isAbsolute(p)) {
+    var cwdFile = path.normalize(process.cwd(), p);
+    if (fs.existsSync(cwdFile)) {
+      p = cwdFile;
+    } else {
+      p = path.resolve(exports.CONFIG_DIR, 'files', p);
+    }
+  }
   return exports.normalizeWindowsPath(p);
 };
 
