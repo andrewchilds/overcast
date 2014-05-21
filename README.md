@@ -430,7 +430,7 @@ I wanted something that had little to no learning curve, that did only what you 
 ### overcast help
 
 ```
-  Overcast v0.4.10
+  Overcast v0.4.11
 
   Source code, issues, pull requests:
     https://github.com/andrewchilds/overcast
@@ -444,66 +444,9 @@ I wanted something that had little to no learning curve, that did only what you 
     overcast [command] help
 
   Commands:
-    overcast aliases
-    overcast aws create [name] [options...]
-    overcast aws destroy [name]
-    overcast aws reboot [name]
-    overcast aws start [name]
-    overcast aws stop [name]
-    overcast cluster list
-    overcast cluster count [name]
-    overcast cluster create [name]
-    overcast cluster rename [name] [new-name]
-    overcast cluster remove [name]
-    overcast completions
-    overcast digitalocean create [name] [options]
-    overcast digitalocean destroy [name]
-    overcast digitalocean droplets
-    overcast digitalocean images
-    overcast digitalocean poweron [name]
-    overcast digitalocean reboot [name]
-    overcast digitalocean rebuild [name] [options]
-    overcast digitalocean regions
-    overcast digitalocean resize
-    overcast digitalocean sizes
-    overcast digitalocean shutdown [name]
-    overcast digitalocean snapshot [name] [snapshot-name]
-    overcast digitalocean snapshots
-    overcast expose [instance|cluster|all] [port...] [options]
-    overcast exposed [instance|cluster|all]
-    overcast health [instance|cluster|all]
-    overcast info
-    overcast init
-    overcast instance get [instance|cluster|all] [attr...]
-    overcast instance import [name] [options...]
-    overcast instance list [cluster...]
-    overcast instance remove [name]
-    overcast instance update [name] [options...]
-    overcast key create [name]
-    overcast key delete [name]
-    overcast key get [name] [option]
-    overcast key list
-    overcast linode boot [name]
-    overcast linode create [name] [options]
-    overcast linode datacenters
-    overcast linode destroy [name]
-    overcast linode distributions
-    overcast linode kernels
-    overcast linode linodes
-    overcast linode plans
-    overcast linode reboot [name]
-    overcast linode shutdown [name]
-    overcast list
-    overcast ping [instance|cluster|all]
-    overcast port [instance|cluster|all] [port]
-    overcast pull [instance|cluster|all] [source] [dest] [options]
-    overcast push [instance|cluster|all] [source] [dest] [options]
-    overcast reboot [instance|cluster|all]
-    overcast run [instance|cluster|all] [command...]
-    overcast run [instance|cluster|all] [file...]
-    overcast slack [message] [options...]
-    overcast ssh [instance|cluster|all]
-    overcast tunnel [instance] [local-port((:hostname):remote-port)...]
+    aliases aws cluster completions digitalocean expose exposed health
+    info init instance key linode list ping port pull push reboot run
+    slack ssh tunnel virtualbox
 
   Config directory:
     /path/to/.overcast
@@ -873,6 +816,64 @@ I wanted something that had little to no learning curve, that did only what you 
 
     # Tunnel local 3000 to otherhost.com:4000.
     $ overcast tunnel app-01 3000:otherhost.com:4000
+```
+
+### overcast virtualbox
+
+```
+  These commands require Vagrant to be installed on your local machine.
+  See http://www.vagrantup.com/downloads, or install on OS X using homebrew-cask:
+    $ brew tap caskroom/cask
+    $ brew install brew-cask
+    $ brew cask install vagrant
+
+  overcast virtualbox create [name] [options...]
+    Creates a new local Virtualbox instance using Vagrant.
+
+    If --ip is not specified, the next available IP from 192.168.22.10 will be assigned.
+    User will be root by default. Vagrant files are stored in the ~/.overcast-vagrant directory.
+    Image names "trusty64" (Ubuntu 14.04) and "precise64" (Ubuntu 12.04) are downloaded
+    automatically from Ubuntu servers the first time they are used. Other names will need
+    to be added using `vagrant box add --name [name] [image-url]`.
+
+      Option                   | Default
+      --cluster CLUSTER        | default
+      --image NAME             | trusty64
+      --ram MB                 | 512
+      --ip ADDRESS             | 192.168.22.10
+      --ssh-key KEY_PATH       | overcast.key
+      --ssh-pub-key KEY_PATH   | overcast.key.pub
+
+    Examples:
+    $ overcast virtualbox create local.vm.01
+    $ overcast virtualbox create local.vm.02 --ram 1024 --image precise64
+
+  overcast virtualbox destroy [name]
+    Destroys a virtualbox instance.
+
+      Option                   | Default
+      --force                  | false
+
+    Example:
+    $ overcast virtualbox destroy local.01
+
+  overcast virtualbox reboot [name]
+    Reboots a virtualbox instance.
+
+    Example:
+    $ overcast virtualbox reboot local.01
+
+  overcast virtualbox start [name]
+    Starts a virtualbox instance.
+
+    Example:
+    $ overcast virtualbox start local.01
+
+  overcast virtualbox stop [name]
+    Stop a virtualbox instance.
+
+    Example:
+    $ overcast virtualbox stop local.01
 ```
 
 ## Running the Tests

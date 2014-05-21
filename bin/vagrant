@@ -1,0 +1,53 @@
+#!/bin/bash
+
+# Create a new Virtualbox instance using Vagrant.
+
+# Usage:
+# overcast virtualbox create [name]
+
+# Expected variables:
+# VM_BOX
+# VM_IP
+# VM_PUB_KEY
+# VM_RAM
+
+VM_DIR="$HOME/.overcast-vagrant/$VM_IP"
+
+if [ -f "$VM_DIR" ]; then
+  echo "$VM_DIR already exists, no action taken."
+  exit 1
+fi
+
+mkdir -p $VM_DIR
+
+cat >> $VM_DIR/Vagrantfile << EOF
+
+VM_BOX = "$VM_BOX"
+VM_IP = "$VM_IP"
+VM_RAM = "$VM_RAM"
+VM_PUB_KEY = "$VM_PUB_KEY"
+
+Vagrant.configure("2") do |config|
+  config.vm.box = VM_BOX
+  config.vm.network "private_network", ip: VM_IP
+
+  config.vm.provider "virtualbox" do |vb|
+    vb.customize ["modifyvm", :id, "--memory", VM_RAM]
+  end
+
+  # Copy SSH public key to temp file.
+  config.vm.provision "file",
+    source: VM_PUB_KEY,
+    destination: "/home/vagrant/overcast_pub_key"
+
+  # Use Overcast key for root access.
+  config.vm.provision "shell",
+    inline: "chmod 600 overcast_pub_key && sudo mv overcast_pub_key /root/.ssh/authorized_keys && sudo chown root:root /root/.ssh/authorized_keys"
+end
+
+EOF
+
+cd $VM_DIR
+vagrant up
+
+exit 0

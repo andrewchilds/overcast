@@ -3,9 +3,6 @@ minimist = require('minimist')
 utils = require('../../modules/utils')
 Promise = require('bluebird')
 
-exports.spies = {}
-exports.spies.ec2 = {}
-
 # Quick and dirty implementation of argument parsing that handles quoted strings
 exports.parseArgs = (argStr = '') ->
   args = []
@@ -32,7 +29,36 @@ exports.mockArgs = (argStr = '') ->
   utils.argShift(args, 'command')
   args
 
+exports.spies = {
+  ec2: {}
+  virtualbox: {}
+}
+
 exports.mock = {}
+exports.mockData = {}
+
+exports.endpoints = {
+  ec2: [
+    'describeImages'
+    'describeInstances'
+    'describeKeyPairs'
+    'describeRegions'
+    'importKeyPair'
+    'rebootInstances'
+    'runInstances'
+    'startInstances'
+    'stopInstances'
+    'terminateInstances'
+  ]
+  virtualbox: [
+    'getImages'
+    'createBox'
+    'createInstance'
+    'stopInstance'
+    'startInstance'
+    'destroyInstance'
+  ]
+}
 
 exports.mock.emitter = ->
   {
@@ -45,32 +71,39 @@ exports.mock.emitter = ->
     on: ->
   }
 
-exports.mock.ec2 = ->
+exports.mock.virtualbox = ->
   obj = {}
 
-  endpoints = [
-    'describeImages'
-    'describeInstances'
-    'describeKeyPairs'
-    'describeRegions'
-    'importKeyPair'
-    'rebootInstances'
-    'runInstances'
-    'startInstances'
-    'stopInstances'
-    'terminateInstances'
-  ]
+  mockFn = (endpoint) ->
+    exports.spies.virtualbox[endpoint] = jasmine.createSpy('virtualbox.' + endpoint).andCallFake (params) ->
+      new Promise (resolve, reject) ->
+        resolve(_.extend(params, exports.mockData.virtualbox[endpoint] || {}))
+    obj[endpoint] = exports.spies.virtualbox[endpoint]
+
+  _.map(exports.endpoints.virtualbox, mockFn)
+
+  obj
+
+exports.mockData.virtualbox = {
+  getImages: { vagrantImages: ['trusty64'] }
+  createBox: {}
+  createInstance: { ip: '1.2.3.4', dir: '/path/to/1.2.3.4' }
+  stopInstance: {}
+  startInstance: {}
+  destroyInstance: {}
+}
+
+exports.mock.ec2 = ->
+  obj = {}
 
   mockFn = (endpoint) ->
     exports.spies.ec2[endpoint] = jasmine.createSpy('ec2.' + endpoint).andCallFake (params, cb) ->
       cb(null, exports.mockData.ec2[endpoint])
     obj[endpoint] = exports.spies.ec2[endpoint]
 
-  _.map(endpoints, mockFn)
+  _.map(exports.endpoints.ec2, mockFn)
 
   obj
-
-exports.mockData = {}
 
 exports.mockData.ec2 = {
   describeImages: {}
