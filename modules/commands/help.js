@@ -31,11 +31,17 @@ exports.run = function (args) {
 
 exports.help = function () {
   var signatures = [];
+  var row = ' ';
   _.each(utils.getCommands(), function (command, name) {
     if (name !== 'help' && command.signatures) {
-      signatures = signatures.concat(command.signatures());
+      if (row.length > 65) {
+        signatures.push(row);
+        row = ' ';
+      }
+      row += ' ' + name;
     }
   });
+  signatures.push(row);
 
   utils.printArray([
     ('Overcast v' + utils.VERSION).grey,
