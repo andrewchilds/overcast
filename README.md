@@ -11,28 +11,25 @@ Overcast is an SSH-based devops CLI designed to make it easy to spin up, configu
 
 ## Features
 
-Create, reboot and destroy instances across DigitalOcean, Linode and EC2:
+Create, reboot and destroy instances across DigitalOcean, Linode and Amazon, or locally using Vagrant + Virtualbox:
 
 ```sh
-# Create a new cluster called "db":
-$ overcast cluster create db
-
 # Spin up a new Ubuntu 14.04 instance on DigitalOcean:
-$ overcast digitalocean create db-01 --cluster db
+$ overcast digitalocean create db-01
 
 # Spin up a new Ubuntu 14.04 instance on Linode:
-$ overcast linode create db-02 --cluster db
+$ overcast linode create db-02
 
 # Spin up a new Ubuntu 14.04 instance on EC2:
-$ overcast aws create db-03 --cluster db --user ubuntu
+$ overcast aws create db-03 --user ubuntu
 $ overcast run db-03 allow_root_access_on_ec2
 $ overcast instance update db-03 --user root
 
-# Install Redis across all instances in parallel:
-$ overcast run db install/core install/redis --parallel
+# Spin up a new locally-running Ubuntu 14.04 Virtualbox instance:
+$ overcast virtualbox create db-04
 
-# SSH into any instance:
-$ overcast ssh db-01
+# Upgrade and install Redis across all of those instances in parallel:
+$ overcast run db-* install/core install/redis --parallel
 ```
 
 Import your already-running machines, wherever they are, using `overcast instance import` or by editing [`~/.overcast/clusters.json`](https://github.com/andrewchilds/overcast/tree/master/fixtures/example.clusters.json):
