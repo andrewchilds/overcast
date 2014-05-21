@@ -3,7 +3,6 @@ var readline = require('readline');
 var _ = require('lodash');
 var Promise = require('bluebird');
 var utils = require('../utils');
-var list = require('./list');
 var API = require('../providers/aws');
 
 exports.signatures = function () {

@@ -588,16 +588,23 @@ exports.printCommandHelp = function (commands) {
 };
 
 // Based on https://github.com/mattijs/node-rsync/blob/master/rsync.js#L436
-exports.spawn = function (command) {
+exports.spawn = function (command, overrides) {
+  overrides = overrides || {};
   if (_.isArray(command)) {
     command = command.join(' ');
   }
 
-  if (process.platform === 'win32') {
-    return cp.spawn('cmd.exe', ['/s', '/c', '"' + command + '"'], {
-      stdio: 'pipe',
-      windowsVerbatimArguments: true
-    });
+  var options = { stdio: 'pipe' };
+  options.env = _.isPlainObject(overrides.env) ? _.extend({}, process.env, overrides.env) : process.env;
+
+  if (overrides.cwd) {
+    options.cwd = overrides.cwd;
   }
-  return cp.spawn('/bin/sh', ['-c', command], { stdio: 'pipe' });
+
+  if (process.platform === 'win32') {
+    options.windowsVerbatimArguments = true;
+    return cp.spawn('cmd.exe', ['/s', '/c', '"' + command + '"'], options);
+  }
+
+  return cp.spawn('/bin/sh', ['-c', command], options);
 };
