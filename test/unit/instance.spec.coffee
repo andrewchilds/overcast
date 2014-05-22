@@ -75,12 +75,8 @@ describe 'instance', ->
       subject(mockArgs('instance import'))
       expect(utils.missingParameter).toHaveBeenCalled()
 
-    it 'should fail if --cluster is missing', ->
-      subject(mockArgs('instance import dummy02'))
-      expect(utils.missingParameter).toHaveBeenCalled()
-
     it 'should fail if --ip is missing', ->
-      subject(mockArgs('instance import dummy02 --cluster dummy'))
+      subject(mockArgs('instance import dummy02'))
       expect(utils.missingParameter).toHaveBeenCalled()
 
     it 'should fail if cluster was not found', ->

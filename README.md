@@ -483,7 +483,7 @@ I wanted something that had little to no learning curve, that did only what you 
     Imports an existing instance to a cluster.
 
       Option               | Default
-      --cluster CLUSTER    |
+      --cluster CLUSTER    | default
       --ip IP              |
       --ssh-port PORT      | 22
       --ssh-key PATH       | overcast.key

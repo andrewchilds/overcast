@@ -61,13 +61,16 @@ subcommands.import = function (args) {
   var clusters = utils.getClusters();
   utils.argShift(args, 'name');
 
+  if (!args.cluster) {
+    utils.grey('Using "default" cluster.');
+    args.cluster = 'default';
+  }
+
   var cluster = utils.sanitize(args.cluster);
   var ip = utils.sanitize(args.ip);
 
   if (!args.name) {
     return utils.missingParameter('[name]', subcommands.import.help);
-  } else if (!cluster) {
-    return utils.missingParameter('--cluster', subcommands.import.help);
   } else if (!ip) {
     return utils.missingParameter('--ip', subcommands.import.help);
   } else if (!clusters[cluster]) {
@@ -100,7 +103,7 @@ subcommands.import.help = function () {
     '  Imports an existing instance to a cluster.'.grey,
     '',
     '    Option               | Default'.grey,
-    '    --cluster CLUSTER    |'.grey,
+    '    --cluster CLUSTER    | default'.grey,
     '    --ip IP              |'.grey,
     '    --ssh-port PORT      | 22 '.grey,
     '    --ssh-key PATH       | overcast.key'.grey,
