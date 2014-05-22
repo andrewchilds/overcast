@@ -21,13 +21,13 @@ if [ "$(id -u)" != "0" ]; then
 fi
 
 if [ -z "$username" ]; then
-  echo "No username defined."
+  echo "No username defined." 1>&2
   echo $usage
   exit 1
 fi
 
 if id -u "$username" >/dev/null 2>&1; then
-  echo "User $username already exists!"
+  echo "User $username already exists!" 1>&2
   exit 1
 fi
 
@@ -47,17 +47,8 @@ useradd -m -s /bin/bash -p "$encrypted_password" "$username"
 mkdir -p /home/$username/.ssh
 cp /root/.ssh/authorized_keys /home/$username/.ssh/authorized_keys
 chown -R $username:$username /home/$username/.ssh
-chmod 600 /home/$username/.ssh/authorized_keys
 chmod 700 /home/$username/.ssh
-chown root:root /home/$username
-
-# Add sftp group if it doesn't already exist.
-
-groupadd -f sftp
-
-# Add user to the sftp group.
-
-usermod -G sftp $username
+chmod 600 /home/$username/.ssh/authorized_keys
 
 echo "User $username created. Home directory is /home/$username."
 

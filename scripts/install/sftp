@@ -5,14 +5,14 @@
 # Tested on:
 # Debian 7.0
 # Ubuntu 12.04
+# Ubuntu 14.04
 
-# Once configured, users requiring SFTP access must be added to the "sftp" group, like so:
-# $ useradd -d /home/myusername -p password myusername
-# $ usermod -G sftp myusername
-# That user then has SFTP access and is chrooted to their home directory.
+# Once configured, users requiring SFTP access must be added to the "sftp" group.
 
 # Usage:
 # overcast run myInstanceOrCluster install/sftp
+# overcast run myInstanceOrCluster add_user --env "username=myuser"
+# overcast run myInstanceOrCluster chroot_user --env "username=myuser"
 
 # set -x
 
@@ -36,6 +36,12 @@ Match group sftp
   AllowTcpForwarding no
   ForceCommand internal-sftp
 EOF
+
+  echo "Chrooted SFTP configured."
+else
+  echo "Chrooted SFTP already configured."
 fi
+
+service ssh restart
 
 exit 0

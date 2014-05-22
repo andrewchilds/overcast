@@ -1,0 +1,63 @@
+#!/bin/bash
+
+# Set an existing user account to be chrooted SFTP only.
+
+# Tested on:
+# Debian 7.0
+# Ubuntu 12.04
+# Ubuntu 14.04
+
+# Usage:
+# overcast run myInstanceOrCluster chroot_user --env "username=existinguser"
+
+# set -x
+
+usage="Usage: overcast run myInstanceOrCluster chroot_user --env \"username=existinguser\""
+
+if [ "$(id -u)" != "0" ]; then
+  echo "This script must be run as root." 1>&2
+  echo $usage
+  exit 1
+fi
+
+if [ -z "$username" ]; then
+  echo "No username defined." 1>&2
+  echo $usage
+  exit 1
+fi
+
+if [ ! -d "/home/$username" ]; then
+  echo "User \"$username\" not found." 1>&2
+  exit 1
+fi
+
+# Add sftp group if it doesn't already exist.
+
+groupadd -f sftp
+
+# Add user to the sftp group.
+
+usermod -G sftp $username
+
+# Add nologin as a valid shell if it hasn't already.
+
+NOLOGIN_PATH="`which nologin`"
+
+if ! grep -q "$NOLOGIN_PATH" /etc/shells; then
+  echo "$NOLOGIN_PATH" >> /etc/shells
+fi
+
+# Set permissions.
+
+mkdir -p /home/$username/sites
+chown $username:$username /home/$username/sites
+chown root:root /home/$username
+chmod 755 /home/$username
+
+# Set user shell
+
+chsh -s "$NOLOGIN_PATH" $username
+
+echo "User \"$username\" is now a chrooted SFTP user."
+
+exit 0
