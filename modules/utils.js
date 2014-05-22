@@ -7,7 +7,7 @@ var colors = require('colors');
 var Promise = require('bluebird');
 var listCommand = require('./commands/list');
 
-exports.VERSION = '0.4.11';
+exports.VERSION = '0.4.12';
 
 exports.clustersCache = null;
 exports.variablesCache = null;
@@ -110,6 +110,16 @@ exports.deleteKey = function (keyName, callback) {
       handleError(e, pubKeyFile);
       (callback || _.noop)();
     });
+  });
+};
+
+exports.deleteFromKnownHosts = function (instance, callback) {
+  var ssh = exports.spawn('ssh-keygen -R ' + instance.ip);
+  ssh.on('exit', function (code) {
+    exports.grey(instance.ip + ' removed from ' + process.env.HOME + '/.ssh/known_hosts.');
+    if (_.isFunction(callback)) {
+      callback(instance);
+    }
   });
 };
 
@@ -297,7 +307,7 @@ exports.saveInstanceToCluster = function (cluster, instance) {
   exports.saveClusters(clusters);
 };
 
-exports.deleteInstance = function (instance) {
+exports.deleteInstance = function (instance, callback) {
   var clusters = exports.getClusters();
 
   _.each(clusters, function (cluster) {
@@ -308,6 +318,7 @@ exports.deleteInstance = function (instance) {
   });
 
   exports.saveClusters(clusters);
+  exports.deleteFromKnownHosts(instance, callback);
 };
 
 exports.updateInstance = function (name, updates) {
@@ -456,7 +467,8 @@ _.each({
   note: 'cyan',
   red: 'red',
   success: 'green',
-  yellow: 'yellow'
+  yellow: 'yellow',
+  white: 'white'
 }, function (color, fnName) {
   exports[fnName] = function (str) {
     console.log((str + '')[color]);

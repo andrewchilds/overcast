@@ -154,8 +154,8 @@ subcommands.destroy = utils.module(function (exports) {
       API.destroyInstance({ InstanceId: instance.aws.id })
         .catch(API.catch)
         .then(function (args) {
+          utils.success('Instance "' + instance.name + '" destroyed.');
           utils.deleteInstance(instance);
-          utils.success('Instance destroyed.');
         });
     }
   };

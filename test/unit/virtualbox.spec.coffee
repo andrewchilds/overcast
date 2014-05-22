@@ -76,7 +76,7 @@ describe 'virtualbox', ->
       waits PROMISE_DELAY
       runs ->
         expect(utils.deleteInstance.mostRecentCall.args[0].name).toBe('dummy.01')
-        expect(utils.success).toHaveBeenCalledWith('Instance dummy.01 destroyed.')
+        expect(utils.success).toHaveBeenCalledWith('Instance "dummy.01" destroyed.')
 
   describe 'reboot', ->
     subject = virtualbox.run

@@ -343,7 +343,9 @@ exports.resize = function (instance, args, callback) {
         utils.success('Instance "' + instance.name + '" resized.');
         if (args.skipBoot) {
           utils.grey('Skipping droplet boot since --skipBoot flag was used.');
-          (callback || _.noop)();
+          if (_.isFunction(callback)) {
+            callback();
+          }
         } else {
           exports.powerOn(instance, callback);
         }
@@ -360,7 +362,9 @@ exports.shutdown = function (instance, callback) {
     endpoint: 'droplets/' + instance.digitalocean.id + '/power_off',
     callback: function (eventResult) {
       utils.success('Instance "' + instance.name + '" has been shut down.');
-      (callback || _.noop)();
+      if (_.isFunction(callback)) {
+        callback();
+      }
     }
   });
 };
@@ -376,11 +380,8 @@ exports.destroy = function (instance, callback) {
     },
     callback: function (result) {
       if (result && result.event_id) {
-        utils.success('Instance "' + instance.name + '" is being destroyed.');
-        instanceCommand.run({
-          '_': [ 'remove', instance.name ]
-        });
-        (callback || _.noop)();
+        utils.success('Instance "' + instance.name + '" destroyed.');
+        utils.deleteInstance(instance, callback);
       }
     }
   });
@@ -399,7 +400,9 @@ function waitForEventToFinish(event_id, callback) {
     return percentage;
   }, function () {
     clearTimeout(eventTimeout);
-    (callback || _.noop)(response);
+    if (_.isFunction(callback)) {
+      callback(response);
+    }
   });
 
   var requestLoop = function () {

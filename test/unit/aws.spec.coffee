@@ -86,7 +86,7 @@ describe 'aws', ->
           InstanceIds: [ 'InstanceId' ]
         })
         expect(utils.deleteInstance.mostRecentCall.args[0].name).toBe('dummy.01')
-        expect(utils.success).toHaveBeenCalledWith('Instance destroyed.')
+        expect(utils.success).toHaveBeenCalledWith('Instance "dummy.01" destroyed.')
 
   describe 'reboot', ->
     subject = aws.run

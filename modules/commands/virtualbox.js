@@ -157,8 +157,8 @@ subcommands.destroy = utils.module(function (exports) {
     function destroy(instance) {
       API.destroyInstance(instance)
         .then(function (instance) {
+          utils.success('Instance "' + instance.name + '" destroyed.');
           utils.deleteInstance(instance);
-          utils.success('Instance ' + instance.name + ' destroyed.');
         })
         .catch(API.catch);
     }

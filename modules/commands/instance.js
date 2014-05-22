@@ -147,22 +147,11 @@ subcommands.remove = function (args) {
     return utils.missingParameter('[name]', subcommands.remove.help);
   }
 
-  var deletedFrom;
-  _.each(clusters, function (cluster, clusterName) {
-    if (!deletedFrom && cluster.instances[args.name]) {
-      delete cluster.instances[args.name];
-      deletedFrom = clusterName;
-    }
-  });
+  var instance = utils.findFirstMatchingInstance(args.name);
+  utils.handleInstanceNotFound(instance, args);
 
-  utils.saveClusters(clusters, function () {
-    if (!deletedFrom) {
-      return utils.die('No instance found with the name "' + args.name + '".');
-    }
-
-    utils.success('Instance "' + args.name +
-      '" has been removed from the "' + deletedFrom + '" cluster.');
-  });
+  utils.success('Instance "' + instance.name + '" removed.');
+  utils.deleteInstance(instance);
 };
 
 subcommands.remove.help = function () {

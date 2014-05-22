@@ -134,8 +134,8 @@ subcommands.destroy = function (instance, args) {
       .then(API.deleteDisks)
       .then(API.deleteLinode)
       .catch(API.errorCatcher).then(function () {
-        utils.success('Linode "' + instance.name + '" deleted.');
-        instanceCommand.run({ '_': [ 'remove', instance.name ] });
+        utils.success('Instance "' + instance.name + '" destroyed.');
+        utils.deleteInstance(instance);
       });
   }
 
