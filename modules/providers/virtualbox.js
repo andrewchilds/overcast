@@ -132,6 +132,7 @@ exports.createInstance = function (args) {
       VM_BOX: args.image,
       VM_IP: args.ip,
       VM_RAM: args.ram,
+      VM_CPUS: args.cpus,
       VM_PUB_KEY: args.ssh_pub_key
     });
 

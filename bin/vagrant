@@ -10,6 +10,7 @@
 # VM_IP
 # VM_PUB_KEY
 # VM_RAM
+# VM_CPUS
 
 VM_DIR="$HOME/.overcast-vagrant/$VM_IP"
 
@@ -22,17 +23,21 @@ mkdir -p $VM_DIR
 
 cat >> $VM_DIR/Vagrantfile << EOF
 
+VM_NAME = "$VM_BOX.$VM_IP"
 VM_BOX = "$VM_BOX"
 VM_IP = "$VM_IP"
 VM_RAM = "$VM_RAM"
+VM_CPUS = "$VM_CPUS"
 VM_PUB_KEY = "$VM_PUB_KEY"
 
 Vagrant.configure("2") do |config|
   config.vm.box = VM_BOX
   config.vm.network "private_network", ip: VM_IP
 
-  config.vm.provider "virtualbox" do |vb|
-    vb.customize ["modifyvm", :id, "--memory", VM_RAM]
+  config.vm.provider "virtualbox" do |v|
+    v.name = VM_NAME
+    v.memory = VM_RAM
+    v.cpus = VM_CPUS
   end
 
   # Copy SSH public key to temp file.

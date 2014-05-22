@@ -47,6 +47,7 @@ subcommands.create = utils.module(function (exports) {
       '    --cluster CLUSTER        | default'.grey,
       '    --image NAME             | trusty64'.grey,
       '    --ram MB                 | 512'.grey,
+      '    --cpus COUNT             | 1'.grey,
       '    --ip ADDRESS             | 192.168.22.10'.grey,
       '    --ssh-key KEY_PATH       | overcast.key'.grey,
       '    --ssh-pub-key KEY_PATH   | overcast.key.pub'.grey,
@@ -78,7 +79,8 @@ subcommands.create = utils.module(function (exports) {
       ssh_key: utils.normalizeKeyPath(args['ssh-key'] || 'overcast.key'),
       ssh_pub_key: utils.normalizeKeyPath(args['ssh-key'] || 'overcast.key.pub'),
       image: args.image || 'trusty64',
-      ram: args.ram || '512'
+      ram: args.ram || '512',
+      cpus: args.cpus || '1'
     }, args);
 
     API.getImages(args)
@@ -93,8 +95,10 @@ subcommands.create = utils.module(function (exports) {
           user: 'root',
           virtualbox: {
             dir: args.dir,
+            name: args.image + '.' + args.ip,
             image: args.image,
-            ram: args.ram
+            ram: args.ram,
+            cpus: args.cpus
           }
         };
 

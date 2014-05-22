@@ -837,6 +837,7 @@ I wanted something that had little to no learning curve, that did only what you 
       --cluster CLUSTER        | default
       --image NAME             | trusty64
       --ram MB                 | 512
+      --cpus COUNT             | 1
       --ip ADDRESS             | 192.168.22.10
       --ssh-key KEY_PATH       | overcast.key
       --ssh-pub-key KEY_PATH   | overcast.key.pub
