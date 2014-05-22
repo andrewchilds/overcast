@@ -24,9 +24,15 @@ exports.help = function () {
     '  Return a list of bash aliases for SSHing to your instances.'.grey,
     '',
     '  To use, add this to your .bash_profile:'.grey,
-    '  test -f $HOME/.overcast_aliases && source $HOME/.overcast_aliases'.white,
+    '    test -f $HOME/.overcast_aliases && source $HOME/.overcast_aliases'.white,
     '',
     '  And then create the .overcast_aliases file:'.grey,
-    '  overcast aliases > $HOME/.overcast_aliases'.white
+    '    overcast aliases > $HOME/.overcast_aliases'.white,
+    '',
+    '  Or to automatically refresh aliases in every new terminal window'.grey,
+    '  (which will add a couple hundred milliseconds to your startup time),'.grey,
+    '  add this to your .bash_profile:'.grey,
+    '    overcast aliases > $HOME/.overcast_aliases'.white,
+    '    source $HOME/.overcast_aliases'.white
   ]);
 };
