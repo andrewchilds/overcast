@@ -56,8 +56,10 @@ describe 'virtualbox', ->
         expect(saveArgs.user).toBe 'root'
         expect(saveArgs.virtualbox).toEqual {
           dir: '/path/to/1.2.3.4'
+          name: 'trusty64.1.2.3.4'
           image: 'trusty64'
           ram: '512'
+          cpus: '1'
         }
         expect(utils.success).toHaveBeenCalledWith('New virtualbox instance "dummy.02" (1.2.3.4) created.')
 

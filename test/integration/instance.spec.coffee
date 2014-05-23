@@ -33,6 +33,6 @@ describe 'instance', ->
 
     it 'should allow me to remove an instance', ->
       overcast 'instance remove instance.01.renamed', (stdout) ->
-        expect(stdout).toContain 'Instance "instance.01.renamed" has been removed from the "instance-test" cluster'
+        expect(stdout).toContain 'Instance "instance.01.renamed" removed'
         overcast 'cluster remove instance-test', (stdout) ->
           expect(stdout).toContain 'Cluster "instance-test" has been removed'

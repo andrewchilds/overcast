@@ -110,18 +110,17 @@ describe 'instance', ->
   describe 'remove', ->
     subject = instance.run
 
+    beforeEach ->
+      spyOn(utils, 'handleInstanceNotFound')
+      spyOn(utils, 'deleteInstance')
+
     it 'should fail if name is missing', ->
       subject(mockArgs('instance remove'))
       expect(utils.missingParameter).toHaveBeenCalled()
 
-    it 'should fail if name is not a cluster', ->
-      subject(mockArgs('instance remove foo'))
-      expect(utils.die.mostRecentCall.args[0]).toContain('No instance found with the name "foo".')
-
     it 'should remove existing empty clusters', ->
       subject(mockArgs('instance remove dummy01'))
-      expect(utils.saveClusters).toHaveBeenCalled()
-      expect(utils.saveClusters.mostRecentCall.args[0].dummy.instances).toEqual {}
+      expect(utils.deleteInstance.mostRecentCall.args[0].name).toEqual 'dummy01'
 
   describe 'update', ->
     subject = instance.run
