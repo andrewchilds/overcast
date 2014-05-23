@@ -32,7 +32,7 @@ $ overcast virtualbox create db-04
 $ overcast run db-* install/core install/redis --parallel
 ```
 
-Import your already-running machines, wherever they are, using `overcast instance import` or by editing [`~/.overcast/clusters.json`](https://github.com/andrewchilds/overcast/tree/master/fixtures/example.clusters.json):
+Import your already-running machines, wherever they are, using `overcast import` or by editing [`~/.overcast/clusters.json`](https://github.com/andrewchilds/overcast/tree/master/fixtures/example.clusters.json):
 
 ```sh
 $ overcast import app-01 --ip 1.1.1.1 --ssh-key ~/.ssh/id_rsa
