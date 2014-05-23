@@ -35,8 +35,8 @@ $ overcast run db-* install/core install/redis --parallel
 Import your already-running machines, wherever they are, using `overcast instance import` or by editing [`~/.overcast/clusters.json`](https://github.com/andrewchilds/overcast/tree/master/fixtures/example.clusters.json):
 
 ```sh
-$ overcast instance import app-01 --ip 1.1.1.1 --ssh-key ~/.ssh/id_rsa
-$ overcast instance import app-02 --ip 2.2.2.2 --ssh-key ~/.ssh/id_rsa
+$ overcast import app-01 --ip 1.1.1.1 --ssh-key ~/.ssh/id_rsa
+$ overcast import app-02 --ip 2.2.2.2 --ssh-key ~/.ssh/id_rsa
 ```
 
 Run multiple commands or multiple scripts on any or all of your instances at once, over SSH. Commands can be run sequentially or in parallel using the `--parallel` flag.
@@ -433,7 +433,7 @@ I wanted something that had little to no learning curve, that did only what you 
 ### overcast help
 
 ```
-  Overcast v0.5.0
+  Overcast v0.5.1
 
   Source code, issues, pull requests:
     https://github.com/andrewchilds/overcast
