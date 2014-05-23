@@ -139,10 +139,16 @@ I wanted something that had little to no learning curve, that did only what you 
     Return a list of bash aliases for SSHing to your instances.
 
     To use, add this to your .bash_profile:
-    test -f $HOME/.overcast_aliases && source $HOME/.overcast_aliases
+      test -f $HOME/.overcast_aliases && source $HOME/.overcast_aliases
 
     And then create the .overcast_aliases file:
-    overcast aliases > $HOME/.overcast_aliases
+      overcast aliases > $HOME/.overcast_aliases
+
+    Or to automatically refresh aliases in every new terminal window
+    (which will add a couple hundred milliseconds to your startup time),
+    add this to your .bash_profile:
+      overcast aliases > $HOME/.overcast_aliases
+      source $HOME/.overcast_aliases
 ```
 
 ### overcast aws
@@ -427,7 +433,7 @@ I wanted something that had little to no learning curve, that did only what you 
 ### overcast help
 
 ```
-  Overcast v0.4.13
+  Overcast v0.5.0
 
   Source code, issues, pull requests:
     https://github.com/andrewchilds/overcast
@@ -442,11 +448,29 @@ I wanted something that had little to no learning curve, that did only what you 
 
   Commands:
     aliases aws cluster completions digitalocean expose exposed health
-    info init instance key linode list ping port pull push reboot run
-    slack ssh tunnel virtualbox
+    import info init instance key linode list ping port pull push reboot
+    remove run slack ssh tunnel virtualbox
 
   Config directory:
     /path/to/.overcast
+```
+
+### overcast import
+
+```
+  overcast import [name] [options...]
+    Imports an existing instance to a cluster.
+
+      Option               | Default
+      --cluster CLUSTER    | default
+      --ip IP              |
+      --ssh-port PORT      | 22
+      --ssh-key PATH       | overcast.key
+      --user USERNAME      | root
+
+    Example:
+    $ overcast import app.01 --cluster app --ip 127.0.0.1 \
+        --ssh-port 22222 --ssh-key $HOME/.ssh/id_rsa
 ```
 
 ### overcast info
@@ -716,6 +740,17 @@ I wanted something that had little to no learning curve, that did only what you 
     Reboot an instance or cluster.
     If the instance was created using DigitalOcean or Linode, this will use the provider API,
     otherwise will execute "reboot" command on the server and wait for 60 seconds.
+```
+
+### overcast remove
+
+```
+  overcast remove [name]
+    Removes an instance from the index.
+    The server itself is not affected by this action.
+
+    Example:
+    $ overcast remove app.01
 ```
 
 ### overcast run
