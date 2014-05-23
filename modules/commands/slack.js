@@ -31,8 +31,8 @@ exports.run = function (args) {
 exports.send = function (options) {
   var variables = utils.getVariables();
   if (!variables.SLACK_WEBHOOK_URL) {
-    utils.red('Missing SLACK_WEBHOOK_URL.');
-    return utils.die('Please add to ' + utils.VARIABLES_JSON + '.');
+    utils.grey('No message sent.');
+    return utils.grey('Please add SLACK_WEBHOOK_URL to ' + utils.VARIABLES_JSON + '.');
   }
 
   var slack = require('slack-notify')(variables.SLACK_WEBHOOK_URL);
