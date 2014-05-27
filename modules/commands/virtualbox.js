@@ -77,7 +77,7 @@ subcommands.create = utils.module(function (exports) {
       ssh_port: 22,
       user: 'root',
       ssh_key: utils.normalizeKeyPath(args['ssh-key'] || 'overcast.key'),
-      ssh_pub_key: utils.normalizeKeyPath(args['ssh-key'] || 'overcast.key.pub'),
+      ssh_pub_key: utils.normalizeKeyPath(args['ssh-pub-key'] || 'overcast.key.pub'),
       image: args.image || 'trusty64',
       ram: args.ram || '512',
       cpus: args.cpus || '1'
