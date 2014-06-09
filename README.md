@@ -47,7 +47,7 @@ $ overcast run db install/core install/apache install/mysql install/php
 # Run scripts relative to the current working directory or using absolute path:
 $ overcast run app-cluster ./recipes/my-app/install /path/to/script
 # Run sequences of commands and scripts across multiple machines in parallel:
-$ overcast run db ./script.sh uptime "free-m" "df -h" --parallel
+$ overcast run db ./script.sh uptime "free -m" "df -h" --parallel
 ```
 
 Push and pull files between your local machine and any or all of your instances at once. Dynamically rewrite file paths to include the instance name using `{instance}` in either source or destination.
