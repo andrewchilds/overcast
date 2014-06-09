@@ -87,7 +87,7 @@
 <span class="c"># Run scripts relative to the current working directory or using absolute path:</span>
 <span class="nv">$ </span>overcast run app-cluster ./recipes/my-app/install /path/to/script
 <span class="c"># Run sequences of commands and scripts across multiple machines in parallel:</span>
-<span class="nv">$ </span>overcast run db ./script.sh uptime <span class="s2">"free-m"</span> <span class="s2">"df -h"</span> --parallel
+<span class="nv">$ </span>overcast run db ./script.sh uptime <span class="s2">"free -m"</span> <span class="s2">"df -h"</span> --parallel
 </pre></div>
 
 <p>Push and pull files between your local machine and any or all of your instances at once. Dynamically rewrite file paths to include the instance name using <code>{instance}</code> in either source or destination.</p>
