@@ -31,4 +31,11 @@ function execute() {
   }
 }
 
-init();
+if (module.parent && module.parent.filename.indexOf('bin/overcast') !== -1) {
+  // Command line use:
+  init();
+} else {
+  // Programmatic use:
+  exports.utils = utils;
+  exports.commands = commands;
+}
