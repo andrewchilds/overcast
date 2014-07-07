@@ -26,22 +26,15 @@ exports.getKeys = function (callback) {
   });
 };
 
-exports.getHashedKeyName = function (keyData) {
-  keyData = (keyData || fs.readFileSync(utils.CONFIG_DIR + '/keys/overcast.key.pub', 'utf8')) + '';
-  return utils.createHashedKeyName(keyData);
-};
-
-exports.createKey = function (callback) {
+exports.createKey = function (keyData, callback) {
   // GET https://api.digitalocean.com/ssh_keys/new
   //   name=[ssh_key_name]
   //   ssh_pub_key=[ssh_public_key]
 
-  var keyData = fs.readFileSync(utils.CONFIG_DIR + '/keys/overcast.key.pub', 'utf8');
-
   exports.request({
     endpoint: 'ssh_keys/new',
     query: {
-      name: exports.getHashedKeyName(keyData),
+      name: utils.createHashedKeyName(keyData),
       ssh_pub_key: keyData + ''
     },
     callback: function (result) {
@@ -142,7 +135,9 @@ exports.create = function (options) {
     });
   }
 
-  exports.getOrCreateOvercastKeyID(function (keyID) {
+  options['ssh-pub-key'] = utils.normalizeKeyPath(options['ssh-pub-key'], 'overcast.key.pub');
+
+  exports.getOrCreateOvercastKeyID(options['ssh-pub-key'], function (keyID) {
     var query = {
       backups_enabled: utils.argIsTruthy(options['backups-enabled']),
       name: options.name,
@@ -178,17 +173,19 @@ exports.create = function (options) {
   });
 };
 
-exports.getOrCreateOvercastKeyID = function (callback) {
-  var variables = utils.getVariables();
+exports.getOrCreateOvercastKeyID = function (pubKeyPath, callback) {
+  var keyData = fs.readFileSync(pubKeyPath, 'utf8') + '';
 
   exports.getKeys(function (keys) {
     var key = _.find(keys, {
-      name: exports.getHashedKeyName()
+      name: utils.createHashedKeyName(keyData)
     });
     if (key) {
+      utils.grey('Using SSH key: ' + pubKeyPath);
       callback(key.id);
     } else {
-      exports.createKey(function (key) {
+      utils.grey('Uploading new SSH key: ' + pubKeyPath);
+      exports.createKey(keyData, function (key) {
         callback(key.id);
       });
     }

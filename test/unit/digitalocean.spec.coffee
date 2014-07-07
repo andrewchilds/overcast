@@ -13,7 +13,7 @@ describe 'digitalocean', ->
       options =
         name: 'name'
         cluster: 'test-cluster'
-      spyOn(API, 'getOrCreateOvercastKeyID').andCallFake (cb) -> cb '123'
+      spyOn(API, 'getOrCreateOvercastKeyID').andCallFake (keyPath, cb) -> cb '123'
       spyOn(API, 'request')
       spyOn(utils, 'saveClusters')
 
