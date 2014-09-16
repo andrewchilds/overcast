@@ -102,6 +102,15 @@ describe 'utils', ->
     it 'should handle relative paths', ->
       expect(subject('foo.key')).toBe path.resolve(utils.CONFIG_DIR, 'keys', 'foo.key')
 
+  describe 'convertToAbsoluteFilePath', ->
+    subject = utils.convertToAbsoluteFilePath
+
+    it 'should resolve and normalize relative paths', ->
+      expect(subject('file')).toBe path.resolve(utils.CONFIG_DIR, 'files', 'file')
+
+    it 'should normalize absolute paths', ->
+      expect(subject('/path/to/file')).toBe '/path/to/file'
+
   describe 'sanitize', ->
     subject = utils.sanitize
 

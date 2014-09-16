@@ -151,7 +151,7 @@ exports.isAbsolute = function (p) {
 
 exports.convertToAbsoluteFilePath = function (p) {
   if (!exports.isAbsolute(p)) {
-    var cwdFile = path.normalize(process.cwd(), p);
+    var cwdFile = path.normalize(path.resolve(process.cwd(), p));
     if (fs.existsSync(cwdFile)) {
       p = cwdFile;
     } else {
