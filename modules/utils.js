@@ -7,7 +7,7 @@ var colors = require('colors');
 var Promise = require('bluebird');
 var listCommand = require('./commands/list');
 
-exports.VERSION = '0.5.4';
+exports.VERSION = '0.5.5';
 
 exports.clustersCache = null;
 exports.variablesCache = null;
