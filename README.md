@@ -81,10 +81,14 @@ $ overcast run all /absolute/path/to/script ./relative/path/to/other/script
     $ overcast list
     ```
 
-4. Add your AWS/DigitalOcean/Linode API keys to `~/.overcast/variables.json` to use their respective commands:
+4. Add your AWS/DigitalOcean/Linode API keys to `~/.overcast/variables.json` to use their respective commands, either manually or using the `var` command:
 
     ```sh
-    $ vim ~/.overcast/variables.json
+    $ overcast var set AWS_KEY my_aws_key
+    $ overcast var set AWS_SECRET my_aws_secret
+    $ overcast var set DIGITALOCEAN_CLIENT_ID abc123
+    $ overcast var set DIGITALOCEAN_API_KEY abc123
+    $ overcast var set LINODE_API_KEY abc123
     ```
 
 ## Installation (Windows)
