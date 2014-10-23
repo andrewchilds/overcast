@@ -30,6 +30,6 @@
     "slack-notify": "0.1.1"
   },
   "devDependencies": {
-    "jasmine-node": "1.14.3"
+    "jasmine-node": "1.14.5"
   }
 }
