@@ -1,7 +1,7 @@
 {
   "name": "overcast",
   "description": "A simple, SSH-based cloud management CLI.",
-  "version": "0.5.6",
+  "version": "0.5.7",
   "repository": "https://github.com/andrewchilds/overcast.git",
   "author": {
     "name": "Andrew Childs",

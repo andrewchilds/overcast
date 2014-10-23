@@ -17,6 +17,26 @@ exports.run = function (args) {
 
 var subcommands = {};
 
+subcommands.list = utils.module(function (exports) {
+  exports.signature = 'overcast var list';
+
+  exports.help = function () {
+    utils.printArray([
+      exports.signature,
+      ('  List variables in ' + utils.VARIABLES_JSON + '.').grey
+    ]);
+  };
+
+  exports.run = function (args) {
+    var vars = utils.getVariables();
+    utils.grey('Using ' + utils.VARIABLES_JSON);
+    console.log('');
+    _.each(vars, function (value, name) {
+      console.log(name + ': ' + value.green);
+    });
+  };
+});
+
 subcommands.set = utils.module(function (exports) {
   exports.signature = 'overcast var set [name] [value]';
 

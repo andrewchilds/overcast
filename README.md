@@ -435,7 +435,7 @@ I wanted something that had little to no learning curve, that did only what you 
 ### overcast help
 
 ```
-  Overcast v0.5.6
+  Overcast v0.5.7
 
   Source code, issues, pull requests:
     https://github.com/andrewchilds/overcast
@@ -855,6 +855,9 @@ I wanted something that had little to no learning curve, that did only what you 
 ### overcast var
 
 ```
+  overcast var list
+    List variables in /path/to/.overcast/variables.json.
+
   overcast var set [name] [value]
     Set a variable in /path/to/.overcast/variables.json.
 
