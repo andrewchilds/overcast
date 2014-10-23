@@ -52,6 +52,7 @@ function runOnInstance(instance, args, next) {
     ssh_port: instance.ssh_port,
     ssh_args: _.isString(args['ssh-args']) ? args['ssh-args'] : '',
     continueOnError: args.continueOnError,
+    machineReadable: args['mr'] || args['machine-readable'],
     env: args.env,
     command: command,
     shell_command: args['shell-command']
@@ -121,11 +122,19 @@ function sshExec(options, next) {
     sshEnv.SHELL_COMMAND = options.shell_command;
   }
 
+  if (options.machineReadable) {
+    sshEnv.OVERCAST_HIDE_COMMAND = 1;
+  }
+
   var ssh = cp.spawn('bash', args, { env: sshEnv });
   var connectionProblem = false;
 
   ssh.stdout.on('data', function (data) {
-    utils.prefixPrint(options.name, color, data);
+    if (options.machineReadable) {
+      process.stdout.write(data + '');
+    } else {
+      utils.prefixPrint(options.name, color, data);
+    }
   });
 
   ssh.stderr.on('data', function (data) {
@@ -135,7 +144,11 @@ function sshExec(options, next) {
       connectionProblem = true;
     }
 
-    utils.prefixPrint(options.name, color, data, 'grey');
+    if (options.machineReadable) {
+      process.stdout.write(data + '');
+    } else {
+      utils.prefixPrint(options.name, color, data, 'grey');
+    }
   });
 
   ssh.on('exit', function (code) {
@@ -161,7 +174,9 @@ function sshExec(options, next) {
       utils.prefixPrint(options.name, color, str, 'red');
       process.exit(1);
     }
-    console.log('');
+    if (!options.machineReadable) {
+      console.log('');
+    }
     if (_.isFunction(next)) {
       next();
     }

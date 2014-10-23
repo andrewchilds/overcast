@@ -1,16 +1,20 @@
 #!/bin/bash
 
 if [ -z "$OVERCAST_SCRIPT_FILE" ]; then
-  echo ""
-  echo "\$ $OVERCAST_ENV$OVERCAST_COMMAND"
+  if [ -z "$OVERCAST_HIDE_COMMAND" ]; then
+    echo ""
+    echo "\$ $OVERCAST_ENV$OVERCAST_COMMAND"
+  fi
   ssh -i $OVERCAST_KEY -p $OVERCAST_PORT $OVERCAST_USER@$OVERCAST_IP \
     -o StrictHostKeyChecking=no $OVERCAST_SSH_ARGS "$OVERCAST_ENV $OVERCAST_COMMAND"
 else
   if [ -z "$SHELL_COMMAND" ]; then
     SHELL_COMMAND="/bin/bash -s"
   fi
-  echo ""
-  echo "\$ $OVERCAST_ENV$SHELL_COMMAND $OVERCAST_SCRIPT_FILE"
+  if [ -z "$OVERCAST_HIDE_COMMAND" ]; then
+    echo ""
+    echo "\$ $OVERCAST_ENV$SHELL_COMMAND $OVERCAST_SCRIPT_FILE"
+  fi
   ssh -i $OVERCAST_KEY -p $OVERCAST_PORT $OVERCAST_USER@$OVERCAST_IP \
     -o StrictHostKeyChecking=no $OVERCAST_SSH_ARGS "$OVERCAST_ENV $SHELL_COMMAND" < "$OVERCAST_SCRIPT_FILE"
 fi

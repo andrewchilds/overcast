@@ -439,7 +439,7 @@ I wanted something that had little to no learning curve, that did only what you 
 ### overcast help
 
 ```
-  Overcast v0.5.7
+  Overcast v0.5.8
 
   Source code, issues, pull requests:
     https://github.com/andrewchilds/overcast
@@ -764,25 +764,32 @@ I wanted something that had little to no learning curve, that did only what you 
 ```
   overcast run [instance|cluster|all] [command...]
     Runs a command or series of commands on an instance or cluster.
-    Commands will run sequentially unless you use the --parallel flag,
-    in which case each command will run on all instances simultanously.
+    Commands will execute sequentially unless you use the --parallel flag,
+    in which case each command will execute on all instances simultanously.
 
       Option                          | Default
       --env "KEY=VAL KEY='1 2 3'"     |
       --user NAME                     |
       --ssh-key PATH                  |
-      --parallel -p                   | false
-      --continueOnError               | false
       --ssh-args ARGS                 |
+      --continueOnError               | false
+      --mr --machine-readable         | false
+      --parallel -p                   | false
 
-    Examples:
-    $ overcast run app --env "foo='bar bar' testing=123" env
+    Examples
+
+    Run arbirary scripts in sequence across all instances:
     $ overcast run all uptime "free -m" "df -h"
 
+    Setting environment variables:
+    $ overcast run app --env "foo='bar bar' testing=123" env
+
+    Print machine-readable output (without server prefix):
+    $ overcast run app uptime --mr
+
   overcast run [instance|cluster|all] [file...]
-    Executes a script file or files on an instance or cluster.
-    Script files can be either absolute or relative path.
-    Script files will run sequentially unless you use the --parallel flag,
+    Executes a script file or files on an instance or cluster. Script files can be
+    either absolute or relative path. Files execute sequentially unless you use --p,
     in which case each file will execute on all instances simultanously.
 
       Option                          | Default
@@ -790,17 +797,21 @@ I wanted something that had little to no learning curve, that did only what you 
       --user NAME                     |
       --ssh-key PATH                  |
       --shell-command "COMMAND"       | bash -s
-      --parallel -p                   | false
-      --continueOnError               | false
       --ssh-args ARGS                 |
+      --continueOnError               | false
+      --mr --machine-readable         | false
+      --parallel -p                   | false
 
     Relative paths are relative to the cwd, or to these directories:
     /path/to/.overcast/scripts
     /path/to/installed/overcast/scripts
 
-    Example:
+    Examples
+
+    Run bundled scripts in sequence on a "db" cluster:
     $ overcast run db install/core install/redis
-    # Pass along arbitrary SSH arguments, such as to force a pseudo-tty:
+
+    Pass along arbitrary SSH arguments, for example to force a pseudo-tty:
     $ overcast run all /my/install/script --ssh-args "-tt"
 ```
 
