@@ -435,7 +435,7 @@ I wanted something that had little to no learning curve, that did only what you 
 ### overcast help
 
 ```
-  Overcast v0.5.5
+  Overcast v0.5.6
 
   Source code, issues, pull requests:
     https://github.com/andrewchilds/overcast
@@ -451,7 +451,7 @@ I wanted something that had little to no learning curve, that did only what you 
   Commands:
     aliases aws cluster completions digitalocean expose exposed health
     import info init instance key linode list ping port pull push reboot
-    remove run slack ssh tunnel virtualbox
+    remove run slack ssh tunnel var virtualbox
 
   Config directory:
     /path/to/.overcast
@@ -850,6 +850,32 @@ I wanted something that had little to no learning curve, that did only what you 
 
     # Tunnel local 3000 to otherhost.com:4000.
     $ overcast tunnel app-01 3000:otherhost.com:4000
+```
+
+### overcast var
+
+```
+  overcast var set [name] [value]
+    Set a variable in /path/to/.overcast/variables.json.
+
+    Examples:
+    $ overcast var set AWS_KEY myawskey12345
+    $ overcast var set MY_CUSTOM_VARIABLE_NAME foo
+
+  overcast var get [name]
+    Get a variable from /path/to/.overcast/variables.json.
+
+    Examples:
+    $ overcast var get AWS_KEY
+    > myawskey12345
+    $ overcast var get MY_CUSTOM_VARIABLE_NAME
+    > foo
+
+  overcast var delete [name]
+    Delete a variable from /path/to/.overcast/variables.json.
+
+    Examples:
+    $ overcast var delete MY_CUSTOM_VARIABLE_NAME
 ```
 
 ### overcast virtualbox

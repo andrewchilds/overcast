@@ -7,6 +7,9 @@ var _ = require('lodash');
 
 utils.findConfig(function () {
   utils.CONFIG_DIR = '/path/to/.overcast';
+  utils.CLUSTERS_JSON = utils.CONFIG_DIR + '/clusters.json';
+  utils.VARIABLES_JSON = utils.CONFIG_DIR + '/variables.json';
+
   _.each(utils.getCommands(), function (command, name) {
     console.log('### overcast ' + name);
     console.log('');
