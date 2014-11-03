@@ -439,7 +439,7 @@ I wanted something that had little to no learning curve, that did only what you 
 ### overcast help
 
 ```
-  Overcast v0.5.8
+  Overcast v0.5.9
 
   Source code, issues, pull requests:
     https://github.com/andrewchilds/overcast
@@ -455,7 +455,7 @@ I wanted something that had little to no learning curve, that did only what you 
   Commands:
     aliases aws cluster completions digitalocean expose exposed health
     import info init instance key linode list ping port pull push reboot
-    remove run slack ssh tunnel var virtualbox
+    remove run scriptvar slack ssh tunnel var virtualbox
 
   Config directory:
     /path/to/.overcast
@@ -813,6 +813,22 @@ I wanted something that had little to no learning curve, that did only what you 
 
     Pass along arbitrary SSH arguments, for example to force a pseudo-tty:
     $ overcast run all /my/install/script --ssh-args "-tt"
+```
+
+### overcast scriptvar
+
+```
+  overcast scriptvar [instance|cluster|all] [filename] [key] [value]
+    Set a named variable in a remote file on an instance or cluster.
+
+      Option                          | Default
+      --user NAME                     |
+      --continueOnError               | false
+      --mr --machine-readable         | false
+      --parallel -p                   | false
+
+    Example
+    $ overcast scriptvar app-01 /path/to/file.conf MY_API_TOKEN abc123
 ```
 
 ### overcast slack

@@ -1,0 +1,13 @@
+#!/bin/bash
+
+# Helper script to set a named variable in a remote file.
+
+# Tested on:
+# Ubuntu 14.04
+
+# Usage:
+# overcast scriptvar myInstanceOrCluster /path/to/remote/file "var_name" "var_value"
+
+set -x
+
+sed -i "s/^$VAR_NAME=.*$/$VAR_NAME=\"$VAR_VALUE\"/g" $VAR_FILENAME
