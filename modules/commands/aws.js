@@ -141,7 +141,7 @@ subcommands.destroy = utils.module(function (exports) {
       output: process.stdout
     });
 
-    rl.question('Do you really want to destroy this instance? [Y/n]'.yellow, function (answer) {
+    rl.question(('Do you really want to destroy instance "' + instance.name + '"? [Y/n]').yellow, function (answer) {
       rl.close();
       if (answer === 'n' || answer === 'N') {
         utils.grey('No action taken.');

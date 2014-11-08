@@ -259,6 +259,19 @@ I wanted something that had little to no learning curve, that did only what you 
     complete -F _overcast_completions overcast
 ```
 
+### overcast destroy
+
+```
+  overcast destroy [instance]
+    Destroy an instance using the provider API.
+
+      Option      | Default
+      --force     | false
+
+    Example:
+    $ overcast destroy app-01
+```
+
 ### overcast digitalocean
 
 ```
@@ -453,9 +466,9 @@ I wanted something that had little to no learning curve, that did only what you 
     overcast [command] help
 
   Commands:
-    aliases aws cluster completions digitalocean expose exposed health
-    import info init instance key linode list ping port pull push reboot
-    remove run scriptvar slack ssh tunnel var virtualbox
+    aliases aws cluster completions destroy digitalocean expose exposed
+    health import info init instance key linode list ping port pull push
+    reboot remove run scriptvar slack ssh tunnel var virtualbox
 
   Config directory:
     /path/to/.overcast

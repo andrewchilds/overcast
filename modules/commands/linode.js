@@ -148,7 +148,7 @@ subcommands.destroy = function (instance, args) {
     output: process.stdout
   });
 
-  rl.question('Do you really want to destroy this linode? [Y/n]'.yellow, function (answer) {
+  rl.question(('Do you really want to destroy linode "' + instance.name + '"? [Y/n]').yellow, function (answer) {
     rl.close();
     if (answer === 'n' || answer === 'N') {
       utils.grey('No action taken.');

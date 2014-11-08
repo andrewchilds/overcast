@@ -101,7 +101,7 @@ subcommands.destroy = function (instance, args) {
     output: process.stdout
   });
 
-  rl.question('Do you really want to destroy this droplet? [Y/n]'.yellow, function (answer) {
+  rl.question(('Do you really want to destroy droplet "' + instance.name + '"? [Y/n]').yellow, function (answer) {
     rl.close();
     if (answer === 'n' || answer === 'N') {
       utils.grey('No action taken.');
