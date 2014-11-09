@@ -537,12 +537,37 @@ exports.waitForProgress = function (seconds, callback, percentage) {
   }, callback);
 };
 
-exports.waitForBoot = function (callback, seconds) {
-  seconds = seconds || 45;
-  exports.grey('Waiting ' + seconds + ' seconds for server to boot up...');
+exports.waitForBoot = function (instance, callback, startTime) {
+  if (!startTime) {
+    startTime = _.now();
+    exports.grey('Waiting until we can connect to ' + instance.name + '...');
+  }
+
+  exports.testConnection(instance, function (canConnect) {
+    var delayBetweenPolls = 2000;
+
+    if (canConnect) {
+      var duration = (_.now() - startTime) / 1000;
+      exports.green('Connection established after ' + Math.ceil(duration) + ' seconds.');
+      if (_.isFunction(callback)) {
+        callback();
+      }
+    } else {
+      setTimeout(function () {
+        exports.waitForBoot(instance, callback, startTime);
+      }, delayBetweenPolls);
+    }
+  });
+};
+
+exports.fixedWait = function (seconds, callback) {
+  seconds = seconds || 60;
+  exports.grey('Waiting ' + seconds + ' seconds...');
   exports.waitForProgress(seconds, function () {
-    exports.success('OK, server should be responsive.');
-    (callback || _.noop)();
+    exports.success('OK.');
+    if (_.isFunction(callback)) {
+      callback();
+    }
   });
 };
 
@@ -595,6 +620,38 @@ exports.printCommandHelp = function (commands) {
         console.log('');
       }
       command.help();
+    }
+  });
+};
+
+exports.testConnection = function (instance, callback) {
+  var key = exports.normalizeKeyPath(exports.escapeWindowsPath(instance.ssh_key));
+  var port = instance.ssh_port || 22;
+  var host = instance.user + '@' + instance.ip;
+  var command = 'ssh -i ' + key + ' -p ' + port + ' ' + host +
+    ' -o StrictHostKeyChecking=no "echo hi"';
+
+  var ssh = exports.spawn(command);
+
+  var timeout = setTimeout(function () {
+    callbackOnce(false);
+    ssh.kill();
+  }, 8000);
+
+  var alreadyCalled = false;
+  var callbackOnce = function (result) {
+    if (!alreadyCalled) {
+      clearTimeout(timeout);
+      alreadyCalled = true;
+      callback(result);
+    }
+  };
+
+  ssh.on('exit', function (code) {
+    if (code === 0) {
+      callbackOnce(true);
+    } else {
+      callbackOnce(false);
     }
   });
 };

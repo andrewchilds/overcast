@@ -96,7 +96,7 @@ subcommands.create = utils.module(function (exports) {
 
         utils.saveInstanceToCluster(args.cluster, instance);
         utils.success('New instance "' + instance.name + '" (' + instance.ip + ') created on EC2.');
-        utils.waitForBoot();
+        utils.waitForBoot(instance);
       });
   };
 });
@@ -199,7 +199,7 @@ subcommands.reboot = utils.module(function (exports) {
       .catch(API.catch)
       .then(function (args) {
         utils.success('Instance rebooted.');
-        utils.waitForBoot();
+        utils.waitForBoot(instance);
       });
   };
 });
@@ -242,7 +242,7 @@ subcommands.start = utils.module(function (exports) {
       .catch(API.catch)
       .then(function (args) {
         utils.success('Instance started.');
-        utils.waitForBoot();
+        utils.waitForBoot(instance);
       });
   };
 });

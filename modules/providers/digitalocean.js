@@ -196,20 +196,18 @@ function handleCreateResponse(options, createResponse) {
   utils.grey('Creating droplet ' + createResponse.id + ' on DigitalOcean, please wait...');
   waitForEventToFinish(createResponse.event_id, function () {
     utils.success('Droplet created!');
-    utils.waitForBoot(function () {
-      exports.getDroplet(createResponse.id, function (droplet) {
-        var instance = {
-          name: droplet.name,
-          ip: droplet.ip_address,
-          ssh_key: options['ssh-key'] || 'overcast.key',
-          ssh_port: options['ssh-port'] || '22',
-          user: 'root',
-          digitalocean: droplet
-        };
-        utils.saveInstanceToCluster(options.cluster, instance);
-
-        utils.success('Instance "' + droplet.name + '" (' + droplet.ip_address + ') saved.');
-      });
+    exports.getDroplet(createResponse.id, function (droplet) {
+      var instance = {
+        name: droplet.name,
+        ip: droplet.ip_address,
+        ssh_key: options['ssh-key'] || 'overcast.key',
+        ssh_port: options['ssh-port'] || '22',
+        user: 'root',
+        digitalocean: droplet
+      };
+      utils.saveInstanceToCluster(options.cluster, instance);
+      utils.success('Instance "' + droplet.name + '" (' + droplet.ip_address + ') saved.');
+      utils.waitForBoot(instance);
     });
   });
 }
@@ -241,7 +239,7 @@ exports.powerOn = function (instance, callback) {
     endpoint: 'droplets/' + instance.digitalocean.id + '/power_on',
     callback: function (eventResult) {
       utils.success('Instance "' + instance.name + '" powered on.');
-      utils.waitForBoot(callback);
+      utils.waitForBoot(instance, callback);
     }
   });
 };
@@ -257,7 +255,7 @@ exports.snapshot = function (instance, name, callback) {
       query: { name: name },
       callback: function (eventResult) {
         utils.success('Snapshot "' + name + '" created.');
-        utils.waitForBoot(callback);
+        utils.waitForBoot(instance, callback);
       }
     });
   });
@@ -302,7 +300,7 @@ exports.rebuild = function (instance, args, callback) {
     query: { image_id: args['image-id'] },
     callback: function (eventResult) {
       utils.success('Instance "' + instance.name + '" rebuilt.');
-      utils.waitForBoot(callback);
+      utils.waitForBoot(instance, callback);
     }
   });
 };
@@ -315,7 +313,7 @@ exports.reboot = function (instance, callback) {
     endpoint: 'droplets/' + instance.digitalocean.id + '/reboot',
     callback: function (eventResult) {
       utils.success('Instance "' + instance.name + '" rebooted.');
-      utils.waitForBoot(callback);
+      utils.waitForBoot(instance, callback);
     }
   });
 };

@@ -48,7 +48,7 @@ subcommands.boot = function (instance) {
   API.bootLinode({ 'linode-name': instance.name })
     .then(API.waitForPendingJobs)
     .then(function () {
-      utils.waitForBoot();
+      utils.waitForBoot(instance);
     });
 };
 
@@ -74,19 +74,18 @@ subcommands.create = function (args) {
   }
 
   API.create(args).then(function (res) {
-    utils.waitForBoot(function () {
-      var instance = {
-        ip: res.linode.ip,
-        name: args.name,
-        ssh_key: args['ssh-key'] || 'overcast.key',
-        ssh_port: '22',
-        user: 'root',
-        linode: res.linode
-      };
+    var instance = {
+      ip: res.linode.ip,
+      name: args.name,
+      ssh_key: args['ssh-key'] || 'overcast.key',
+      ssh_port: '22',
+      user: 'root',
+      linode: res.linode
+    };
 
-      utils.saveInstanceToCluster(args.cluster, instance);
-      utils.success('Instance "' + args.name + '" (' + instance.ip + ') saved.');
-    });
+    utils.saveInstanceToCluster(args.cluster, instance);
+    utils.success('Instance "' + args.name + '" (' + instance.ip + ') saved.');
+    utils.waitForBoot(instance);
   });
 };
 
@@ -225,7 +224,7 @@ subcommands.reboot = function (instance) {
   API.rebootLinode({ 'linode-name': instance.name })
     .then(API.waitForPendingJobs)
     .then(function () {
-      utils.waitForBoot();
+      utils.waitForBoot(instance);
     });
 };
 

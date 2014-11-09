@@ -4,6 +4,7 @@ var utils = require('../utils');
 var ssh = require('../ssh');
 
 var API = {
+  AWS: require('../providers/aws.js'),
   DigitalOcean: require('../providers/digitalocean.js'),
   Linode: require('../providers/linode.js')
 };
@@ -35,14 +36,25 @@ exports.run = function (args) {
     } else if (instance.linode && instance.linode.id) {
       addPromise(function (resolve) {
         API.Linode.rebootLinode({ 'linode-id': instance.linode.id }).then(function () {
-          utils.waitForBoot(resolve);
+          utils.waitForBoot(instance, resolve);
+        });
+      });
+    } else if (instance.aws && instance.aws.id) {
+      addPromise(function (resolve) {
+        API.AWS.rebootInstance({ InstanceId: instance.aws.id, state: 'running' })
+        .then(API.AWS.waitForInstanceState)
+        .catch(API.AWS.catch)
+        .then(function (args) {
+          utils.waitForBoot(instance, resolve);
         });
       });
     } else {
       addPromise(function (resolve) {
         ssh.run({ name: instance.name, _: ['reboot'] }, function () {
-          // Bumping delay to 60 seconds for shutdown time.
-          utils.waitForBoot(resolve, 60);
+          // Giving the server some time to shutdown before testing for connectivity.
+          setTimeout(function () {
+            utils.waitForBoot(instance, resolve);
+          }, 10 * 1000);
         });
       });
     }
@@ -65,7 +77,9 @@ exports.help = function () {
   utils.printArray([
     'overcast reboot [instance|cluster|all]',
     '  Reboot an instance or cluster.'.grey,
-    '  If the instance was created using DigitalOcean or Linode, this will use the provider API,'.grey,
-    '  otherwise will execute "reboot" command on the server and wait for 60 seconds.'.grey
+    '',
+    '  If the instance was created using AWS, DigitalOcean or Linode,'.grey,
+    '  this will use the provider API. Otherwise this will execute the "reboot"'.grey,
+    '  command on the server and then wait until the server is responsive.'.grey
   ]);
 };
