@@ -75,13 +75,7 @@ $ overcast run all /absolute/path/to/script ./relative/path/to/other/script
     $ npm -g install overcast
     ```
 
-3. You can now use Overcast from any directory. Running any overcast command will create the ~/.overcast config directory if it doesn't already exist.
-
-    ```sh
-    $ overcast list
-    ```
-
-4. Add your AWS/DigitalOcean/Linode API keys to `~/.overcast/variables.json` to use their respective commands, either manually or using the `var` command:
+3. You can now use Overcast from any directory. Running any overcast command from anywhere will create the `~/.overcast` config directory if it doesn't already exist. Add your API keys to `~/.overcast/variables.json` to use their respective commands, either manually or using the `var` command:
 
     ```sh
     $ overcast var set AWS_KEY my_aws_key
@@ -89,6 +83,22 @@ $ overcast run all /absolute/path/to/script ./relative/path/to/other/script
     $ overcast var set DIGITALOCEAN_CLIENT_ID abc123
     $ overcast var set DIGITALOCEAN_API_KEY abc123
     $ overcast var set LINODE_API_KEY abc123
+    ```
+
+4. To make working with Overcast easier, you can add tab completion and SSH aliases to quickly SSH in to any of your instances, by adding the following to your `.bash_profile`:
+
+    ```sh
+    # Overcast SSH aliases
+    overcast aliases > $HOME/.overcast_aliases
+    source $HOME/.overcast_aliases
+
+    # Overcast Tab completion
+    _overcast_completions() {
+      local cur=${COMP_WORDS[COMP_CWORD]}
+      COMPREPLY=($(compgen -W "`overcast completions`" -- "$cur"))
+      return 0
+    }
+    complete -F _overcast_completions overcast
     ```
 
 ## Installation (Windows)
