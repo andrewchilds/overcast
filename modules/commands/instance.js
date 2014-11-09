@@ -131,7 +131,8 @@ subcommands.list = function (args) {
 subcommands.list.help = function () {
   utils.printArray([
     'overcast instance list [cluster...]',
-    '  Returns all instance names, one per line. Optionally limit to one or more clusters.'.grey,
+    '  Returns all instance names, one per line.'.grey,
+    '  Optionally limit to one or more clusters.'.grey,
     '',
     '  Examples:'.grey,
     '  $ overcast instance list'.grey,
@@ -226,8 +227,8 @@ subcommands.update = function (args) {
 subcommands.update.help = function () {
   utils.printArray([
     'overcast instance update [name] [options]',
-    '  Update any instance property. Specifying --cluster will move the instance to'.grey,
-    '  that cluster. Specifying --name will rename the instance.'.grey,
+    '  Update any instance property. Specifying --cluster will move the instance'.grey,
+    '  to that cluster. Specifying --name will rename the instance.'.grey,
     '',
     '    Option               | Default'.grey,
     '    --name NAME          |'.grey,
@@ -238,7 +239,7 @@ subcommands.update.help = function () {
     '    --user USERNAME      |'.grey,
     '',
     '  Example:'.grey,
-    '  $ overcast instance update app.01 --user differentuser --ssh-key /path/to/another/key'.grey
+    '  $ overcast instance update app.01 --user myuser --ssh-key /path/to/key'.grey
   ]);
 };
 

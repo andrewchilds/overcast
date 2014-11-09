@@ -61,6 +61,6 @@ exports.help = function () {
     '',
     '  Examples:'.grey,
     '  $ overcast slack "Deploy completed." --icon-emoji ":satelite:"'.grey,
-    '  $ overcast slack "Server stats" --channel "#general" --cpu "0.54 0.14 0.09" --free-ram "256mb"'.grey
+    '  $ overcast slack "Server stats" --channel "#general" --cpu "0.54 0.14 0.09"'.grey
   ]);
 };

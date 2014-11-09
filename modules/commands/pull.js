@@ -33,11 +33,11 @@ exports.signatures = function () {
 exports.help = function () {
   utils.printArray([
     'overcast pull [instance|cluster|all] [source] [dest]',
-    '  Pull a file or directory from an instance or cluster using scp by default, or rsync if'.grey,
-    '  the --rsync flag is used. Source is absolute or relative to the home directory,'.grey,
-    '  destination can be absolute or relative to the .overcast/files directory. '.grey,
-    '',
-    '  Any reference to {instance} in the destination will be replaced with the instance name.'.grey,
+    '  Pull a file or directory from an instance or cluster using scp by default,'.grey,
+    '  or using rsync if the --rsync flag is used. Source is absolute or relative'.grey,
+    '  to the home directory. Destination can be absolute or relative to the'.grey,
+    '  .overcast/files directory. Any reference to {instance} in the destination'.grey,
+    '  will be replaced with the instance name.'.grey,
     '',
     '    Option         | Default'.grey,
     '    --rsync        | false'.grey,
@@ -45,8 +45,8 @@ exports.help = function () {
     '',
     '  Example:'.grey,
     '  Assuming instances "app.01" and "app.02", this will expand to:'.grey,
-    '    - .overcast/files/nginx/app.01.myapp.conf'.grey,
-    '    - .overcast/files/nginx/app.02.myapp.conf'.grey,
-    '  $ overcast pull app /etc/nginx/sites-enabled/myapp.conf nginx/{instance}.myapp.conf'.grey
+    '    - .overcast/files/app.01.bashrc'.grey,
+    '    - .overcast/files/app.02.bashrc'.grey,
+    '  $ overcast pull app .bashrc {instance}.bashrc'.grey
   ]);
 };

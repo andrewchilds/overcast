@@ -304,7 +304,7 @@ I wanted something that had little to no learning curve, that did only what you 
       --private-networking    | false
 
     Example:
-    $ overcast digitalocean create db.01 --cluster db --size-slug 1gb --region-slug sfo1
+    $ overcast digitalocean create db.01 --size-slug 2gb --region-slug sfo1
 
   overcast digitalocean destroy [name]
     Destroys a DigitalOcean droplet and removes it from your account.
@@ -344,7 +344,7 @@ I wanted something that had little to no learning curve, that did only what you 
 
   overcast digitalocean resize [name] [options]
     Shutdown, resize, and reboot a DigitalOcean droplet.
-    If --skipboot flag is used, the droplet will stay in a powered-off state.
+    If --skipBoot flag is used, the droplet will stay in a powered-off state.
 
       Option                  | Default
       --size-slug NAME        |
@@ -361,7 +361,7 @@ I wanted something that had little to no learning curve, that did only what you 
     Shut down a DigitalOcean droplet.
 
   overcast digitalocean snapshot [name] [snapshot-name]
-    Creates a named snapshot of a droplet. This process will reboot the instance.
+    Creates a named snapshot of a droplet. This will reboot the instance.
 
     Example:
     $ overcast digitalocean snapshot db.01 db.01.snapshot
@@ -452,7 +452,7 @@ I wanted something that had little to no learning curve, that did only what you 
 ### overcast help
 
 ```
-  Overcast v0.5.9
+  Overcast v0.6.0
 
   Source code, issues, pull requests:
     https://github.com/andrewchilds/overcast
@@ -468,7 +468,7 @@ I wanted something that had little to no learning curve, that did only what you 
   Commands:
     aliases aws cluster completions destroy digitalocean expose exposed
     health import info init instance key linode list ping port pull push
-    reboot remove run scriptvar slack ssh tunnel var virtualbox
+    reboot remove run scriptvar slack ssh tunnel var virtualbox wait
 
   Config directory:
     /path/to/.overcast
@@ -537,7 +537,8 @@ I wanted something that had little to no learning curve, that did only what you 
         --ssh-port 22222 --ssh-key $HOME/.ssh/id_rsa
 
   overcast instance list [cluster...]
-    Returns all instance names, one per line. Optionally limit to one or more clusters.
+    Returns all instance names, one per line.
+    Optionally limit to one or more clusters.
 
     Examples:
     $ overcast instance list
@@ -551,8 +552,8 @@ I wanted something that had little to no learning curve, that did only what you 
     $ overcast instance remove app.01
 
   overcast instance update [name] [options]
-    Update any instance property. Specifying --cluster will move the instance to
-    that cluster. Specifying --name will rename the instance.
+    Update any instance property. Specifying --cluster will move the instance
+    to that cluster. Specifying --name will rename the instance.
 
       Option               | Default
       --name NAME          |
@@ -563,7 +564,7 @@ I wanted something that had little to no learning curve, that did only what you 
       --user USERNAME      |
 
     Example:
-    $ overcast instance update app.01 --user differentuser --ssh-key /path/to/another/key
+    $ overcast instance update app.01 --user myuser --ssh-key /path/to/key
 ```
 
 ### overcast key
@@ -613,8 +614,8 @@ I wanted something that had little to no learning curve, that did only what you 
 ### overcast linode
 
 ```
-  These functions require LINODE_API_KEY property to be set in .overcast/variables.json.
-  API keys can be found at https://manager.linode.com/profile/api
+  These functions require the LINODE_API_KEY variable to be set.
+  Your API keys can be found at https://manager.linode.com/profile/api
 
   overcast linode boot [name]
     Boot a powered off linode.
@@ -666,7 +667,8 @@ I wanted something that had little to no learning curve, that did only what you 
     Reboots a linode.
 
   overcast linode resize [name] [options]
-    Resizes a linode to the specified plan. This will immediately shutdown and migrate your linode.
+    Resizes a linode to the specified plan.
+    This will immediately shutdown and migrate your linode.
 
       Option                    | Default
       --plan-id ID              |
@@ -714,11 +716,11 @@ I wanted something that had little to no learning curve, that did only what you 
 
 ```
   overcast pull [instance|cluster|all] [source] [dest]
-    Pull a file or directory from an instance or cluster using scp by default, or rsync if
-    the --rsync flag is used. Source is absolute or relative to the home directory,
-    destination can be absolute or relative to the .overcast/files directory.
-
-    Any reference to {instance} in the destination will be replaced with the instance name.
+    Pull a file or directory from an instance or cluster using scp by default,
+    or using rsync if the --rsync flag is used. Source is absolute or relative
+    to the home directory. Destination can be absolute or relative to the
+    .overcast/files directory. Any reference to {instance} in the destination
+    will be replaced with the instance name.
 
       Option         | Default
       --rsync        | false
@@ -726,20 +728,20 @@ I wanted something that had little to no learning curve, that did only what you 
 
     Example:
     Assuming instances "app.01" and "app.02", this will expand to:
-      - .overcast/files/nginx/app.01.myapp.conf
-      - .overcast/files/nginx/app.02.myapp.conf
-    $ overcast pull app /etc/nginx/sites-enabled/myapp.conf nginx/{instance}.myapp.conf
+      - .overcast/files/app.01.bashrc
+      - .overcast/files/app.02.bashrc
+    $ overcast pull app .bashrc {instance}.bashrc
 ```
 
 ### overcast push
 
 ```
   overcast push [instance|cluster|all] [source] [dest]
-    Push a file or directory to an instance or cluster using scp by default, or rsync if
-    the --rsync flag is used. Source can be absolute or relative to the
-    .overcast/files directory, destination can be absolute or relative to the home directory.
-
-    Any reference to {instance} in the source will be replaced with the instance name.
+    Push a file or directory to an instance or cluster using scp by default,
+    or rsync if the --rsync flag is used. Source can be absolute or relative
+    to the .overcast/files directory. Destination can be absolute or relative
+    to the home directory. Any reference to {instance} in the source will be
+    replaced with the instance name.
 
       Option         | Default
       --rsync        | false
@@ -747,9 +749,9 @@ I wanted something that had little to no learning curve, that did only what you 
 
     Example:
     Assuming instances "app.01" and "app.02", this will expand to:
-      - .overcast/files/nginx/app.01.myapp.conf
-      - .overcast/files/nginx/app.02.myapp.conf
-    $ overcast push app nginx/{instance}.myapp.conf /etc/nginx/sites-enabled/myapp.conf
+      - .overcast/files/app.01.bashrc
+      - .overcast/files/app.02.bashrc
+    $ overcast push app {instance}.bashrc .bashrc
 ```
 
 ### overcast reboot
@@ -757,8 +759,10 @@ I wanted something that had little to no learning curve, that did only what you 
 ```
   overcast reboot [instance|cluster|all]
     Reboot an instance or cluster.
-    If the instance was created using DigitalOcean or Linode, this will use the provider API,
-    otherwise will execute "reboot" command on the server and wait for 60 seconds.
+
+    If the instance was created using AWS, DigitalOcean or Linode,
+    this will use the provider API. Otherwise this will execute the "reboot"
+    command on the server and then wait until the server is responsive.
 ```
 
 ### overcast remove
@@ -778,7 +782,7 @@ I wanted something that had little to no learning curve, that did only what you 
   overcast run [instance|cluster|all] [command...]
     Runs a command or series of commands on an instance or cluster.
     Commands will execute sequentially unless you use the --parallel flag,
-    in which case each command will execute on all instances simultanously.
+    in which case each command will execute on all instances in parallel.
 
       Option                          | Default
       --env "KEY=VAL KEY='1 2 3'"     |
@@ -786,7 +790,7 @@ I wanted something that had little to no learning curve, that did only what you 
       --ssh-key PATH                  |
       --ssh-args ARGS                 |
       --continueOnError               | false
-      --mr --machine-readable         | false
+      --machine-readable --mr         | false
       --parallel -p                   | false
 
     Examples
@@ -802,8 +806,8 @@ I wanted something that had little to no learning curve, that did only what you 
 
   overcast run [instance|cluster|all] [file...]
     Executes a script file or files on an instance or cluster. Script files can be
-    either absolute or relative path. Files execute sequentially unless you use --p,
-    in which case each file will execute on all instances simultanously.
+    either absolute or relative path. Files execute sequentially unless you use -p
+    in which case each file will execute on all instances in parallel.
 
       Option                          | Default
       --env "KEY=VAL KEY='1 2 3'"     |
@@ -812,7 +816,7 @@ I wanted something that had little to no learning curve, that did only what you 
       --shell-command "COMMAND"       | bash -s
       --ssh-args ARGS                 |
       --continueOnError               | false
-      --mr --machine-readable         | false
+      --machine-readable --mr         | false
       --parallel -p                   | false
 
     Relative paths are relative to the cwd, or to these directories:
@@ -824,7 +828,7 @@ I wanted something that had little to no learning curve, that did only what you 
     Run bundled scripts in sequence on a "db" cluster:
     $ overcast run db install/core install/redis
 
-    Pass along arbitrary SSH arguments, for example to force a pseudo-tty:
+    Pass along arbitrary SSH arguments, for example, to force a pseudo-tty:
     $ overcast run all /my/install/script --ssh-args "-tt"
 ```
 
@@ -860,7 +864,7 @@ I wanted something that had little to no learning curve, that did only what you 
 
     Examples:
     $ overcast slack "Deploy completed." --icon-emoji ":satelite:"
-    $ overcast slack "Server stats" --channel "#general" --cpu "0.54 0.14 0.09" --free-ram "256mb"
+    $ overcast slack "Server stats" --channel "#general" --cpu "0.54 0.14 0.09"
 ```
 
 ### overcast ssh
@@ -937,11 +941,14 @@ I wanted something that had little to no learning curve, that did only what you 
   overcast virtualbox create [name] [options...]
     Creates a new local Virtualbox instance using Vagrant.
 
-    If --ip is not specified, the next available IP from 192.168.22.10 will be assigned.
-    User will be root by default. Vagrant files are stored in the ~/.overcast-vagrant directory.
-    Image names "trusty64" (Ubuntu 14.04) and "precise64" (Ubuntu 12.04) are downloaded
-    automatically from Ubuntu servers the first time they are used. Other names will need
-    to be added using `vagrant box add --name [name] [image-url]`.
+    If --ip is not specified, the next available IP after 192.168.22.10 will
+    be automatically assigned. User is root by default. Vagrant files are stored
+    in the ~/.overcast-vagrant directory. Image names "trusty64" (Ubuntu 14.04)
+    and "precise64" (Ubuntu 12.04) are downloaded automatically from Ubuntu
+    servers the first time they are used.
+
+    Other image names will need to be added using:
+    $ vagrant box add --name [name] [image-url]
 
       Option                   | Default
       --cluster CLUSTER        | default
@@ -982,6 +989,19 @@ I wanted something that had little to no learning curve, that did only what you 
 
     Example:
     $ overcast virtualbox stop local.01
+```
+
+### overcast wait
+
+```
+  overcast wait [seconds]
+    Show a progress bar for a specified number of seconds.
+
+    Wait 30 seconds:
+    $ overcast wait 30
+
+    Wait 120 seconds:
+    $ overcast wait 120
 ```
 
 ## Running the Tests

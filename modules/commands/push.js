@@ -33,11 +33,11 @@ exports.signatures = function () {
 exports.help = function () {
   utils.printArray([
     'overcast push [instance|cluster|all] [source] [dest]',
-    '  Push a file or directory to an instance or cluster using scp by default, or rsync if'.grey,
-    '  the --rsync flag is used. Source can be absolute or relative to the'.grey,
-    '  .overcast/files directory, destination can be absolute or relative to the home directory.'.grey,
-    '',
-    '  Any reference to {instance} in the source will be replaced with the instance name.'.grey,
+    '  Push a file or directory to an instance or cluster using scp by default,'.grey,
+    '  or rsync if the --rsync flag is used. Source can be absolute or relative'.grey,
+    '  to the .overcast/files directory. Destination can be absolute or relative'.grey,
+    '  to the home directory. Any reference to {instance} in the source will be'.grey,
+    '  replaced with the instance name.'.grey,
     '',
     '    Option         | Default'.grey,
     '    --rsync        | false'.grey,
@@ -45,8 +45,8 @@ exports.help = function () {
     '',
     '  Example:'.grey,
     '  Assuming instances "app.01" and "app.02", this will expand to:'.grey,
-    '    - .overcast/files/nginx/app.01.myapp.conf'.grey,
-    '    - .overcast/files/nginx/app.02.myapp.conf'.grey,
-    '  $ overcast push app nginx/{instance}.myapp.conf /etc/nginx/sites-enabled/myapp.conf'.grey
+    '    - .overcast/files/app.01.bashrc'.grey,
+    '    - .overcast/files/app.02.bashrc'.grey,
+    '  $ overcast push app {instance}.bashrc .bashrc'.grey
   ]);
 };

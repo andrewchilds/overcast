@@ -251,7 +251,8 @@ subcommands.resize = function (instance, args) {
 subcommands.resize.help = function () {
   utils.printArray([
     'overcast linode resize [name] [options]',
-    '  Resizes a linode to the specified plan. This will immediately shutdown and migrate your linode.'.grey,
+    '  Resizes a linode to the specified plan.'.grey,
+    '  This will immediately shutdown and migrate your linode.'.grey,
     '',
     '    Option                    | Default'.grey,
     '    --plan-id ID              |'.grey,
@@ -291,8 +292,8 @@ exports.signatures = function () {
 
 exports.help = function () {
   utils.printArray([
-    'These functions require LINODE_API_KEY property to be set in .overcast/variables.json.',
-    'API keys can be found at https://manager.linode.com/profile/api',
+    'These functions require the LINODE_API_KEY variable to be set.',
+    'Your API keys can be found at https://manager.linode.com/profile/api',
     ''
   ]);
 

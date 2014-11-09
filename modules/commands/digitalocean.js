@@ -87,7 +87,7 @@ subcommands.create.help = function () {
     '    --private-networking    | false'.grey,
     '',
     '  Example:'.grey,
-    '  $ overcast digitalocean create db.01 --cluster db --size-slug 1gb --region-slug sfo1'.grey
+    '  $ overcast digitalocean create db.01 --size-slug 2gb --region-slug sfo1'.grey
   ]);
 };
 
@@ -217,7 +217,7 @@ subcommands.resize.help = function () {
   utils.printArray([
     'overcast digitalocean resize [name] [options]',
     '  Shutdown, resize, and reboot a DigitalOcean droplet.'.grey,
-    '  If --skipboot flag is used, the droplet will stay in a powered-off state.'.grey,
+    '  If --skipBoot flag is used, the droplet will stay in a powered-off state.'.grey,
     '',
     '    Option                  | Default'.grey,
     '    --size-slug NAME        |'.grey,
@@ -266,7 +266,7 @@ subcommands.snapshot = function (instance, args) {
 subcommands.snapshot.help = function () {
   utils.printArray([
     'overcast digitalocean snapshot [name] [snapshot-name]',
-    '  Creates a named snapshot of a droplet. This process will reboot the instance.'.grey,
+    '  Creates a named snapshot of a droplet. This will reboot the instance.'.grey,
     '',
     '  Example:'.grey,
     '  $ overcast digitalocean snapshot db.01 db.01.snapshot'.grey
