@@ -508,7 +508,7 @@ exports.progress = function (percentage, elapsed) {
 };
 
 exports.clearLine = function () {
-  var str = _.times(120, function () { return ' '; });
+  var str = _.times(70, function () { return ' '; });
   process.stdout.write(str.join('') + "\r");
 };
 
