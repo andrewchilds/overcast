@@ -142,6 +142,7 @@ I wanted something that had little to no learning curve, that did only what you 
 ## Example App Deployment Recipes
 
   - [Discourse](https://github.com/andrewchilds/overcast/blob/master/recipes/discourse)
+  - [LAMP Server](https://github.com/andrewchilds/overcast/blob/master/recipes/lamp-server)
   - [Overcast Charts](https://github.com/andrewchilds/overcast-charts)
 
 ## Command Reference
