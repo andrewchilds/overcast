@@ -1,8 +1,8 @@
 # ![Overcast Logo](http://i.imgur.com/eCBl2NI.png)
 
-Overcast is an SSH-based devops CLI designed to make it easy to spin up, configure and manage clusters of machines, without the learning curve or complexity of existing devops tools.
+Overcast is a simple command line program designed to make it easy to spin up, configure and manage clusters of machines, without the learning curve or complexity of existing server management tools.
 
-![Screenshot](http://i.imgur.com/QviXmMg.gif)
+![Screenshot](http://i.imgur.com/5x1gKVC.png)
 
 ## Concepts
 
