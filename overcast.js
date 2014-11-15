@@ -1,7 +1,6 @@
+var fs = require('fs');
 var minimist = require('minimist');
-var spawn = require('child_process').spawn;
 var utils = require('./modules/utils');
-var commands = require('./modules/commands');
 
 function init() {
   utils.findConfig(function () {
@@ -17,11 +16,12 @@ function execute() {
   var args = minimist(process.argv.slice(2));
   utils.argShift(args, 'command');
 
-  var command = commands.help;
-  if (args.command) {
-    if (commands[args.command]) {
-      command = commands[args.command];
-    }
+  var file = utils.escapeWindowsPath(__dirname + '/modules/commands/' + args.command + '.js');
+  var command;
+  if (fs.existsSync(file)) {
+    command = require(file);
+  } else {
+    command = require('./modules/commands/help');
   }
 
   if ((args._[0] === 'help' || args.help) && command.help) {
@@ -37,5 +37,5 @@ if (module.parent && module.parent.filename.indexOf('bin/overcast') !== -1) {
 } else {
   // Programmatic use:
   exports.utils = utils;
-  exports.commands = commands;
+  exports.commands = require('./modules/commands');
 }

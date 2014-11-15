@@ -1,7 +1,5 @@
-var colors = require('colors');
 var _ = require('lodash');
 var utils = require('../utils');
-var providers = require('../providers');
 var list = require('./list');
 
 exports.run = function (args) {

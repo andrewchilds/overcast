@@ -1,6 +1,5 @@
 var _ = require('lodash');
 var utils = require('../utils');
-var commands = require('./index');
 
 exports.run = function (args) {
   _.each(utils.getClusters(), function (cluster) {
