@@ -39,12 +39,13 @@ exports.promiseWhile = function (condition, action, value) {
 
 exports.runSubcommand = function (args, subcommands, helpFn) {
   if (args.subcommand && subcommands[args.subcommand]) {
+    var command = subcommands[args.subcommand];
     if (args.name === 'help' || args._[0] === 'help') {
       console.log('');
-      return subcommands[args.subcommand].help();
+      return command.help();
     }
 
-    return subcommands[args.subcommand].run(args);
+    return command.run(args);
   }
 
   return exports.missingCommand(helpFn);
@@ -411,8 +412,17 @@ exports.sanitize = function (str) {
   return str.replace(/[^0-9a-zA-Z\.\-\_\* ]/g, '');
 };
 
+exports.capitalize = function (str) {
+  str = str + '';
+  return str.charAt(0).toUpperCase() + str.slice(1);
+};
+
 exports.printArray = function (arr) {
   console.log('  ' + arr.join("\n  "));
+};
+
+exports.forceArray = function (strOrArray) {
+  return _.isArray(strOrArray) ? strOrArray : [strOrArray];
 };
 
 exports.die = function (str) {

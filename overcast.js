@@ -1,6 +1,7 @@
 var fs = require('fs');
 var minimist = require('minimist');
 var utils = require('./modules/utils');
+var cli = require('./modules/cli');
 
 function init() {
   utils.findConfig(function () {
@@ -27,7 +28,16 @@ function execute() {
   if ((args._[0] === 'help' || args.help) && command.help) {
     command.help(args);
   } else {
-    command.run(args);
+    if (command.commands) {
+      var matchingCommand = cli.findMatchingCommand(command, args);
+      if (matchingCommand) {
+        cli.run(matchingCommand, args);
+      } else {
+        cli.missingCommand(command, args);
+      }
+    } else {
+      command.run(args);
+    }
   }
 }
 
@@ -37,5 +47,5 @@ if (module.parent && module.parent.filename.indexOf('bin/overcast') !== -1) {
 } else {
   // Programmatic use:
   exports.utils = utils;
-  exports.commands = require('./modules/commands');
+  exports.commands = utils.getCommands();
 }
