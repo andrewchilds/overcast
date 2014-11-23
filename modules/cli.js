@@ -16,6 +16,8 @@ exports.hasSubCommands = function (command) {
 };
 
 exports.run = function (command, args, next) {
+  args = args || { _: [] };
+
   if (args._[0] === 'help') {
     return exports.compileHelp(command);
   }
