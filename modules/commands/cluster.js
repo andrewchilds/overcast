@@ -1,7 +1,6 @@
 var colors = require('colors');
 var _ = require('lodash');
 var utils = require('../utils');
-var listCommand = require('./list');
 
 exports.signatures = function () {
   return utils.printSignatures(subcommands);
@@ -17,19 +16,6 @@ exports.run = function (args) {
 };
 
 var subcommands = {};
-
-subcommands.list = utils.module(function (exports) {
-  exports.signature = 'overcast cluster list';
-
-  exports.help = function () {
-    utils.printArray([
-      exports.signature,
-      '  Alias for overcast list.'.grey
-    ]);
-  };
-
-  exports.run = listCommand.run;
-});
 
 subcommands.count = utils.module(function (exports) {
   exports.signature = 'overcast cluster count [name]';
@@ -90,7 +76,6 @@ subcommands.create = utils.module(function (exports) {
 
     utils.saveClusters(clusters, function () {
       utils.success('Cluster "' + args.name + '" has been created.');
-      listCommand.run(args);
     });
   };
 });
@@ -128,7 +113,6 @@ subcommands.rename = utils.module(function (exports) {
 
     utils.saveClusters(clusters, function () {
       utils.success('Cluster "' + args.name + '" has been renamed to "' + args.newName + '".');
-      listCommand.run(args);
     });
   };
 });
@@ -175,7 +159,6 @@ subcommands.remove = utils.module(function (exports) {
           utils.alert('The ' + orphaned + ' instance(s) from this cluster were moved to the "orphaned" cluster.');
         }
       }
-      listCommand.run(args);
     });
   };
 });

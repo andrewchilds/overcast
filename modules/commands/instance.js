@@ -1,6 +1,5 @@
 var _ = require('lodash');
 var utils = require('../utils');
-var list = require('./list');
 
 exports.run = function (args) {
   utils.argShift(args, 'subcommand');
@@ -91,7 +90,6 @@ subcommands.import = function (args) {
   utils.saveClusters(clusters, function () {
     utils.success('Instance "' + args.name + '" (' + ip +
       ') has been imported to the "' + cluster + '" cluster.');
-    list.run(args);
   });
 };
 
@@ -218,7 +216,6 @@ subcommands.update = function (args) {
 
   utils.saveClusters(clusters, function () {
     _.each(messages, utils.success);
-    list.run(args);
   });
 };
 
