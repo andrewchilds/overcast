@@ -225,9 +225,6 @@ I wanted something that had little to no learning curve, that did only what you 
 ### overcast cluster
 
 ```
-  overcast cluster list
-    Alias for overcast list.
-
   overcast cluster count [name]
     Return the number of instances in a cluster.
 
@@ -512,9 +509,14 @@ I wanted something that had little to no learning curve, that did only what you 
 ### overcast info
 
 ```
+Usage:
   overcast info
-    Pretty-prints the complete clusters.json file, stored here:
-    /path/to/.overcast/clusters.json
+  overcast info [name]
+
+Description:
+  Pretty-prints the complete clusters.json file, stored here:
+  /path/to/.overcast/clusters.json
+  Optionally display only instances matching [name].
 ```
 
 ### overcast init
@@ -698,9 +700,12 @@ I wanted something that had little to no learning curve, that did only what you 
 ### overcast list
 
 ```
+Usage:
   overcast list
-    Short list of your cluster and instance definitions, stored here:
-    /path/to/.overcast/clusters.json
+
+Description:
+  Short list of your cluster and instance definitions, stored here:
+  undefined/clusters.json
 ```
 
 ### overcast ping
@@ -920,30 +925,41 @@ I wanted something that had little to no learning curve, that did only what you 
 ### overcast var
 
 ```
+
+Usage:
   overcast var list
-    List variables in /path/to/.overcast/variables.json.
 
+Description:
+  List variables in /path/to/.overcast/variables.json.
+
+Usage:
   overcast var set [name] [value]
-    Set a variable in /path/to/.overcast/variables.json.
 
-    Examples:
-    $ overcast var set AWS_KEY myawskey12345
-    $ overcast var set MY_CUSTOM_VARIABLE_NAME foo
+Description:
+  Set a variable in /path/to/.overcast/variables.json.
 
+Examples:
+  $ overcast var set AWS_KEY myawskey12345
+  $ overcast var set MY_CUSTOM_VARIABLE_NAME foo
+
+Usage:
   overcast var get [name]
-    Get a variable from /path/to/.overcast/variables.json.
 
-    Examples:
-    $ overcast var get AWS_KEY
-    > myawskey12345
-    $ overcast var get MY_CUSTOM_VARIABLE_NAME
-    > foo
+Description:
+  Get a variable from /path/to/.overcast/variables.json.
 
+Examples:
+  $ overcast var get AWS_KEY
+  > myawskey12345
+
+Usage:
   overcast var delete [name]
-    Delete a variable from /path/to/.overcast/variables.json.
 
-    Examples:
-    $ overcast var delete MY_CUSTOM_VARIABLE_NAME
+Description:
+  Delete a variable from /path/to/.overcast/variables.json.
+
+Examples:
+  $ overcast var delete MY_CUSTOM_VARIABLE_NAME
 ```
 
 ### overcast virtualbox

@@ -80,10 +80,15 @@ exports.missingCommand = function (command, args) {
   process.exit(exitCode);
 };
 
-exports.compileHelp = function (command) {
+exports.compileHelp = function (command, skipFirstLine) {
+  var firstLineSkipped = false;
   _.each(['usage', 'description', 'options', 'examples'], function (key) {
     if (command[key]) {
-      console.log('');
+      // Used by bin/docs:
+      if (skipFirstLine !== true && firstLineSkipped !== true) {
+        firstLineSkipped = true;
+        console.log('');
+      }
       utils.grey(utils.capitalize(key) + ':');
       exports.printLines(command[key], { pad: 2 });
     }
