@@ -76,7 +76,12 @@ exports.run = function (command, args, next) {
     }
 
     var key = required.varName || required.name;
-    utils.argShift(args, key);
+    if (required.greedy) {
+      args[key] = args._.join(' ');
+    } else {
+      utils.argShift(args, key);
+    }
+
     if (!args[key] && !required.optional) {
       exports.missingArgument('[' + required.name + ']', command);
       shortCircuit = true;
@@ -147,7 +152,13 @@ exports.compileHelp = function (command, skipFirstLine) {
       }
       skipFirstLine = false;
       utils.grey(utils.capitalize(key) + ':');
-      exports.printLines(command[key], { pad: 2 });
+      if (key === 'options') {
+        _.each(command.options, function (option) {
+          console.log('  ' + option.usage + ' ' + (option.description || '').grey);
+        });
+      } else {
+        exports.printLines(command[key], { pad: 2 });
+      }
     }
   });
 };
