@@ -1,5 +1,52 @@
+var fs = require('fs');
 var _ = require('lodash');
+var minimist = require('minimist');
 var utils = require('./utils');
+
+exports.init = function () {
+  utils.findConfig(function () {
+    if (utils.keyExists('overcast')) {
+      exports.execute();
+    } else {
+      utils.createKey('overcast', function () {
+        exports.execute();
+      });
+    }
+  });
+};
+
+exports.execute = function (argString) {
+  var argArray = process.argv.slice(2);
+  if (argString && _.isString(argString)) {
+    argArray = argString.split(' ');
+  }
+
+  var args = minimist(argArray);
+  utils.argShift(args, 'command');
+
+  var file = utils.escapeWindowsPath(__dirname + '/commands/' + args.command + '.js');
+  var command;
+  if (fs.existsSync(file)) {
+    command = require(file);
+  } else {
+    command = require('./commands/help');
+  }
+
+  if ((args._[0] === 'help' || args.help) && command.help) {
+    command.help(args);
+  } else {
+    if (command.commands) {
+      var matchingCommand = exports.findMatchingCommand(command, args);
+      if (matchingCommand) {
+        exports.run(matchingCommand, args);
+      } else {
+        exports.missingCommand(command, args);
+      }
+    } else {
+      command.run(args);
+    }
+  }
+};
 
 exports.findMatchingCommand = function (command, args) {
   var names = _.keys(command.commands);
@@ -16,6 +63,7 @@ exports.hasSubCommands = function (command) {
 };
 
 exports.run = function (command, args, next) {
+  var shortCircuit = false;
   args = args || { _: [] };
 
   if (args._[0] === 'help') {
@@ -27,20 +75,30 @@ exports.run = function (command, args, next) {
       required = { name: required };
     }
 
-    utils.argShift(args, required.name);
-    if (!args[required.name] && !required.optional) {
-      return exports.missingArgument('[' + required.name + ']', command);
+    var key = required.varName || required.name;
+    utils.argShift(args, key);
+    if (!args[key] && !required.optional) {
+      exports.missingArgument('[' + required.name + ']', command);
+      shortCircuit = true;
     }
 
-    if (args[required.name]) {
+    if (args[key]) {
       required.filters = utils.forceArray(required.filters);
       _.each(required.filters, function (filter) {
         if (_.isFunction(filter)) {
-          filter(args[required.name], args);
+          // Allow filters to short-circuit a command run without
+          // needing process.exit.
+          if (filter(args[key], args) === false) {
+            shortCircuit = true;
+          }
         }
       });
     }
   });
+
+  if (shortCircuit) {
+    return false;
+  }
 
   command.run(args, next);
   if (!command.async && _.isFunction(next)) {
