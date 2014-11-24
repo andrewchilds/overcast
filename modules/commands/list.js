@@ -7,8 +7,7 @@ exports.commands = commands;
 
 commands.list = {
   usage: 'overcast list',
-  description: ['Short list of your cluster and instance definitions, stored here:',
-    utils.CONFIG_DIR + '/clusters.json'],
+  description: 'List your cluster and instance definitions.',
   run: function (args) {
     var clusters = utils.getClusters();
 

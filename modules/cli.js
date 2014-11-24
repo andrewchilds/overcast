@@ -81,14 +81,13 @@ exports.missingCommand = function (command, args) {
 };
 
 exports.compileHelp = function (command, skipFirstLine) {
-  var firstLineSkipped = false;
   _.each(['usage', 'description', 'options', 'examples'], function (key) {
     if (command[key]) {
       // Used by bin/docs:
-      if (skipFirstLine !== true && firstLineSkipped !== true) {
-        firstLineSkipped = true;
+      if (skipFirstLine !== true) {
         console.log('');
       }
+      skipFirstLine = false;
       utils.grey(utils.capitalize(key) + ':');
       exports.printLines(command[key], { pad: 2 });
     }
@@ -98,9 +97,6 @@ exports.compileHelp = function (command, skipFirstLine) {
 exports.printLines = function (strOrArray, options) {
   options = options || {};
   _.each(utils.forceArray(strOrArray), function (str) {
-    if (!str) {
-      return false;
-    }
     if (options.pad) {
       _.times(options.pad, function () {
         str = ' ' + str;
