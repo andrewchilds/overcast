@@ -37,7 +37,10 @@ function connect(instance, args) {
     host
   ]);
 
-  console.log('$ ssh -i ' + privateKeyFile + ' -p ' + sshPort + ' ' + host);
+  // This enables tab, up/down arrow, Ctrl-C / etc. Fixes #26.
+  process.stdin.setRawMode(true);
+
+  console.log('ssh -i ' + privateKeyFile + ' -p ' + sshPort + ' ' + host);
 
   var stdinDataCallback = function (chunk) {
     ssh.stdin.write(chunk);
