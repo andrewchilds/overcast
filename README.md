@@ -50,6 +50,12 @@ $ overcast run app-cluster ./recipes/my-app/install /path/to/script
 $ overcast run db ./script.sh uptime "free -m" "df -h" --parallel
 ```
 
+Quickly SSH in to any instance by name.
+
+```sh
+$ overcast ssh app-01
+```
+
 Push and pull files between your local machine and any or all of your instances at once. Dynamically rewrite file paths to include the instance name using `{instance}` in either source or destination.
 
 ```sh
