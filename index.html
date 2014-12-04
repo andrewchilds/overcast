@@ -58,36 +58,40 @@
 
 <p>Create, reboot and destroy instances across DigitalOcean, Linode and Amazon, or locally using Vagrant + Virtualbox:</p>
 
-<div class="highlight highlight-sh"><pre><span class="pl-c"><span class="pl-pdc">#</span> Spin up a new Ubuntu 14.04 instance on DigitalOcean:</span>
+<div class="highlight highlight-sh"><pre><span class="pl-c"># Spin up a new Ubuntu 14.04 instance on DigitalOcean:</span>
 $ overcast digitalocean create db-01
 
-<span class="pl-c"><span class="pl-pdc">#</span> Spin up a new Ubuntu 14.04 instance on Linode:</span>
+<span class="pl-c"># Spin up a new Ubuntu 14.04 instance on Linode:</span>
 $ overcast linode create db-02
 
-<span class="pl-c"><span class="pl-pdc">#</span> Spin up a new Ubuntu 14.04 instance on EC2:</span>
+<span class="pl-c"># Spin up a new Ubuntu 14.04 instance on EC2:</span>
 $ overcast aws create db-03 --user ubuntu
 $ overcast run db-03 allow_root_access_on_ec2
 $ overcast instance update db-03 --user root
 
-<span class="pl-c"><span class="pl-pdc">#</span> Spin up a new locally-running Ubuntu 14.04 Virtualbox instance:</span>
+<span class="pl-c"># Spin up a new locally-running Ubuntu 14.04 Virtualbox instance:</span>
 $ overcast virtualbox create db-04
 
-<span class="pl-c"><span class="pl-pdc">#</span> Upgrade and install Redis across all of those instances in parallel:</span>
-$ overcast run db-<span class="pl-ko">*</span> install/core install/redis --parallel</pre></div>
+<span class="pl-c"># Upgrade and install Redis across all of those instances in parallel:</span>
+$ overcast run db-<span class="pl-k">*</span> install/core install/redis --parallel</pre></div>
 
 <p>Import your already-running machines, wherever they are, using <code>overcast import</code> or by editing <a href="https://github.com/andrewchilds/overcast/tree/master/fixtures/example.clusters.json"><code>~/.overcast/clusters.json</code></a>:</p>
 
-<div class="highlight highlight-sh"><pre>$ overcast import app-01 --ip 1.1.1.1 --ssh-key <span class="pl-ko">~</span>/.ssh/id_rsa
-$ overcast import app-02 --ip 2.2.2.2 --ssh-key <span class="pl-ko">~</span>/.ssh/id_rsa</pre></div>
+<div class="highlight highlight-sh"><pre>$ overcast import app-01 --ip 1.1.1.1 --ssh-key <span class="pl-k">~</span>/.ssh/id_rsa
+$ overcast import app-02 --ip 2.2.2.2 --ssh-key <span class="pl-k">~</span>/.ssh/id_rsa</pre></div>
 
 <p>Run multiple commands or multiple scripts on any or all of your instances at once, over SSH. Commands can be run sequentially or in parallel using the <code>--parallel</code> flag.</p>
 
-<div class="highlight highlight-sh"><pre><span class="pl-c"><span class="pl-pdc">#</span> Run bundled scripts:</span>
+<div class="highlight highlight-sh"><pre><span class="pl-c"># Run bundled scripts:</span>
 $ overcast run db install/core install/apache install/mysql install/php
-<span class="pl-c"><span class="pl-pdc">#</span> Run scripts relative to the current working directory or using absolute path:</span>
+<span class="pl-c"># Run scripts relative to the current working directory or using absolute path:</span>
 $ overcast run app-cluster ./recipes/my-app/install /path/to/script
-<span class="pl-c"><span class="pl-pdc">#</span> Run sequences of commands and scripts across multiple machines in parallel:</span>
+<span class="pl-c"># Run sequences of commands and scripts across multiple machines in parallel:</span>
 $ overcast run db ./script.sh uptime <span class="pl-s1"><span class="pl-pds">"</span>free -m<span class="pl-pds">"</span></span> <span class="pl-s1"><span class="pl-pds">"</span>df -h<span class="pl-pds">"</span></span> --parallel</pre></div>
+
+<p>Quickly SSH in to any instance by name.</p>
+
+<div class="highlight highlight-sh"><pre>$ overcast ssh app-01</pre></div>
 
 <p>Push and pull files between your local machine and any or all of your instances at once. Dynamically rewrite file paths to include the instance name using <code>{instance}</code> in either source or destination.</p>
 
@@ -113,26 +117,26 @@ $ overcast pull all /etc/nginx/sites-enabled/myapp.conf nginx/{instance}.myapp.c
 <li>
 <p>You can now use Overcast from any directory. Running any overcast command from anywhere will create the <code>~/.overcast</code> config directory if it doesn't already exist. Add your API keys to <code>~/.overcast/variables.json</code> to use their respective commands, either manually or using the <code>var</code> command:</p>
 
-<div class="highlight highlight-sh"><pre>$ overcast var <span class="pl-sf">set</span> AWS_KEY my_aws_key
-$ overcast var <span class="pl-sf">set</span> AWS_SECRET my_aws_secret
-$ overcast var <span class="pl-sf">set</span> DIGITALOCEAN_CLIENT_ID abc123
-$ overcast var <span class="pl-sf">set</span> DIGITALOCEAN_API_KEY abc123
-$ overcast var <span class="pl-sf">set</span> LINODE_API_KEY abc123</pre></div>
+<div class="highlight highlight-sh"><pre>$ overcast var <span class="pl-s3">set</span> AWS_KEY my_aws_key
+$ overcast var <span class="pl-s3">set</span> AWS_SECRET my_aws_secret
+$ overcast var <span class="pl-s3">set</span> DIGITALOCEAN_CLIENT_ID abc123
+$ overcast var <span class="pl-s3">set</span> DIGITALOCEAN_API_KEY abc123
+$ overcast var <span class="pl-s3">set</span> LINODE_API_KEY abc123</pre></div>
 </li>
 <li>
 <p>To make working with Overcast easier, you can add tab completion and SSH aliases to quickly SSH in to any of your instances, by adding the following to your <code>.bash_profile</code>:</p>
 
-<div class="highlight highlight-sh"><pre><span class="pl-c"><span class="pl-pdc">#</span> Overcast SSH aliases</span>
-overcast aliases <span class="pl-ko">&gt;</span> <span class="pl-v"><span class="pl-pdv">$</span>HOME</span>/.overcast_aliases
-<span class="pl-sf">source</span> <span class="pl-v"><span class="pl-pdv">$</span>HOME</span>/.overcast_aliases
+<div class="highlight highlight-sh"><pre><span class="pl-c"># Overcast SSH aliases</span>
+overcast aliases <span class="pl-k">&gt;</span> <span class="pl-vo">$HOME</span>/.overcast_aliases
+<span class="pl-s3">source</span> <span class="pl-vo">$HOME</span>/.overcast_aliases
 
-<span class="pl-c"><span class="pl-pdc">#</span> Overcast Tab completion</span>
-<span class="pl-enf">_overcast_completions</span>() {
-  <span class="pl-s">local</span> cur=<span class="pl-v"><span class="pl-pdv">${</span>COMP_WORDS[COMP_CWORD]<span class="pl-pdv">}</span></span>
-  COMPREPLY=(<span class="pl-s1"><span class="pl-pds">$(</span><span class="pl-sf">compgen</span> -W <span class="pl-s1"><span class="pl-pds">"</span><span class="pl-s1"><span class="pl-pds">`</span>overcast completions<span class="pl-pds">`</span></span><span class="pl-pds">"</span></span> -- <span class="pl-s1"><span class="pl-pds">"</span><span class="pl-v"><span class="pl-pdv">$</span>cur</span><span class="pl-pds">"</span></span><span class="pl-pds">)</span></span>)
+<span class="pl-c"># Overcast Tab completion</span>
+<span class="pl-en">_overcast_completions</span>() {
+  <span class="pl-s">local</span> cur=<span class="pl-vo">${COMP_WORDS[COMP_CWORD]}</span>
+  COMPREPLY=(<span class="pl-s1"><span class="pl-pds">$(</span><span class="pl-s3">compgen</span> -W <span class="pl-s1"><span class="pl-pds">"</span><span class="pl-s1"><span class="pl-pds">`</span>overcast completions<span class="pl-pds">`</span></span><span class="pl-pds">"</span></span> -- <span class="pl-s1"><span class="pl-pds">"</span><span class="pl-vo">$cur</span><span class="pl-pds">"</span></span><span class="pl-pds">)</span></span>)
   <span class="pl-k">return</span> 0
 }
-<span class="pl-sf">complete</span> -F _overcast_completions overcast</pre></div>
+<span class="pl-s3">complete</span> -F _overcast_completions overcast</pre></div>
 </li>
 </ol>
 
@@ -146,10 +150,10 @@ overcast aliases <span class="pl-ko">&gt;</span> <span class="pl-v"><span class=
 
 <p>Since Overcast is just a wrapper around SSH, there is nothing on your remote machines to uninstall. To uninstall Overcast from your local machine:</p>
 
-<div class="highlight highlight-sh"><pre><span class="pl-c"><span class="pl-pdc">#</span> To remove the Overcast package:</span>
+<div class="highlight highlight-sh"><pre><span class="pl-c"># To remove the Overcast package:</span>
 $ npm -g remove overcast
-<span class="pl-c"><span class="pl-pdc">#</span> Optionally delete your Overcast SSH keys and configuration files:</span>
-$ rm -rf <span class="pl-ko">~</span>/.overcast</pre></div>
+<span class="pl-c"># Optionally delete your Overcast SSH keys and configuration files:</span>
+$ rm -rf <span class="pl-k">~</span>/.overcast</pre></div>
 
 <h2>
 <a id="user-content-configuration" class="anchor" href="#configuration" aria-hidden="true"><span class="octicon octicon-link"></span></a>Configuration</h2>
@@ -159,13 +163,13 @@ $ rm -rf <span class="pl-ko">~</span>/.overcast</pre></div>
 <p>The command <code>overcast init</code> will create a new configuration in the current directory. The config directory looks like this:</p>
 
 <div class="highlight highlight-sh"><pre>/.overcast
-  /files            <span class="pl-c"><span class="pl-pdc">#</span> Files to be pushed to / pulled from instances</span>
-  /keys             <span class="pl-c"><span class="pl-pdc">#</span> SSH keys, can be your own or auto-generated by overcast</span>
+  /files            <span class="pl-c"># Files to be pushed to / pulled from instances</span>
+  /keys             <span class="pl-c"># SSH keys, can be your own or auto-generated by overcast</span>
     overcast.key
     overcast.key.pub
-  /scripts          <span class="pl-c"><span class="pl-pdc">#</span> Scripts to be run on instances</span>
-  clusters.json     <span class="pl-c"><span class="pl-pdc">#</span> Cluster/instance definitions (see example.clusters.json)</span>
-  variables.json    <span class="pl-c"><span class="pl-pdc">#</span> API keys, etc (see example.variables.json)</span></pre></div>
+  /scripts          <span class="pl-c"># Scripts to be run on instances</span>
+  clusters.json     <span class="pl-c"># Cluster/instance definitions (see example.clusters.json)</span>
+  variables.json    <span class="pl-c"># API keys, etc (see example.variables.json)</span></pre></div>
 
 <h2>
 <a id="user-content-design-goals--motivation" class="anchor" href="#design-goals--motivation" aria-hidden="true"><span class="octicon octicon-link"></span></a>Design Goals &amp; Motivation</h2>
@@ -502,7 +506,7 @@ $ rm -rf <span class="pl-ko">~</span>/.overcast</pre></div>
 <h3>
 <a id="user-content-overcast-help" class="anchor" href="#overcast-help" aria-hidden="true"><span class="octicon octicon-link"></span></a>overcast help</h3>
 
-<pre><code>  Overcast v0.6.0
+<pre><code>  Overcast v0.6.1
 
   Source code, issues, pull requests:
     https://github.com/andrewchilds/overcast
@@ -1060,8 +1064,8 @@ $ rm -rf <span class="pl-ko">~</span>/.overcast</pre></div>
 <p><a href="https://travis-ci.org/andrewchilds/overcast"><img src="https://camo.githubusercontent.com/f779007e740c407c8aaf18b9d253aa4047d9e5e9/68747470733a2f2f7472617669732d63692e6f72672f616e647265776368696c64732f6f766572636173742e7376673f6272616e63683d6d6173746572" alt="Build Status" data-canonical-src="https://travis-ci.org/andrewchilds/overcast.svg?branch=master" style="max-width:100%;"></a></p>
 
 <div class="highlight highlight-sh"><pre>git clone https://github.com/andrewchilds/overcast.git
-<span class="pl-sf">cd</span> overcast
-npm <span class="pl-sf">test</span></pre></div>
+<span class="pl-s3">cd</span> overcast
+npm <span class="pl-s3">test</span></pre></div>
 
 <h2>
 <a id="user-content-upgrading-overcast" class="anchor" href="#upgrading-overcast" aria-hidden="true"><span class="octicon octicon-link"></span></a>Upgrading Overcast</h2>
