@@ -78,6 +78,8 @@ exports.run = function (command, args, next) {
     var key = required.varName || required.name;
     if (required.greedy) {
       args[key] = args._.join(' ');
+    } else if (required.raw) {
+      args[key] = args._.shift();
     } else {
       utils.argShift(args, key);
     }

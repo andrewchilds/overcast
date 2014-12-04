@@ -31,7 +31,7 @@ commands.set = {
     '$ overcast var set AWS_KEY myawskey12345',
     '$ overcast var set MY_CUSTOM_VARIABLE_NAME foo'
   ],
-  required: ['name', 'value'],
+  required: ['name', { name: 'value', raw: true }],
   run: function (args) {
     var vars = utils.getVariables();
     vars[args.name] = args.value;
