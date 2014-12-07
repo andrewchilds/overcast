@@ -26,6 +26,8 @@ function connect(instance, args) {
   var sshPort = instance.ssh_port || '22';
   var host = (args.user || instance.user || 'root') + '@' + instance.ip;
 
+  console.log('ssh -tt -i ' + privateKeyFile + ' -p ' + sshPort + ' ' + host);
+
   var ssh = cp.spawn('ssh', [
     '-tt',
     '-i',
@@ -35,44 +37,23 @@ function connect(instance, args) {
     '-o',
     'StrictHostKeyChecking=no',
     host
-  ]);
-
-  // This enables tab, up/down arrow, Ctrl-C / etc. Fixes #26.
-  process.stdin.setRawMode(true);
-
-  console.log('ssh -i ' + privateKeyFile + ' -p ' + sshPort + ' ' + host);
-
-  var stdinDataCallback = function (chunk) {
-    ssh.stdin.write(chunk);
-  };
-
-  process.stdin.resume();
-  process.stdin.on('data', stdinDataCallback);
-
-  ssh.stdout.on('data', function (data) {
-    utils.prefixPrint(instance.name, color, data);
-  });
-
-  ssh.stderr.on('data', function (data) {
-    utils.prefixPrint(instance.name, color, data, 'grey');
+  ], {
+    stdio: 'inherit'
   });
 
   ssh.on('exit', function (code) {
     process.stdin.pause();
-    process.stdin.removeListener('data', stdinDataCallback);
 
     if (code !== 0) {
-      var str = 'SSH connection exited with a non-zero code (' + code + '). Stopping execution...';
-      utils.prefixPrint(instance.name, color, str, 'red');
-      process.exit(1);
+      var str = 'SSH connection exited with a non-zero code (' + code + ').';
+      utils.die(str);
     }
-    console.log('');
   });
 }
 
 exports.signatures = function () {
   return [
-    '  overcast ssh [instance|cluster|all]'
+    '  overcast ssh [instance|cluster|all] [options...]'
   ];
 };
 
