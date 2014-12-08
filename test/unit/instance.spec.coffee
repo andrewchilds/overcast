@@ -1,7 +1,6 @@
 cli = require('../../modules/cli')
 utils = require('../../modules/utils')
 instance = require('../../modules/commands/instance')
-mockArgs = require('./utils').mockArgs
 
 describe 'instance', ->
 

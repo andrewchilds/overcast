@@ -55,3 +55,17 @@ exports.shouldBeNewInstance = function (name, args) {
     return false;
   }
 };
+
+exports.shouldBeNewKey = function (name, args) {
+  if (utils.keyExists(name)) {
+    utils.grey('The key "' + name + '" already exists, no action taken.');
+    return false;
+  }
+};
+
+exports.shouldBeExistingKey = function (name, args) {
+  if (!utils.keyExists(name)) {
+    utils.grey('The key "' + name + '" was not found, no action taken.');
+    return false;
+  }
+};
