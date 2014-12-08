@@ -6,6 +6,7 @@ var commands = {};
 exports.commands = commands;
 
 commands.list = {
+  name: 'list',
   usage: 'overcast list',
   description: 'List your cluster and instance definitions.',
   run: function (args) {

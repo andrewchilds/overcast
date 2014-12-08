@@ -417,6 +417,26 @@ exports.capitalize = function (str) {
   return str.charAt(0).toUpperCase() + str.slice(1);
 };
 
+exports.padRight = function (str, length, padChar) {
+  str = str + '';
+  padChar = padChar || ' ';
+  while (str.length < length) {
+    str += padChar;
+  }
+
+  return str;
+};
+
+exports.padLeft = function (str, length, padChar) {
+  str = str + '';
+  padChar = padChar || ' ';
+  while (str.length < length) {
+    str = padChar + str;
+  }
+
+  return str;
+};
+
 exports.printArray = function (arr) {
   console.log('  ' + arr.join("\n  "));
 };

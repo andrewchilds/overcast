@@ -6,6 +6,7 @@ var commands = {};
 exports.commands = commands;
 
 commands.exposed = {
+  name: 'exposed',
   usage: 'overcast exposed [instance|cluster|all]',
   description: [
     'List the exposed ports on the instance or cluster.',

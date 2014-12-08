@@ -6,6 +6,7 @@ var commands = {};
 exports.commands = commands;
 
 commands.init = {
+  name: 'init',
   usage: 'overcast init',
   description: [
     'Create an .overcast config directory in the current working directory.',

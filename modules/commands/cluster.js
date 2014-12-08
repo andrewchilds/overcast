@@ -7,6 +7,7 @@ var commands = {};
 exports.commands = commands;
 
 commands.count = {
+  name: 'count',
   usage: 'overcast cluster count [name]',
   description: 'Return the number of instances in a cluster.',
   examples: [
@@ -24,6 +25,7 @@ commands.count = {
 };
 
 commands.create = {
+  name: 'create',
   usage: 'overcast cluster create [name]',
   description: 'Creates a new cluster.',
   examples: '$ overcast cluster create db',
@@ -39,6 +41,7 @@ commands.create = {
 };
 
 commands.rename = {
+  name: 'rename',
   usage: 'overcast cluster rename [name] [new-name]',
   description: 'Renames a cluster.',
   examples: '$ overcast cluster rename app-cluster app-cluster-renamed',
@@ -59,6 +62,7 @@ commands.rename = {
 };
 
 commands.remove = {
+  name: 'remove',
   usage: 'overcast cluster remove [name]',
   description: [
     'Removes a cluster from the index. If the cluster has any instances',

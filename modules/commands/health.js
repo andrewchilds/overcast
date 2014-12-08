@@ -6,6 +6,7 @@ var commands = {};
 exports.commands = commands;
 
 commands.health = {
+  name: 'health',
   usage: 'overcast health [instance|cluster|all]',
   description: [
     'Outputs common health statistics in JSON format.',

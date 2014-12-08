@@ -153,15 +153,31 @@ exports.compileHelp = function (command, skipFirstLine) {
         console.log('');
       }
       skipFirstLine = false;
-      utils.grey(utils.capitalize(key) + ':');
       if (key === 'options') {
-        _.each(command.options, function (option) {
-          console.log('  ' + option.usage + ' ' + (option.description || '').grey);
-        });
+        exports.printCommandOptions(command.options);
       } else {
+        utils.grey(utils.capitalize(key) + ':');
         exports.printLines(command[key], { pad: 2 });
       }
     }
+  });
+};
+
+exports.printCommandOptions = function (options) {
+  var hasDefaults = false;
+  var maxLength = _.max(options, function (option) {
+    if (option.default) {
+      hasDefaults = true;
+    }
+    return option.usage.length;
+  }).usage.length + 4;
+  var headline = 'Options:';
+  if (hasDefaults) {
+    headline = utils.padRight(headline, maxLength + 2) + 'Defaults:';
+  }
+  utils.grey(headline);
+  _.each(options, function (option) {
+    console.log('  ' + utils.padRight(option.usage, maxLength) + (option.default || ''));
   });
 };
 

@@ -9,6 +9,15 @@ exports.findMatchingInstances = function (name, args) {
   }
 };
 
+exports.findFirstMatchingInstance = function (name, args) {
+  args.instance = utils.findFirstMatchingInstance(name);
+
+  if (!args.instance) {
+    utils.dieWithList('No instance found matching "' + name + '".');
+    return false;
+  }
+};
+
 exports.findMatchingCluster = function (name, args) {
   var clusters = utils.getClusters();
   args.cluster = clusters[name];
@@ -24,6 +33,25 @@ exports.shouldBeNewCluster = function (name, args) {
 
   if (clusters[name]) {
     utils.grey('The cluster "' + name + '" already exists, no action taken.');
+    return false;
+  }
+};
+
+exports.shouldBeNewInstance = function (name, args) {
+  var clusters = utils.getClusters();
+
+  if (!args.cluster) {
+    utils.grey('Using "default" cluster.');
+    args.cluster = 'default';
+  }
+
+  if (!clusters[args.cluster]) {
+    clusters[args.cluster] = { instances: {} };
+    utils.saveClusters(clusters, function () {
+      utils.success('Cluster "' + args.name + '" has been created.');
+    });
+  } else if (clusters[args.cluster].instances[name]) {
+    utils.die('Instance "' + name + '" already exists.');
     return false;
   }
 };

@@ -5,6 +5,7 @@ var commands = {};
 exports.commands = commands;
 
 commands.completions = {
+  name: 'completions',
   usage: 'overcast completions',
   description: [
     'Return an array of commands, cluster names, and instance names for use',

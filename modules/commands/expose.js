@@ -5,7 +5,8 @@ var ssh = require('../ssh');
 var commands = {};
 exports.commands = commands;
 
-commands.exposed = {
+commands.expose = {
+  name: 'expose',
   usage: 'overcast expose [instance|cluster|all] [port...] [options]',
   description: [
     'Reset the exposed ports on the instance or cluster using iptables.',

@@ -12,18 +12,26 @@ utils.findConfig(function () {
   utils.VARIABLES_JSON = utils.CONFIG_DIR + '/variables.json';
 
   _.each(utils.getCommands(), function (command, name) {
-    console.log('### overcast ' + name);
-    console.log('');
-    console.log('```');
-    // console.log('$ overcast help ' + (name === 'help' ? '' : name));
     if (command.help) {
+      // Old syntax <= 0.6.1
+      console.log('### overcast ' + name);
+      console.log('');
+      console.log('```');
       command.help();
+      console.log('```');
+      console.log('');
     } else if (command.commands) {
-      _.each(command.commands, function (command) {
-        cli.compileHelp(command, true);
+      // New syntax > 0.6.1
+      _.each(command.commands, function (subcommand) {
+        var subcommandName = subcommand.name && name !== subcommand.name ?
+          ' ' + subcommand.name : '';
+        console.log('### overcast ' + name + subcommandName);
+        console.log('');
+        console.log('```');
+        cli.compileHelp(subcommand, true);
+        console.log('```');
+        console.log('');
       });
     }
-    console.log('```');
-    console.log('');
   });
 });

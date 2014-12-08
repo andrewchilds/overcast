@@ -6,6 +6,7 @@ var commands = {};
 exports.commands = commands;
 
 commands.info = {
+  name: 'info',
   usage: ['overcast info', 'overcast info [name]'],
   description: ['Pretty-prints the complete clusters.json file, stored here:',
     utils.CONFIG_DIR + '/clusters.json',

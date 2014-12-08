@@ -5,6 +5,7 @@ var commands = {};
 exports.commands = commands;
 
 commands.aliases = {
+  name: 'aliases',
   usage: 'overcast aliases',
   description: [
     'Return a list of bash aliases for SSHing to your instances.',

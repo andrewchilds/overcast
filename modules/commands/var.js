@@ -6,6 +6,7 @@ var commands = {};
 exports.commands = commands;
 
 commands.list = {
+  name: 'list',
   usage: 'overcast var list',
   description: 'List variables in ' + utils.VARIABLES_JSON + '.',
   run: function (args) {
@@ -25,6 +26,7 @@ commands.list = {
 };
 
 commands.set = {
+  name: 'set',
   usage: 'overcast var set [name] [value]',
   description: 'Set a variable in ' + utils.VARIABLES_JSON + '.',
   examples: [
@@ -41,6 +43,7 @@ commands.set = {
 };
 
 commands.get = {
+  name: 'get',
   usage: 'overcast var get [name]',
   description: 'Get a variable from ' + utils.VARIABLES_JSON + '.',
   examples: [
@@ -62,6 +65,7 @@ commands.get = {
 };
 
 commands.delete = {
+  name: 'delete',
   usage: 'overcast var delete [name]',
   description: 'Delete a variable from ' + utils.VARIABLES_JSON + '.',
   examples: [
