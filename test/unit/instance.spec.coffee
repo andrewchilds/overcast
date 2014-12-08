@@ -1,3 +1,4 @@
+cli = require('../../modules/cli')
 utils = require('../../modules/utils')
 instance = require('../../modules/commands/instance')
 mockArgs = require('./utils').mockArgs
@@ -31,64 +32,49 @@ describe 'instance', ->
         }
       })
     spyOn(utils, 'saveClusters').andCallFake (clusters, callback) -> callback()
-    spyOn(utils, 'missingParameter')
-    spyOn(utils, 'missingCommand')
+    spyOn(cli, 'missingArgument')
+    spyOn(cli, 'missingCommand')
     spyOn(utils, 'die')
 
-  describe 'run', ->
-    subject = instance.run
-
-    it 'should fail if command is missing', ->
-      subject(mockArgs('instance'))
-      expect(utils.missingCommand).toHaveBeenCalled()
-
   describe 'get', ->
-    subject = instance.run
-
     it 'should fail if name is missing', ->
-      subject(mockArgs('instance get'))
-      expect(utils.missingParameter).toHaveBeenCalled()
+      cli.execute('instance get')
+      expect(cli.missingArgument).toHaveBeenCalled()
 
     it 'should fail if attribute is missing', ->
-      subject(mockArgs('instance get foo'))
-      expect(utils.missingParameter).toHaveBeenCalled()
+      cli.execute('instance get dummy')
+      expect(cli.missingArgument).toHaveBeenCalled()
 
     it 'should return the requested instance attribute', ->
       spyOn(console, 'log')
-      subject(mockArgs('instance get dummy name ip'))
-      expect(console.log.argsForCall[0]).toEqual [ 'dummy01' ]
-      expect(console.log.argsForCall[1]).toEqual [ '127.0.0.1' ]
+      cli.execute('instance get dummy name ip')
+      expect(console.log.argsForCall[0]).toEqual ['dummy01']
+      expect(console.log.argsForCall[1]).toEqual ['127.0.0.1']
 
     it 'should return the requested cluster attribute', ->
       spyOn(console, 'log')
-      subject(mockArgs('instance get all ip'))
+      cli.execute('instance get all ip')
       expect(console.log.argsForCall).toEqual [
-        [ '127.0.0.1' ]
-        [ '1.1.1.1' ]
-        [ '2.2.2.2' ]
+        ['127.0.0.1']
+        ['1.1.1.1']
+        ['2.2.2.2']
       ]
 
   describe 'import', ->
-    subject = instance.run
-
     it 'should fail if name is missing', ->
-      subject(mockArgs('instance import'))
-      expect(utils.missingParameter).toHaveBeenCalled()
+      cli.execute('instance import')
+      expect(cli.missingArgument).toHaveBeenCalled()
 
-    it 'should fail if --ip is missing', ->
-      subject(mockArgs('instance import dummy02'))
-      expect(utils.missingParameter).toHaveBeenCalled()
-
-    it 'should fail if cluster was not found', ->
-      subject(mockArgs('instance import dummy02 --cluster missing --ip 127.0.0.2'))
-      expect(utils.die.mostRecentCall.args[0]).toContain('No "missing" cluster found')
+    it 'should fail if ip is missing', ->
+      cli.execute('instance import dummy02')
+      expect(cli.missingArgument).toHaveBeenCalled()
 
     it 'should fail if name already exists in cluster', ->
-      subject(mockArgs('instance import dummy01 --cluster dummy --ip 127.0.0.2'))
+      cli.execute('instance import dummy01 127.0.0.2 --cluster dummy')
       expect(utils.die.mostRecentCall.args[0]).toContain('Instance "dummy01" already exists')
 
     it 'otherwise it should import the instance', ->
-      subject(mockArgs('instance import dummy02 --cluster dummy --ip 127.0.0.2'))
+      cli.execute('instance import dummy02 127.0.0.2 --cluster dummy')
       savedInstance = utils.saveClusters.mostRecentCall.args[0].dummy.instances.dummy02
       expect(savedInstance.name).toBe 'dummy02'
       expect(savedInstance.ip).toBe '127.0.0.2'
@@ -96,60 +82,62 @@ describe 'instance', ->
       expect(savedInstance.user).toBe 'root'
 
   describe 'list', ->
-    subject = instance.run
-
     it 'should list the instances', ->
       spyOn(console, 'log')
-      subject(mockArgs('instance list'))
+      cli.execute('instance list')
       expect(console.log.argsForCall).toEqual [
-        [ 'dummy01' ]
-        [ 'db_01' ]
-        [ 'db_02' ]
+        ['dummy01']
+        ['db_01']
+        ['db_02']
+      ]
+
+    it 'should list the instances of the cluster specified', ->
+      spyOn(console, 'log')
+      cli.execute('instance list db')
+      expect(console.log.argsForCall).toEqual [
+        ['db_01']
+        ['db_02']
       ]
 
   describe 'remove', ->
-    subject = instance.run
-
     beforeEach ->
       spyOn(utils, 'handleInstanceNotFound')
       spyOn(utils, 'deleteInstance')
 
     it 'should fail if name is missing', ->
-      subject(mockArgs('instance remove'))
-      expect(utils.missingParameter).toHaveBeenCalled()
+      cli.execute('instance remove')
+      expect(cli.missingArgument).toHaveBeenCalled()
 
     it 'should remove existing empty clusters', ->
-      subject(mockArgs('instance remove dummy01'))
+      cli.execute('instance remove dummy01')
       expect(utils.deleteInstance.mostRecentCall.args[0].name).toEqual 'dummy01'
 
   describe 'update', ->
-    subject = instance.run
-
     it 'should fail if name is missing', ->
-      subject(mockArgs('instance update'))
-      expect(utils.missingParameter).toHaveBeenCalled()
+      cli.execute('instance update')
+      expect(cli.missingArgument).toHaveBeenCalled()
 
     it 'should fail if --cluster is not found', ->
-      subject(mockArgs('instance update dummy01 --cluster missing'))
+      cli.execute('instance update dummy01 --cluster missing')
       expect(utils.die.mostRecentCall.args[0]).toContain('No "missing" cluster found')
 
     it 'should fail if the renamed instance already exists in the same cluster', ->
-      subject(mockArgs('instance update db_01 --name db_02'))
+      cli.execute('instance update db_01 --name db_02')
       expect(utils.die.mostRecentCall.args[0]).toContain('An instance named "db_02" already exists in the "db" cluster')
 
     it 'should fail if the renamed instance already exists in the same cluster', ->
-      subject(mockArgs('instance update db_01 --name dummy01 --cluster dummy'))
+      cli.execute('instance update db_01 --name dummy01 --cluster dummy')
       expect(utils.die.mostRecentCall.args[0]).toContain('An instance named "dummy01" already exists in the "dummy" cluster')
 
     it 'should be able to rename the instance', ->
-      subject(mockArgs('instance update dummy01 --name dummy02 --ip 127.0.0.2'))
+      cli.execute('instance update dummy01 --name dummy02 --ip 127.0.0.2')
       expect(utils.saveClusters.mostRecentCall.args[0].dummy.instances.dummy01).toBe undefined
       savedInstance = utils.saveClusters.mostRecentCall.args[0].dummy.instances.dummy02
       expect(savedInstance.name).toBe 'dummy02'
       expect(savedInstance.ip).toBe '127.0.0.2'
 
     it 'should be able to move the instance to a different cluster', ->
-      subject(mockArgs('instance update dummy01 --cluster empty --ip 127.0.0.2'))
+      cli.execute('instance update dummy01 --cluster empty --ip 127.0.0.2')
       expect(utils.saveClusters.mostRecentCall.args[0].dummy.instances.dummy01).toBe undefined
       savedInstance = utils.saveClusters.mostRecentCall.args[0].empty.instances.dummy01
       expect(savedInstance.name).toBe 'dummy01'
