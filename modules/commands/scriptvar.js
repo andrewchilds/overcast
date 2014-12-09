@@ -19,13 +19,13 @@ commands.scriptvar = {
     { name: 'instance|cluster|all', varName: 'name' },
     { name: 'filename', varName: 'var_filename', raw: true },
     { name: 'key', varName: 'var_name', raw: true },
-    { name: 'value', varName: 'var_value', raw: true },
+    { name: 'value', varName: 'var_value', raw: true }
   ],
   options: [
     { usage: '--user NAME' },
     { usage: '--continueOnError', default: 'false' },
     { usage: '--machine-readable, --mr', default: 'false' },
-    { usage: '--parallel, -p', default: 'false' },
+    { usage: '--parallel, -p', default: 'false' }
   ],
   run: function (args) {
     args._ = ['set_script_var'];
