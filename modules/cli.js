@@ -18,7 +18,7 @@ exports.init = function () {
 exports.execute = function (argString) {
   var argArray = process.argv.slice(2);
   if (argString && _.isString(argString)) {
-    argArray = argString.split(' ');
+    argArray = utils.tokenize(argString);
   }
 
   var args = minimist(argArray);

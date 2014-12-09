@@ -1,22 +1,21 @@
+cli = require('../../modules/cli')
 utils = require('../../modules/utils')
 slack = require('../../modules/commands/slack')
 specUtils = require('./utils')
 mockArgs = specUtils.mockArgs
 
 describe 'slack', ->
-  subject = slack.run
-
   beforeEach ->
-    spyOn(utils, 'missingParameter')
-    spyOn(utils, 'dieWithList')
+    spyOn(cli, 'missingArgument')
     spyOn(slack, 'send')
 
   it 'should fail if name is missing', ->
-    subject(mockArgs('slack'))
-    expect(utils.missingParameter).toHaveBeenCalled()
+    cli.execute('slack')
+    expect(cli.missingArgument).toHaveBeenCalled()
+    expect(slack.send).not.toHaveBeenCalled()
 
   it 'should handle message alone', ->
-    subject(mockArgs('slack "Hello"'))
+    cli.execute('slack "Hello"')
     expect(slack.send.mostRecentCall.args[0]).toEqual({
       channel: '#alerts'
       icon_emoji: ':cloud:'
@@ -27,7 +26,7 @@ describe 'slack', ->
     })
 
   it 'should handle options', ->
-    subject(mockArgs('slack "My Message" --channel "#general" --icon-emoji ":interrobang:" --user Foo'))
+    cli.execute('slack "My Message" --channel "#general" --icon-emoji ":interrobang:" --user Foo')
     expect(slack.send.mostRecentCall.args[0]).toEqual({
       channel: '#general'
       icon_emoji: ':interrobang:'
@@ -38,7 +37,7 @@ describe 'slack', ->
     })
 
   it 'should handle custom fields', ->
-    subject(mockArgs('slack "Server stats" --cpu "0.54 0.14 0.09" --ram 256mb'))
+    cli.execute('slack "Server stats" --cpu "0.54 0.14 0.09" --ram 256mb')
     expect(slack.send.mostRecentCall.args[0]).toEqual({
       channel: '#alerts'
       icon_emoji: ':cloud:'

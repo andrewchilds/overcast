@@ -402,6 +402,50 @@ exports.unknownCommand = function () {
   exports.red('Unknown command.');
 };
 
+exports.tokenize = function (str) {
+  var tokens = [];
+  var isQuoted = false;
+  var token = '';
+  var chunks = str.split(' ');
+
+  _.each(chunks, function (chunk) {
+    if (!chunk) {
+      return;
+    }
+
+    var first = _.first(chunk);
+    var last = _.last(chunk);
+    if (isQuoted) {
+      if (last === '"' || last === '\'') {
+        token += ' ' + (chunk.slice(0, -1));
+        tokens.push(token);
+        isQuoted = false;
+      } else {
+        token += ' ' + chunk;
+      }
+    } else {
+      if (first === '"' || first === '\'') {
+        token = chunk.slice(1);
+        isQuoted = true;
+        if (last === '"' || last === '\'') {
+          token = token.slice(0, -1);
+          tokens.push(token);
+          isQuoted = false;
+        }
+      } else {
+        token = '';
+        tokens.push(chunk);
+      }
+    }
+  });
+
+  if (tokens.length === 0 && token) {
+    tokens.push(token);
+  }
+
+  return _.compact(tokens);
+};
+
 exports.sanitize = function (str) {
   if (!str) {
     str = '';

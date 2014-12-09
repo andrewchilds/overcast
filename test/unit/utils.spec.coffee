@@ -111,6 +111,37 @@ describe 'utils', ->
     it 'should normalize absolute paths', ->
       expect(subject('/path/to/file')).toBe '/path/to/file'
 
+  describe 'tokenize', ->
+    subject = utils.tokenize
+
+    it 'should handle double-quoted tokens', ->
+      expect(subject('"my first token" second, third')).toEqual [
+        'my first token'
+        'second,'
+        'third'
+      ]
+
+    it 'should handle single-quotes in double-quoted tokens and vice-versa', ->
+      expect(subject('"first token\'s value" \'second "token quote"\' third')).toEqual [
+        'first token\'s value'
+        'second "token quote"'
+        'third'
+      ]
+
+    it 'should handle single-quoted tokens', ->
+      expect(subject('"my first token" \'my second token\' third')).toEqual [
+        'my first token'
+        'my second token'
+        'third'
+      ]
+
+    it 'should handle simple tokens with irregular spacing', ->
+      expect(subject(' first  second --third')).toEqual [
+        'first'
+        'second'
+        '--third'
+      ]
+
   describe 'sanitize', ->
     subject = utils.sanitize
 
