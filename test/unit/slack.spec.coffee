@@ -1,8 +1,6 @@
 cli = require('../../modules/cli')
 utils = require('../../modules/utils')
 slack = require('../../modules/commands/slack')
-specUtils = require('./utils')
-mockArgs = specUtils.mockArgs
 
 describe 'slack', ->
   beforeEach ->
