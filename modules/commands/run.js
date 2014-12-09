@@ -3,80 +3,52 @@ var _ = require('lodash');
 var utils = require('../utils');
 var ssh = require('../ssh');
 
-exports.run = function (args) {
-  utils.argShift(args, 'name');
+var commands = {};
+exports.commands = commands;
 
-  if (!args.name) {
-    return utils.missingParameter('[instance|cluster|all]', exports.help);
-  } else if (args._.length === 0) {
-    return utils.missingParameter('[command|script]', exports.help);
+commands.run = {
+  name: 'run',
+  usage: 'overcast run [instance|cluster|all] [command|file...]',
+  description: [
+    'Execute commands or script files on an instance or cluster over SSH.',
+    'Commands will execute sequentially unless the --parallel flag is used.',
+    'An error will stop execution unless the --continueOnError flag is used.',
+    'Script files can be either absolute or relative path.',
+  ],
+  examples: [
+    '# Run arbirary commands and files in sequence across all instances:',
+    '$ overcast run all uptime "free -m" "df -h" /path/to/my/script',
+    '',
+    '# Setting environment variables:',
+    '$ overcast run app --env "foo=\'bar bar\' testing=123" env',
+    '',
+    '# Use machine-readable output (no server prefix):',
+    '$ overcast run app-01 uptime --mr',
+    '',
+    '# Run bundled and custom scripts in sequence:',
+    '$ overcast run db-* install/core install/redis ./my/install/script',
+    '',
+    '# Pass along arbitrary SSH arguments, for example to force a pseudo-tty:',
+    '$ overcast run all /my/install/script --ssh-args "-tt"'
+  ],
+  required: [
+    { name: 'instance|cluster|all', varName: 'name' },
+    { name: 'command|file', varName: 'firstCommandOrFile', raw: true }
+  ],
+  options: [
+    { usage: '--env "KEY=VAL KEY=\'1 2 3\'"' },
+    { usage: '--user NAME' },
+    { usage: '--ssh-key PATH' },
+    { usage: '--ssh-args ARGS' },
+    { usage: '--continueOnError', default: 'false' },
+    { usage: '--machine-readable, --mr', default: 'false' },
+    { usage: '--parallel, -p', default: 'false' },
+    { usage: '--shell-command "COMMAND"', default: 'bash -s' },
+  ],
+  run: function (args) {
+    args._.unshift(args.firstCommandOrFile);
+    delete args.firstCommandOrFile;
+
+    ssh.run(args);
   }
-
-  ssh.run(args);
-};
-
-exports.signatures = function () {
-  return [
-    '  overcast run [instance|cluster|all] [command...]',
-    '  overcast run [instance|cluster|all] [file...]'
-  ];
-};
-
-exports.help = function () {
-  var localScriptDir = utils.CONFIG_DIR + '/scripts';
-  var bundledScriptDir = path.normalize(__dirname + '/../../scripts');
-
-  utils.printArray([
-    'overcast run [instance|cluster|all] [command...]',
-    '  Runs a command or series of commands on an instance or cluster.'.grey,
-    '  Commands will execute sequentially unless you use the --parallel flag,'.grey,
-    '  in which case each command will execute on all instances in parallel.'.grey,
-    '',
-    '    Option                          | Default'.grey,
-    '    --env "KEY=VAL KEY=\'1 2 3\'"     |'.grey,
-    '    --user NAME                     |'.grey,
-    '    --ssh-key PATH                  |'.grey,
-    '    --ssh-args ARGS                 |'.grey,
-    '    --continueOnError               | false'.grey,
-    '    --machine-readable --mr         | false'.grey,
-    '    --parallel -p                   | false'.grey,
-    '',
-    '  Examples'.grey,
-    '',
-    '  Run arbirary scripts in sequence across all instances:'.grey,
-    '  $ overcast run all uptime "free -m" "df -h"'.grey,
-    '',
-    '  Setting environment variables:'.grey,
-    '  $ overcast run app --env "foo=\'bar bar\' testing=123" env'.grey,
-    '',
-    '  Print machine-readable output (without server prefix):'.grey,
-    '  $ overcast run app uptime --mr'.grey,
-    '',
-    'overcast run [instance|cluster|all] [file...]',
-    '  Executes a script file or files on an instance or cluster. Script files can be'.grey,
-    '  either absolute or relative path. Files execute sequentially unless you use -p'.grey,
-    '  in which case each file will execute on all instances in parallel.'.grey,
-    '',
-    '    Option                          | Default'.grey,
-    '    --env "KEY=VAL KEY=\'1 2 3\'"     |'.grey,
-    '    --user NAME                     |'.grey,
-    '    --ssh-key PATH                  |'.grey,
-    '    --shell-command "COMMAND"       | bash -s'.grey,
-    '    --ssh-args ARGS                 |'.grey,
-    '    --continueOnError               | false'.grey,
-    '    --machine-readable --mr         | false'.grey,
-    '    --parallel -p                   | false'.grey,
-    '',
-    '  Relative paths are relative to the cwd, or to these directories:'.grey,
-    '  ' + localScriptDir.cyan,
-    '  ' + bundledScriptDir.cyan,
-    '',
-    '  Examples'.grey,
-    '',
-    '  Run bundled scripts in sequence on a "db" cluster:'.grey,
-    '  $ overcast run db install/core install/redis'.grey,
-    '',
-    '  Pass along arbitrary SSH arguments, for example, to force a pseudo-tty:'.grey,
-    '  $ overcast run all /my/install/script --ssh-args "-tt"'.grey
-  ]);
 };

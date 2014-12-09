@@ -1,31 +1,28 @@
 run = require('../../modules/commands/run')
 ssh = require('../../modules/ssh')
+cli = require('../../modules/cli')
 utils = require('../../modules/utils')
 mockArgs = require('./utils').mockArgs
 
 describe 'run', ->
+  beforeEach ->
+    spyOn(cli, 'missingArgument')
+    spyOn(ssh, 'run')
 
-  describe 'run', ->
-    subject = run.run
+  it 'should throw an error if name is missing', ->
+    cli.execute('run')
+    expect(cli.missingArgument).toHaveBeenCalled()
+    expect(ssh.run).not.toHaveBeenCalled()
 
-    beforeEach ->
-      spyOn(utils, 'missingParameter')
-      spyOn(ssh, 'run')
+  it 'should throw an error if command is missing', ->
+    cli.execute('run myInstance')
+    expect(cli.missingArgument).toHaveBeenCalled()
+    expect(ssh.run).not.toHaveBeenCalled()
 
-    it 'should throw an error if name is missing', ->
-      subject(mockArgs('run'))
-      expect(utils.missingParameter).toHaveBeenCalled()
-      expect(ssh.run).not.toHaveBeenCalled()
-
-    it 'should throw an error if command is missing', ->
-      subject(mockArgs('run myInstance'))
-      expect(utils.missingParameter).toHaveBeenCalled()
-      expect(ssh.run).not.toHaveBeenCalled()
-
-    it 'should call ssh if everything exists', ->
-      subject(mockArgs('run myInstance myCommand'))
-      expect(ssh.run).toHaveBeenCalledWith({
-        _: [ 'myCommand' ]
-        command: 'run'
-        name: 'myInstance'
-      })
+  it 'should call ssh if everything exists', ->
+    cli.execute('run myInstance /path/to/script uptime')
+    expect(ssh.run).toHaveBeenCalledWith({
+      _: [ '/path/to/script', 'uptime' ]
+      command: 'run'
+      name: 'myInstance'
+    })
