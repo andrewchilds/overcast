@@ -4,7 +4,6 @@ cluster = require('../../modules/commands/cluster')
 mockArgs = require('./utils').mockArgs
 
 describe 'cluster', ->
-
   beforeEach ->
     spyOn(utils, 'getClusters').andReturn({
         dummy: {

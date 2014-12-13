@@ -26,7 +26,7 @@ commands.list = {
       _.each(cluster.instances, function (instance) {
         var origin = '(' + instance.user + '@' + instance.ip + ':' + (instance.ssh_port || 22) + ')';
         var provider = getProviderName(instance);
-        var str = '  ' + instance.name + ' ' + origin + ' ' + provider.green;
+        var str = '  ' + instance.name + ' ' + origin + (provider ? ' ' + provider.green : '');
         console.log(str);
       });
     });
