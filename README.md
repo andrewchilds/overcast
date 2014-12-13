@@ -156,20 +156,23 @@ I wanted something that had little to no learning curve, that did only what you 
 ### overcast aliases
 
 ```
+Usage:
   overcast aliases
-    Return a list of bash aliases for SSHing to your instances.
 
-    To use, add this to your .bash_profile:
-      test -f $HOME/.overcast_aliases && source $HOME/.overcast_aliases
+Description:
+  Return a list of bash aliases for SSHing to your instances.
 
-    And then create the .overcast_aliases file:
-      overcast aliases > $HOME/.overcast_aliases
+  To use, add this to your .bash_profile:
+    test -f $HOME/.overcast_aliases && source $HOME/.overcast_aliases
 
-    Or to automatically refresh aliases in every new terminal window
-    (which will add a couple hundred milliseconds to your startup time),
-    add this to your .bash_profile:
-      overcast aliases > $HOME/.overcast_aliases
-      source $HOME/.overcast_aliases
+  And then create the .overcast_aliases file:
+    overcast aliases > $HOME/.overcast_aliases
+
+  Or to automatically refresh aliases in every new terminal window
+  (which will add a couple hundred milliseconds to your startup time),
+  add this to your .bash_profile:
+    overcast aliases > $HOME/.overcast_aliases
+    source $HOME/.overcast_aliases
 ```
 
 ### overcast aws
@@ -222,55 +225,82 @@ I wanted something that had little to no learning curve, that did only what you 
     $ overcast aws stop db.01
 ```
 
-### overcast cluster
+### overcast cluster count
 
 ```
+Usage:
   overcast cluster count [name]
-    Return the number of instances in a cluster.
 
-    Example:
-    $ overcast cluster count db
-    > 0
-    $ overcast instance create db.01 --cluster db
-    > ...
-    $ overcast cluster count db
-    > 1
+Description:
+  Return the number of instances in a cluster.
 
+Examples:
+  $ overcast cluster count db
+  > 0
+  $ overcast instance create db.01 --cluster db
+  > ...
+  $ overcast cluster count db
+  > 1
+```
+
+### overcast cluster create
+
+```
+Usage:
   overcast cluster create [name]
-    Creates a new cluster.
 
-    Example:
-    $ overcast cluster create db
+Description:
+  Creates a new cluster.
 
+Examples:
+  $ overcast cluster create db
+```
+
+### overcast cluster rename
+
+```
+Usage:
   overcast cluster rename [name] [new-name]
-    Renames a cluster.
 
-    Example:
-    $ overcast cluster rename app-cluster app-cluster-renamed
+Description:
+  Renames a cluster.
 
+Examples:
+  $ overcast cluster rename app-cluster app-cluster-renamed
+```
+
+### overcast cluster remove
+
+```
+Usage:
   overcast cluster remove [name]
-    Removes a cluster from the index. If the cluster has any instances
-    attached to it, they will be moved to the "orphaned" cluster.
 
-    Example:
-    $ overcast cluster remove db
+Description:
+  Removes a cluster from the index. If the cluster has any instances
+  attached to it, they will be moved to the "orphaned" cluster.
+
+Examples:
+  $ overcast cluster remove db
 ```
 
 ### overcast completions
 
 ```
+Usage:
   overcast completions
-    Return an array of commands, cluster names, and instance names for use
-    in bash tab completion.
 
-    To enable tab completion in bash, add this to your .bash_profile:
+Description:
+  Return an array of commands, cluster names, and instance names for use
+  in bash tab completion.
 
-    _overcast_completions() {
-      local cur=${COMP_WORDS[COMP_CWORD]}
-      COMPREPLY=($(compgen -W "`overcast completions`" -- "$cur"))
-      return 0
-    }
-    complete -F _overcast_completions overcast
+  To enable tab completion in bash, add this to your .bash_profile:
+
+  _overcast_completions() {
+    local cur=${COMP_WORDS[COMP_CWORD]}
+    COMPREPLY=($(compgen -W "`overcast completions`" -- "$cur"))
+    return 0
+  }
+  complete -F _overcast_completions overcast
 ```
 
 ### overcast destroy
@@ -387,86 +417,99 @@ I wanted something that had little to no learning curve, that did only what you 
 ### overcast expose
 
 ```
-  overcast expose [instance|cluster|all] [port...]
-    Reset the exposed ports on the instance or cluster using iptables.
-    This will fail if you don't include the current SSH port.
-    Specifying --whitelist will restrict all ports to the specified address(es).
-    These can be individual IPs or CIDR ranges, such as "192.168.0.0/24".
+Usage:
+  overcast expose [instance|cluster|all] [port...] [options]
 
-    Expects an Ubuntu server, untested on other distributions.
+Description:
+  Reset the exposed ports on the instance or cluster using iptables.
+  This will fail if you don't include the current SSH port.
+  Specifying --whitelist will restrict all ports to the specified address(es).
+  These can be individual IPs or CIDR ranges, such as "192.168.0.0/24".
 
-      Option
-      --user=NAME
-      --whitelist "IP|RANGE..."
-      --whitelist-PORT "IP|RANGE..."
+  Expects an Ubuntu server, untested on other distributions.
 
-    Examples:
-    # Allow SSH, HTTP and HTTPS connections from anywhere:
-    $ overcast expose app 22 80 443
-    # Allow SSH from anywhere, only allow Redis connections from 1.2.3.4:
-    $ overcast expose redis 22 6379 --whitelist-6379 "1.2.3.4"
-    # Only allow SSH and MySQL connections from 1.2.3.4 or from 5.6.7.xxx:
-    $ overcast expose mysql 22 3306 --whitelist "1.2.3.4 5.6.7.0/24"
+Options:
+  --user NAME
+  --whitelist "IP|RANGE"
+  --whitelist-PORT "IP|RANGE"
+
+Examples:
+  Allow SSH, HTTP and HTTPS connections from anywhere:
+  $ overcast expose app 22 80 443
+
+  Allow SSH from anywhere, only allow Redis connections from 1.2.3.4:
+  $ overcast expose redis 22 6379 --whitelist-6379 "1.2.3.4"
+
+  Only allow SSH and MySQL connections from 1.2.3.4 or from 5.6.7.xxx:
+  $ overcast expose mysql 22 3306 --whitelist "1.2.3.4 5.6.7.0/24"
 ```
 
 ### overcast exposed
 
 ```
+Usage:
   overcast exposed [instance|cluster|all]
-    List the exposed ports on the instance or cluster.
-    Expects an Ubuntu server, untested on other distributions.
 
-      Option        | Default
-      --user NAME   |
+Description:
+  List the exposed ports on the instance or cluster.
+  Expects an Ubuntu server, untested on other distributions.
+
+Options:
+  --user NAME
+  --machine-readable, --mr
 ```
 
 ### overcast health
 
 ```
+Usage:
   overcast health [instance|cluster|all]
-    Export common health statistics in JSON format.
-    Expects an Ubuntu server, untested on other distributions.
 
-    Example JSON:
-    {
-      "my_instance_name": {
-        "cpu_1min": 0.53,
-        "cpu_5min": 0.05,
-        "cpu_15min": 0.10,
-        "disk_total": 19592,     // in MB
-        "disk_used": 13445,      // in MB
-        "disk_free": 5339,       // in MB
-        "mem_total": 1000,       // in MB
-        "mem_used": 904,         // in MB
-        "mem_free": 96,          // in MB
-        "cache_used": 589,       // in MB
-        "cache_free": 410,       // in MB
-        "swap_total": 255,       // in MB
-        "swap_used": 124,        // in MB
-        "swap_free": 131,        // in MB
-        "tcp": 152,              // open TCP connections
-        "rx_bytes": 196396703,   // total bytes received
-        "tx_bytes": 47183785,    // total bytes transmitted
-        "io_reads": 1871210,     // total bytes read
-        "io_writes": 6446448,    // total bytes written
-        "processes": [
-          {
-            "user": "root",
-            "pid": 1,
-            "cpu%": 0,
-            "mem%": 0,
-            "time": "0:01",
-            "command": "/sbin/init"
-          }
-        ]
-      }
+Description:
+  Outputs common health statistics in JSON format.
+  Expects an Ubuntu or Debian server.
+
+Examples:
+  Example JSON response:
+  {
+    "my_instance_name": {
+      "cpu_1min": 0.53,
+      "cpu_5min": 0.05,
+      "cpu_15min": 0.10,
+      "disk_total": 19592,     // in MB
+      "disk_used": 13445,      // in MB
+      "disk_free": 5339,       // in MB
+      "mem_total": 1000,       // in MB
+      "mem_used": 904,         // in MB
+      "mem_free": 96,          // in MB
+      "cache_used": 589,       // in MB
+      "cache_free": 410,       // in MB
+      "swap_total": 255,       // in MB
+      "swap_used": 124,        // in MB
+      "swap_free": 131,        // in MB
+      "tcp": 152,              // open TCP connections
+      "rx_bytes": 196396703,   // total bytes received
+      "tx_bytes": 47183785,    // total bytes transmitted
+      "io_reads": 1871210,     // total bytes read
+      "io_writes": 6446448,    // total bytes written
+      "processes": [
+        {
+          "user": "root",
+          "pid": 1,
+          "cpu%": 0,
+          "mem%": 0,
+          "time": "0:01",
+          "command": "/sbin/init"
+        }
+      ]
     }
+  }
 ```
 
 ### overcast help
 
 ```
-  Overcast v0.6.1
+  Overcast v0.6.2
 
   Source code, issues, pull requests:
     https://github.com/andrewchilds/overcast
@@ -491,19 +534,17 @@ I wanted something that had little to no learning curve, that did only what you 
 ### overcast import
 
 ```
-  overcast import [name] [options...]
-    Imports an existing instance to a cluster.
+Usage:
+  overcast import [name] [ip] [options...]
 
-      Option               | Default
-      --cluster CLUSTER    | default
-      --ip IP              |
-      --ssh-port PORT      | 22
-      --ssh-key PATH       | overcast.key
-      --user USERNAME      | root
+Description:
+  Imports an existing instance to a cluster.
 
-    Example:
-    $ overcast import app.01 --cluster app --ip 127.0.0.1 \
-        --ssh-port 22222 --ssh-key $HOME/.ssh/id_rsa
+Options:               Defaults:
+  --cluster CLUSTER    default
+  --ssh-port PORT      22
+  --ssh-key PATH       overcast.key
+  --user USERNAME      root
 ```
 
 ### overcast info
@@ -522,112 +563,170 @@ Description:
 ### overcast init
 
 ```
+Usage:
   overcast init
-    Create an .overcast config directory in the current working directory.
-    No action taken if one already exists.
+
+Description:
+  Create an .overcast config directory in the current working directory.
+  No action taken if one already exists.
 ```
 
-### overcast instance
+### overcast instance get
 
 ```
+Usage:
   overcast instance get [instance|cluster|all] [attr...]
-    Returns the attribute(s) for the instance or cluster, one per line.
 
-    Examples:
-    $ overcast instance get app.01 ssh-port
-    > 22
-    $ overcast instance get app-cluster ip
-    > 127.0.0.1
-    > 127.0.0.2
-    > 127.0.0.3
+Description:
+  Returns the attribute(s) for the instance or cluster, one per line.
 
-  overcast instance import [name] [options]
-    Imports an existing instance to a cluster.
+Examples:
+  $ overcast instance get app-01 ssh-port
+  22
 
-      Option               | Default
-      --cluster CLUSTER    | default
-      --ip IP              |
-      --ssh-port PORT      | 22
-      --ssh-key PATH       | overcast.key
-      --user USERNAME      | root
+  $ overcast instance get app-cluster ip
+  127.0.0.1
+  127.0.0.2
+  127.0.0.3
+```
 
-    Example:
-    $ overcast instance import app.01 --cluster app --ip 127.0.0.1 \
-        --ssh-port 22222 --ssh-key $HOME/.ssh/id_rsa
+### overcast instance import
 
+```
+Usage:
+  overcast instance import [name] [ip] [options...]
+
+Description:
+  Imports an existing instance to a cluster.
+
+Options:               Defaults:
+  --cluster CLUSTER    default
+  --ssh-port PORT      22
+  --ssh-key PATH       overcast.key
+  --user USERNAME      root
+
+Examples:
+  $ overcast instance import app.01 127.0.0.1 --cluster app \
+      --ssh-port 22222 --ssh-key $HOME/.ssh/id_rsa
+```
+
+### overcast instance list
+
+```
+Usage:
   overcast instance list [cluster...]
-    Returns all instance names, one per line.
-    Optionally limit to one or more clusters.
 
-    Examples:
-    $ overcast instance list
-    $ overcast instance list app-cluster db-cluster
+Description:
+  Returns all instance names, one per line.
+  Optionally limit to one or more clusters.
 
+Examples:
+  $ overcast instance list
+  $ overcast instance list app-cluster db-cluster
+```
+
+### overcast instance remove
+
+```
+Usage:
   overcast instance remove [name]
-    Removes an instance from the index.
-    The server itself is not affected by this action.
 
-    Example:
-    $ overcast instance remove app.01
+Description:
+  Removes an instance from the index.
+  The server itself is not affected by this action.
 
-  overcast instance update [name] [options]
-    Update any instance property. Specifying --cluster will move the instance
-    to that cluster. Specifying --name will rename the instance.
-
-      Option               | Default
-      --name NAME          |
-      --cluster CLUSTER    |
-      --ip IP              |
-      --ssh-port PORT      |
-      --ssh-key PATH       |
-      --user USERNAME      |
-
-    Example:
-    $ overcast instance update app.01 --user myuser --ssh-key /path/to/key
+Examples:
+  $ overcast instance remove app-01
 ```
 
-### overcast key
+### overcast instance update
 
 ```
+Usage:
+  overcast instance update [name] [options...]
+
+Description:
+  Update any instance property. Specifying --cluster will move the instance
+  to that cluster. Specifying --name will rename the instance.
+
+Options:
+  --name NAME
+  --cluster CLUSTER
+  --ip IP
+  --ssh-port PORT
+  --ssh-key PATH
+  --user USERNAME
+
+Examples:
+  $ overcast instance update app.01 --user myuser --ssh-key /path/to/key
+```
+
+### overcast key create
+
+```
+Usage:
   overcast key create [name]
-    Creates a new SSH key in the current .overcast config.
 
-    Example:
-    $ overcast key create myKeyName
-    > New SSH key "myKeyName" created.
-    > /path/to/.overcast/keys/myKeyName.key
-    > /path/to/.overcast/keys/myKeyName.key.pub
+Description:
+  Creates a new SSH key in the current .overcast config.
 
+Examples:
+  $ overcast key create myKeyName
+  New SSH key "myKeyName" created.
+   - /path/to/.overcast/keys/myKeyName.key
+   - /path/to/.overcast/keys/myKeyName.key.pub
+```
+
+### overcast key delete
+
+```
+Usage:
   overcast key delete [name]
-    Deletes SSH public/private key files from the current .overcast config.
 
-    Example:
-    $ overcast key delete myKeyName
-    > SSH key "myKeyName" deleted.
+Description:
+  Deletes SSH public/private key files from the current .overcast config.
 
+Examples:
+  $ overcast key delete myKeyName
+  SSH key "myKeyName" deleted.
+```
+
+### overcast key get
+
+```
+Usage:
   overcast key get [name] [option]
-    Display the requested SSH key data or path from the current .overcast config.
-    Defaults to displaying the public key data if no option found.
 
-      Option
-      --public-data
-      --private-data
-      --public-path
-      --private-path
+Description:
+  Display the requested SSH key data or path from the current .overcast config.
+  Defaults to displaying the public key data if no option found.
 
-    Examples:
-    $ overcast key get myKeyName
-    > [public key data]
-    $ overcast key get myKeyName --private-data
-    > [private key data]
+Options:
+  --public-data
+  --private-data
+  --public-path
+  --private-path
 
+Examples:
+  $ overcast key get myKeyName
+  [public key data]
+  $ overcast key get myKeyName --private-data
+  [private key data]
+```
+
+### overcast key list
+
+```
+Usage:
   overcast key list
-    List the found SSH key names in the current .overcast config.
 
-    Examples:
-    $ overcast key list
-    > myKeyName
-    > overcast
+Description:
+  List the found SSH key names in the current .overcast config.
+
+Examples:
+  $ overcast key list
+  myKeyName
+  overcast
 ```
 
 ### overcast linode
@@ -704,76 +803,87 @@ Usage:
   overcast list
 
 Description:
-  Short list of your cluster and instance definitions, stored here:
-  undefined/clusters.json
+  List your cluster and instance definitions.
 ```
 
 ### overcast ping
 
 ```
-  overcast ping [instance|cluster|all]
-    Ping an instance or cluster.
+Usage:
+  overcast ping [instance|cluster|all] [options]
 
-      Option    | Default
-      --count N | 3
+Description:
+  Display the average ping time for an instance or cluster.
 
-    Examples:
-    $ overcast ping app.01
-    $ overcast ping db --count 5
+Options:             Defaults:
+  --count N, -c N    3
+
+Examples:
+  $ overcast ping app-01
+  $ overcast ping db --count 5
 ```
 
 ### overcast port
 
 ```
+Usage:
   overcast port [instance|cluster|all] [port]
-    Change the SSH port for an instance or a cluster.
-    This command will fail if the new port is not opened by iptables.
 
-    Examples:
-    $ overcast port app.01 22222
-    $ overcast port db 22222
+Description:
+  Change the SSH port for an instance or a cluster.
+  This command will fail if the new port is not opened by iptables.
+
+Examples:
+  $ overcast port app-01 22222
+  $ overcast port db 22222
 ```
 
 ### overcast pull
 
 ```
-  overcast pull [instance|cluster|all] [source] [dest]
-    Pull a file or directory from an instance or cluster using scp by default,
-    or using rsync if the --rsync flag is used. Source is absolute or relative
-    to the home directory. Destination can be absolute or relative to the
-    .overcast/files directory. Any reference to {instance} in the destination
-    will be replaced with the instance name.
+Usage:
+  overcast pull [instance|cluster|all] [source] [dest] [options...]
 
-      Option         | Default
-      --rsync        | false
-      --user NAME    |
+Description:
+  Pull a file or directory from an instance or cluster using scp by default,
+  or using rsync if the --rsync flag is used. Source is absolute or relative
+  to the home directory. Destination can be absolute or relative to the
+  .overcast/files directory. Any reference to {instance} in the destination
+  will be replaced with the instance name.
 
-    Example:
-    Assuming instances "app.01" and "app.02", this will expand to:
-      - .overcast/files/app.01.bashrc
-      - .overcast/files/app.02.bashrc
-    $ overcast pull app .bashrc {instance}.bashrc
+Options:         Defaults:
+  --rsync        false
+  --user NAME
+
+Examples:
+  Assuming instances "app.01" and "app.02", this will expand to:
+    - .overcast/files/app.01.bashrc
+    - .overcast/files/app.02.bashrc
+  $ overcast pull app .bashrc {instance}.bashrc
 ```
 
 ### overcast push
 
 ```
-  overcast push [instance|cluster|all] [source] [dest]
-    Push a file or directory to an instance or cluster using scp by default,
-    or rsync if the --rsync flag is used. Source can be absolute or relative
-    to the .overcast/files directory. Destination can be absolute or relative
-    to the home directory. Any reference to {instance} in the source will be
-    replaced with the instance name.
+Usage:
+  overcast push [instance|cluster|all] [source] [dest] [options...]
 
-      Option         | Default
-      --rsync        | false
-      --user NAME    |
+Description:
+  Push a file or directory to an instance or cluster using scp by default,
+  or rsync if the --rsync flag is used. Source can be absolute or relative
+  to the .overcast/files directory. Destination can be absolute or relative
+  to the home directory. Any reference to {instance} in the source will be
+  replaced with the instance name.
 
-    Example:
-    Assuming instances "app.01" and "app.02", this will expand to:
-      - .overcast/files/app.01.bashrc
-      - .overcast/files/app.02.bashrc
-    $ overcast push app {instance}.bashrc .bashrc
+Options:         Defaults:
+  --rsync        false
+  --user NAME
+
+Examples:
+  Assuming instances "app.01" and "app.02", this will expand to:
+    - .overcast/files/app.01.bashrc
+    - .overcast/files/app.02.bashrc
+  $ overcast push app {instance}.bashrc .bashrc
 ```
 
 ### overcast reboot
@@ -790,148 +900,154 @@ Description:
 ### overcast remove
 
 ```
+Usage:
   overcast remove [name]
-    Removes an instance from the index.
-    The server itself is not affected by this action.
 
-    Example:
-    $ overcast remove app.01
+Description:
+  Removes an instance from the index.
+  The server itself is not affected by this action.
+
+Examples:
+  $ overcast instance remove app-01
 ```
 
 ### overcast run
 
 ```
-  overcast run [instance|cluster|all] [command...]
-    Runs a command or series of commands on an instance or cluster.
-    Commands will execute sequentially unless you use the --parallel flag,
-    in which case each command will execute on all instances in parallel.
+Usage:
+  overcast run [instance|cluster|all] [command|file...]
 
-      Option                          | Default
-      --env "KEY=VAL KEY='1 2 3'"     |
-      --user NAME                     |
-      --ssh-key PATH                  |
-      --ssh-args ARGS                 |
-      --continueOnError               | false
-      --machine-readable --mr         | false
-      --parallel -p                   | false
+Description:
+  Execute commands or script files on an instance or cluster over SSH.
+  Commands will execute sequentially unless the --parallel flag is used.
+  An error will stop execution unless the --continueOnError flag is used.
+  Script files can be either absolute or relative path.
 
-    Examples
+Options:                         Defaults:
+  --env "KEY=VAL KEY='1 2 3'"
+  --user NAME
+  --ssh-key PATH
+  --ssh-args ARGS
+  --continueOnError              false
+  --machine-readable, --mr       false
+  --parallel, -p                 false
+  --shell-command "COMMAND"      bash -s
 
-    Run arbirary scripts in sequence across all instances:
-    $ overcast run all uptime "free -m" "df -h"
+Examples:
+  # Run arbirary commands and files in sequence across all instances:
+  $ overcast run all uptime "free -m" "df -h" /path/to/my/script
 
-    Setting environment variables:
-    $ overcast run app --env "foo='bar bar' testing=123" env
+  # Setting environment variables:
+  $ overcast run app --env "foo='bar bar' testing=123" env
 
-    Print machine-readable output (without server prefix):
-    $ overcast run app uptime --mr
+  # Use machine-readable output (no server prefix):
+  $ overcast run app-01 uptime --mr
 
-  overcast run [instance|cluster|all] [file...]
-    Executes a script file or files on an instance or cluster. Script files can be
-    either absolute or relative path. Files execute sequentially unless you use -p
-    in which case each file will execute on all instances in parallel.
+  # Run bundled and custom scripts in sequence:
+  $ overcast run db-* install/core install/redis ./my/install/script
 
-      Option                          | Default
-      --env "KEY=VAL KEY='1 2 3'"     |
-      --user NAME                     |
-      --ssh-key PATH                  |
-      --shell-command "COMMAND"       | bash -s
-      --ssh-args ARGS                 |
-      --continueOnError               | false
-      --machine-readable --mr         | false
-      --parallel -p                   | false
-
-    Relative paths are relative to the cwd, or to these directories:
-    /path/to/.overcast/scripts
-    /path/to/installed/overcast/scripts
-
-    Examples
-
-    Run bundled scripts in sequence on a "db" cluster:
-    $ overcast run db install/core install/redis
-
-    Pass along arbitrary SSH arguments, for example, to force a pseudo-tty:
-    $ overcast run all /my/install/script --ssh-args "-tt"
+  # Pass along arbitrary SSH arguments, for example to force a pseudo-tty:
+  $ overcast run all /my/install/script --ssh-args "-tt"
 ```
 
 ### overcast scriptvar
 
 ```
+Usage:
   overcast scriptvar [instance|cluster|all] [filename] [key] [value]
-    Set a named variable in a remote file on an instance or cluster.
 
-      Option                          | Default
-      --user NAME                     |
-      --continueOnError               | false
-      --mr --machine-readable         | false
-      --parallel -p                   | false
+Description:
+  Set a named variable in a remote file on an instance or cluster.
+  Expects a shell variable format, for example MY_VAR_NAME="my_value"
 
-    Example
-    $ overcast scriptvar app-01 /path/to/file.conf MY_API_TOKEN abc123
+Options:                      Defaults:
+  --user NAME
+  --continueOnError           false
+  --machine-readable, --mr    false
+  --parallel, -p              false
+
+Examples:
+  $ overcast scriptvar app-01 /path/to/file.sh MY_API_TOKEN abc123
 ```
 
 ### overcast slack
 
 ```
+Usage:
   overcast slack [message] [options...]
-    Sends a message to a Slack channel.
-    Expects SLACK_WEBHOOK_URL property to be set in variables.json.
 
-      Option               | Default
-      --channel NAME       | #alerts
-      --icon-emoji EMOJI   | :cloud:
-      --icon-url URL       |
-      --user NAME          | Overcast
-      --KEY VALUE          |
+Description:
+  Sends a message to a Slack channel.
+  Requires a SLACK_WEBHOOK_URL property to be set in variables.json.
+  You can set that with the following command:
+  overcast var set SLACK_WEBHOOK_URL https://foo.slack.com/blah
 
-    Examples:
-    $ overcast slack "Deploy completed." --icon-emoji ":satelite:"
-    $ overcast slack "Server stats" --channel "#general" --cpu "0.54 0.14 0.09"
+Options:                Defaults:
+  --channel NAME        #alerts
+  --icon-emoji EMOJI    :cloud:
+  --icon-url URL
+  --user NAME           Overcast
+  --KEY VALUE
+
+Examples:
+  $ overcast slack "Deploy completed." --icon-emoji ":satelite:"
+  $ overcast slack "Server stats" --channel "#general" --cpu "0.54 0.14 0.09"
 ```
 
 ### overcast ssh
 
 ```
-  overcast ssh [instance|cluster|all]
-    Opens an interactive SSH connection to an instance or cluster.
-    Because what could possibly go wrong?
+Usage:
+  overcast ssh [instance] [options...]
 
-    Option
-    --ssh-key PATH
-    --user NAME
+Description:
+  Opens an interactive SSH connection to an instance.
+
+Options:
+  --user NAME
+  --ssh-key PATH
 ```
 
 ### overcast tunnel
 
 ```
+Usage:
   overcast tunnel [instance] [local-port((:hostname):remote-port)...]
-    Opens an SSH tunnel to the port(s) specified.
-    If only one port is specified, assume the same port for local/remote.
-    If no remote host is specified, assume the remote host itself (127.0.0.1).
-    Multiple tunnels can be opened over a single connection.
 
-    Examples:
+Description:
+  Opens an SSH tunnel to the port(s) specified.
+  If only one port is specified, assume the same port for local/remote.
+  If no remote host is specified, assume the remote host itself (127.0.0.1).
+  Multiple tunnels can be opened over a single connection.
 
-    # Tunnel local 5984 to remote 5984:
-    $ overcast tunnel app-01 5984
+Options:
+  --user NAME
+  --ssh-key PATH
 
-    # Tunnel local 8000 to remote 5984, local 8001 to remote 3000.
-    $ overcast tunnel app-01 8000:5984 8001:3000
+Examples:
+  # Tunnel local 5984 to remote 5984
+  $ overcast tunnel app-01 5984
 
-    # Tunnel local 3000 to otherhost.com:4000.
-    $ overcast tunnel app-01 3000:otherhost.com:4000
+  # Tunnel local 8000 to remote 5984, local 8001 to remote 3000
+  $ overcast tunnel app-01 8000:5984 8001:3000
+
+  # Tunnel local 3000 to otherhost.com:4000
+  $ overcast tunnel app-01 3000:otherhost.com:4000
 ```
 
-### overcast var
+### overcast var list
 
 ```
-
 Usage:
   overcast var list
 
 Description:
   List variables in /path/to/.overcast/variables.json.
+```
 
+### overcast var set
+
+```
 Usage:
   overcast var set [name] [value]
 
@@ -941,7 +1057,11 @@ Description:
 Examples:
   $ overcast var set AWS_KEY myawskey12345
   $ overcast var set MY_CUSTOM_VARIABLE_NAME foo
+```
 
+### overcast var get
+
+```
 Usage:
   overcast var get [name]
 
@@ -952,6 +1072,13 @@ Examples:
   $ overcast var get AWS_KEY
   > myawskey12345
 
+  $ overcast var get MY_CUSTOM_VARIABLE_NAME
+  > foo
+```
+
+### overcast var delete
+
+```
 Usage:
   overcast var delete [name]
 
@@ -1027,14 +1154,14 @@ Examples:
 ### overcast wait
 
 ```
+Usage:
   overcast wait [seconds]
-    Show a progress bar for a specified number of seconds.
 
-    Wait 30 seconds:
-    $ overcast wait 30
+Description:
+  Show a progress bar for a specified number of seconds.
 
-    Wait 120 seconds:
-    $ overcast wait 120
+Examples:
+  $ overcast wait 30
 ```
 
 ## Running the Tests
