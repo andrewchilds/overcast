@@ -42,10 +42,12 @@ $ overcast import app-02 --ip 2.2.2.2 --ssh-key ~/.ssh/id_rsa
 Run multiple commands or multiple scripts on any or all of your instances at once, over SSH. Commands can be run sequentially or in parallel using the `--parallel` flag.
 
 ```sh
-# Run bundled scripts:
-$ overcast run db install/core install/apache install/mysql install/php
+# Run bundled scripts, e.g. a LAMP stack:
+$ overcast run lamp-01 install/core install/apache install/mysql install/php
+
 # Run scripts relative to the current working directory or using absolute path:
 $ overcast run app-cluster ./recipes/my-app/install /path/to/script
+
 # Run sequences of commands and scripts across multiple machines in parallel:
 $ overcast run db ./script.sh uptime "free -m" "df -h" --parallel
 ```
@@ -1188,6 +1190,7 @@ Contributions are welcome. If you've got an idea for a feature or found a bug, p
 
 ## Roadmap
 
+- Standardize Recipes
 - Tagging
 - Events
 - Google Compute Engine support
