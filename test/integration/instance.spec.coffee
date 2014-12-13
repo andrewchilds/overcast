@@ -7,7 +7,7 @@ describe 'instance', ->
 
     it 'should allow me to import an instance', ->
       overcast 'cluster create instance-test', ->
-        overcast 'instance import instance.01 --cluster instance-test --ip 127.0.0.1', (stdout) ->
+        overcast 'instance import instance.01 127.0.0.1 --cluster instance-test', (stdout) ->
           expect(stdout).toContain 'Instance "instance.01" (127.0.0.1) has been imported ' +
           'to the "instance-test" cluster'
 

@@ -1,38 +1,46 @@
-var fs = require('fs');
 var _ = require('lodash');
 var utils = require('../utils');
+var filters = require('../filters');
 
-exports.run = function (args) {
-  var clusters = utils.getClusters();
+var commands = {};
+exports.commands = commands;
 
-  utils.grey('Using ' + utils.CONFIG_DIR + '/clusters.json');
+commands.info = {
+  name: 'info',
+  usage: ['overcast info', 'overcast info [name]'],
+  description: ['Pretty-prints the complete clusters.json file, stored here:',
+    utils.CONFIG_DIR + '/clusters.json',
+    'Optionally display only instances matching [name].'],
+  required: [{ name: 'name', optional: true, filters: filters.findMatchingInstances }],
+  run: function (args) {
+    var clusters = utils.getClusters();
 
-  if (_.isEmpty(clusters)) {
-    console.log('');
-    utils.grey('No clusters found.');
-    return false;
-  }
+    utils.grey('Using ' + utils.CONFIG_DIR + '/clusters.json');
 
-  _.each(clusters, function (cluster, clusterName) {
-    console.log('');
-    console.log('  ' + clusterName);
-    _.each(cluster.instances, function (instance) {
-      utils.green('    ' + instance.name);
-      utils.prettyPrint(instance, 6);
+    if (_.isEmpty(clusters)) {
+      console.log('');
+      utils.grey('No clusters found.');
+      return false;
+    }
+
+    if (args.instances) {
+      console.log('');
+      _.each(args.instances, function (instance) {
+        console.log(instance.name);
+        utils.prettyPrint(instance, 2);
+      });
+
+      return false;
+    }
+
+    _.each(clusters, function (cluster, clusterName) {
+      console.log('');
+      utils.cyan(clusterName);
+      _.each(cluster.instances, function (instance) {
+        console.log('');
+        console.log('  ' + instance.name);
+        utils.prettyPrint(instance, 4);
+      });
     });
-  });
-};
-
-exports.signatures = function () {
-  return [
-    '  overcast info'
-  ];
-};
-
-exports.help = function () {
-  utils.printArray([
-    'overcast info',
-    '  Pretty-prints the complete clusters.json file, stored here:'.grey,
-    ('  ' + utils.CONFIG_DIR + '/clusters.json').cyan
-  ]);
+  }
 };

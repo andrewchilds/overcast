@@ -1,32 +1,18 @@
 var utils = require('../utils');
-var instanceCommand = require('./instance');
+var instance = require('./instance');
 
-exports.run = function (args) {
-  args.command = 'instance';
-  args._.unshift('import');
-  instanceCommand.run(args);
-};
+var commands = {};
+exports.commands = commands;
 
-exports.signatures = function () {
-  return [
-    '  overcast import [name] [options...]'
-  ];
-};
-
-exports.help = function () {
-  utils.printArray([
-    'overcast import [name] [options...]',
-    '  Imports an existing instance to a cluster.'.grey,
-    '',
-    '    Option               | Default'.grey,
-    '    --cluster CLUSTER    | default'.grey,
-    '    --ip IP              |'.grey,
-    '    --ssh-port PORT      | 22 '.grey,
-    '    --ssh-key PATH       | overcast.key'.grey,
-    '    --user USERNAME      | root'.grey,
-    '',
-    '  Example:'.grey,
-    '  $ overcast import app.01 --cluster app --ip 127.0.0.1 \\'.grey,
-    '      --ssh-port 22222 --ssh-key $HOME/.ssh/id_rsa'.grey
-  ]);
+commands.import = {
+  name: 'import',
+  usage: 'overcast import [name] [ip] [options...]',
+  description: instance.commands.import.description,
+  required: instance.commands.import.required,
+  options: instance.commands.import.options,
+  run: function (args) {
+    args.command = 'instance';
+    args._.unshift('import');
+    instance.commands.import.run(args);
+  }
 };

@@ -2,8 +2,9 @@
 
 // Generates Markdown-formatted API documentation from module/command help functions.
 
-var utils = require('../modules/utils');
 var _ = require('lodash');
+var utils = require('../modules/utils');
+var cli = require('../modules/cli');
 
 utils.findConfig(function () {
   utils.CONFIG_DIR = '/path/to/.overcast';
@@ -11,12 +12,26 @@ utils.findConfig(function () {
   utils.VARIABLES_JSON = utils.CONFIG_DIR + '/variables.json';
 
   _.each(utils.getCommands(), function (command, name) {
-    console.log('### overcast ' + name);
-    console.log('');
-    console.log('```');
-    // console.log('$ overcast help ' + (name === 'help' ? '' : name));
-    command.help();
-    console.log('```');
-    console.log('');
+    if (command.help) {
+      // Old syntax <= 0.6.1
+      console.log('### overcast ' + name);
+      console.log('');
+      console.log('```');
+      command.help();
+      console.log('```');
+      console.log('');
+    } else if (command.commands) {
+      // New syntax > 0.6.1
+      _.each(command.commands, function (subcommand) {
+        var subcommandName = subcommand.name && name !== subcommand.name ?
+          ' ' + subcommand.name : '';
+        console.log('### overcast ' + name + subcommandName);
+        console.log('');
+        console.log('```');
+        cli.compileHelp(subcommand, true);
+        console.log('```');
+        console.log('');
+      });
+    }
   });
 });

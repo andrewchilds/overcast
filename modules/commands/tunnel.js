@@ -1,19 +1,43 @@
 var _ = require('lodash');
 var utils = require('../utils');
+var filters = require('../filters');
 
-exports.run = function (args) {
-  utils.argShift(args, 'name');
+var commands = {};
+exports.commands = commands;
 
-  if (!args.name) {
-    return utils.missingParameter('[instance]', exports.help);
-  } else if (args._.length === 0) {
-    return utils.missingParameter('[port...]', exports.help);
+commands.tunnel = {
+  name: 'tunnel',
+  usage: 'overcast tunnel [instance] [local-port((:hostname):remote-port)...]',
+  description: [
+    'Opens an SSH tunnel to the port(s) specified.',
+    'If only one port is specified, assume the same port for local/remote.',
+    'If no remote host is specified, assume the remote host itself (127.0.0.1).',
+    'Multiple tunnels can be opened over a single connection.'
+  ],
+  examples: [
+    '# Tunnel local 5984 to remote 5984',
+    '$ overcast tunnel app-01 5984',
+    '',
+    '# Tunnel local 8000 to remote 5984, local 8001 to remote 3000',
+    '$ overcast tunnel app-01 8000:5984 8001:3000',
+    '',
+    '# Tunnel local 3000 to otherhost.com:4000',
+    '$ overcast tunnel app-01 3000:otherhost.com:4000'
+  ],
+  required: [
+    { name: 'instance', varName: 'name', filters: filters.findFirstMatchingInstance },
+    { name: 'local-port((:hostname):remote-port)...', varName: 'firstPort', raw: true }
+  ],
+  options: [
+    { usage: '--user NAME' },
+    { usage: '--ssh-key PATH' }
+  ],
+  run: function (args) {
+    args._.unshift(args.firstPort);
+    delete args.firstPort;
+
+    connect(args.instance, args);
   }
-
-  var instance = utils.findFirstMatchingInstance(args.name);
-  utils.handleInstanceNotFound(instance, args);
-
-  connect(instance, args);
 };
 
 function connect(instance, args) {
@@ -71,31 +95,4 @@ exports.normalizePorts = function (arr) {
   });
 
   return ports;
-};
-
-exports.signatures = function () {
-  return [
-    '  overcast tunnel [instance] [local-port((:hostname):remote-port)...]'
-  ];
-};
-
-exports.help = function () {
-  utils.printArray([
-    'overcast tunnel [instance] [local-port((:hostname):remote-port)...]',
-    '  Opens an SSH tunnel to the port(s) specified.'.grey,
-    '  If only one port is specified, assume the same port for local/remote.'.grey,
-    '  If no remote host is specified, assume the remote host itself (127.0.0.1).'.grey,
-    '  Multiple tunnels can be opened over a single connection.'.grey,
-    '',
-    '  Examples:'.grey,
-    '',
-    '  # Tunnel local 5984 to remote 5984:'.grey,
-    '  $ overcast tunnel app-01 5984'.grey,
-    '',
-    '  # Tunnel local 8000 to remote 5984, local 8001 to remote 3000.'.grey,
-    '  $ overcast tunnel app-01 8000:5984 8001:3000'.grey,
-    '',
-    '  # Tunnel local 3000 to otherhost.com:4000.'.grey,
-    '  $ overcast tunnel app-01 3000:otherhost.com:4000'.grey
-  ]);
 };

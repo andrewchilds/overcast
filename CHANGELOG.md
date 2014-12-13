@@ -6,6 +6,13 @@ npm -g update overcast
 
 # Change Log
 
+**0.6.2** (Dec 13, 2014)
+
+- Rewrite every command except providers using new compact declarative syntax. Fixes #24. Providers are next.
+- Improve `ssh` command to behave exactly like standalone SSH, by inheriting the existing terminal stdio.
+- Change `import` command signature to expect an [ip] argument.
+- Change `ping` command to only return the average response time from each instance.
+
 **0.6.1** (Dec 2, 2014)
 
 - Improve module loading routine. 1.5x speed improvement.
@@ -13,7 +20,7 @@ npm -g update overcast
 
 **0.6.0** (Nov 9, 2014)
 
-- Replace fixed wait time with real connectivity testing. Fixes #22 and #23.
+- Improve `reboot` command by replacing fixed wait time with real connectivity testing. Fixes #22 and #23.
 - Add `wait` command.
 - Add `destroy` command, which maps to `[provider] destroy`.
 

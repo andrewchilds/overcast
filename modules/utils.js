@@ -7,7 +7,7 @@ var colors = require('colors');
 var Promise = require('bluebird');
 var listCommand = require('./commands/list');
 
-exports.VERSION = '0.6.1';
+exports.VERSION = '0.6.2';
 
 exports.clustersCache = null;
 exports.variablesCache = null;
@@ -39,12 +39,13 @@ exports.promiseWhile = function (condition, action, value) {
 
 exports.runSubcommand = function (args, subcommands, helpFn) {
   if (args.subcommand && subcommands[args.subcommand]) {
+    var command = subcommands[args.subcommand];
     if (args.name === 'help' || args._[0] === 'help') {
       console.log('');
-      return subcommands[args.subcommand].help();
+      return command.help();
     }
 
-    return subcommands[args.subcommand].run(args);
+    return command.run(args);
   }
 
   return exports.missingCommand(helpFn);
@@ -401,6 +402,50 @@ exports.unknownCommand = function () {
   exports.red('Unknown command.');
 };
 
+exports.tokenize = function (str) {
+  var tokens = [];
+  var isQuoted = false;
+  var token = '';
+  var chunks = str.split(' ');
+
+  _.each(chunks, function (chunk) {
+    if (!chunk) {
+      return;
+    }
+
+    var first = _.first(chunk);
+    var last = _.last(chunk);
+    if (isQuoted) {
+      if (last === '"' || last === '\'') {
+        token += ' ' + (chunk.slice(0, -1));
+        tokens.push(token);
+        isQuoted = false;
+      } else {
+        token += ' ' + chunk;
+      }
+    } else {
+      if (first === '"' || first === '\'') {
+        token = chunk.slice(1);
+        isQuoted = true;
+        if (last === '"' || last === '\'') {
+          token = token.slice(0, -1);
+          tokens.push(token);
+          isQuoted = false;
+        }
+      } else {
+        token = '';
+        tokens.push(chunk);
+      }
+    }
+  });
+
+  if (tokens.length === 0 && token) {
+    tokens.push(token);
+  }
+
+  return _.compact(tokens);
+};
+
 exports.sanitize = function (str) {
   if (!str) {
     str = '';
@@ -411,8 +456,37 @@ exports.sanitize = function (str) {
   return str.replace(/[^0-9a-zA-Z\.\-\_\* ]/g, '');
 };
 
+exports.capitalize = function (str) {
+  str = str + '';
+  return str.charAt(0).toUpperCase() + str.slice(1);
+};
+
+exports.padRight = function (str, length, padChar) {
+  str = str + '';
+  padChar = padChar || ' ';
+  while (str.length < length) {
+    str += padChar;
+  }
+
+  return str;
+};
+
+exports.padLeft = function (str, length, padChar) {
+  str = str + '';
+  padChar = padChar || ' ';
+  while (str.length < length) {
+    str = padChar + str;
+  }
+
+  return str;
+};
+
 exports.printArray = function (arr) {
   console.log('  ' + arr.join("\n  "));
+};
+
+exports.forceArray = function (strOrArray) {
+  return _.isArray(strOrArray) ? strOrArray : [strOrArray];
 };
 
 exports.die = function (str) {

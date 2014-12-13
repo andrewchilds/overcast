@@ -1,130 +1,85 @@
-var colors = require('colors');
 var _ = require('lodash');
+var colors = require('colors');
 var utils = require('../utils');
 
-exports.signatures = function () {
-  return utils.printSignatures(subcommands);
-};
+var commands = {};
+exports.commands = commands;
 
-exports.help = function () {
-  utils.printCommandHelp(subcommands);
-};
-
-exports.run = function (args) {
-  utils.argShift(args, 'subcommand');
-  utils.runSubcommand(args, subcommands, exports.help);
-};
-
-var subcommands = {};
-
-subcommands.list = utils.module(function (exports) {
-  exports.signature = 'overcast var list';
-
-  exports.help = function () {
-    utils.printArray([
-      exports.signature,
-      ('  List variables in ' + utils.VARIABLES_JSON + '.').grey
-    ]);
-  };
-
-  exports.run = function (args) {
+commands.list = {
+  name: 'list',
+  usage: 'overcast var list',
+  description: 'List variables in ' + utils.VARIABLES_JSON + '.',
+  run: function (args) {
     var vars = utils.getVariables();
     utils.grey('Using ' + utils.VARIABLES_JSON);
     console.log('');
     _.each(vars, function (value, name) {
-      console.log(name + ': ' + value.green);
+      if (value === '') {
+        console.log(name + ' ' + ('empty string').red);
+      } else if (_.isNull(value)) {
+        console.log(name + ' ' + ('null').red);
+      } else {
+        console.log(name + ' ' + value.green);
+      }
     });
-  };
-});
+  }
+};
 
-subcommands.set = utils.module(function (exports) {
-  exports.signature = 'overcast var set [name] [value]';
-
-  exports.help = function () {
-    utils.printArray([
-      exports.signature,
-      ('  Set a variable in ' + utils.VARIABLES_JSON + '.').grey,
-      '',
-      '  Examples:'.grey,
-      '  $ overcast var set AWS_KEY myawskey12345'.grey,
-      '  $ overcast var set MY_CUSTOM_VARIABLE_NAME foo'.grey
-    ]);
-  };
-
-  exports.run = function (args) {
-    utils.argShift(args, 'name');
-    utils.argShift(args, 'value');
-
-    if (!args.name) {
-      return utils.missingParameter('[name]', exports.help);
-    } else if (!args.value) {
-      return utils.missingParameter('[value]', exports.help);
-    }
-
+commands.set = {
+  name: 'set',
+  usage: 'overcast var set [name] [value]',
+  description: 'Set a variable in ' + utils.VARIABLES_JSON + '.',
+  examples: [
+    '$ overcast var set AWS_KEY myawskey12345',
+    '$ overcast var set MY_CUSTOM_VARIABLE_NAME foo'
+  ],
+  required: ['name', { name: 'value', raw: true }],
+  run: function (args) {
     var vars = utils.getVariables();
     vars[args.name] = args.value;
     utils.saveVariables(vars);
-  };
-});
+    utils.success('OK.');
+  }
+};
 
-subcommands.get = utils.module(function (exports) {
-  exports.signature = 'overcast var get [name]';
-
-  exports.help = function () {
-    utils.printArray([
-      exports.signature,
-      ('  Get a variable from ' + utils.VARIABLES_JSON + '.').grey,
-      '',
-      '  Examples:'.grey,
-      '  $ overcast var get AWS_KEY'.grey,
-      '  > myawskey12345'.grey,
-      '  $ overcast var get MY_CUSTOM_VARIABLE_NAME'.grey,
-      '  > foo'.grey
-    ]);
-  };
-
-  exports.run = function (args) {
-    utils.argShift(args, 'name');
-
-    if (!args.name) {
-      return utils.missingParameter('[name]', exports.help);
-    }
-
+commands.get = {
+  name: 'get',
+  usage: 'overcast var get [name]',
+  description: 'Get a variable from ' + utils.VARIABLES_JSON + '.',
+  examples: [
+    '$ overcast var get AWS_KEY',
+    '> myawskey12345',
+    '',
+    '$ overcast var get MY_CUSTOM_VARIABLE_NAME',
+    '> foo'
+  ],
+  required: ['name'],
+  run: function (args) {
     var vars = utils.getVariables();
     if (vars[args.name]) {
       console.log(vars[args.name]);
     } else {
-      utils.die('Variable not found.');
+      utils.die('Variable not found!');
     }
-  };
-});
+  }
+};
 
-subcommands.delete = utils.module(function (exports) {
-  exports.signature = 'overcast var delete [name]';
-
-  exports.help = function () {
-    utils.printArray([
-      exports.signature,
-      ('  Delete a variable from ' + utils.VARIABLES_JSON + '.').grey,
-      '',
-      '  Examples:'.grey,
-      '  $ overcast var delete MY_CUSTOM_VARIABLE_NAME'.grey
-    ]);
-  };
-
-  exports.run = function (args) {
-    utils.argShift(args, 'name');
-
-    if (!args.name) {
-      return utils.missingParameter('[name]', exports.help);
-    }
-
+commands.delete = {
+  name: 'delete',
+  usage: 'overcast var delete [name]',
+  description: 'Delete a variable from ' + utils.VARIABLES_JSON + '.',
+  examples: [
+    '$ overcast var delete MY_CUSTOM_VARIABLE_NAME'
+  ],
+  required: ['name'],
+  run: function (args) {
     var vars = utils.getVariables();
     if (vars[args.name]) {
-      delete vars[args.name];
+      vars[args.name] = '';
       utils.saveVariables(vars);
+      utils.success('OK.');
     } else {
       utils.grey('Variable not found, no action taken.');
     }
-  };
-});
+  }
+};

@@ -5,9 +5,8 @@ describe 'var', ->
 
   describe 'set', ->
     it 'should set vars', ->
-      overcast 'var set TEST_NAME test_value', ->
-        overcast 'var get TEST_NAME', (stdout) ->
-          expect(stdout).toContain 'test_value'
+      overcast 'var set TEST_NAME test_value', (stdout) ->
+        expect(stdout).toContain 'OK'
 
   describe 'get', ->
     it 'should get vars', ->

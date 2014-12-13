@@ -2,6 +2,7 @@ var fs = require('fs');
 var colors = require('colors');
 var _ = require('lodash');
 var utils = require('../utils');
+var cli = require('../cli');
 
 exports.run = function (args) {
   if (!args.subcommand) {
@@ -20,6 +21,8 @@ exports.run = function (args) {
       var module = require('./' + moduleName);
       if (module && module.help) {
         return module.help();
+      } else if (module && module.commands) {
+        return cli.missingCommand(module, args);
       }
     } else {
       utils.unknownCommand();
@@ -33,7 +36,7 @@ exports.help = function () {
   var signatures = [];
   var row = ' ';
   _.each(utils.getCommands(), function (command, name) {
-    if (name !== 'help' && command.signatures) {
+    if (name !== 'help' && (command.signatures || command.commands)) {
       if (row.length > 65) {
         signatures.push(row);
         row = ' ';

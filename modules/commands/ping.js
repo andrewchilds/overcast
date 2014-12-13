@@ -1,45 +1,36 @@
 var _ = require('lodash');
 var cp = require('child_process');
 var utils = require('../utils');
+var filters = require('../filters');
 
-exports.run = function (args) {
-  utils.argShift(args, 'name');
+var commands = {};
+exports.commands = commands;
 
-  if (!args.name) {
-    return utils.missingParameter('[instance|cluster|all]', exports.help);
-  }
-
-  var count = args.count || 3;
-
-  var instances = utils.findMatchingInstances(args.name);
-  utils.handleInstanceOrClusterNotFound(instances, args);
-
-  _.each(instances, function (instance) {
-    var color = utils.SSH_COLORS[utils.SSH_COUNT++ % 5];
-
-    cp.exec('ping -c ' + count + ' ' + instance.ip, function (err, stdout) {
-      utils.prefixPrint(instance.name, color, "\n" + stdout.trim());
-      console.log('');
+commands.ping = {
+  name: 'ping',
+  usage: 'overcast ping [instance|cluster|all] [options]',
+  description: 'Display the average ping time for an instance or cluster.',
+  examples: [
+    '$ overcast ping app-01',
+    '$ overcast ping db --count 5'
+  ],
+  required: [
+    { name: 'name', filters: filters.findMatchingInstances }
+  ],
+  options: [{ usage: '--count N, -c N', default: '3' }],
+  run: function (args) {
+    var count = args.count || args.c || 3;
+    _.each(args.instances, function (instance) {
+      ping(instance, count);
     });
+  }
+};
+
+function ping(instance, count) {
+  cp.exec('ping -c ' + count + ' ' + instance.ip, function (err, stdout) {
+    var color = utils.SSH_COLORS[utils.SSH_COUNT++ % 5];
+    var averagePing = stdout.match(/ ([\d\.]+)\/([\d\.]+)\/([\d\.]+)\/([\d\.]+) ms/);
+    var prefix = instance.name + ': ';
+    console.log(prefix[color] + averagePing[2] + ' ms');
   });
-};
-
-exports.signatures = function () {
-  return [
-    '  overcast ping [instance|cluster|all]'
-  ];
-};
-
-exports.help = function () {
-  utils.printArray([
-    'overcast ping [instance|cluster|all]',
-    '  Ping an instance or cluster.'.grey,
-    '',
-    '    Option    | Default'.grey,
-    '    --count N | 3'.grey,
-    '',
-    '  Examples:'.grey,
-    '  $ overcast ping app.01'.grey,
-    '  $ overcast ping db --count 5'.grey
-  ]);
-};
+}
