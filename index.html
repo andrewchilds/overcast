@@ -84,8 +84,10 @@ $ overcast import app-02 --ip 2.2.2.2 --ssh-key <span class="pl-k">~</span>/.ssh
 
 <div class="highlight highlight-sh"><pre><span class="pl-c"># Run bundled scripts:</span>
 $ overcast run db install/core install/apache install/mysql install/php
+
 <span class="pl-c"># Run scripts relative to the current working directory or using absolute path:</span>
 $ overcast run app-cluster ./recipes/my-app/install /path/to/script
+
 <span class="pl-c"># Run sequences of commands and scripts across multiple machines in parallel:</span>
 $ overcast run db ./script.sh uptime <span class="pl-s1"><span class="pl-pds">"</span>free -m<span class="pl-pds">"</span></span> <span class="pl-s1"><span class="pl-pds">"</span>df -h<span class="pl-pds">"</span></span> --parallel</pre></div>
 
@@ -1226,6 +1228,7 @@ npm <span class="pl-s3">test</span></pre></div>
 <a id="user-content-roadmap" class="anchor" href="#roadmap" aria-hidden="true"><span class="octicon octicon-link"></span></a>Roadmap</h2>
 
 <ul class="task-list">
+<li>Standardize Recipes</li>
 <li>Tagging</li>
 <li>Events</li>
 <li>Google Compute Engine support</li>
