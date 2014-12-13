@@ -11,6 +11,7 @@ npm -g update overcast
 - Rewrite every command except providers using new compact declarative syntax. Fixes #24. Providers are next.
 - Improve `ssh` command to behave exactly like standalone SSH, by inheriting the existing terminal stdio.
 - Change `import` command signature to expect an [ip] argument.
+- Change `ping` command to only return the average response time from each instance.
 
 **0.6.1** (Dec 2, 2014)
 
