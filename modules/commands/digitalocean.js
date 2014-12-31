@@ -27,7 +27,11 @@ commands.create = {
   usage: 'overcast digitalocean create [name] [options...]',
   description: ['Creates a new instance on DigitalOcean.'],
   examples: [
-    '$ overcast digitalocean create vm-01 --size 2gb --region sfo1'
+    '# Match using slugs:',
+    '$ overcast digitalocean create vm-01 --size 2gb --region sfo1',
+    '',
+    '# Match using IDs or names:',
+    '$ overcast digitalocean create vm-02 --region "London 1" --image 6374128'
   ],
   required: [
     { name: 'name', filters: filters.shouldBeNewInstance }
