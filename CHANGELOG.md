@@ -6,6 +6,12 @@ npm -g update overcast
 
 # Change Log
 
+**0.6.3** (Dec 31, 2014)
+
+- Rewrite `digitalocean` commands to use new standard provider API. Command options have been simplified, and allow for fuzzy matching of regions, images, and sizes based on ID, name, or slug.
+- Add `digitalocean sync` command.
+- Display raw rsync/scp commands before spawning processes in `push` and `pull` commands.
+
 **0.6.2** (Dec 13, 2014)
 
 - Rewrite every command except providers using new compact declarative syntax. Fixes #24. Providers are next.

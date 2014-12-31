@@ -23,6 +23,9 @@ utils.findConfig(function () {
     } else if (command.commands) {
       // New syntax > 0.6.1
       _.each(command.commands, function (subcommand) {
+        if (subcommand.alias === true) {
+          return;
+        }
         var subcommandName = subcommand.name && name !== subcommand.name ?
           ' ' + subcommand.name : '';
         console.log('### overcast ' + name + subcommandName);

@@ -137,6 +137,10 @@ exports.missingCommand = function (command, args) {
   }
 
   _.each(command.commands, function (command) {
+    if (command.alias === true) {
+      return;
+    }
+
     console.log('');
     exports.printLines(command.usage);
     exports.printLines(command.description, { color: 'grey', pad: 2 });

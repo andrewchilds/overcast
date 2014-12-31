@@ -1,8 +1,5 @@
-run = require('../../modules/commands/run')
 ssh = require('../../modules/ssh')
 cli = require('../../modules/cli')
-utils = require('../../modules/utils')
-mockArgs = require('./utils').mockArgs
 
 describe 'run', ->
   beforeEach ->

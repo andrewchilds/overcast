@@ -1,8 +1,5 @@
-pull = require('../../modules/commands/pull')
 cli = require('../../modules/cli')
 scp = require('../../modules/scp')
-utils = require('../../modules/utils')
-mockArgs = require('./utils').mockArgs
 
 describe 'pull', ->
   beforeEach ->

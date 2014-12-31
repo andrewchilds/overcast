@@ -1,316 +1,220 @@
 var _ = require('lodash');
-var readline = require('readline');
 var utils = require('../utils');
-var list = require('./list');
-var API = require('../providers/digitalocean.js');
+var filters = require('../filters');
+var provider = require('../provider');
+var api = require('../providers/digitalocean.js');
 
-exports.run = function (args) {
-  utils.argShift(args, 'subcommand');
-  utils.argShift(args, 'name');
+var commands = {};
+exports.commands = commands;
 
-  if (!args.subcommand || !subcommands[args.subcommand]) {
-    return utils.missingCommand(exports.help);
-  }
-
-  if (args.name === 'help' && subcommands[args.subcommand].help) {
-    console.log('');
-    return subcommands[args.subcommand].help();
-  }
-
-  if (/^(create|droplets|images|regions|sizes|snapshots)$/.test(args.subcommand)) {
-    return subcommands[args.subcommand](args);
-  }
-
-  if (!args.name) {
-    return utils.missingParameter('[name]', subcommands[args.subcommand].help || exports.help);
-  }
-
-  var instance = utils.findFirstMatchingInstance(args.name);
-  utils.handleInstanceNotFound(instance, args);
-
-  if (instance.digitalocean && instance.digitalocean.id) {
-    subcommands[args.subcommand](instance, args);
-  } else {
-    API.getDropletInfoByInstanceName(instance.name, function (droplet) {
-      instance.digitalocean = droplet;
-      utils.updateInstance(instance.name, {
-        digitalocean: instance.digitalocean
-      });
-      subcommands[args.subcommand](instance, args);
-    });
+commands.boot = {
+  name: 'boot',
+  usage: 'overcast digitalocean boot [name]',
+  description: 'Boot up an instance if powered off, otherwise do nothing.',
+  required: [
+    { name: 'name', filters: filters.findFirstMatchingInstance }
+  ],
+  async: true,
+  run: function (args, next) {
+    provider.boot(api, args, next);
   }
 };
 
-var subcommands = {};
+commands.poweron = _.extend({ alias: true }, commands.boot);
 
-subcommands.create = function (args) {
-  var clusters = utils.getClusters();
-
-  if (!args.cluster) {
-    utils.grey('Using "default" cluster.');
-    args.cluster = 'default';
+commands.create = {
+  name: 'create',
+  usage: 'overcast digitalocean create [name] [options...]',
+  description: ['Creates a new instance on DigitalOcean.'],
+  examples: [
+    '$ overcast digitalocean create vm-01 --size 2gb --region sfo1'
+  ],
+  required: [
+    { name: 'name', filters: filters.shouldBeNewInstance }
+  ],
+  options: [
+    { usage: '--cluster CLUSTER', default: 'default' },
+    { usage: '--ssh-port PORT', default: '22' },
+    { usage: '--ssh-key PATH', default: 'overcast.key' },
+    { usage: '--ssh-pub-key PATH', default: 'overcast.key.pub' },
+    { usage: '--region REGION', default: 'nyc3' },
+    { usage: '--image IMAGE', default: 'ubuntu-14-04-x64' },
+    { usage: '--size SIZE', default: '512mb' },
+    { usage: '--backups-enabled', default: 'false' },
+    { usage: '--private-networking', default: 'false' }
+  ],
+  run: function (args) {
+    provider.create(api, args);
   }
+};
 
-  if (!args.name) {
-    return utils.missingParameter('[name]', subcommands.create.help);
-  } else if (clusters[args.cluster] && clusters[args.cluster].instances[args.name]) {
-    return utils.dieWithList('Instance "' + args.name + '" already exists.');
+commands.destroy = {
+  name: 'destroy',
+  usage: 'overcast digitalocean destroy [name] [options...]',
+  description: [
+    'Destroys a DigitalOcean droplet and removes it from your account.',
+    'Using --force overrides the confirm dialog.'
+  ],
+  examples: [
+    '$ overcast digitalocean destroy vm-01'
+  ],
+  required: [
+    { name: 'name', filters: filters.findFirstMatchingInstance }
+  ],
+  options: [
+    { usage: '--force', default: 'false' }
+  ],
+  async: true,
+  run: function (args, next) {
+    provider.destroy(api, args, next);
   }
-
-  API.create(args);
 };
 
-subcommands.create.help = function () {
-  utils.printArray([
-    'overcast digitalocean create [name] [options]',
-    '  Creates a new instance on DigitalOcean.'.grey,
-    '',
-    '  The instance will start out using the auto-generated SSH key found here:'.grey,
-    ('  ' + utils.CONFIG_DIR + '/keys/overcast.key.pub').cyan,
-    '',
-    '  You can specify region, image, and size of the droplet using -id or -slug.'.grey,
-    '  You can also specify an image or snapshot using --image-name.'.grey,
-    '',
-    '    Option                  | Default'.grey,
-    '    --cluster CLUSTER       | default'.grey,
-    '    --ssh-port PORT         | 22'.grey,
-    ('    --ssh-key KEY_PATH      | overcast.key').grey,
-    ('    --ssh-pub-key KEY_PATH  | overcast.key.pub').grey,
-    '    --region-slug NAME      | nyc2'.grey,
-    '    --region-id ID          |'.grey,
-    '    --image-slug NAME       | ubuntu-14-04-x64'.grey,
-    '    --image-id ID           |'.grey,
-    '    --image-name NAME       |'.grey,
-    '    --size-slug NAME        | 512mb'.grey,
-    '    --size-id ID            |'.grey,
-    '    --backups-enabled       | false'.grey,
-    '    --private-networking    | false'.grey,
-    '',
-    '  Example:'.grey,
-    '  $ overcast digitalocean create db.01 --size-slug 2gb --region-slug sfo1'.grey
-  ]);
-};
-
-subcommands.destroy = function (instance, args) {
-  if (args.force) {
-    return API.destroy(instance);
+commands.images = {
+  name: 'images',
+  usage: 'overcast digitalocean images',
+  description: 'List all images, including snapshots.',
+  run: function (args) {
+    provider.images(api);
   }
-
-  var rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout
-  });
-
-  rl.question(('Do you really want to destroy droplet "' + instance.name + '"? [Y/n]').yellow, function (answer) {
-    rl.close();
-    if (answer === 'n' || answer === 'N') {
-      utils.grey('No action taken.');
-    } else {
-      API.destroy(instance);
-    }
-  });
 };
 
-subcommands.destroy.help = function () {
-  utils.printArray([
-    'overcast digitalocean destroy [name]',
-    '  Destroys a DigitalOcean droplet and removes it from your account.'.grey,
-    '  Using --force overrides the confirm dialog. This is irreversible.'.grey,
-    '',
-    '    Option                  | Default'.grey,
-    '    --force                 | false'.grey
-  ]);
-};
-
-subcommands.droplets = function () {
-  API.getDroplets(function (droplets) {
-    utils.printCollection('droplets', droplets);
-  });
-};
-
-subcommands.droplets.help = function () {
-  utils.printArray([
-    'overcast digitalocean droplets',
-    '  List all DigitalOcean droplets in your account.'.grey
-  ]);
-};
-
-subcommands.images = function () {
-  API.getImages(function (images) {
-    utils.printCollection('images', images);
-  });
-};
-
-subcommands.images.help = function () {
-  utils.printArray([
-    'overcast digitalocean images',
-    '  List all available DigitalOcean images. Includes snapshots.'.grey
-  ]);
-};
-
-subcommands.poweron = function (instance) {
-  API.powerOn(instance);
-};
-
-subcommands.poweron.help = function () {
-  utils.printArray([
-    'overcast digitalocean poweron [name]',
-    '  Power on a powered off droplet.'.grey
-  ]);
-};
-
-subcommands.reboot = function (instance) {
-  API.reboot(instance);
-};
-
-subcommands.reboot.help = function () {
-  utils.printArray([
-    'overcast digitalocean reboot [name]',
-    '  Reboots a DigitalOcean droplet. According to the API docs, "this is the'.grey,
-    '  preferred method to use if a server is not responding."'.grey
-  ]);
-};
-
-subcommands.rebuild = function (instance, args) {
-  if (!args['image-id'] && !args['image-name'] && !args['image-slug']) {
-    args['image-slug'] = 'ubuntu-12-04-x64';
+commands.instances = {
+  name: 'instances',
+  usage: 'overcast digitalocean instances',
+  description: 'List all instances in your account.',
+  run: function (args) {
+    provider.instances(api);
   }
-
-  API.rebuild(instance, args);
 };
 
-subcommands.rebuild.help = function () {
-  utils.printArray([
-    'overcast digitalocean rebuild [name] [options]',
-    '  Rebuild a DigitalOcean droplet using a specified image name, slug or ID.'.grey,
-    '  According to the API docs, "This is useful if you want to start again but'.grey,
-    '  retain the same IP address for your droplet."'.grey,
-    '',
-    '    Option                  | Default'.grey,
-    '    --image-slug SLUG       | ubuntu-12-04-x64'.grey,
-    '    --image-name NAME       |'.grey,
-    '    --image-id ID           |'.grey,
-    '',
-    '  Example:'.grey,
-    '  $ overcast digitalocean rebuild app.01 --name my.app.snapshot'.grey
-  ]);
-};
+commands.droplets = _.extend({ alias: true }, commands.instances);
 
-subcommands.regions = function () {
-  API.getRegions(function (regions) {
-    utils.printCollection('regions', regions);
-  });
-};
-
-subcommands.regions.help = function () {
-  utils.printArray([
-    'overcast digitalocean regions',
-    '  List available DigitalOcean regions (nyc2, sfo1, etc).'.grey
-  ]);
-};
-
-subcommands.resize = function (instance, args) {
-  API.resize(instance, args);
-};
-
-subcommands.resize.help = function () {
-  utils.printArray([
-    'overcast digitalocean resize [name] [options]',
-    '  Shutdown, resize, and reboot a DigitalOcean droplet.'.grey,
-    '  If --skipBoot flag is used, the droplet will stay in a powered-off state.'.grey,
-    '',
-    '    Option                  | Default'.grey,
-    '    --size-slug NAME        |'.grey,
-    '    --size-id ID            |'.grey,
-    '    --skipBoot              | false'.grey,
-    '',
-    '  Example:'.grey,
-    '  $ overcast digitalocean resize db.01 --size-slug 2gb'.grey
-  ]);
-};
-
-subcommands.sizes = function () {
-  API.getSizes(function (sizes) {
-    utils.printCollection('sizes', sizes);
-  });
-};
-
-subcommands.sizes.help = function () {
-  utils.printArray([
-    'overcast digitalocean sizes',
-    '  List available DigitalOcean sizes (512mb, 1gb, etc).'.grey
-  ]);
-};
-
-subcommands.shutdown = function (instance) {
-  API.shutdown(instance);
-};
-
-subcommands.shutdown.help = function () {
-  utils.printArray([
-    'overcast digitalocean shutdown [name]',
-    '  Shut down a DigitalOcean droplet.'.grey
-  ]);
-};
-
-subcommands.snapshot = function (instance, args) {
-  utils.argShift(args, 'snapshotName');
-
-  if (!args.snapshotName) {
-    return utils.missingParameter('[snapshot-name]', subcommands.snapshot.help);
+commands.reboot = {
+  name: 'reboot',
+  usage: 'overcast digitalocean reboot [name]',
+  description: 'Reboot an instance using the provider API.',
+  required: [
+    { name: 'name', filters: filters.findFirstMatchingInstance }
+  ],
+  async: true,
+  run: function (args, next) {
+    provider.reboot(api, args, next);
   }
-
-  API.snapshot(instance, args.snapshotName);
 };
 
-subcommands.snapshot.help = function () {
-  utils.printArray([
-    'overcast digitalocean snapshot [name] [snapshot-name]',
-    '  Creates a named snapshot of a droplet. This will reboot the instance.'.grey,
+commands.regions = {
+  name: 'regions',
+  usage: 'overcast digitalocean regions',
+  description: 'List all available regions.',
+  run: function (args) {
+    provider.regions(api);
+  }
+};
+
+commands.rebuild = {
+  name: 'rebuild',
+  usage: 'overcast digitalocean rebuild [name] [image]',
+  description: [
+    'Rebuilds an existing instance on DigitalOcean, preserving the IP address.',
+    '[image] can be image ID, name or slug.'
+  ],
+  examples: [
+    '# Rebuild an instance using a readymade image:',
+    '$ overcast digitalocean rebuild vm-01 ubuntu-14-04-x64',
     '',
-    '  Example:'.grey,
-    '  $ overcast digitalocean snapshot db.01 db.01.snapshot'.grey
-  ]);
+    '# Rebuild an instance using a snapshot:',
+    '$ overcast digitalocean rebuild vm-01 "vm-01 backup"'
+  ],
+  required: [
+    { name: 'name', filters: filters.findFirstMatchingInstance },
+    { name: 'image' }
+  ],
+  run: function (args) {
+    provider.rebuild(api, args);
+  }
 };
 
-subcommands.snapshots = function () {
-  API.getSnapshots(function (snapshots) {
-    utils.printCollection('snapshots', snapshots);
-  });
+commands.resize = {
+  name: 'resize',
+  usage: 'overcast digitalocean resize [name] [size] [options...]',
+  description: [
+    'Shutdown, resize, and reboot a DigitalOcean instance.',
+    '[size] can be a size ID, name or slug.',
+    'If the --skip-boot flag is used, the instance will stay powered off.'
+  ],
+  examples: [
+    '# Resize an instance to 2gb:',
+    '$ overcast digitalocean resize vm-01 2gb'
+  ],
+  required: [
+    { name: 'name', filters: filters.findFirstMatchingInstance },
+    { name: 'size' }
+  ],
+  options: [
+    { usage: '--skip-boot', default: 'false' }
+  ],
+  run: function (args) {
+    provider.resize(api, args);
+  }
 };
 
-subcommands.snapshots.help = function () {
-  utils.printArray([
-    'overcast digitalocean snapshots',
-    '  Lists available snapshots in your DigitalOcean account.'.grey
-  ]);
+commands.snapshot = {
+  name: 'snapshot',
+  usage: 'overcast digitalocean snapshot [name] [snapshot-name]',
+  description: 'Creates a named snapshot of a droplet. This will reboot the instance.',
+  examples: '$ overcast digitalocean snapshot vm-01 vm-01-snapshot',
+  required: [
+    { name: 'name', filters: filters.findFirstMatchingInstance },
+    { name: 'snapshot-name', varName: 'snapshotName' }
+  ],
+  run: function (args) {
+    provider.snapshot(api, args);
+  }
 };
 
-exports.signatures = function () {
-  return [
-    '  overcast digitalocean create [name] [options]',
-    '  overcast digitalocean destroy [name]',
-    '  overcast digitalocean droplets',
-    '  overcast digitalocean images',
-    '  overcast digitalocean poweron [name]',
-    '  overcast digitalocean reboot [name]',
-    '  overcast digitalocean rebuild [name] [options]',
-    '  overcast digitalocean regions',
-    '  overcast digitalocean resize',
-    '  overcast digitalocean sizes',
-    '  overcast digitalocean shutdown [name]',
-    '  overcast digitalocean snapshot [name] [snapshot-name]',
-    '  overcast digitalocean snapshots'
-  ];
+commands.snapshots = {
+  name: 'snapshots',
+  usage: 'overcast digitalocean snapshots',
+  description: 'List all available snapshots in your account.',
+  run: function (args) {
+    provider.snapshots(api);
+  }
 };
 
-exports.help = function () {
-  utils.printArray([
-    'These functions require the following values set in .overcast/variables.json:',
-    '  DIGITALOCEAN_CLIENT_ID',
-    '  DIGITALOCEAN_API_KEY',
-    ''
-  ]);
+commands.shutdown = {
+  name: 'shutdown',
+  usage: 'overcast digitalocean shutdown [name]',
+  description: 'Shut down an instance using the provider API.',
+  required: [
+    { name: 'name', filters: filters.findFirstMatchingInstance }
+  ],
+  async: true,
+  run: function (args, next) {
+    provider.shutdown(api, args, next);
+  }
+};
 
-  utils.printCommandHelp(subcommands);
+commands.sizes = {
+  name: 'sizes',
+  usage: 'overcast digitalocean sizes',
+  description: 'List all available instance sizes.',
+  run: function (args) {
+    provider.sizes(api);
+  }
+};
+
+commands.types = _.extend({ alias: true }, commands.sizes);
+
+commands.sync = {
+  name: 'sync',
+  usage: 'overcast digitalocean sync [name]',
+  description: 'Fetch and update instance metadata.',
+  required: [
+    { name: 'name', filters: filters.findFirstMatchingInstance }
+  ],
+  async: true,
+  run: function (args, next) {
+    provider.sync(api, args, next);
+  }
 };
