@@ -77,6 +77,7 @@ function rsync(options, next) {
     return utils.die('No direction specified.');
   }
 
+  utils.grey(args.join(' '));
   var rsyncProcess = utils.spawn(args);
 
   rsyncProcess.stdout.on('data', function (data) {
