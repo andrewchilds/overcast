@@ -1,8 +1,5 @@
-push = require('../../modules/commands/push')
 cli = require('../../modules/cli')
 scp = require('../../modules/scp')
-utils = require('../../modules/utils')
-mockArgs = require('./utils').mockArgs
 
 describe 'push', ->
   beforeEach ->

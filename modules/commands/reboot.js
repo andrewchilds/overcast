@@ -2,12 +2,15 @@ var _ = require('lodash');
 var Promise = require('bluebird');
 var utils = require('../utils');
 var ssh = require('../ssh');
+var cli = require('../cli');
 
 var API = {
   AWS: require('../providers/aws.js'),
   DigitalOcean: require('../providers/digitalocean.js'),
   Linode: require('../providers/linode.js')
 };
+
+var digitalocean = require('./digitalocean.js');
 
 exports.run = function (args) {
   utils.argShift(args, 'name');
@@ -31,7 +34,11 @@ exports.run = function (args) {
   _.each(instances, function (instance) {
     if (instance.digitalocean) {
       addPromise(function (resolve) {
-        API.DigitalOcean.reboot(instance, resolve);
+        args.command = 'digitalocean';
+        args.subcommand = 'reboot';
+        args._.unshift(args.name);
+        delete args.name;
+        cli.run(digitalocean.commands.reboot, args, resolve);
       });
     } else if (instance.linode && instance.linode.id) {
       addPromise(function (resolve) {

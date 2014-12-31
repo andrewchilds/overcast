@@ -1,7 +1,5 @@
 cli = require('../../modules/cli')
 utils = require('../../modules/utils')
-cluster = require('../../modules/commands/cluster')
-mockArgs = require('./utils').mockArgs
 
 describe 'cluster', ->
   beforeEach ->

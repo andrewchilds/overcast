@@ -1,4 +1,5 @@
 var utils = require('../utils');
+var cli = require('../cli');
 
 exports.run = function (args) {
   utils.argShift(args, 'name');
@@ -11,12 +12,16 @@ exports.run = function (args) {
   utils.handleInstanceNotFound(instance, args);
 
   var command;
-  if (instance.aws) {
-    command = require('./aws.js');
-    args.command = 'aws';
-  } else if (instance.digitalocean) {
+  if (instance.digitalocean) {
     command = require('./digitalocean.js');
     args.command = 'digitalocean';
+    args.subcommand = 'destroy';
+    args._.unshift(args.name);
+    delete args.name;
+    return cli.run(command.commands.destroy, args);
+  } else if (instance.aws) {
+    command = require('./aws.js');
+    args.command = 'aws';
   } else if (instance.linode) {
     command = require('./linode.js');
     args.command = 'linode';

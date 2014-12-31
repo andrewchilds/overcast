@@ -1,21 +1,166 @@
 var fs = require('fs');
 var querystring = require('querystring');
-var _ = require('lodash');
 var cp = require('child_process');
-var crypto = require('crypto');
+var _ = require('lodash');
 var utils = require('../utils');
-var instanceCommand = require('../commands/instance');
 
 var API_URL = 'https://api.digitalocean.com/';
-
 var EVENT_TIMEOUT = 1000 * 60 * 10;
 var EVENT_TIMEOUT_NAME = 'ten minutes';
 
 exports.DEBUG = false;
+exports.id = 'digitalocean';
+exports.name = 'DigitalOcean';
+
+// Provider interface
+
+exports.create = function (args, callback) {
+  args['ssh-pub-key'] = utils.normalizeKeyPath(args['ssh-pub-key'], 'overcast.key.pub');
+
+  exports.normalizeAndFindPropertiesForCreate(args, function () {
+    exports.getOrCreateOvercastKeyID(args['ssh-pub-key'], function (keyID) {
+      var query = {
+        backups_enabled: utils.argIsTruthy(args['backups-enabled']),
+        name: args.name,
+        private_networking: utils.argIsTruthy(args['private-networking']),
+        ssh_key_ids: keyID,
+        image_id: args['image-id'],
+        size_id: args['size-id'],
+        region_id: args['region-id']
+      };
+
+      exports.createRequest(args, query, callback);
+    });
+  });
+};
+
+exports.createRequest = function (args, query, callback) {
+  exports.request({
+    endpoint: 'droplets/new',
+    query: query,
+    callback: function (result) {
+      if (result && result.droplet && result.droplet.event_id) {
+        waitForEventToFinish(result.droplet.event_id, function () {
+          exports.getInstance(result.droplet.id, function (droplet) {
+            var response = {
+              name: droplet.name,
+              ip: droplet.ip_address,
+              ssh_key: args['ssh-key'] || 'overcast.key',
+              ssh_port: args['ssh-port'] || '22',
+              user: 'root',
+              digitalocean: droplet
+            };
+
+            if (_.isFunction(callback)) {
+              callback(response);
+            }
+          });
+        });
+      }
+    }
+  });
+};
+
+exports.destroy = function (instance, callback) {
+  if (exports.handleMetadataNotFound(instance)) {
+    return false;
+  }
+
+  exports.request({
+    endpoint: 'droplets/' + instance.digitalocean.id + '/destroy',
+    query: { scrub_data: 1 },
+    callback: callback
+  });
+};
+
+exports.boot = function (instance, callback) {
+  if (exports.handleMetadataNotFound(instance)) {
+    return false;
+  }
+
+  exports.eventedRequest({
+    endpoint: 'droplets/' + instance.digitalocean.id + '/power_on',
+    callback: callback
+  });
+};
+
+exports.shutdown = function (instance, callback) {
+  if (exports.handleMetadataNotFound(instance)) {
+    return false;
+  }
+
+  exports.eventedRequest({
+    endpoint: 'droplets/' + instance.digitalocean.id + '/power_off',
+    callback: callback
+  });
+};
+
+exports.snapshot = function (instance, snapshotName, callback) {
+  if (exports.handleMetadataNotFound(instance)) {
+    return false;
+  }
+
+  exports.shutdown(instance, function () {
+    exports.eventedRequest({
+      endpoint: 'droplets/' + instance.digitalocean.id + '/snapshot',
+      query: { name: snapshotName },
+      callback: callback
+    });
+  });
+};
+
+exports.reboot = function (instance, callback) {
+  if (exports.handleMetadataNotFound(instance)) {
+    return false;
+  }
+
+  exports.eventedRequest({
+    endpoint: 'droplets/' + instance.digitalocean.id + '/reboot',
+    callback: callback
+  });
+};
+
+exports.rebuild = function (instance, image, callback) {
+  if (exports.handleMetadataNotFound(instance)) {
+    return false;
+  }
+
+  exports.getImages(function (images) {
+    var match = getMatching(images, image);
+    if (!match) {
+      return utils.die('No image found that matches "' + image + '".');
+    }
+
+    exports.eventedRequest({
+      endpoint: 'droplets/' + instance.digitalocean.id + '/rebuild',
+      query: { image_id: match.id },
+      callback: callback
+    });
+  });
+};
+
+exports.resize = function (instance, size, callback) {
+  if (exports.handleMetadataNotFound(instance)) {
+    return false;
+  }
+
+  exports.getSizes(function (sizes) {
+    var match = getMatching(sizes, size);
+    if (!match) {
+      return utils.die('No size found that matches "' + size + '".');
+    }
+
+    exports.shutdown(instance, function () {
+      exports.eventedRequest({
+        endpoint: 'droplets/' + instance.digitalocean.id + '/resize',
+        query: { size_id: match.id },
+        callback: callback
+      });
+    });
+  });
+};
 
 exports.getKeys = function (callback) {
-  // GET https://api.digitalocean.com/ssh_keys
-
   exports.request({
     endpoint: 'ssh_keys',
     callback: function (result) {
@@ -27,10 +172,6 @@ exports.getKeys = function (callback) {
 };
 
 exports.createKey = function (keyData, callback) {
-  // GET https://api.digitalocean.com/ssh_keys/new
-  //   name=[ssh_key_name]
-  //   ssh_pub_key=[ssh_public_key]
-
   exports.request({
     endpoint: 'ssh_keys/new',
     query: {
@@ -50,8 +191,62 @@ exports.getImages = function (callback) {
     endpoint: 'images',
     callback: function (result) {
       if (result && result.images) {
-        callback(result.images);
+        callback(exports.returnOnlyIDNameSlug(result.images));
       }
+    }
+  });
+};
+
+exports.getSnapshots = function (callback) {
+  exports.request({
+    endpoint: 'images',
+    query: { filter: 'my_images' },
+    callback: function (result) {
+      if (result && result.images) {
+        callback(exports.returnOnlyIDNameSlug(result.images));
+      }
+    }
+  });
+};
+
+exports.getInstances = function (callback) {
+  exports.request({
+    endpoint: 'droplets',
+    callback: function (result) {
+      if (result && result.droplets) {
+        callback(result.droplets);
+      }
+    }
+  });
+};
+
+exports.getInstance = function (instance, callback) {
+  // Intentionally not guarding against missing metadata here
+  // exports.create passes in an id, since instance doesn't exist yet.
+  var id = _.isPlainObject(instance) && instance.digitalocean && instance.digitalocean.id ?
+    instance.digitalocean.id : instance;
+
+  exports.request({
+    endpoint: 'droplets/' + id,
+    callback: function (result) {
+      if (result && result.droplet) {
+        callback(result.droplet);
+      }
+    }
+  });
+};
+
+exports.updateInstanceMetadata = function (instance, callback) {
+  // Intentionally not guarding against missing metadata here
+  // user might be trying to sync instance metadata.
+  exports.getInstance(instance, function (droplet) {
+    utils.updateInstance(instance.name, {
+      ip: droplet.ip_address,
+      digitalocean: droplet
+    });
+
+    if (_.isFunction(callback)) {
+      callback();
     }
   });
 };
@@ -78,99 +273,50 @@ exports.getSizes = function (callback) {
   });
 };
 
-exports.getSnapshots = function (callback) {
-  exports.request({
-    endpoint: 'images',
-    query: { filter: 'my_images' },
-    callback: function (result) {
-      if (result && result.images) {
-        callback(result.images);
+exports.sync = function (instance, callback) {
+  // Intentionally not guarding against missing metadata here.
+
+  exports.getInstances(function (instances) {
+    var match = utils.findUsingMultipleKeys(instances, instance.name, ['name']);
+
+    if (!match) {
+      match = utils.findUsingMultipleKeys(instances, instance.ip, ['ip_address']);
+
+      if (!match) {
+        return utils.die('No instance found in your account matching this name or IP address.');
       }
     }
-  });
-};
 
-exports.getDroplet = function (id, callback) {
-  // GET https://api.digitalocean.com/droplets/[droplet_id]
-
-  exports.request({
-    endpoint: 'droplets/' + id,
-    callback: function (result) {
-      if (result && result.droplet) {
-        callback(result.droplet);
-      }
-    }
-  });
-};
-
-exports.getDroplets = function (callback) {
-  exports.request({
-    endpoint: 'droplets',
-    callback: function (result) {
-      if (result && result.droplets) {
-        callback(result.droplets);
-      }
-    }
-  });
-};
-
-exports.create = function (options) {
-  // GET https://api.digitalocean.com/droplets/new
-  //   name=[droplet_name]
-  //   size_slug=[size_slug]
-  //   image_slug=[image_slug]
-  //   region_slug=[region_slug]
-  //   ssh_key_ids=[ssh_key_id1]
-
-  if (options['image-name']) {
-    return exports.getImages(function (images) {
-      var foundImage = _.find(images, { name: options['image-name'] });
-      if (foundImage) {
-        delete options['image-name'];
-        options['image-id'] = foundImage.id;
-        exports.create(options);
-      } else {
-        return utils.die('Image with name "' + options['image-name'] + '" not found, no action taken.');
-      }
+    utils.updateInstance(match.name, {
+      ip: match.ip_address,
+      digitalocean: match
     });
-  }
 
-  options['ssh-pub-key'] = utils.normalizeKeyPath(options['ssh-pub-key'], 'overcast.key.pub');
+    if (_.isFunction(callback)) {
+      callback(match);
+    }
+  });
+};
 
-  exports.getOrCreateOvercastKeyID(options['ssh-pub-key'], function (keyID) {
-    var query = {
-      backups_enabled: utils.argIsTruthy(options['backups-enabled']),
-      name: options.name,
-      private_networking: utils.argIsTruthy(options['private-networking']),
-      ssh_key_ids: keyID
+// Internal functions
+
+exports.returnOnlyIDNameSlug = function (collection) {
+  return _.map(collection, function (obj) {
+    return {
+      id: obj.id,
+      name: obj.name,
+      slug: obj.slug
     };
-
-    _.each(['size-slug', 'size-id', 'image-slug', 'image-id', 'region-slug', 'region-id'], function (key) {
-      if (options[key]) {
-        query[key.replace('-', '_')] = options[key];
-      }
-    });
-
-    _.each({
-      size: '512mb',
-      image: 'ubuntu-14-04-x64',
-      region: 'nyc2'
-    }, function (defaultSlug, type) {
-      if (!query[type + '_id'] && !query[type + '_slug']) {
-        query[type + '_slug'] = defaultSlug;
-      }
-    });
-
-    exports.request({
-      endpoint: 'droplets/new',
-      query: query,
-      callback: function (result) {
-        if (result && result.droplet && result.droplet.event_id) {
-          handleCreateResponse(options, result.droplet);
-        }
-      }
-    });
   });
+};
+
+exports.handleMetadataNotFound = function (instance) {
+  if (!instance || !instance.digitalocean) {
+    utils.red('This instance has no DigitalOcean metadata attached.');
+    utils.red('Run this command and then try again:');
+    utils.die('overcast digitalocean sync "' + instance.name + '"');
+    return true;
+  }
 };
 
 exports.getOrCreateOvercastKeyID = function (pubKeyPath, callback) {
@@ -192,195 +338,47 @@ exports.getOrCreateOvercastKeyID = function (pubKeyPath, callback) {
   });
 };
 
-function handleCreateResponse(options, createResponse) {
-  utils.grey('Creating droplet ' + createResponse.id + ' on DigitalOcean, please wait...');
-  waitForEventToFinish(createResponse.event_id, function () {
-    utils.success('Droplet created!');
-    exports.getDroplet(createResponse.id, function (droplet) {
-      var instance = {
-        name: droplet.name,
-        ip: droplet.ip_address,
-        ssh_key: options['ssh-key'] || 'overcast.key',
-        ssh_port: options['ssh-port'] || '22',
-        user: 'root',
-        digitalocean: droplet
-      };
-      utils.saveInstanceToCluster(options.cluster, instance);
-      utils.success('Instance "' + droplet.name + '" (' + droplet.ip_address + ') saved.');
-      utils.waitForBoot(instance);
+exports.normalizeAndFindPropertiesForCreate = function (args, callback) {
+  args.image = args.image || args['image-id'] || args['image-slug'] || args['image-name'] || 'ubuntu-14-04-x64';
+  args.size = args.size || args['size-id'] || args['size-slug'] || args['size-name'] || '512mb';
+  args.region = args.region || args['region-id'] || args['region-slug'] || args['region-name'] || 'nyc3';
+
+  exports.getImages(function (images) {
+    var matchingImage = getMatching(images, args.image);
+    if (!matchingImage) {
+      return utils.die('No image found that matches "' + args.image + '".');
+    }
+    exports.getSizes(function (sizes) {
+      var matchingSize = getMatching(sizes, args.size);
+      if (!matchingSize) {
+        return utils.die('No size found that matches "' + args.size + '".');
+      }
+      exports.getRegions(function (regions) {
+        var matchingRegion = getMatching(regions, args.region);
+        if (!matchingRegion) {
+          return utils.die('No region found that matches "' + args.region + '".');
+        }
+
+        _.each(['image', 'image-id', 'image-slug', 'image-name', 'size', 'size-id',
+          'size-slug', 'size-name', 'region', 'region-id', 'region-slug', 'region-name'], function (key) {
+          delete args[key];
+        });
+
+        args['image-id'] = matchingImage.id;
+        args['size-id'] = matchingSize.id;
+        args['region-id'] = matchingRegion.id;
+
+        if (_.isFunction(callback)) {
+          callback();
+        }
+      });
     });
   });
+};
+
+function getMatching(collection, val) {
+  return utils.findUsingMultipleKeys(collection, val, ['id', 'name', 'slug']);
 }
-
-exports.getDropletInfoByInstanceName = function (name, callback) {
-  exports.getDroplets(function (droplets) {
-    var foundDroplet = _.find(droplets, { name: name });
-    if (foundDroplet && _.isFunction(callback)) {
-      callback(foundDroplet);
-    } else {
-      return utils.die('No droplet with name "' + name + '" found. Please check your ' +
-        'instance names in your DigitalOcean account');
-    }
-  });
-};
-
-exports.updateInstanceWithDropletInfo = function (name, droplet) {
-  utils.updateInstance(droplet.name, {
-    ip: droplet.ip_address,
-    digitalocean: droplet
-  });
-};
-
-exports.powerOn = function (instance, callback) {
-  // GET https://api.digitalocean.com/droplets/[droplet_id]/power_on
-
-  utils.grey('Powering on "' + instance.name + '", please wait...');
-  exports.eventedRequest({
-    endpoint: 'droplets/' + instance.digitalocean.id + '/power_on',
-    callback: function (eventResult) {
-      utils.success('Instance "' + instance.name + '" powered on.');
-      utils.waitForBoot(instance, callback);
-    }
-  });
-};
-
-exports.snapshot = function (instance, name, callback) {
-  // GET https://api.digitalocean.com/droplets/[droplet_id]/snapshot
-  //   name=[snapshot_name]
-
-  exports.shutdown(instance, function () {
-    utils.grey('Creating new snapshot "' + name + '" of instance "' + instance.name + '", please wait...');
-    exports.eventedRequest({
-      endpoint: 'droplets/' + instance.digitalocean.id + '/snapshot',
-      query: { name: name },
-      callback: function (eventResult) {
-        utils.success('Snapshot "' + name + '" created.');
-        utils.waitForBoot(instance, callback);
-      }
-    });
-  });
-};
-
-exports.rebuild = function (instance, args, callback) {
-  // GET https://api.digitalocean.com/droplets/[droplet_id]/rebuild
-  //   image_id=[image_id]
-
-  // Handle missing droplet id.
-  if (!instance.digitalocean || !instance.digitalocean.id) {
-    return exports.getDropletInfoByInstanceName(instance.name, function (droplet) {
-      exports.updateInstanceWithDropletInfo(instance.name, droplet);
-      instance.digitalocean = droplet;
-      exports.rebuild(instance, args, callback);
-    });
-  }
-
-  // Handle missing image id.
-  if (!args['image-id']) {
-    return exports.getImages(function (images) {
-      var foundImage = args['image-name'] ?
-        _.find(images, { name: args['image-name'] }) :
-        _.find(images, { slug: args['image-slug'] });
-
-      if (foundImage) {
-        args['image-id'] = foundImage.id;
-        exports.rebuild(instance, args, callback);
-      } else {
-        if (args['image-name']) {
-          utils.die('Image with name "' + args['image-name'] + '" not found, no action taken.');
-        } else if (args['image-slug']) {
-          utils.die('Image with slug "' + args['image-slug'] + '" not found, no action taken.');
-        }
-      }
-    });
-  }
-
-  utils.grey('Rebuilding "' + instance.name + '" using image "' + args['image-id'] + '", please wait...');
-  exports.eventedRequest({
-    endpoint: 'droplets/' + instance.digitalocean.id + '/rebuild',
-    query: { image_id: args['image-id'] },
-    callback: function (eventResult) {
-      utils.success('Instance "' + instance.name + '" rebuilt.');
-      utils.waitForBoot(instance, callback);
-    }
-  });
-};
-
-exports.reboot = function (instance, callback) {
-  // GET https://api.digitalocean.com/droplets/[droplet_id]/reboot
-
-  utils.grey('Rebooting "' + instance.name + '", please wait...');
-  exports.eventedRequest({
-    endpoint: 'droplets/' + instance.digitalocean.id + '/reboot',
-    callback: function (eventResult) {
-      utils.success('Instance "' + instance.name + '" rebooted.');
-      utils.waitForBoot(instance, callback);
-    }
-  });
-};
-
-exports.resize = function (instance, args, callback) {
-  // GET https://api.digitalocean.com/droplets/[droplet_id]/resize/
-  //   size_id=[size_id]
-
-  var query = {};
-  if (args['size-id']) {
-    query.size_id = args['size-id'];
-  } else if (args['size-slug']) {
-    query.size_slug = args['size-slug'];
-  }
-
-  exports.shutdown(instance, function () {
-    utils.grey('Resizing "' + instance.name + '", please wait...');
-    exports.eventedRequest({
-      endpoint: 'droplets/' + instance.digitalocean.id + '/resize',
-      query: query,
-      callback: function (eventResult) {
-        utils.success('Instance "' + instance.name + '" resized.');
-        if (args.skipBoot) {
-          utils.grey('Skipping droplet boot since --skipBoot flag was used.');
-          if (_.isFunction(callback)) {
-            callback();
-          }
-        } else {
-          exports.powerOn(instance, callback);
-        }
-      }
-    });
-  });
-};
-
-exports.shutdown = function (instance, callback) {
-  // GET https://api.digitalocean.com/droplets/[droplet_id]/power_off
-
-  utils.grey('Shutting down instance "' + instance.name + '", please wait...');
-  exports.eventedRequest({
-    endpoint: 'droplets/' + instance.digitalocean.id + '/power_off',
-    callback: function (eventResult) {
-      utils.success('Instance "' + instance.name + '" has been shut down.');
-      if (_.isFunction(callback)) {
-        callback();
-      }
-    }
-  });
-};
-
-exports.destroy = function (instance, callback) {
-  // GET https://api.digitalocean.com/droplets/[droplet_id]/destroy
-
-  utils.grey('Destroying instance "' + instance.name + '", please wait...');
-  exports.request({
-    endpoint: 'droplets/' + instance.digitalocean.id + '/destroy',
-    query: {
-      scrub_data: 1
-    },
-    callback: function (result) {
-      if (result && result.event_id) {
-        utils.success('Instance "' + instance.name + '" destroyed.');
-        utils.deleteInstance(instance, callback);
-      }
-    }
-  });
-};
 
 function waitForEventToFinish(event_id, callback) {
   var percentage = 0;
@@ -445,8 +443,11 @@ exports.request = function (options) {
   options.query.api_key = variables.DIGITALOCEAN_API_KEY;
 
   if (!variables.DIGITALOCEAN_CLIENT_ID || !variables.DIGITALOCEAN_API_KEY) {
-    utils.red('Missing DIGITALOCEAN_CLIENT_ID and DIGITALOCEAN_API_KEY values.');
-    return utils.die('Please add them to ' + utils.VARIABLES_JSON);
+    utils.red('The variables DIGITALOCEAN_CLIENT_ID and DIGITALOCEAN_API_KEY are not set.');
+    utils.red('Go to https://cloud.digitalocean.com/api_access to get these variables,');
+    utils.red('then run the following commands:');
+    utils.red('overcast var set DIGITALOCEAN_CLIENT_ID [your_client_id]');
+    return utils.die('overcast var set DIGITALOCEAN_API_KEY [your_api_key]');
   }
 
   var args = constructCurlArgs(options);

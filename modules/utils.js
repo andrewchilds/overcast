@@ -489,6 +489,23 @@ exports.forceArray = function (strOrArray) {
   return _.isArray(strOrArray) ? strOrArray : [strOrArray];
 };
 
+exports.findUsingMultipleKeys = function (collection, val, keys) {
+  var match = null;
+  _.each(collection, function (obj) {
+    _.each(keys, function (key) {
+      if (obj[key] && obj[key] === val) {
+        match = obj;
+        return false;
+      }
+    });
+    if (match) {
+      return false;
+    }
+  });
+
+  return match;
+};
+
 exports.die = function (str) {
   exports.red(str);
   process.exit(1);
