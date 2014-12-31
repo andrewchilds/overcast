@@ -316,102 +316,189 @@ Description:
     $ overcast destroy app-01
 ```
 
-### overcast digitalocean
+### overcast digitalocean boot
 
 ```
-  These functions require the following values set in .overcast/variables.json:
-    DIGITALOCEAN_CLIENT_ID
-    DIGITALOCEAN_API_KEY
+Usage:
+  overcast digitalocean boot [name]
 
-  overcast digitalocean create [name] [options]
-    Creates a new instance on DigitalOcean.
+Description:
+  Boot up an instance if powered off, otherwise do nothing.
+```
 
-    The instance will start out using the auto-generated SSH key found here:
-    /path/to/.overcast/keys/overcast.key.pub
+### overcast digitalocean create
 
-    You can specify region, image, and size of the droplet using -id or -slug.
-    You can also specify an image or snapshot using --image-name.
+```
+Usage:
+  overcast digitalocean create [name] [options...]
 
-      Option                  | Default
-      --cluster CLUSTER       | default
-      --ssh-port PORT         | 22
-      --ssh-key KEY_PATH      | overcast.key
-      --ssh-pub-key KEY_PATH  | overcast.key.pub
-      --region-slug NAME      | nyc2
-      --region-id ID          |
-      --image-slug NAME       | ubuntu-14-04-x64
-      --image-id ID           |
-      --image-name NAME       |
-      --size-slug NAME        | 512mb
-      --size-id ID            |
-      --backups-enabled       | false
-      --private-networking    | false
+Description:
+  Creates a new instance on DigitalOcean.
 
-    Example:
-    $ overcast digitalocean create db.01 --size-slug 2gb --region-slug sfo1
+Options:                  Defaults:
+  --cluster CLUSTER       default
+  --ssh-port PORT         22
+  --ssh-key PATH          overcast.key
+  --ssh-pub-key PATH      overcast.key.pub
+  --region REGION         nyc3
+  --image IMAGE           ubuntu-14-04-x64
+  --size SIZE             512mb
+  --backups-enabled       false
+  --private-networking    false
 
-  overcast digitalocean destroy [name]
-    Destroys a DigitalOcean droplet and removes it from your account.
-    Using --force overrides the confirm dialog. This is irreversible.
+Examples:
+  # Match using slugs:
+  $ overcast digitalocean create vm-01 --size 2gb --region sfo1
 
-      Option                  | Default
-      --force                 | false
+  # Match using IDs or names:
+  $ overcast digitalocean create vm-02 --region "London 1" --image 6374128
+```
 
-  overcast digitalocean droplets
-    List all DigitalOcean droplets in your account.
+### overcast digitalocean destroy
 
+```
+Usage:
+  overcast digitalocean destroy [name] [options...]
+
+Description:
+  Destroys a DigitalOcean droplet and removes it from your account.
+  Using --force overrides the confirm dialog.
+
+Options:     Defaults:
+  --force    false
+
+Examples:
+  $ overcast digitalocean destroy vm-01
+```
+
+### overcast digitalocean images
+
+```
+Usage:
   overcast digitalocean images
-    List all available DigitalOcean images. Includes snapshots.
 
-  overcast digitalocean poweron [name]
-    Power on a powered off droplet.
+Description:
+  List all images, including snapshots.
+```
 
+### overcast digitalocean instances
+
+```
+Usage:
+  overcast digitalocean instances
+
+Description:
+  List all instances in your account.
+```
+
+### overcast digitalocean reboot
+
+```
+Usage:
   overcast digitalocean reboot [name]
-    Reboots a DigitalOcean droplet. According to the API docs, "this is the
-    preferred method to use if a server is not responding."
 
-  overcast digitalocean rebuild [name] [options]
-    Rebuild a DigitalOcean droplet using a specified image name, slug or ID.
-    According to the API docs, "This is useful if you want to start again but
-    retain the same IP address for your droplet."
+Description:
+  Reboot an instance using the provider API.
+```
 
-      Option                  | Default
-      --image-slug SLUG       | ubuntu-12-04-x64
-      --image-name NAME       |
-      --image-id ID           |
+### overcast digitalocean regions
 
-    Example:
-    $ overcast digitalocean rebuild app.01 --name my.app.snapshot
-
+```
+Usage:
   overcast digitalocean regions
-    List available DigitalOcean regions (nyc2, sfo1, etc).
 
-  overcast digitalocean resize [name] [options]
-    Shutdown, resize, and reboot a DigitalOcean droplet.
-    If --skipBoot flag is used, the droplet will stay in a powered-off state.
+Description:
+  List all available regions.
+```
 
-      Option                  | Default
-      --size-slug NAME        |
-      --size-id ID            |
-      --skipBoot              | false
+### overcast digitalocean rebuild
 
-    Example:
-    $ overcast digitalocean resize db.01 --size-slug 2gb
+```
+Usage:
+  overcast digitalocean rebuild [name] [image]
 
-  overcast digitalocean sizes
-    List available DigitalOcean sizes (512mb, 1gb, etc).
+Description:
+  Rebuilds an existing instance on DigitalOcean, preserving the IP address.
+  [image] can be image ID, name or slug.
 
-  overcast digitalocean shutdown [name]
-    Shut down a DigitalOcean droplet.
+Examples:
+  # Rebuild an instance using a readymade image:
+  $ overcast digitalocean rebuild vm-01 ubuntu-14-04-x64
 
+  # Rebuild an instance using a snapshot:
+  $ overcast digitalocean rebuild vm-01 "vm-01 backup"
+```
+
+### overcast digitalocean resize
+
+```
+Usage:
+  overcast digitalocean resize [name] [size] [options...]
+
+Description:
+  Shutdown, resize, and reboot a DigitalOcean instance.
+  [size] can be a size ID, name or slug.
+  If the --skip-boot flag is used, the instance will stay powered off.
+
+Options:         Defaults:
+  --skip-boot    false
+
+Examples:
+  # Resize an instance to 2gb:
+  $ overcast digitalocean resize vm-01 2gb
+```
+
+### overcast digitalocean snapshot
+
+```
+Usage:
   overcast digitalocean snapshot [name] [snapshot-name]
-    Creates a named snapshot of a droplet. This will reboot the instance.
 
-    Example:
-    $ overcast digitalocean snapshot db.01 db.01.snapshot
+Description:
+  Creates a named snapshot of a droplet. This will reboot the instance.
 
+Examples:
+  $ overcast digitalocean snapshot vm-01 vm-01-snapshot
+```
+
+### overcast digitalocean snapshots
+
+```
+Usage:
   overcast digitalocean snapshots
-    Lists available snapshots in your DigitalOcean account.
+
+Description:
+  List all available snapshots in your account.
+```
+
+### overcast digitalocean shutdown
+
+```
+Usage:
+  overcast digitalocean shutdown [name]
+
+Description:
+  Shut down an instance using the provider API.
+```
+
+### overcast digitalocean sizes
+
+```
+Usage:
+  overcast digitalocean sizes
+
+Description:
+  List all available instance sizes.
+```
+
+### overcast digitalocean sync
+
+```
+Usage:
+  overcast digitalocean sync [name]
+
+Description:
+  Fetch and update instance metadata.
 ```
 
 ### overcast expose
@@ -509,7 +596,7 @@ Examples:
 ### overcast help
 
 ```
-  Overcast v0.6.2
+  Overcast v0.6.3
 
   Source code, issues, pull requests:
     https://github.com/andrewchilds/overcast
