@@ -598,7 +598,7 @@ Examples:
 ### overcast help
 
 ```
-  Overcast v0.6.3
+  Overcast v0.6.4
 
   Source code, issues, pull requests:
     https://github.com/andrewchilds/overcast
