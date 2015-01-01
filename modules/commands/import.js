@@ -1,4 +1,3 @@
-var utils = require('../utils');
 var instance = require('./instance');
 
 var commands = {};

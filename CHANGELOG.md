@@ -6,15 +6,19 @@ npm -g update overcast
 
 # Change Log
 
+**0.6.4** (Jan 1, 2015)
+
+- Add `get` command, which maps to `instance get`. Add "origin" attribute and --single-line option to `instance get`. Closes [#29](https://github.com/andrewchilds/overcast/issues/29).
+
 **0.6.3** (Dec 31, 2014)
 
-- Rewrite `digitalocean` commands to use new standard provider API. Command options have been simplified, allowing for fuzzy matching of regions, images, and sizes based on ID, name, or slug. Closes #25.
+- Rewrite `digitalocean` commands to use new standard provider API. Command options have been simplified, allowing for fuzzy matching of regions, images, and sizes based on ID, name, or slug. Closes [#25](https://github.com/andrewchilds/overcast/issues/25).
 - Add `digitalocean sync` command.
 - Display raw rsync/scp commands before spawning processes in `push` and `pull` commands.
 
 **0.6.2** (Dec 13, 2014)
 
-- Rewrite every command except providers using new compact declarative syntax. Fixes #24. Providers are next.
+- Rewrite every command except providers using new compact declarative syntax. Fixes [#24](https://github.com/andrewchilds/overcast/issues/24). Providers are next.
 - Improve `ssh` command to behave exactly like standalone SSH, by inheriting the existing terminal stdio.
 - Change `import` command signature to expect an [ip] argument.
 - Change `ping` command to only return the average response time from each instance.
@@ -22,11 +26,11 @@ npm -g update overcast
 **0.6.1** (Dec 2, 2014)
 
 - Improve module loading routine. 1.5x speed improvement.
-- Fix issue where tab/up/down/ctrl characters aren't rendered correctly in `ssh` command. Fixes #26.
+- Fix issue where tab/up/down/ctrl characters aren't rendered correctly in `ssh` command. Fixes [#26](https://github.com/andrewchilds/overcast/issues/26).
 
 **0.6.0** (Nov 9, 2014)
 
-- Improve `reboot` command by replacing fixed wait time with real connectivity testing. Fixes #22 and #23.
+- Improve `reboot` command by replacing fixed wait time with real connectivity testing. Fixes [#22](https://github.com/andrewchilds/overcast/issues/22) and [#23](https://github.com/andrewchilds/overcast/issues/23).
 - Add `wait` command.
 - Add `destroy` command, which maps to `[provider] destroy`.
 
@@ -48,12 +52,12 @@ npm -g update overcast
 
 **0.5.5** (Sep 16, 2014)
 
-- Fix issue around relative paths for push/pull commands. Fixes #21.
+- Fix issue around relative paths for push/pull commands. Fixes [#21](https://github.com/andrewchilds/overcast/issues/21).
 - Add `install/imagemagick` script.
 
 **0.5.4** (Jul 7, 2014)
 
-- Allow `--ssh-key` args in digitalocean create command. Fixes #19.
+- Allow `--ssh-key` args in digitalocean create command. Fixes [#19](https://github.com/andrewchilds/overcast/issues/19).
 
 **0.5.3** (Jun 14, 2014)
 

@@ -7,32 +7,50 @@ exports.commands = commands;
 
 commands.get = {
   name: 'get',
-  usage: 'overcast instance get [instance|cluster|all] [attr...]',
-  description: 'Returns the attribute(s) for the instance or cluster, one per line.',
+  usage: 'overcast instance get [instance|cluster|all] [attr...] [options...]',
+  description: [
+    'Returns the attribute(s) for the instance or cluster, one per line,',
+    'or space-delimited using the --single-line option.',
+    '"origin" is a compound attribute that returns user@ip:ssh-port.'
+  ],
   examples: [
-    '$ overcast instance get app-01 ssh-port',
-    '22',
+    '$ overcast instance get app-01 origin',
+    'root@1.2.3.4:22',
     '',
     '$ overcast instance get app-cluster ip',
     '127.0.0.1',
     '127.0.0.2',
     '127.0.0.3'
   ],
+  options: [
+    { usage: '--single-line, -s', default: 'false' }
+  ],
   required: [
     { name: 'instance|cluster|all', varName: 'name', filters: filters.findMatchingInstances },
     { name: 'attr...', varName: 'attr', greedy: true }
   ],
   run: function (args) {
+    var output = [];
     args.attr = args.attr.split(' ');
 
     _.each(args.instances, function (instance) {
       _.each(args.attr, function (attr) {
         attr = attr.replace(/-/g, '_');
-        if (instance[attr]) {
-          console.log(instance[attr]);
+        if (attr === 'origin') {
+          output.push(instance.user + '@' + instance.ip + ':' + instance.ssh_port);
+        } else if (instance[attr]) {
+          output.push(instance[attr]);
         }
       });
     });
+
+    if (args.s || args['single-line']) {
+      console.log(output.join(' '));
+    } else {
+      _.each(output, function (line) {
+        console.log(line);
+      });
+    }
   }
 };
 

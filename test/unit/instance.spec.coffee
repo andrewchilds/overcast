@@ -1,28 +1,32 @@
 cli = require('../../modules/cli')
 utils = require('../../modules/utils')
-instance = require('../../modules/commands/instance')
 
 describe 'instance', ->
-
   beforeEach ->
     spyOn(utils, 'getClusters').andReturn({
         dummy: {
           instances: {
             dummy01: {
+              user: 'root'
               name: 'dummy01'
               ip: '127.0.0.1'
+              ssh_port: '22'
             }
           }
         }
         db: {
           instances: {
             db_01: {
+              user: 'root'
               name: 'db_01'
               ip: '1.1.1.1'
+              ssh_port: '22'
             }
             db_02: {
+              user: 'root'
               name: 'db_02'
               ip: '2.2.2.2'
+              ssh_port: '22'
             }
           }
         }
@@ -36,6 +40,9 @@ describe 'instance', ->
     spyOn(utils, 'die')
 
   describe 'get', ->
+    beforeEach ->
+      spyOn(console, 'log')
+
     it 'should fail if name is missing', ->
       cli.execute('instance get')
       expect(cli.missingArgument).toHaveBeenCalled()
@@ -45,13 +52,15 @@ describe 'instance', ->
       expect(cli.missingArgument).toHaveBeenCalled()
 
     it 'should return the requested instance attribute', ->
-      spyOn(console, 'log')
       cli.execute('instance get dummy name ip')
       expect(console.log.argsForCall[0]).toEqual ['dummy01']
       expect(console.log.argsForCall[1]).toEqual ['127.0.0.1']
 
+    it 'should handle --single-line option', ->
+      cli.execute('instance get db origin --single-line')
+      expect(console.log.argsForCall[0]).toEqual ['root@1.1.1.1:22 root@2.2.2.2:22']
+
     it 'should return the requested cluster attribute', ->
-      spyOn(console, 'log')
       cli.execute('instance get all ip')
       expect(console.log.argsForCall).toEqual [
         ['127.0.0.1']
