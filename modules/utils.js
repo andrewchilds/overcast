@@ -117,7 +117,7 @@ exports.deleteKey = function (keyName, callback) {
 exports.deleteFromKnownHosts = function (instance, callback) {
   var ssh = exports.spawn('ssh-keygen -R ' + instance.ip);
   ssh.on('exit', function (code) {
-    exports.grey(instance.ip + ' removed from ' + process.env.HOME + '/.ssh/known_hosts.');
+    exports.grey(instance.ip + ' removed from ' + exports.getUserHome() + '/.ssh/known_hosts.');
     if (_.isFunction(callback)) {
       callback(instance);
     }
@@ -133,9 +133,18 @@ exports.normalizeKeyPath = function (keyPath, keyName) {
 
   if (exports.isAbsolute(keyPath)) {
     return keyPath;
+  } else if (keyPath.indexOf('~/') === 0) {
+    return keyPath.replace('~/', exports.getUserHome() + '/');
+  } else if (keyPath.indexOf('$HOME') === 0) {
+    return keyPath.replace('$HOME', exports.getUserHome());
   } else {
     return path.resolve(exports.CONFIG_DIR, 'keys', keyPath);
   }
+};
+
+// Ref: http://stackoverflow.com/questions/9080085/node-js-find-home-directory-in-platform-agnostic-way
+exports.getUserHome = function () {
+  return process.env.HOME || process.env.HOMEPATH || process.env.USERPROFILE;
 };
 
 exports.createHashedKeyName = function (keyData) {
@@ -197,8 +206,8 @@ exports.walkDir = function(dir, callback) {
   if (!dir || dir === '/') {
     // No config directory found!
     // Fallback to config directory in $HOME.
-    return exports.initOvercastDir(process.env.HOME, function () {
-      callback(process.env.HOME + '/.overcast');
+    return exports.initOvercastDir(exports.getUserHome(), function () {
+      callback(exports.getUserHome() + '/.overcast');
     });
   }
   fs.exists(dir + '/.overcast', function (exists) {

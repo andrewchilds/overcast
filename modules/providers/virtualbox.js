@@ -7,7 +7,7 @@ var rimraf = require('rimraf');
 var utils = require('../utils');
 
 var FIRST_IP = '192.168.22.10';
-var OVERCAST_VAGRANT_DIR = process.env.HOME + '/.overcast-vagrant';
+var OVERCAST_VAGRANT_DIR = utils.getUserHome() + '/.overcast-vagrant';
 
 var BUNDLED_IMAGE_URLS = {
   'trusty64': 'https://cloud-images.ubuntu.com/vagrant/trusty/current/trusty-server-cloudimg-amd64-vagrant-disk1.box',

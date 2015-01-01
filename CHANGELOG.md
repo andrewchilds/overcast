@@ -8,6 +8,7 @@ npm -g update overcast
 
 **0.6.4** (Jan 1, 2015)
 
+- Add support for ~/ and $HOME in SSH key paths. Closes [#27](https://github.com/andrewchilds/overcast/issues/27).
 - Add `get` command, which maps to `instance get`. Add "origin" attribute and --single-line option to `instance get`. Closes [#29](https://github.com/andrewchilds/overcast/issues/29).
 
 **0.6.3** (Dec 31, 2014)
