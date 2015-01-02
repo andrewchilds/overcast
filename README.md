@@ -177,54 +177,106 @@ Description:
     source $HOME/.overcast_aliases
 ```
 
-### overcast aws
+### overcast aws boot
 
 ```
-  These commands require the following values set in .overcast/variables.json:
-    AWS_KEY
-    AWS_SECRET
+Usage:
+  overcast aws boot [name]
 
+Description:
+  Boot up an EC2 instance.
+```
+
+### overcast aws create
+
+```
+Usage:
   overcast aws create [name] [options...]
-    Creates a new EC2 instance.
 
-      Option                   | Default
-      --cluster CLUSTER        | default
-      --ami NAME               | ami-018c9568 (Ubuntu 14.04 LTS, 64bit, EBS)
-      --size NAME              | t1.micro
-      --monitoring BOOLEAN     | false
-      --user NAME              | root
-      --ssh-key KEY_PATH       | overcast.key
-      --ssh-pub-key KEY_PATH   | overcast.key.pub
+Description:
+  Creates a new EC2 instance.
 
-    Example:
-    $ overcast aws create db.01 --cluster db --size m1.small --user ubuntu
+Options:                Defaults:
+  --cluster CLUSTER     default
+  --image IMAGE         ami-64e27e0c (Ubuntu 14.04 64bit, EBS, us-east-1)
+  --monitoring          false
+  --region REGION       us-east-1
+  --size SIZE           t1.micro
+  --ssh-key PATH        overcast.key
+  --ssh-pub-key PATH    overcast.key.pub
+  --user NAME           root
 
-  overcast aws destroy [name]
-    Destroys an EC2 instance.
+Examples:
+  # Specified size:
+  $ overcast aws create vm-01 --size m1.small --user ubuntu
 
-      Option                   | Default
-      --force                  | false
+  # Specified image and region (Ubuntu 14.04 64bit, EBS, us-west-2):
+  $ overcast aws create vm-01 --region us-west-2 --image ami-978dd9a7 --user ubuntu
 
-    Example:
-    $ overcast aws destroy db.01
+  # Enable root access:
+  $ overcast aws create vm-02 --user ubuntu
+  $ overcast run vm-02 allow_root_access_on_ec2
+  $ overcast instance update vm-02 --user root
+```
 
+### overcast aws destroy
+
+```
+Usage:
+  overcast aws destroy [name] [options...]
+
+Description:
+  Destroys an EC2 instance.
+  Using --force overrides the confirm dialog.
+
+Options:     Defaults:
+  --force    false
+
+Examples:
+  $ overcast aws destroy vm-01
+```
+
+### overcast aws instances
+
+```
+Usage:
+  overcast aws instances [options...]
+
+Description:
+  List all EC2 instances in your account.
+
+Options:             Defaults:
+  --region REGION    us-east-1
+```
+
+### overcast aws reboot
+
+```
+Usage:
   overcast aws reboot [name]
-    Reboots an EC2 instance.
 
-    Example:
-    $ overcast aws reboot db.01
+Description:
+  Reboots an EC2 instance.
+```
 
-  overcast aws start [name]
-    Starts an EC2 instance.
+### overcast aws regions
 
-    Example:
-    $ overcast aws start db.01
+```
+Usage:
+  overcast aws regions
 
-  overcast aws stop [name]
-    Stop an EC2 instance.
+Description:
+  List all EC2 regions.
+```
 
-    Example:
-    $ overcast aws stop db.01
+### overcast aws shutdown
+
+```
+Usage:
+  overcast aws shutdown [name]
+
+Description:
+  Shut down an EC2 instance.
 ```
 
 ### overcast cluster count
@@ -548,6 +600,21 @@ Options:
   --machine-readable, --mr
 ```
 
+### overcast get
+
+```
+Usage:
+  overcast get [instance|cluster|all] [attr...] [options...]
+
+Description:
+  Returns the attribute(s) for the instance or cluster, one per line,
+  or space-delimited using the --single-line option.
+  "origin" is a compound attribute that returns user@ip:ssh-port.
+
+Options:               Defaults:
+  --single-line, -s    false
+```
+
 ### overcast health
 
 ```
@@ -598,7 +665,7 @@ Examples:
 ### overcast help
 
 ```
-  Overcast v0.6.4
+  Overcast v0.6.5
 
   Source code, issues, pull requests:
     https://github.com/andrewchilds/overcast
@@ -613,8 +680,9 @@ Examples:
 
   Commands:
     aliases aws cluster completions destroy digitalocean expose exposed
-    health import info init instance key linode list ping port pull push
-    reboot remove run scriptvar slack ssh tunnel var virtualbox wait
+    get health import info init instance key linode list ping port pull
+    push reboot remove run scriptvar slack ssh tunnel var virtualbox
+    wait
 
   Config directory:
     /path/to/.overcast
@@ -664,14 +732,19 @@ Description:
 
 ```
 Usage:
-  overcast instance get [instance|cluster|all] [attr...]
+  overcast instance get [instance|cluster|all] [attr...] [options...]
 
 Description:
-  Returns the attribute(s) for the instance or cluster, one per line.
+  Returns the attribute(s) for the instance or cluster, one per line,
+  or space-delimited using the --single-line option.
+  "origin" is a compound attribute that returns user@ip:ssh-port.
+
+Options:               Defaults:
+  --single-line, -s    false
 
 Examples:
-  $ overcast instance get app-01 ssh-port
-  22
+  $ overcast instance get app-01 origin
+  root@1.2.3.4:22
 
   $ overcast instance get app-cluster ip
   127.0.0.1
