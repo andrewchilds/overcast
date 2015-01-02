@@ -69,3 +69,19 @@ exports.shouldBeExistingKey = function (name, args) {
     return false;
   }
 };
+
+exports.shouldBeAWS = function (name, args) {
+  if (!args.instance || !args.instance.aws) {
+    utils.die('This instance has no AWS metadata attached.');
+    return false;
+  }
+};
+
+exports.shouldBeDigitalOcean = function (name, args) {
+  if (!args.instance || !args.instance.digitalocean) {
+    utils.red('This instance has no DigitalOcean metadata attached.');
+    utils.red('Run this command and then try again:');
+    utils.die('overcast digitalocean sync "' + args.instance.name + '"');
+    return false;
+  }
+};

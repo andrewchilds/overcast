@@ -331,7 +331,7 @@ exports.deleteInstance = function (instance, callback) {
   exports.deleteFromKnownHosts(instance, callback);
 };
 
-exports.updateInstance = function (name, updates) {
+exports.updateInstance = function (name, updates, callback) {
   var clusters = exports.getClusters();
   _.each(clusters, function (cluster, clusterName) {
     _.each(cluster.instances, function (instance) {
@@ -341,7 +341,7 @@ exports.updateInstance = function (name, updates) {
     });
   });
 
-  exports.saveClusters(clusters);
+  exports.saveClusters(clusters, callback);
 };
 
 exports.getVariables = function () {
@@ -677,9 +677,10 @@ exports.printCollection = function (type, collection) {
   }
 
   _.each(collection, function (obj) {
+    var name = obj.name || obj.Name || obj._name;
     console.log('');
-    console.log('  ' + obj.name);
-    exports.prettyPrint(obj, 4);
+    console.log(name);
+    exports.prettyPrint(obj, 2);
   });
 };
 
@@ -689,6 +690,10 @@ exports.prettyPrint = function (obj, indent, stepBy) {
   stepBy = stepBy || 2;
 
   _.each(obj, function (val, key) {
+    if (key === '_name') {
+      return;
+    }
+
     if (_.isArray(val) || _.isPlainObject(val)) {
       exports.grey(prefix + key + ':');
       exports.prettyPrint(val, indent + stepBy, stepBy);

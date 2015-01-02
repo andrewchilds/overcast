@@ -48,12 +48,11 @@ exports.run = function (args) {
       });
     } else if (instance.aws && instance.aws.id) {
       addPromise(function (resolve) {
-        API.AWS.rebootInstance({ InstanceId: instance.aws.id, state: 'running' })
-        .then(API.AWS.waitForInstanceState)
-        .catch(API.AWS.catch)
-        .then(function (args) {
-          utils.waitForBoot(instance, resolve);
-        });
+        args.command = 'aws';
+        args.subcommand = 'reboot';
+        args._.unshift(args.name);
+        delete args.name;
+        cli.run(aws.commands.reboot, args, resolve);
       });
     } else {
       addPromise(function (resolve) {

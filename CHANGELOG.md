@@ -6,6 +6,14 @@ npm -g update overcast
 
 # Change Log
 
+**0.6.5** (Jan 2, 2015)
+
+- Rewrite `aws` command to use standard provider API.
+- Fix issue where EC2 instances are no longer accessible after a restart.
+- Add `aws regions` and `aws instances` commands.
+- To improve consistency across providers, `start` and `stop` commands are renamed to `boot` and `shutdown`, though `start` and `stop` are still quietly supported for backward compatibility.
+- Add --region option to `aws create` command, standardize to expect --image, though --ami is still quietly supported for backward compatibility.
+
 **0.6.4** (Jan 1, 2015)
 
 - Add support for ~/ and $HOME in SSH key paths. Closes [#27](https://github.com/andrewchilds/overcast/issues/27).

@@ -209,7 +209,7 @@ exports.getSnapshots = function (callback) {
   });
 };
 
-exports.getInstances = function (callback) {
+exports.getInstances = function (args, callback) {
   exports.request({
     endpoint: 'droplets',
     callback: function (result) {

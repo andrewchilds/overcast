@@ -133,10 +133,11 @@ exports.images = function (api, callback) {
 };
 
 // AKA droplets (DO) or linodes (Linode).
-exports.instances = function (api, callback) {
+exports.instances = function (api, args, callback) {
   exports.handleCommandNotFound(api.getInstances);
 
-  api.getInstances(function (instances) {
+  // AWS needs args.region, DigitalOcean does not.
+  api.getInstances(args, function (instances) {
     utils.printCollection('instances', instances);
     if (_.isFunction(callback)) {
       callback();

@@ -97,6 +97,7 @@ exports.run = function (command, args, next) {
           // needing process.exit.
           if (filter(args[key], args) === false) {
             shortCircuit = true;
+            return false;
           }
         }
       });

@@ -22,6 +22,10 @@ exports.run = function (args) {
   } else if (instance.aws) {
     command = require('./aws.js');
     args.command = 'aws';
+    args.subcommand = 'destroy';
+    args._.unshift(args.name);
+    delete args.name;
+    return cli.run(command.commands.destroy, args);
   } else if (instance.linode) {
     command = require('./linode.js');
     args.command = 'linode';

@@ -1,145 +1,163 @@
-fs = require('fs')
-path = require('path')
-_ = require('lodash')
+cli = require('../../modules/cli')
 utils = require('../../modules/utils')
-aws = require('../../modules/commands/aws')
-API = require('../../modules/providers/aws')
-specUtils = require('./utils')
-mockArgs = specUtils.mockArgs
+api = require('../../modules/providers/aws')
 
-PROMISE_DELAY = 50
+MOCK_CLUSTERS = {
+  default: {
+    instances: {
+      aws01: {
+        name: 'aws01'
+        ip: '1.2.3.4'
+        user: 'root'
+        ssh_key: 'overcast.key'
+        ssh_port: 22
+        aws: {
+          id: 'i-da86d91a',
+          size: 't1.micro',
+          image: 'ami-64e27e0c'
+          monitoring: 'disabled'
+          region: 'us-east-1'
+          public_dns_name: 'ec2-1-2-3-4.compute-1.amazonaws.com'
+          private_ip: '172-2-3-4'
+          private_dns_name: 'ip-172-2-3-4.ec2.internal'
+        }
+      }
+      notaws: {
+        name: 'notaws'
+        ip: '2.3.4.5'
+        user: 'root'
+        ssh_key: 'overcast.key'
+        ssh_port: 22
+      }
+    }
+  }
+}
 
 describe 'aws', ->
-  mockEC2 = specUtils.mock.ec2()
-  pubKeyPath = path.normalize(__dirname + '/../fixtures/overcast.key.pub')
-  API.pollDelay = 0
-  API.ec2 = mockEC2
-
   beforeEach ->
-    spyOn(utils, 'getClusters').andReturn({
-        dummy: {
-          instances: {
-            'dummy.01': {
-              name: 'dummy.01'
-              aws: {
-                id: 'InstanceId'
-              }
-            }
-          }
-        }
-      })
-    spyOn(utils, 'missingParameter')
+    spyOn(utils, 'getClusters').andReturn(MOCK_CLUSTERS)
     spyOn(utils, 'die')
+    spyOn(utils, 'red')
     spyOn(utils, 'grey')
-    spyOn(utils, 'dieWithList')
     spyOn(utils, 'success')
+    spyOn(utils, 'dieWithList')
     spyOn(utils, 'waitForBoot')
+    spyOn(cli, 'missingArgument')
+
+  describe 'boot', ->
+    it 'should fail if instance is missing', ->
+      cli.execute('aws boot')
+      expect(cli.missingArgument).toHaveBeenCalled()
+
+    it 'should fail if instance does not exist', ->
+      cli.execute('aws boot missing')
+      expect(utils.dieWithList).toHaveBeenCalled()
+
+    it 'should fail if instance is not an EC2 instance', ->
+      cli.execute('aws boot notaws')
+      expect(utils.die).toHaveBeenCalled()
+
+    it 'should otherwise boot the instance', ->
+      spyOn(api, 'boot').andCallFake (instance, callback) ->
+        callback()
+      cli.execute('aws boot aws01')
+      expect(utils.success).toHaveBeenCalledWith('Instance "aws01" booted.')
 
   describe 'create', ->
-    subject = aws.run
-
-    beforeEach ->
-      spyOn(utils, 'saveInstanceToCluster')
-
-    it 'should fail if name is missing', ->
-      subject(mockArgs('aws create'))
-      expect(utils.missingParameter).toHaveBeenCalled()
+    it 'should fail if instance is missing', ->
+      cli.execute('aws create')
+      expect(cli.missingArgument).toHaveBeenCalled()
 
     it 'should fail if instance already exists', ->
-      subject(mockArgs('aws create dummy.01 --cluster dummy'))
-      expect(utils.dieWithList.mostRecentCall.args[0]).toContain('"dummy.01" already exists')
+      cli.execute('aws create aws01')
+      expect(utils.die).toHaveBeenCalledWith('Instance "aws01" already exists.')
 
-    it 'otherwise should create the instance', ->
-      subject(mockArgs('aws create dummy.02 --user ubuntu --ssh-key /path/to/id_rsa --ssh-pub-key ' + pubKeyPath))
-      waits PROMISE_DELAY
-      runs ->
-        runParams = specUtils.spies.ec2.runInstances.mostRecentCall.args[0]
-        saveParams = utils.saveInstanceToCluster.mostRecentCall.args[1]
+    describe 'valid inputs', ->
+      beforeEach ->
+        spyOn(api, 'create').andCallFake (args, callback) ->
+          response = {
+            name: 'aws02'
+            ip: '2.3.4.5'
+            user: 'root'
+            ssh_key: 'overcast.key'
+            ssh_port: 22
+            aws: {
+              id: 'i-76fa51bc',
+              size: 't1.micro',
+              image: 'ami-64e27e0c'
+              monitoring: 'disabled'
+              region: 'us-east-1'
+              public_dns_name: 'ec2-1-2-3-4.compute-1.amazonaws.com'
+              private_ip: '172-2-3-4'
+              private_dns_name: 'ip-172-2-3-4.ec2.internal'
+            }
+          }
+          callback(response)
+        spyOn(utils, 'saveInstanceToCluster')
 
-        expect(runParams.ImageId).toBe 'ami-018c9568'
-        expect(runParams.InstanceType).toBe 't1.micro'
-
-        expect(saveParams.name).toBe 'dummy.02'
-        expect(saveParams.ip).toBe '1.1.1.1'
-        expect(saveParams.ssh_key).toBe '/path/to/id_rsa'
-        expect(saveParams.user).toBe 'ubuntu'
-        expect(saveParams.aws.id).toBe 'InstanceId'
-
-        expect(utils.success).toHaveBeenCalledWith('New instance "dummy.02" (1.1.1.1) created on EC2.')
+      it 'should handle defaults', ->
+        cli.execute('aws create aws02')
+        expect(utils.grey).toHaveBeenCalledWith('Creating new instance "aws02" on AWS...')
+        expect(utils.success).toHaveBeenCalledWith('Instance "aws02" (2.3.4.5) saved.')
 
   describe 'destroy', ->
-    subject = aws.run
+    it 'should fail if instance is missing', ->
+      cli.execute('aws destroy')
+      expect(cli.missingArgument).toHaveBeenCalled()
 
-    beforeEach ->
-      spyOn(utils, 'saveInstanceToCluster')
+    it 'should fail if instance does not exist', ->
+      cli.execute('aws destroy missing')
+      expect(utils.dieWithList).toHaveBeenCalled()
+
+    it 'should fail if instance is not an EC2 instance', ->
+      cli.execute('aws destroy notaws --force')
+      expect(utils.die).toHaveBeenCalled()
+
+    it 'should otherwise destroy the instance', ->
+      spyOn(api, 'destroy').andCallFake (instance, callback) ->
+        callback()
       spyOn(utils, 'deleteInstance')
+      cli.execute('aws destroy aws01 --force')
+      expect(utils.success).toHaveBeenCalledWith('Instance "aws01" destroyed.')
 
-    it 'should fail if name is missing', ->
-      subject(mockArgs('aws destroy'))
-      expect(utils.missingParameter).toHaveBeenCalled()
-
-    it 'otherwise should destroy the instance', ->
-      subject(mockArgs('aws destroy dummy.01 --force'))
-      waits PROMISE_DELAY
-      runs ->
-        expect(specUtils.spies.ec2.terminateInstances.mostRecentCall.args[0]).toEqual({
-          InstanceIds: [ 'InstanceId' ]
-        })
-        expect(utils.deleteInstance.mostRecentCall.args[0].name).toBe('dummy.01')
-        expect(utils.success).toHaveBeenCalledWith('Instance "dummy.01" destroyed.')
+  describe 'instances', ->
 
   describe 'reboot', ->
-    subject = aws.run
+    it 'should fail if instance is missing', ->
+      cli.execute('aws reboot')
+      expect(cli.missingArgument).toHaveBeenCalled()
 
-    it 'should fail if name is missing', ->
-      subject(mockArgs('aws reboot'))
-      expect(utils.missingParameter).toHaveBeenCalled()
+    it 'should fail if instance does not exist', ->
+      cli.execute('aws reboot missing')
+      expect(utils.dieWithList).toHaveBeenCalled()
 
-    it 'otherwise should reboot the instance', ->
-      subject(mockArgs('aws reboot dummy.01'))
-      waits PROMISE_DELAY
-      runs ->
-        expect(specUtils.spies.ec2.rebootInstances.mostRecentCall.args[0]).toEqual({
-          InstanceIds: [ 'InstanceId' ]
-        })
-        expect(utils.success).toHaveBeenCalledWith('Instance rebooted.')
+    it 'should fail if instance is not an EC2 instance', ->
+      cli.execute('aws reboot notaws')
+      expect(utils.die).toHaveBeenCalled()
 
-  describe 'start', ->
-    subject = aws.run
+    it 'should otherwise reboot the instance', ->
+      spyOn(api, 'reboot').andCallFake (instance, callback) ->
+        callback()
+      cli.execute('aws reboot aws01')
+      expect(utils.success).toHaveBeenCalledWith('Instance "aws01" rebooted.')
 
-    it 'should fail if name is missing', ->
-      subject(mockArgs('aws start'))
-      expect(utils.missingParameter).toHaveBeenCalled()
+  describe 'regions', ->
 
-    it 'otherwise should start the instance', ->
-      subject(mockArgs('aws start dummy.01'))
-      waits PROMISE_DELAY
-      runs ->
-        expect(specUtils.spies.ec2.startInstances.mostRecentCall.args[0]).toEqual({
-          InstanceIds: [ 'InstanceId' ]
-        })
-        expect(utils.success).toHaveBeenCalledWith('Instance started.')
+  describe 'shutdown', ->
+    it 'should fail if instance is missing', ->
+      cli.execute('aws shutdown')
+      expect(cli.missingArgument).toHaveBeenCalled()
 
-  describe 'stop', ->
-    subject = aws.run
-    state = specUtils.mockData.ec2.describeInstances.Reservations[0].Instances[0].State
-    originalState = state.Name
+    it 'should fail if instance does not exist', ->
+      cli.execute('aws shutdown missing')
+      expect(utils.dieWithList).toHaveBeenCalled()
 
-    beforeEach ->
-      state.Name = 'stopped'
+    it 'should fail if instance is not an EC2 instance', ->
+      cli.execute('aws shutdown notaws')
+      expect(utils.die).toHaveBeenCalled()
 
-    afterEach ->
-      state.Name = originalState
-
-    it 'should fail if name is missing', ->
-      subject(mockArgs('aws stop'))
-      expect(utils.missingParameter).toHaveBeenCalled()
-
-    it 'otherwise should stop the instance', ->
-      subject(mockArgs('aws stop dummy.01'))
-      waits PROMISE_DELAY
-      runs ->
-        expect(specUtils.spies.ec2.stopInstances.mostRecentCall.args[0]).toEqual({
-          InstanceIds: [ 'InstanceId' ]
-        })
-        expect(utils.success).toHaveBeenCalledWith('Instance stopped.')
+    it 'should otherwise shutdown the instance', ->
+      spyOn(api, 'shutdown').andCallFake (instance, callback) ->
+        callback()
+      cli.execute('aws shutdown aws01')
+      expect(utils.success).toHaveBeenCalledWith('Instance "aws01" has been shut down.')

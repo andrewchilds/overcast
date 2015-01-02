@@ -1,290 +1,135 @@
-var fs = require('fs');
-var readline = require('readline');
 var _ = require('lodash');
-var Promise = require('bluebird');
 var utils = require('../utils');
-var API = require('../providers/aws');
+var filters = require('../filters');
+var provider = require('../provider');
+var api = require('../providers/aws');
 
-exports.signatures = function () {
-  return utils.printSignatures(subcommands);
+var DEFAULT_REGION = 'us-east-1';
+
+var commands = {};
+exports.commands = commands;
+
+commands.boot = {
+  name: 'boot',
+  usage: 'overcast aws boot [name]',
+  description: 'Boot up an EC2 instance.',
+  required: [
+    { name: 'name', filters: [filters.findFirstMatchingInstance, filters.shouldBeAWS] }
+  ],
+  async: true,
+  run: function (args, next) {
+    provider.boot(api, args, next);
+  }
 };
 
-exports.help = function () {
-  utils.printArray([
-    'These commands require the following values set in .overcast/variables.json:',
-    '  AWS_KEY',
-    '  AWS_SECRET',
-    ''
-  ]);
+commands.start = _.extend({ alias: true }, commands.boot);
 
-  utils.printCommandHelp(subcommands);
+commands.create = {
+  name: 'create',
+  usage: 'overcast aws create [name] [options...]',
+  description: [
+    'Creates a new EC2 instance.'
+  ],
+  examples: [
+    '# Specified size:',
+    '$ overcast aws create vm-01 --size m1.small --user ubuntu',
+    '',
+    '# Specified image and region (Ubuntu 14.04 64bit, EBS, us-west-2):',
+    '$ overcast aws create vm-01 --region us-west-2 --image ami-978dd9a7 --user ubuntu',
+    '',
+    '# Enable root access:',
+    '$ overcast aws create vm-02 --user ubuntu',
+    '$ overcast run vm-02 allow_root_access_on_ec2',
+    '$ overcast instance update vm-02 --user root'
+  ],
+  required: [
+    { name: 'name', filters: filters.shouldBeNewInstance }
+  ],
+  options: [
+    { usage: '--cluster CLUSTER', default: 'default' },
+    { usage: '--image IMAGE', default: 'ami-64e27e0c (Ubuntu 14.04 64bit, EBS, us-east-1)' },
+    { usage: '--monitoring', default: 'false' },
+    { usage: '--region REGION', default: DEFAULT_REGION },
+    { usage: '--size SIZE', default: 't1.micro' },
+    { usage: '--ssh-key PATH', default: 'overcast.key' },
+    { usage: '--ssh-pub-key PATH', default: 'overcast.key.pub' },
+    { usage: '--user NAME', default: 'root' }
+  ],
+  async: true,
+  run: function (args, next) {
+    provider.create(api, args, next);
+  }
 };
 
-exports.run = function (args) {
-  utils.argShift(args, 'subcommand');
-  utils.runSubcommand(args, subcommands, exports.help);
+commands.destroy = {
+  name: 'destroy',
+  usage: 'overcast aws destroy [name] [options...]',
+  description: [
+    'Destroys an EC2 instance.',
+    'Using --force overrides the confirm dialog.'
+  ],
+  examples: [
+    '$ overcast aws destroy vm-01'
+  ],
+  required: [
+    { name: 'name', filters: [filters.findFirstMatchingInstance, filters.shouldBeAWS] }
+  ],
+  options: [
+    { usage: '--force', default: 'false' }
+  ],
+  async: true,
+  run: function (args, next) {
+    provider.destroy(api, args, next);
+  }
 };
 
-var subcommands = {};
+commands.instances = {
+  name: 'instances',
+  usage: 'overcast aws instances [options...]',
+  description: 'List all EC2 instances in your account.',
+  options: [
+    { usage: '--region REGION', default: DEFAULT_REGION }
+  ],
+  async: true,
+  run: function (args, next) {
+    provider.instances(api, args, next);
+  }
+};
 
-subcommands.create = utils.module(function (exports) {
-  exports.signature = 'overcast aws create [name] [options...]';
+commands.reboot = {
+  name: 'reboot',
+  usage: 'overcast aws reboot [name]',
+  description: 'Reboots an EC2 instance.',
+  required: [
+    { name: 'name', filters: [filters.findFirstMatchingInstance, filters.shouldBeAWS] }
+  ],
+  async: true,
+  run: function (args, next) {
+    provider.reboot(api, args, next);
+  }
+};
 
-  exports.help = function () {
-    utils.printArray([
-      exports.signature,
-      '  Creates a new EC2 instance.'.grey,
-      '',
-      '    Option                   | Default'.grey,
-      '    --cluster CLUSTER        | default'.grey,
-      '    --ami NAME               | ami-018c9568 (Ubuntu 14.04 LTS, 64bit, EBS)'.grey,
-      '    --size NAME              | t1.micro'.grey,
-      '    --monitoring BOOLEAN     | false'.grey,
-      '    --user NAME              | root'.grey,
-      ('    --ssh-key KEY_PATH       | overcast.key').grey,
-      ('    --ssh-pub-key KEY_PATH   | overcast.key.pub').grey,
-      '',
-      '  Example:'.grey,
-      '  $ overcast aws create db.01 --cluster db --size m1.small --user ubuntu'.grey
-    ]);
-  };
+commands.regions = {
+  name: 'regions',
+  usage: 'overcast aws regions',
+  description: 'List all EC2 regions.',
+  async: true,
+  run: function (args, next) {
+    provider.regions(api, next);
+  }
+};
 
-  exports.run = function (args) {
-    var clusters = utils.getClusters();
-    utils.argShift(args, 'name');
+commands.shutdown = {
+  name: 'shutdown',
+  usage: 'overcast aws shutdown [name]',
+  description: 'Shut down an EC2 instance.',
+  required: [
+    { name: 'name', filters: [filters.findFirstMatchingInstance, filters.shouldBeAWS] }
+  ],
+  async: true,
+  run: function (args, next) {
+    provider.shutdown(api, args, next);
+  }
+};
 
-    if (!args.cluster) {
-      utils.grey('Using "default" cluster.');
-      args.cluster = 'default';
-    }
-
-    if (!args.name) {
-      return utils.missingParameter('[name]', exports.help);
-    } else if (clusters[args.cluster] && clusters[args.cluster].instances[args.name]) {
-      return utils.dieWithList('Instance "' + args.name + '" already exists.');
-    }
-
-    if (args['ssh-pub-key']) {
-      args.keyPath = args['ssh-pub-key'];
-    }
-
-    API.getKeys(args)
-      .then(API.createKey)
-      .then(API.createInstance)
-      .then(function (args) {
-        args.InstanceId = args.CreatedInstances[0].InstanceId;
-        args.state = 'running';
-        return Promise.resolve(args);
-      })
-      .then(API.waitForInstanceState)
-      .then(API.getInstances)
-      .catch(API.catch)
-      .then(function (args) {
-        var instance = {
-          name: args.name,
-          ip: args.Instances[0].PublicIpAddress,
-          ssh_key: utils.normalizeKeyPath(args['ssh-key']),
-          ssh_port: '22',
-          user: args.user || 'root',
-          aws: {
-            id: args.InstanceId,
-            public_dns_name: args.Instances[0].PublicDnsName,
-            private_ip: args.Instances[0].PrivateIpAddress,
-            private_dns_name: args.Instances[0].PrivateDnsName
-          }
-        };
-
-        utils.saveInstanceToCluster(args.cluster, instance);
-        utils.success('New instance "' + instance.name + '" (' + instance.ip + ') created on EC2.');
-        utils.waitForBoot(instance);
-      });
-  };
-});
-
-subcommands.destroy = utils.module(function (exports) {
-  exports.signature = 'overcast aws destroy [name]';
-
-  exports.help = function () {
-    utils.printArray([
-      exports.signature,
-      '  Destroys an EC2 instance.'.grey,
-      '',
-      '    Option                   | Default'.grey,
-      '    --force                  | false'.grey,
-      '',
-      '  Example:'.grey,
-      '  $ overcast aws destroy db.01'.grey
-    ]);
-  };
-
-  exports.run = function (args) {
-    var clusters = utils.getClusters();
-    utils.argShift(args, 'name');
-
-    if (!args.name) {
-      return utils.missingParameter('[name]', exports.help);
-    }
-
-    var instance = utils.findFirstMatchingInstance(args.name);
-    utils.handleInstanceNotFound(instance, args);
-
-    if (!instance.aws || !instance.aws.id) {
-      return utils.die('This instance has no EC2 id attached.');
-    }
-
-    if (args.force) {
-      return destroy(instance);
-    }
-
-    var rl = readline.createInterface({
-      input: process.stdin,
-      output: process.stdout
-    });
-
-    rl.question(('Do you really want to destroy instance "' + instance.name + '"? [Y/n]').yellow, function (answer) {
-      rl.close();
-      if (answer === 'n' || answer === 'N') {
-        utils.grey('No action taken.');
-      } else {
-        destroy(instance);
-      }
-    });
-
-    function destroy(instance) {
-      API.destroyInstance({ InstanceId: instance.aws.id })
-        .catch(API.catch)
-        .then(function (args) {
-          utils.success('Instance "' + instance.name + '" destroyed.');
-          utils.deleteInstance(instance);
-        });
-    }
-  };
-});
-
-subcommands.reboot = utils.module(function (exports) {
-  exports.signature = 'overcast aws reboot [name]';
-
-  exports.help = function () {
-    utils.printArray([
-      exports.signature,
-      '  Reboots an EC2 instance.'.grey,
-      '',
-      '  Example:'.grey,
-      '  $ overcast aws reboot db.01'.grey
-    ]);
-  };
-
-  exports.run = function (args) {
-    var clusters = utils.getClusters();
-    utils.argShift(args, 'name');
-
-    if (!args.name) {
-      return utils.missingParameter('[name]', exports.help);
-    }
-
-    var instance = utils.findFirstMatchingInstance(args.name);
-    utils.handleInstanceNotFound(instance, args);
-
-    if (!instance.aws || !instance.aws.id) {
-      return utils.die('This instance has no EC2 id attached.');
-    }
-
-    var params = {
-      InstanceId: instance.aws.id,
-      state: 'running'
-    };
-
-    API.rebootInstance(params)
-      .then(API.waitForInstanceState)
-      .catch(API.catch)
-      .then(function (args) {
-        utils.success('Instance rebooted.');
-        utils.waitForBoot(instance);
-      });
-  };
-});
-
-subcommands.start = utils.module(function (exports) {
-  exports.signature = 'overcast aws start [name]';
-
-  exports.help = function () {
-    utils.printArray([
-      exports.signature,
-      '  Starts an EC2 instance.'.grey,
-      '',
-      '  Example:'.grey,
-      '  $ overcast aws start db.01'.grey
-    ]);
-  };
-
-  exports.run = function (args) {
-    var clusters = utils.getClusters();
-    utils.argShift(args, 'name');
-
-    if (!args.name) {
-      return utils.missingParameter('[name]', exports.help);
-    }
-
-    var instance = utils.findFirstMatchingInstance(args.name);
-    utils.handleInstanceNotFound(instance, args);
-
-    if (!instance.aws || !instance.aws.id) {
-      return utils.die('This instance has no EC2 id attached.');
-    }
-
-    var params = {
-      InstanceId: instance.aws.id,
-      state: 'running'
-    };
-
-    API.startInstance(params)
-      .then(API.waitForInstanceState)
-      .catch(API.catch)
-      .then(function (args) {
-        utils.success('Instance started.');
-        utils.waitForBoot(instance);
-      });
-  };
-});
-
-subcommands.stop = utils.module(function (exports) {
-  exports.signature = 'overcast aws stop [name]';
-
-  exports.help = function () {
-    utils.printArray([
-      exports.signature,
-      '  Stop an EC2 instance.'.grey,
-      '',
-      '  Example:'.grey,
-      '  $ overcast aws stop db.01'.grey
-    ]);
-  };
-
-  exports.run = function (args) {
-    var clusters = utils.getClusters();
-    utils.argShift(args, 'name');
-
-    if (!args.name) {
-      return utils.missingParameter('[name]', exports.help);
-    }
-
-    var instance = utils.findFirstMatchingInstance(args.name);
-    utils.handleInstanceNotFound(instance, args);
-
-    if (!instance.aws || !instance.aws.id) {
-      return utils.die('This instance has no EC2 id attached.');
-    }
-
-    var params = {
-      InstanceId: instance.aws.id,
-      state: 'stopped'
-    };
-
-    API.stopInstance(params)
-      .then(API.waitForInstanceState)
-      .catch(API.catch)
-      .then(function (args) {
-        utils.success('Instance stopped.');
-      });
-  };
-});
+commands.stop = _.extend({ alias: true }, commands.shutdown);
