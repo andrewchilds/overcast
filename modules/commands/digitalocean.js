@@ -12,7 +12,7 @@ commands.boot = {
   usage: 'overcast digitalocean boot [name]',
   description: 'Boot up an instance if powered off, otherwise do nothing.',
   required: [
-    { name: 'name', filters: filters.findFirstMatchingInstance }
+    { name: 'name', filters: [filters.findFirstMatchingInstance, filters.shouldBeDigitalOcean] }
   ],
   async: true,
   run: function (args, next) {
@@ -47,8 +47,9 @@ commands.create = {
     { usage: '--backups-enabled', default: 'false' },
     { usage: '--private-networking', default: 'false' }
   ],
-  run: function (args) {
-    provider.create(api, args);
+  async: true,
+  run: function (args, next) {
+    provider.create(api, args, next);
   }
 };
 
@@ -63,7 +64,7 @@ commands.destroy = {
     '$ overcast digitalocean destroy vm-01'
   ],
   required: [
-    { name: 'name', filters: filters.findFirstMatchingInstance }
+    { name: 'name', filters: [filters.findFirstMatchingInstance, filters.shouldBeDigitalOcean] }
   ],
   options: [
     { usage: '--force', default: 'false' }
@@ -78,8 +79,9 @@ commands.images = {
   name: 'images',
   usage: 'overcast digitalocean images',
   description: 'List all images, including snapshots.',
-  run: function (args) {
-    provider.images(api);
+  async: true,
+  run: function (args, next) {
+    provider.images(api, next);
   }
 };
 
@@ -87,8 +89,9 @@ commands.instances = {
   name: 'instances',
   usage: 'overcast digitalocean instances',
   description: 'List all instances in your account.',
-  run: function (args) {
-    provider.instances(api);
+  async: true,
+  run: function (args, next) {
+    provider.instances(api, args, next);
   }
 };
 
@@ -99,7 +102,7 @@ commands.reboot = {
   usage: 'overcast digitalocean reboot [name]',
   description: 'Reboot an instance using the provider API.',
   required: [
-    { name: 'name', filters: filters.findFirstMatchingInstance }
+    { name: 'name', filters: [filters.findFirstMatchingInstance, filters.shouldBeDigitalOcean] }
   ],
   async: true,
   run: function (args, next) {
@@ -111,8 +114,9 @@ commands.regions = {
   name: 'regions',
   usage: 'overcast digitalocean regions',
   description: 'List all available regions.',
-  run: function (args) {
-    provider.regions(api);
+  async: true,
+  run: function (args, next) {
+    provider.regions(api, next);
   }
 };
 
@@ -131,11 +135,12 @@ commands.rebuild = {
     '$ overcast digitalocean rebuild vm-01 "vm-01 backup"'
   ],
   required: [
-    { name: 'name', filters: filters.findFirstMatchingInstance },
+    { name: 'name', filters: [filters.findFirstMatchingInstance, filters.shouldBeDigitalOcean] },
     { name: 'image' }
   ],
-  run: function (args) {
-    provider.rebuild(api, args);
+  async: true,
+  run: function (args, next) {
+    provider.rebuild(api, args, next);
   }
 };
 
@@ -152,14 +157,15 @@ commands.resize = {
     '$ overcast digitalocean resize vm-01 2gb'
   ],
   required: [
-    { name: 'name', filters: filters.findFirstMatchingInstance },
+    { name: 'name', filters: [filters.findFirstMatchingInstance, filters.shouldBeDigitalOcean] },
     { name: 'size' }
   ],
   options: [
     { usage: '--skip-boot', default: 'false' }
   ],
-  run: function (args) {
-    provider.resize(api, args);
+  async: true,
+  run: function (args, next) {
+    provider.resize(api, args, next);
   }
 };
 
@@ -169,11 +175,12 @@ commands.snapshot = {
   description: 'Creates a named snapshot of a droplet. This will reboot the instance.',
   examples: '$ overcast digitalocean snapshot vm-01 vm-01-snapshot',
   required: [
-    { name: 'name', filters: filters.findFirstMatchingInstance },
+    { name: 'name', filters: [filters.findFirstMatchingInstance, filters.shouldBeDigitalOcean] },
     { name: 'snapshot-name', varName: 'snapshotName' }
   ],
-  run: function (args) {
-    provider.snapshot(api, args);
+  async: true,
+  run: function (args, next) {
+    provider.snapshot(api, args, next);
   }
 };
 
@@ -181,8 +188,9 @@ commands.snapshots = {
   name: 'snapshots',
   usage: 'overcast digitalocean snapshots',
   description: 'List all available snapshots in your account.',
-  run: function (args) {
-    provider.snapshots(api);
+  async: true,
+  run: function (args, next) {
+    provider.snapshots(api, next);
   }
 };
 
@@ -191,7 +199,7 @@ commands.shutdown = {
   usage: 'overcast digitalocean shutdown [name]',
   description: 'Shut down an instance using the provider API.',
   required: [
-    { name: 'name', filters: filters.findFirstMatchingInstance }
+    { name: 'name', filters: [filters.findFirstMatchingInstance, filters.shouldBeDigitalOcean] }
   ],
   async: true,
   run: function (args, next) {
@@ -203,8 +211,9 @@ commands.sizes = {
   name: 'sizes',
   usage: 'overcast digitalocean sizes',
   description: 'List all available instance sizes.',
-  run: function (args) {
-    provider.sizes(api);
+  async: true,
+  run: function (args, next) {
+    provider.sizes(api, next);
   }
 };
 

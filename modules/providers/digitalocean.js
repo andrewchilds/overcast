@@ -62,10 +62,6 @@ exports.createRequest = function (args, query, callback) {
 };
 
 exports.destroy = function (instance, callback) {
-  if (exports.handleMetadataNotFound(instance)) {
-    return false;
-  }
-
   exports.request({
     endpoint: 'droplets/' + instance.digitalocean.id + '/destroy',
     query: { scrub_data: 1 },
@@ -74,10 +70,6 @@ exports.destroy = function (instance, callback) {
 };
 
 exports.boot = function (instance, callback) {
-  if (exports.handleMetadataNotFound(instance)) {
-    return false;
-  }
-
   exports.eventedRequest({
     endpoint: 'droplets/' + instance.digitalocean.id + '/power_on',
     callback: callback
@@ -85,10 +77,6 @@ exports.boot = function (instance, callback) {
 };
 
 exports.shutdown = function (instance, callback) {
-  if (exports.handleMetadataNotFound(instance)) {
-    return false;
-  }
-
   exports.eventedRequest({
     endpoint: 'droplets/' + instance.digitalocean.id + '/power_off',
     callback: callback
@@ -96,10 +84,6 @@ exports.shutdown = function (instance, callback) {
 };
 
 exports.snapshot = function (instance, snapshotName, callback) {
-  if (exports.handleMetadataNotFound(instance)) {
-    return false;
-  }
-
   exports.shutdown(instance, function () {
     exports.eventedRequest({
       endpoint: 'droplets/' + instance.digitalocean.id + '/snapshot',
@@ -110,10 +94,6 @@ exports.snapshot = function (instance, snapshotName, callback) {
 };
 
 exports.reboot = function (instance, callback) {
-  if (exports.handleMetadataNotFound(instance)) {
-    return false;
-  }
-
   exports.eventedRequest({
     endpoint: 'droplets/' + instance.digitalocean.id + '/reboot',
     callback: callback
@@ -121,10 +101,6 @@ exports.reboot = function (instance, callback) {
 };
 
 exports.rebuild = function (instance, image, callback) {
-  if (exports.handleMetadataNotFound(instance)) {
-    return false;
-  }
-
   exports.getImages(function (images) {
     var match = getMatching(images, image);
     if (!match) {
@@ -140,10 +116,6 @@ exports.rebuild = function (instance, image, callback) {
 };
 
 exports.resize = function (instance, size, callback) {
-  if (exports.handleMetadataNotFound(instance)) {
-    return false;
-  }
-
   exports.getSizes(function (sizes) {
     var match = getMatching(sizes, size);
     if (!match) {
@@ -221,7 +193,6 @@ exports.getInstances = function (args, callback) {
 };
 
 exports.getInstance = function (instance, callback) {
-  // Intentionally not guarding against missing metadata here
   // exports.create passes in an id, since instance doesn't exist yet.
   var id = _.isPlainObject(instance) && instance.digitalocean && instance.digitalocean.id ?
     instance.digitalocean.id : instance;
@@ -237,8 +208,6 @@ exports.getInstance = function (instance, callback) {
 };
 
 exports.updateInstanceMetadata = function (instance, callback) {
-  // Intentionally not guarding against missing metadata here
-  // user might be trying to sync instance metadata.
   exports.getInstance(instance, function (droplet) {
     utils.updateInstance(instance.name, {
       ip: droplet.ip_address,
@@ -274,8 +243,6 @@ exports.getSizes = function (callback) {
 };
 
 exports.sync = function (instance, callback) {
-  // Intentionally not guarding against missing metadata here.
-
   exports.getInstances(function (instances) {
     var match = utils.findUsingMultipleKeys(instances, instance.name, ['name']);
 
@@ -308,15 +275,6 @@ exports.returnOnlyIDNameSlug = function (collection) {
       slug: obj.slug
     };
   });
-};
-
-exports.handleMetadataNotFound = function (instance) {
-  if (!instance || !instance.digitalocean) {
-    utils.red('This instance has no DigitalOcean metadata attached.');
-    utils.red('Run this command and then try again:');
-    utils.die('overcast digitalocean sync "' + instance.name + '"');
-    return true;
-  }
 };
 
 exports.getOrCreateOvercastKeyID = function (pubKeyPath, callback) {
