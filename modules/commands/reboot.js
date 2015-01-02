@@ -5,12 +5,10 @@ var ssh = require('../ssh');
 var cli = require('../cli');
 
 var API = {
-  AWS: require('../providers/aws.js'),
-  DigitalOcean: require('../providers/digitalocean.js'),
+  AWS: require('./aws.js'),
+  DigitalOcean: require('./digitalocean.js'),
   Linode: require('../providers/linode.js')
 };
-
-var digitalocean = require('./digitalocean.js');
 
 exports.run = function (args) {
   utils.argShift(args, 'name');
@@ -38,7 +36,7 @@ exports.run = function (args) {
         args.subcommand = 'reboot';
         args._.unshift(args.name);
         delete args.name;
-        cli.run(digitalocean.commands.reboot, args, resolve);
+        cli.run(API.DigitalOcean.commands.reboot, args, resolve);
       });
     } else if (instance.linode && instance.linode.id) {
       addPromise(function (resolve) {
@@ -52,7 +50,7 @@ exports.run = function (args) {
         args.subcommand = 'reboot';
         args._.unshift(args.name);
         delete args.name;
-        cli.run(aws.commands.reboot, args, resolve);
+        cli.run(API.AWS.commands.reboot, args, resolve);
       });
     } else {
       addPromise(function (resolve) {
