@@ -9,10 +9,95 @@ var utils = require('../utils');
 var FIRST_IP = '192.168.22.10';
 var OVERCAST_VAGRANT_DIR = utils.getUserHome() + '/.overcast-vagrant';
 
+exports.id = 'virtualbox';
+exports.name = 'VirtualBox';
+
 var BUNDLED_IMAGE_URLS = {
   'trusty64': 'https://cloud-images.ubuntu.com/vagrant/trusty/current/trusty-server-cloudimg-amd64-vagrant-disk1.box',
   'precise64': 'https://cloud-images.ubuntu.com/vagrant/precise/current/precise-server-cloudimg-amd64-vagrant-disk1.box'
 };
+
+// Public interface
+
+exports.boot = function (instance, callback) {
+  exports.startInstance(instance)
+    .catch(exports.catch)
+    .then(function () {
+      if (_.isFunction(callback)) {
+        callback();
+      }
+    });
+};
+
+exports.create = function (args, callback) {
+  args = _.extend({
+    ssh_port: 22,
+    user: 'root',
+    ssh_key: utils.normalizeKeyPath(args['ssh-key'] || 'overcast.key'),
+    ssh_pub_key: utils.normalizeKeyPath(args['ssh-pub-key'] || 'overcast.key.pub'),
+    image: args.image || 'trusty64',
+    ram: args.ram || '512',
+    cpus: args.cpus || '1'
+  }, args);
+
+  exports.getVagrantImages(args)
+    .then(exports.createVagrantBox)
+    .then(exports.createInstance)
+    .catch(exports.catch)
+    .then(function (args) {
+      var instance = {
+        name: args.name,
+        ip: args.ip,
+        ssh_key: args.ssh_key,
+        ssh_port: '22',
+        user: 'root',
+        virtualbox: {
+          dir: args.dir,
+          name: args.image + '.' + args.ip,
+          image: args.image,
+          ram: args.ram,
+          cpus: args.cpus
+        }
+      };
+
+      if (_.isFunction(callback)) {
+        callback(instance);
+      }
+    });
+};
+
+exports.destroy = function (instance, callback) {
+  exports.destroyInstance(instance)
+    .catch(exports.catch)
+    .then(function () {
+      if (_.isFunction(callback)) {
+        callback();
+      }
+    });
+};
+
+exports.reboot = function (instance, callback) {
+  exports.stopInstance(instance)
+    .then(exports.startInstance)
+    .catch(exports.catch)
+    .then(function (instance) {
+      if (_.isFunction(callback)) {
+        callback();
+      }
+    });
+};
+
+exports.shutdown = function (instance, callback) {
+  exports.stopInstance(instance)
+    .catch(exports.catch)
+    .then(function () {
+      if (_.isFunction(callback)) {
+        callback();
+      }
+    });
+};
+
+// Private functions
 
 exports.parseCSV = function (str) {
   var arr = [];
@@ -26,7 +111,7 @@ exports.parseCSV = function (str) {
   return arr;
 };
 
-exports.getImages = function (args) {
+exports.getVagrantImages = function (args) {
   return new Promise(function (resolve, reject) {
     var vagrant = utils.spawn(['vagrant box list --machine-readable']);
     var stdout = '';
@@ -53,7 +138,7 @@ exports.getImages = function (args) {
   });
 };
 
-exports.createBox = function (args) {
+exports.createVagrantBox = function (args) {
   return new Promise(function (resolve, reject) {
     if (args.vagrantImages && args.vagrantImages.indexOf(args.image) !== -1) {
       utils.grey('Image "' + args.image + '" found.');

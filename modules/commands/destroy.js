@@ -26,6 +26,13 @@ exports.run = function (args) {
     args._.unshift(args.name);
     delete args.name;
     return cli.run(command.commands.destroy, args);
+  } else if (instance.virtualbox) {
+    command = require('./virtualbox.js');
+    args.command = 'virtualbox';
+    args.subcommand = 'destroy';
+    args._.unshift(args.name);
+    delete args.name;
+    return cli.run(command.commands.destroy, args);
   } else if (instance.linode) {
     command = require('./linode.js');
     args.command = 'linode';

@@ -1,120 +1,153 @@
-_ = require('lodash')
+cli = require('../../modules/cli')
 utils = require('../../modules/utils')
-virtualbox = require('../../modules/commands/virtualbox')
-API = require('../../modules/providers/virtualbox')
-specUtils = require('./utils')
-mockArgs = specUtils.mockArgs
+api = require('../../modules/providers/virtualbox')
 
-PROMISE_DELAY = 50
-
-describe 'virtualbox', ->
-  mockAPI = specUtils.mock.virtualbox()
-  _.each specUtils.endpoints.virtualbox, (endpoint) ->
-    API[endpoint] = mockAPI[endpoint]
-
-  beforeEach ->
-    spyOn(utils, 'getClusters').andReturn({
-        dummy: {
-          instances: {
-            'dummy.01': {
-              name: 'dummy.01'
-              ip: '1.2.3.4'
-              virtualbox: {
-                dir: '/path/to/1.2.3.4'
-              }
-            }
-          }
-        }
-      })
-    spyOn(utils, 'missingParameter')
-    spyOn(utils, 'die')
-    spyOn(utils, 'grey')
-    spyOn(utils, 'dieWithList')
-    spyOn(utils, 'success')
-
-  describe 'create', ->
-    subject = virtualbox.run
-
-    beforeEach ->
-      spyOn(utils, 'saveInstanceToCluster')
-
-    it 'should fail if name is missing', ->
-      subject(mockArgs('virtualbox create'))
-      expect(utils.missingParameter).toHaveBeenCalled()
-
-    it 'should fail if instance already exists', ->
-      subject(mockArgs('virtualbox create dummy.01 --cluster dummy'))
-      expect(utils.dieWithList.mostRecentCall.args[0]).toContain('"dummy.01" already exists')
-
-    it 'otherwise should create the instance', ->
-      subject(mockArgs('virtualbox create dummy.02'))
-      waits PROMISE_DELAY
-      runs ->
-        saveArgs = utils.saveInstanceToCluster.mostRecentCall.args[1]
-        expect(saveArgs.name).toBe 'dummy.02'
-        expect(saveArgs.ip).toBe '1.2.3.4'
-        expect(saveArgs.user).toBe 'root'
-        expect(saveArgs.virtualbox).toEqual {
-          dir: '/path/to/1.2.3.4'
-          name: 'trusty64.1.2.3.4'
+MOCK_CLUSTERS = {
+  default: {
+    instances: {
+      vm01: {
+        name: 'vm01'
+        ip: '192.168.22.10'
+        user: 'root'
+        ssh_key: 'overcast.key'
+        ssh_port: '22'
+        virtualbox: {
+          dir: '/Users/Me/.overcast-vagrant/192.168.22.10'
+          name: 'trusty64.192.168.22.10'
           image: 'trusty64'
           ram: '512'
           cpus: '1'
         }
-        expect(utils.success).toHaveBeenCalledWith('New virtualbox instance "dummy.02" (1.2.3.4) created.')
+      }
+      notvirtualbox: {
+        name: 'notvirtualbox'
+        ip: '2.3.4.5'
+        user: 'root'
+        ssh_key: 'overcast.key'
+        ssh_port: 22
+      }
+    }
+  }
+}
+
+describe 'virtualbox', ->
+  beforeEach ->
+    spyOn(utils, 'getClusters').andReturn(MOCK_CLUSTERS)
+    spyOn(utils, 'die')
+    spyOn(utils, 'red')
+    spyOn(utils, 'grey')
+    spyOn(utils, 'success')
+    spyOn(utils, 'dieWithList')
+    spyOn(utils, 'waitForBoot')
+    spyOn(cli, 'missingArgument')
+
+  describe 'boot', ->
+    it 'should fail if instance is missing', ->
+      cli.execute('virtualbox boot')
+      expect(cli.missingArgument).toHaveBeenCalled()
+
+    it 'should fail if instance does not exist', ->
+      cli.execute('virtualbox boot missing')
+      expect(utils.dieWithList).toHaveBeenCalled()
+
+    it 'should fail if instance is not an EC2 instance', ->
+      cli.execute('virtualbox boot notvirtualbox')
+      expect(utils.die).toHaveBeenCalled()
+
+    it 'should otherwise boot the instance', ->
+      spyOn(api, 'boot').andCallFake (instance, callback) ->
+        callback()
+      cli.execute('virtualbox boot vm01')
+      expect(utils.success).toHaveBeenCalledWith('Instance "vm01" booted.')
+
+  describe 'create', ->
+    it 'should fail if instance is missing', ->
+      cli.execute('virtualbox create')
+      expect(cli.missingArgument).toHaveBeenCalled()
+
+    it 'should fail if instance already exists', ->
+      cli.execute('virtualbox create vm01')
+      expect(utils.die).toHaveBeenCalledWith('Instance "vm01" already exists.')
+
+    describe 'valid inputs', ->
+      beforeEach ->
+        spyOn(api, 'create').andCallFake (args, callback) ->
+          response = {
+            name: 'vm02'
+            ip: '192.168.22.11'
+            user: 'root'
+            ssh_key: 'overcast.key'
+            ssh_port: '22'
+            virtualbox: {
+              dir: '/Users/Me/.overcast-vagrant/192.168.22.11'
+              name: 'trusty64.192.168.22.11'
+              image: 'trusty64'
+              ram: '512'
+              cpus: '1'
+            }
+          }
+          callback(response)
+        spyOn(utils, 'saveInstanceToCluster')
+
+      it 'should handle defaults', ->
+        cli.execute('virtualbox create vm02')
+        expect(utils.grey).toHaveBeenCalledWith('Creating new instance "vm02" on VirtualBox...')
+        expect(utils.success).toHaveBeenCalledWith('Instance "vm02" (192.168.22.11) saved.')
 
   describe 'destroy', ->
-    subject = virtualbox.run
+    it 'should fail if instance is missing', ->
+      cli.execute('virtualbox destroy')
+      expect(cli.missingArgument).toHaveBeenCalled()
 
-    beforeEach ->
+    it 'should fail if instance does not exist', ->
+      cli.execute('virtualbox destroy missing')
+      expect(utils.dieWithList).toHaveBeenCalled()
+
+    it 'should fail if instance is not an EC2 instance', ->
+      cli.execute('virtualbox destroy notvirtualbox --force')
+      expect(utils.die).toHaveBeenCalled()
+
+    it 'should otherwise destroy the instance', ->
+      spyOn(api, 'destroy').andCallFake (instance, callback) ->
+        callback()
       spyOn(utils, 'deleteInstance')
-
-    it 'should fail if name is missing', ->
-      subject(mockArgs('virtualbox destroy'))
-      expect(utils.missingParameter).toHaveBeenCalled()
-
-    it 'otherwise should destroy the instance', ->
-      subject(mockArgs('virtualbox destroy dummy.01 --force'))
-      waits PROMISE_DELAY
-      runs ->
-        expect(utils.deleteInstance.mostRecentCall.args[0].name).toBe('dummy.01')
-        expect(utils.success).toHaveBeenCalledWith('Instance "dummy.01" destroyed.')
+      cli.execute('virtualbox destroy vm01 --force')
+      expect(utils.success).toHaveBeenCalledWith('Instance "vm01" destroyed.')
 
   describe 'reboot', ->
-    subject = virtualbox.run
+    it 'should fail if instance is missing', ->
+      cli.execute('virtualbox reboot')
+      expect(cli.missingArgument).toHaveBeenCalled()
 
-    it 'should fail if name is missing', ->
-      subject(mockArgs('virtualbox reboot'))
-      expect(utils.missingParameter).toHaveBeenCalled()
+    it 'should fail if instance does not exist', ->
+      cli.execute('virtualbox reboot missing')
+      expect(utils.dieWithList).toHaveBeenCalled()
 
-    it 'otherwise should reboot the instance', ->
-      subject(mockArgs('virtualbox reboot dummy.01'))
-      waits PROMISE_DELAY
-      runs ->
-        expect(utils.success).toHaveBeenCalledWith('Instance dummy.01 rebooted.')
+    it 'should fail if instance is not an EC2 instance', ->
+      cli.execute('virtualbox reboot notvirtualbox')
+      expect(utils.die).toHaveBeenCalled()
 
-  describe 'start', ->
-    subject = virtualbox.run
+    it 'should otherwise reboot the instance', ->
+      spyOn(api, 'reboot').andCallFake (instance, callback) ->
+        callback()
+      cli.execute('virtualbox reboot vm01')
+      expect(utils.success).toHaveBeenCalledWith('Instance "vm01" rebooted.')
 
-    it 'should fail if name is missing', ->
-      subject(mockArgs('virtualbox start'))
-      expect(utils.missingParameter).toHaveBeenCalled()
+  describe 'shutdown', ->
+    it 'should fail if instance is missing', ->
+      cli.execute('virtualbox shutdown')
+      expect(cli.missingArgument).toHaveBeenCalled()
 
-    it 'otherwise should start the instance', ->
-      subject(mockArgs('virtualbox start dummy.01'))
-      waits PROMISE_DELAY
-      runs ->
-        expect(utils.success).toHaveBeenCalledWith('Instance dummy.01 started.')
+    it 'should fail if instance does not exist', ->
+      cli.execute('virtualbox shutdown missing')
+      expect(utils.dieWithList).toHaveBeenCalled()
 
-  describe 'stop', ->
-    subject = virtualbox.run
+    it 'should fail if instance is not an EC2 instance', ->
+      cli.execute('virtualbox shutdown notvirtualbox')
+      expect(utils.die).toHaveBeenCalled()
 
-    it 'should fail if name is missing', ->
-      subject(mockArgs('virtualbox stop'))
-      expect(utils.missingParameter).toHaveBeenCalled()
-
-    it 'otherwise should stop the instance', ->
-      subject(mockArgs('virtualbox stop dummy.01'))
-      waits PROMISE_DELAY
-      runs ->
-        expect(utils.success).toHaveBeenCalledWith('Instance dummy.01 stopped.')
+    it 'should otherwise shutdown the instance', ->
+      spyOn(api, 'shutdown').andCallFake (instance, callback) ->
+        callback()
+      cli.execute('virtualbox shutdown vm01')
+      expect(utils.success).toHaveBeenCalledWith('Instance "vm01" has been shut down.')

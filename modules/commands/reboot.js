@@ -7,7 +7,8 @@ var cli = require('../cli');
 var API = {
   AWS: require('./aws.js'),
   DigitalOcean: require('./digitalocean.js'),
-  Linode: require('../providers/linode.js')
+  Linode: require('../providers/linode.js'),
+  VirtualBox: require('./virtualbox.js')
 };
 
 exports.run = function (args) {
@@ -51,6 +52,14 @@ exports.run = function (args) {
         args._.unshift(args.name);
         delete args.name;
         cli.run(API.AWS.commands.reboot, args, resolve);
+      });
+    } else if (instance.virtualbox) {
+      addPromise(function (resolve) {
+        args.command = 'virtualbox';
+        args.subcommand = 'reboot';
+        args._.unshift(args.name);
+        delete args.name;
+        cli.run(API.VirtualBox.commands.reboot, args, resolve);
       });
     } else {
       addPromise(function (resolve) {

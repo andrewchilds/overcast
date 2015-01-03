@@ -85,3 +85,10 @@ exports.shouldBeDigitalOcean = function (name, args) {
     return false;
   }
 };
+
+exports.shouldBeVirtualbox = function (name, args) {
+  if (!args.instance || !args.instance.virtualbox) {
+    utils.die('This instance has no Virtualbox metadata attached.');
+    return false;
+  }
+};

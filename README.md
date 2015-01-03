@@ -1251,66 +1251,74 @@ Examples:
   $ overcast var delete MY_CUSTOM_VARIABLE_NAME
 ```
 
-### overcast virtualbox
+### overcast virtualbox boot
 
 ```
-  These commands require Vagrant to be installed on your local machine.
-  See http://www.vagrantup.com/downloads, or install on OS X using homebrew-cask:
-    $ brew tap caskroom/cask
-    $ brew install brew-cask
-    $ brew cask install vagrant
+Usage:
+  overcast virtualbox boot [name]
 
+Description:
+  Boot up a Virtualbox instance.
+```
+
+### overcast virtualbox create
+
+```
+Usage:
   overcast virtualbox create [name] [options...]
-    Creates a new local Virtualbox instance using Vagrant.
 
-    If --ip is not specified, the next available IP after 192.168.22.10 will
-    be automatically assigned. User is root by default. Vagrant files are stored
-    in the ~/.overcast-vagrant directory. Image names "trusty64" (Ubuntu 14.04)
-    and "precise64" (Ubuntu 12.04) are downloaded automatically from Ubuntu
-    servers the first time they are used.
+Description:
+  Creates a new Virtualbox instance.
 
-    Other image names will need to be added using:
-    $ vagrant box add --name [name] [image-url]
+Options:                Defaults:
+  --cluster CLUSTER     default
+  --cpus COUNT          1
+  --image NAME          trusty64
+  --ram MB              512
+  --ip ADDRESS          192.168.22.10
+  --ssh-key PATH        overcast.key
+  --ssh-pub-key PATH    overcast.key.pub
 
-      Option                   | Default
-      --cluster CLUSTER        | default
-      --image NAME             | trusty64
-      --ram MB                 | 512
-      --cpus COUNT             | 1
-      --ip ADDRESS             | 192.168.22.10
-      --ssh-key KEY_PATH       | overcast.key
-      --ssh-pub-key KEY_PATH   | overcast.key.pub
+Examples:
+  $ overcast virtualbox create vm-01
+  $ overcast virtualbox create vm-02 --ram 1024 --image precise64
+```
 
-    Examples:
-    $ overcast virtualbox create local.vm.01
-    $ overcast virtualbox create local.vm.02 --ram 1024 --image precise64
+### overcast virtualbox destroy
 
-  overcast virtualbox destroy [name]
-    Destroys a virtualbox instance.
+```
+Usage:
+  overcast virtualbox destroy [name] [options...]
 
-      Option                   | Default
-      --force                  | false
+Description:
+  Destroys a Virtualbox instance.
+  Using --force overrides the confirm dialog.
 
-    Example:
-    $ overcast virtualbox destroy local.01
+Options:     Defaults:
+  --force    false
 
+Examples:
+  $ overcast virtualbox destroy vm-01
+```
+
+### overcast virtualbox reboot
+
+```
+Usage:
   overcast virtualbox reboot [name]
-    Reboots a virtualbox instance.
 
-    Example:
-    $ overcast virtualbox reboot local.01
+Description:
+  Reboots a Virtualbox instance.
+```
 
-  overcast virtualbox start [name]
-    Starts a virtualbox instance.
+### overcast virtualbox shutdown
 
-    Example:
-    $ overcast virtualbox start local.01
+```
+Usage:
+  overcast virtualbox shutdown [name]
 
-  overcast virtualbox stop [name]
-    Stop a virtualbox instance.
-
-    Example:
-    $ overcast virtualbox stop local.01
+Description:
+  Shut down a Virtualbox instance.
 ```
 
 ### overcast wait
