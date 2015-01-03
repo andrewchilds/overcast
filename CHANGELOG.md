@@ -6,6 +6,11 @@ npm -g update overcast
 
 # Change Log
 
+**0.6.6** (Jan 2, 2015)
+
+- Rewrite `virtualbox` command to use standard provider API.
+- To improve consistency across providers, `start` and `stop` commands are renamed to `boot` and `shutdown`, though `start` and `stop` are still quietly supported for backward compatibility.
+
 **0.6.5** (Jan 2, 2015)
 
 - Rewrite `aws` command to use standard provider API.

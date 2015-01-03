@@ -1,7 +1,7 @@
 {
   "name": "overcast",
   "description": "A simple command line program designed to make it easy to spin up, configure, and interact with any number of machines over SSH.",
-  "version": "0.6.5",
+  "version": "0.6.6",
   "repository": "https://github.com/andrewchilds/overcast.git",
   "author": {
     "name": "Andrew Childs",
