@@ -215,53 +215,105 @@ Description:
 </code></pre>
 
 <h3>
-<a id="user-content-overcast-aws" class="anchor" href="#overcast-aws" aria-hidden="true"><span class="octicon octicon-link"></span></a>overcast aws</h3>
+<a id="user-content-overcast-aws-boot" class="anchor" href="#overcast-aws-boot" aria-hidden="true"><span class="octicon octicon-link"></span></a>overcast aws boot</h3>
 
-<pre><code>  These commands require the following values set in .overcast/variables.json:
-    AWS_KEY
-    AWS_SECRET
+<pre><code>Usage:
+  overcast aws boot [name]
 
+Description:
+  Boot up an EC2 instance.
+</code></pre>
+
+<h3>
+<a id="user-content-overcast-aws-create" class="anchor" href="#overcast-aws-create" aria-hidden="true"><span class="octicon octicon-link"></span></a>overcast aws create</h3>
+
+<pre><code>Usage:
   overcast aws create [name] [options...]
-    Creates a new EC2 instance.
 
-      Option                   | Default
-      --cluster CLUSTER        | default
-      --ami NAME               | ami-018c9568 (Ubuntu 14.04 LTS, 64bit, EBS)
-      --size NAME              | t1.micro
-      --monitoring BOOLEAN     | false
-      --user NAME              | root
-      --ssh-key KEY_PATH       | overcast.key
-      --ssh-pub-key KEY_PATH   | overcast.key.pub
+Description:
+  Creates a new EC2 instance.
 
-    Example:
-    $ overcast aws create db.01 --cluster db --size m1.small --user ubuntu
+Options:                Defaults:
+  --cluster CLUSTER     default
+  --image IMAGE         ami-64e27e0c (Ubuntu 14.04 64bit, EBS, us-east-1)
+  --monitoring          false
+  --region REGION       us-east-1
+  --size SIZE           t1.micro
+  --ssh-key PATH        overcast.key
+  --ssh-pub-key PATH    overcast.key.pub
+  --user NAME           root
 
-  overcast aws destroy [name]
-    Destroys an EC2 instance.
+Examples:
+  # Specified size:
+  $ overcast aws create vm-01 --size m1.small --user ubuntu
 
-      Option                   | Default
-      --force                  | false
+  # Specified image and region (Ubuntu 14.04 64bit, EBS, us-west-2):
+  $ overcast aws create vm-01 --region us-west-2 --image ami-978dd9a7 --user ubuntu
 
-    Example:
-    $ overcast aws destroy db.01
+  # Enable root access:
+  $ overcast aws create vm-02 --user ubuntu
+  $ overcast run vm-02 allow_root_access_on_ec2
+  $ overcast instance update vm-02 --user root
+</code></pre>
 
+<h3>
+<a id="user-content-overcast-aws-destroy" class="anchor" href="#overcast-aws-destroy" aria-hidden="true"><span class="octicon octicon-link"></span></a>overcast aws destroy</h3>
+
+<pre><code>Usage:
+  overcast aws destroy [name] [options...]
+
+Description:
+  Destroys an EC2 instance.
+  Using --force overrides the confirm dialog.
+
+Options:     Defaults:
+  --force    false
+
+Examples:
+  $ overcast aws destroy vm-01
+</code></pre>
+
+<h3>
+<a id="user-content-overcast-aws-instances" class="anchor" href="#overcast-aws-instances" aria-hidden="true"><span class="octicon octicon-link"></span></a>overcast aws instances</h3>
+
+<pre><code>Usage:
+  overcast aws instances [options...]
+
+Description:
+  List all EC2 instances in your account.
+
+Options:             Defaults:
+  --region REGION    us-east-1
+</code></pre>
+
+<h3>
+<a id="user-content-overcast-aws-reboot" class="anchor" href="#overcast-aws-reboot" aria-hidden="true"><span class="octicon octicon-link"></span></a>overcast aws reboot</h3>
+
+<pre><code>Usage:
   overcast aws reboot [name]
-    Reboots an EC2 instance.
 
-    Example:
-    $ overcast aws reboot db.01
+Description:
+  Reboots an EC2 instance.
+</code></pre>
 
-  overcast aws start [name]
-    Starts an EC2 instance.
+<h3>
+<a id="user-content-overcast-aws-regions" class="anchor" href="#overcast-aws-regions" aria-hidden="true"><span class="octicon octicon-link"></span></a>overcast aws regions</h3>
 
-    Example:
-    $ overcast aws start db.01
+<pre><code>Usage:
+  overcast aws regions
 
-  overcast aws stop [name]
-    Stop an EC2 instance.
+Description:
+  List all EC2 regions.
+</code></pre>
 
-    Example:
-    $ overcast aws stop db.01
+<h3>
+<a id="user-content-overcast-aws-shutdown" class="anchor" href="#overcast-aws-shutdown" aria-hidden="true"><span class="octicon octicon-link"></span></a>overcast aws shutdown</h3>
+
+<pre><code>Usage:
+  overcast aws shutdown [name]
+
+Description:
+  Shut down an EC2 instance.
 </code></pre>
 
 <h3>
@@ -356,101 +408,188 @@ Description:
 </code></pre>
 
 <h3>
-<a id="user-content-overcast-digitalocean" class="anchor" href="#overcast-digitalocean" aria-hidden="true"><span class="octicon octicon-link"></span></a>overcast digitalocean</h3>
+<a id="user-content-overcast-digitalocean-boot" class="anchor" href="#overcast-digitalocean-boot" aria-hidden="true"><span class="octicon octicon-link"></span></a>overcast digitalocean boot</h3>
 
-<pre><code>  These functions require the following values set in .overcast/variables.json:
-    DIGITALOCEAN_CLIENT_ID
-    DIGITALOCEAN_API_KEY
+<pre><code>Usage:
+  overcast digitalocean boot [name]
 
-  overcast digitalocean create [name] [options]
-    Creates a new instance on DigitalOcean.
+Description:
+  Boot up an instance if powered off, otherwise do nothing.
+</code></pre>
 
-    The instance will start out using the auto-generated SSH key found here:
-    /path/to/.overcast/keys/overcast.key.pub
+<h3>
+<a id="user-content-overcast-digitalocean-create" class="anchor" href="#overcast-digitalocean-create" aria-hidden="true"><span class="octicon octicon-link"></span></a>overcast digitalocean create</h3>
 
-    You can specify region, image, and size of the droplet using -id or -slug.
-    You can also specify an image or snapshot using --image-name.
+<pre><code>Usage:
+  overcast digitalocean create [name] [options...]
 
-      Option                  | Default
-      --cluster CLUSTER       | default
-      --ssh-port PORT         | 22
-      --ssh-key KEY_PATH      | overcast.key
-      --ssh-pub-key KEY_PATH  | overcast.key.pub
-      --region-slug NAME      | nyc2
-      --region-id ID          |
-      --image-slug NAME       | ubuntu-14-04-x64
-      --image-id ID           |
-      --image-name NAME       |
-      --size-slug NAME        | 512mb
-      --size-id ID            |
-      --backups-enabled       | false
-      --private-networking    | false
+Description:
+  Creates a new instance on DigitalOcean.
 
-    Example:
-    $ overcast digitalocean create db.01 --size-slug 2gb --region-slug sfo1
+Options:                  Defaults:
+  --cluster CLUSTER       default
+  --ssh-port PORT         22
+  --ssh-key PATH          overcast.key
+  --ssh-pub-key PATH      overcast.key.pub
+  --region REGION         nyc3
+  --image IMAGE           ubuntu-14-04-x64
+  --size SIZE             512mb
+  --backups-enabled       false
+  --private-networking    false
 
-  overcast digitalocean destroy [name]
-    Destroys a DigitalOcean droplet and removes it from your account.
-    Using --force overrides the confirm dialog. This is irreversible.
+Examples:
+  # Match using slugs:
+  $ overcast digitalocean create vm-01 --size 2gb --region sfo1
 
-      Option                  | Default
-      --force                 | false
+  # Match using IDs or names:
+  $ overcast digitalocean create vm-02 --region "London 1" --image 6374128
+</code></pre>
 
-  overcast digitalocean droplets
-    List all DigitalOcean droplets in your account.
+<h3>
+<a id="user-content-overcast-digitalocean-destroy" class="anchor" href="#overcast-digitalocean-destroy" aria-hidden="true"><span class="octicon octicon-link"></span></a>overcast digitalocean destroy</h3>
 
+<pre><code>Usage:
+  overcast digitalocean destroy [name] [options...]
+
+Description:
+  Destroys a DigitalOcean droplet and removes it from your account.
+  Using --force overrides the confirm dialog.
+
+Options:     Defaults:
+  --force    false
+
+Examples:
+  $ overcast digitalocean destroy vm-01
+</code></pre>
+
+<h3>
+<a id="user-content-overcast-digitalocean-images" class="anchor" href="#overcast-digitalocean-images" aria-hidden="true"><span class="octicon octicon-link"></span></a>overcast digitalocean images</h3>
+
+<pre><code>Usage:
   overcast digitalocean images
-    List all available DigitalOcean images. Includes snapshots.
 
-  overcast digitalocean poweron [name]
-    Power on a powered off droplet.
+Description:
+  List all images, including snapshots.
+</code></pre>
 
+<h3>
+<a id="user-content-overcast-digitalocean-instances" class="anchor" href="#overcast-digitalocean-instances" aria-hidden="true"><span class="octicon octicon-link"></span></a>overcast digitalocean instances</h3>
+
+<pre><code>Usage:
+  overcast digitalocean instances
+
+Description:
+  List all instances in your account.
+</code></pre>
+
+<h3>
+<a id="user-content-overcast-digitalocean-reboot" class="anchor" href="#overcast-digitalocean-reboot" aria-hidden="true"><span class="octicon octicon-link"></span></a>overcast digitalocean reboot</h3>
+
+<pre><code>Usage:
   overcast digitalocean reboot [name]
-    Reboots a DigitalOcean droplet. According to the API docs, "this is the
-    preferred method to use if a server is not responding."
 
-  overcast digitalocean rebuild [name] [options]
-    Rebuild a DigitalOcean droplet using a specified image name, slug or ID.
-    According to the API docs, "This is useful if you want to start again but
-    retain the same IP address for your droplet."
+Description:
+  Reboot an instance using the provider API.
+</code></pre>
 
-      Option                  | Default
-      --image-slug SLUG       | ubuntu-12-04-x64
-      --image-name NAME       |
-      --image-id ID           |
+<h3>
+<a id="user-content-overcast-digitalocean-regions" class="anchor" href="#overcast-digitalocean-regions" aria-hidden="true"><span class="octicon octicon-link"></span></a>overcast digitalocean regions</h3>
 
-    Example:
-    $ overcast digitalocean rebuild app.01 --name my.app.snapshot
-
+<pre><code>Usage:
   overcast digitalocean regions
-    List available DigitalOcean regions (nyc2, sfo1, etc).
 
-  overcast digitalocean resize [name] [options]
-    Shutdown, resize, and reboot a DigitalOcean droplet.
-    If --skipBoot flag is used, the droplet will stay in a powered-off state.
+Description:
+  List all available regions.
+</code></pre>
 
-      Option                  | Default
-      --size-slug NAME        |
-      --size-id ID            |
-      --skipBoot              | false
+<h3>
+<a id="user-content-overcast-digitalocean-rebuild" class="anchor" href="#overcast-digitalocean-rebuild" aria-hidden="true"><span class="octicon octicon-link"></span></a>overcast digitalocean rebuild</h3>
 
-    Example:
-    $ overcast digitalocean resize db.01 --size-slug 2gb
+<pre><code>Usage:
+  overcast digitalocean rebuild [name] [image]
 
-  overcast digitalocean sizes
-    List available DigitalOcean sizes (512mb, 1gb, etc).
+Description:
+  Rebuilds an existing instance on DigitalOcean, preserving the IP address.
+  [image] can be image ID, name or slug.
 
-  overcast digitalocean shutdown [name]
-    Shut down a DigitalOcean droplet.
+Examples:
+  # Rebuild an instance using a readymade image:
+  $ overcast digitalocean rebuild vm-01 ubuntu-14-04-x64
 
+  # Rebuild an instance using a snapshot:
+  $ overcast digitalocean rebuild vm-01 "vm-01 backup"
+</code></pre>
+
+<h3>
+<a id="user-content-overcast-digitalocean-resize" class="anchor" href="#overcast-digitalocean-resize" aria-hidden="true"><span class="octicon octicon-link"></span></a>overcast digitalocean resize</h3>
+
+<pre><code>Usage:
+  overcast digitalocean resize [name] [size] [options...]
+
+Description:
+  Shutdown, resize, and reboot a DigitalOcean instance.
+  [size] can be a size ID, name or slug.
+  If the --skip-boot flag is used, the instance will stay powered off.
+
+Options:         Defaults:
+  --skip-boot    false
+
+Examples:
+  # Resize an instance to 2gb:
+  $ overcast digitalocean resize vm-01 2gb
+</code></pre>
+
+<h3>
+<a id="user-content-overcast-digitalocean-snapshot" class="anchor" href="#overcast-digitalocean-snapshot" aria-hidden="true"><span class="octicon octicon-link"></span></a>overcast digitalocean snapshot</h3>
+
+<pre><code>Usage:
   overcast digitalocean snapshot [name] [snapshot-name]
-    Creates a named snapshot of a droplet. This will reboot the instance.
 
-    Example:
-    $ overcast digitalocean snapshot db.01 db.01.snapshot
+Description:
+  Creates a named snapshot of a droplet. This will reboot the instance.
 
+Examples:
+  $ overcast digitalocean snapshot vm-01 vm-01-snapshot
+</code></pre>
+
+<h3>
+<a id="user-content-overcast-digitalocean-snapshots" class="anchor" href="#overcast-digitalocean-snapshots" aria-hidden="true"><span class="octicon octicon-link"></span></a>overcast digitalocean snapshots</h3>
+
+<pre><code>Usage:
   overcast digitalocean snapshots
-    Lists available snapshots in your DigitalOcean account.
+
+Description:
+  List all available snapshots in your account.
+</code></pre>
+
+<h3>
+<a id="user-content-overcast-digitalocean-shutdown" class="anchor" href="#overcast-digitalocean-shutdown" aria-hidden="true"><span class="octicon octicon-link"></span></a>overcast digitalocean shutdown</h3>
+
+<pre><code>Usage:
+  overcast digitalocean shutdown [name]
+
+Description:
+  Shut down an instance using the provider API.
+</code></pre>
+
+<h3>
+<a id="user-content-overcast-digitalocean-sizes" class="anchor" href="#overcast-digitalocean-sizes" aria-hidden="true"><span class="octicon octicon-link"></span></a>overcast digitalocean sizes</h3>
+
+<pre><code>Usage:
+  overcast digitalocean sizes
+
+Description:
+  List all available instance sizes.
+</code></pre>
+
+<h3>
+<a id="user-content-overcast-digitalocean-sync" class="anchor" href="#overcast-digitalocean-sync" aria-hidden="true"><span class="octicon octicon-link"></span></a>overcast digitalocean sync</h3>
+
+<pre><code>Usage:
+  overcast digitalocean sync [name]
+
+Description:
+  Fetch and update instance metadata.
 </code></pre>
 
 <h3>
@@ -496,6 +635,21 @@ Description:
 Options:
   --user NAME
   --machine-readable, --mr
+</code></pre>
+
+<h3>
+<a id="user-content-overcast-get" class="anchor" href="#overcast-get" aria-hidden="true"><span class="octicon octicon-link"></span></a>overcast get</h3>
+
+<pre><code>Usage:
+  overcast get [instance|cluster|all] [attr...] [options...]
+
+Description:
+  Returns the attribute(s) for the instance or cluster, one per line,
+  or space-delimited using the --single-line option.
+  "origin" is a compound attribute that returns user@ip:ssh-port.
+
+Options:               Defaults:
+  --single-line, -s    false
 </code></pre>
 
 <h3>
@@ -548,7 +702,7 @@ Examples:
 <h3>
 <a id="user-content-overcast-help" class="anchor" href="#overcast-help" aria-hidden="true"><span class="octicon octicon-link"></span></a>overcast help</h3>
 
-<pre><code>  Overcast v0.6.2
+<pre><code>  Overcast v0.6.6
 
   Source code, issues, pull requests:
     https://github.com/andrewchilds/overcast
@@ -563,8 +717,9 @@ Examples:
 
   Commands:
     aliases aws cluster completions destroy digitalocean expose exposed
-    health import info init instance key linode list ping port pull push
-    reboot remove run scriptvar slack ssh tunnel var virtualbox wait
+    get health import info init instance key linode list ping port pull
+    push reboot remove run scriptvar slack ssh tunnel var virtualbox
+    wait
 
   Config directory:
     /path/to/.overcast
@@ -614,14 +769,19 @@ Description:
 <a id="user-content-overcast-instance-get" class="anchor" href="#overcast-instance-get" aria-hidden="true"><span class="octicon octicon-link"></span></a>overcast instance get</h3>
 
 <pre><code>Usage:
-  overcast instance get [instance|cluster|all] [attr...]
+  overcast instance get [instance|cluster|all] [attr...] [options...]
 
 Description:
-  Returns the attribute(s) for the instance or cluster, one per line.
+  Returns the attribute(s) for the instance or cluster, one per line,
+  or space-delimited using the --single-line option.
+  "origin" is a compound attribute that returns user@ip:ssh-port.
+
+Options:               Defaults:
+  --single-line, -s    false
 
 Examples:
-  $ overcast instance get app-01 ssh-port
-  22
+  $ overcast instance get app-01 origin
+  root@1.2.3.4:22
 
   $ overcast instance get app-cluster ip
   127.0.0.1
@@ -1129,65 +1289,73 @@ Examples:
 </code></pre>
 
 <h3>
-<a id="user-content-overcast-virtualbox" class="anchor" href="#overcast-virtualbox" aria-hidden="true"><span class="octicon octicon-link"></span></a>overcast virtualbox</h3>
+<a id="user-content-overcast-virtualbox-boot" class="anchor" href="#overcast-virtualbox-boot" aria-hidden="true"><span class="octicon octicon-link"></span></a>overcast virtualbox boot</h3>
 
-<pre><code>  These commands require Vagrant to be installed on your local machine.
-  See http://www.vagrantup.com/downloads, or install on OS X using homebrew-cask:
-    $ brew tap caskroom/cask
-    $ brew install brew-cask
-    $ brew cask install vagrant
+<pre><code>Usage:
+  overcast virtualbox boot [name]
 
+Description:
+  Boot up a Virtualbox instance.
+</code></pre>
+
+<h3>
+<a id="user-content-overcast-virtualbox-create" class="anchor" href="#overcast-virtualbox-create" aria-hidden="true"><span class="octicon octicon-link"></span></a>overcast virtualbox create</h3>
+
+<pre><code>Usage:
   overcast virtualbox create [name] [options...]
-    Creates a new local Virtualbox instance using Vagrant.
 
-    If --ip is not specified, the next available IP after 192.168.22.10 will
-    be automatically assigned. User is root by default. Vagrant files are stored
-    in the ~/.overcast-vagrant directory. Image names "trusty64" (Ubuntu 14.04)
-    and "precise64" (Ubuntu 12.04) are downloaded automatically from Ubuntu
-    servers the first time they are used.
+Description:
+  Creates a new Virtualbox instance.
 
-    Other image names will need to be added using:
-    $ vagrant box add --name [name] [image-url]
+Options:                Defaults:
+  --cluster CLUSTER     default
+  --cpus COUNT          1
+  --image NAME          trusty64
+  --ram MB              512
+  --ip ADDRESS          192.168.22.10
+  --ssh-key PATH        overcast.key
+  --ssh-pub-key PATH    overcast.key.pub
 
-      Option                   | Default
-      --cluster CLUSTER        | default
-      --image NAME             | trusty64
-      --ram MB                 | 512
-      --cpus COUNT             | 1
-      --ip ADDRESS             | 192.168.22.10
-      --ssh-key KEY_PATH       | overcast.key
-      --ssh-pub-key KEY_PATH   | overcast.key.pub
+Examples:
+  $ overcast virtualbox create vm-01
+  $ overcast virtualbox create vm-02 --ram 1024 --image precise64
+</code></pre>
 
-    Examples:
-    $ overcast virtualbox create local.vm.01
-    $ overcast virtualbox create local.vm.02 --ram 1024 --image precise64
+<h3>
+<a id="user-content-overcast-virtualbox-destroy" class="anchor" href="#overcast-virtualbox-destroy" aria-hidden="true"><span class="octicon octicon-link"></span></a>overcast virtualbox destroy</h3>
 
-  overcast virtualbox destroy [name]
-    Destroys a virtualbox instance.
+<pre><code>Usage:
+  overcast virtualbox destroy [name] [options...]
 
-      Option                   | Default
-      --force                  | false
+Description:
+  Destroys a Virtualbox instance.
+  Using --force overrides the confirm dialog.
 
-    Example:
-    $ overcast virtualbox destroy local.01
+Options:     Defaults:
+  --force    false
 
+Examples:
+  $ overcast virtualbox destroy vm-01
+</code></pre>
+
+<h3>
+<a id="user-content-overcast-virtualbox-reboot" class="anchor" href="#overcast-virtualbox-reboot" aria-hidden="true"><span class="octicon octicon-link"></span></a>overcast virtualbox reboot</h3>
+
+<pre><code>Usage:
   overcast virtualbox reboot [name]
-    Reboots a virtualbox instance.
 
-    Example:
-    $ overcast virtualbox reboot local.01
+Description:
+  Reboots a Virtualbox instance.
+</code></pre>
 
-  overcast virtualbox start [name]
-    Starts a virtualbox instance.
+<h3>
+<a id="user-content-overcast-virtualbox-shutdown" class="anchor" href="#overcast-virtualbox-shutdown" aria-hidden="true"><span class="octicon octicon-link"></span></a>overcast virtualbox shutdown</h3>
 
-    Example:
-    $ overcast virtualbox start local.01
+<pre><code>Usage:
+  overcast virtualbox shutdown [name]
 
-  overcast virtualbox stop [name]
-    Stop a virtualbox instance.
-
-    Example:
-    $ overcast virtualbox stop local.01
+Description:
+  Shut down a Virtualbox instance.
 </code></pre>
 
 <h3>
