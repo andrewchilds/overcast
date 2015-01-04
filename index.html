@@ -11,12 +11,18 @@
     <!--[if lt IE 9]>
     <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
+
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+    <script src="javascripts/scale.fix.js"></script>
+    <script src="javascripts/subnav.js"></script>
   </head>
   <body>
-  
-<div id="octocat">
-  <a href="https://github.com/andrewchilds/overcast" target="_blank"><img src="http://i.imgur.com/xeEsyoG.png" alt="" /></a>
-</div>
+
+  <div id="octocat">
+    <a href="https://github.com/andrewchilds/overcast" target="_blank"><img src="http://i.imgur.com/xeEsyoG.png" alt="" /></a>
+  </div>
+
+  <div id="subnav"></div>
 
     <div class="wrapper">
       <header>
@@ -1418,17 +1424,16 @@ npm <span class="pl-s3">test</span></pre></div>
         <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
       </footer>
     </div>
-    <script src="javascripts/scale.fix.js"></script>
-              <script type="text/javascript">
-            var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
-            document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
-          </script>
-          <script type="text/javascript">
-            try {
-              var pageTracker = _gat._getTracker("UA-2103966-3");
-            pageTracker._trackPageview();
-            } catch(err) {}
-          </script>
 
+    <script>
+      var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+      document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+    </script>
+    <script type="text/javascript">
+      try {
+        var pageTracker = _gat._getTracker("UA-2103966-3");
+        pageTracker._trackPageview();
+      } catch(err) {}
+    </script>
   </body>
 </html>
