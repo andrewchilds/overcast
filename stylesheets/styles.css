@@ -184,7 +184,7 @@ footer {
 }
 
 @media print, screen and (max-width: 3000px) {
-  
+
   #octocat {
     right: 16px;
     position: fixed;
@@ -236,7 +236,7 @@ footer {
 }
 
 @media print, screen and (max-width: 720px) {
-  
+
   #octocat {
     display: none;
   }
@@ -287,4 +287,36 @@ footer {
 
 header {
   display: none;
+}
+
+@media print, screen and (max-width: 1165px) {
+  #subnav {
+    display: none;
+  }
+}
+
+#subnav {
+  position: absolute;
+  top: 310px;
+  left: 40px;
+  width: 150px;
+}
+
+#subnav.fixed {
+  position: fixed;
+  top: 40px;
+  left: 40px;
+}
+
+#subnav a {
+  color: #bbb;
+  display: block;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 15px;
+  padding: 5px 0;
+}
+
+#subnav .active a {
+  color: #222;
 }
