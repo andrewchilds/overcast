@@ -134,13 +134,13 @@ The command `overcast init` will create a new configuration in the current direc
   variables.json    # API keys, etc (see example.variables.json)
 ```
 
-## Design Goals &amp; Motivation
+## Design Goals
 
 There are many server management frameworks out there already, but they generally involve a complex server-client implementation, a steep learning curve, or a giant, monolithic conceptual framework that requires taking a course to understand.
 
 I wanted something that had little to no learning curve, that did only what you asked it to do on the remote machines and nothing more, that just focused on multi-server provisioning and communication and leaves problems like process/state management and system monitoring to tools designed specifically for those problems.
 
-## Example App Deployment Recipes
+## Example App Recipes
 
   - [Discourse](https://github.com/andrewchilds/overcast/blob/master/recipes/discourse)
   - [Ubuntu 14.04 LAMP server](https://github.com/andrewchilds/overcast/blob/master/recipes/lamp-server)
