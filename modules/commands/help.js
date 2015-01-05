@@ -37,7 +37,7 @@ exports.help = function () {
   var row = ' ';
   _.each(utils.getCommands(), function (command, name) {
     if (name !== 'help' && (command.signatures || command.commands)) {
-      if (row.length > 65) {
+      if (row.length > 58) {
         signatures.push(row);
         row = ' ';
       }

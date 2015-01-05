@@ -6,6 +6,145 @@ var utils = require('../utils');
 
 var DEBUG = false;
 
+exports.id = 'linode';
+exports.name = 'Linode';
+
+// Provider interface
+
+exports.boot = function (instance, callback) {
+  exports.bootLinode({ 'linode-name': instance.name })
+    .then(exports.waitForPendingJobs)
+    .then(function () {
+      if (_.isFunction(callback)) {
+        callback();
+      }
+    });
+};
+
+exports.create = function (args, callback) {
+  exports.createRequest(args).then(function (res) {
+    var instance = {
+      ip: res.linode.ip,
+      name: args.name,
+      ssh_key: args['ssh-key'] || 'overcast.key',
+      ssh_port: '22',
+      user: 'root',
+      linode: res.linode
+    };
+
+    if (_.isFunction(callback)) {
+      callback(instance);
+    }
+  });
+};
+
+exports.destroy = function (instance, callback) {
+  exports.shutdownLinode({ 'linode-name': instance.name })
+    .then(exports.deleteDisks)
+    .then(exports.deleteLinode)
+    .catch(exports.errorCatcher).then(function () {
+      if (_.isFunction(callback)) {
+        callback();
+      }
+    });
+};
+
+exports.getImages = function (callback) {
+  exports.getDistributions().then(function (distributions) {
+    if (_.isFunction(callback)) {
+      callback(distributions);
+    }
+  });
+};
+
+exports.getInstances = function (args, callback) {
+  exports.getLinodes().then(function (instances) {
+    if (_.isFunction(callback)) {
+      callback(instances);
+    }
+  });
+};
+
+exports.getKernels = function (callback) {
+  exports.getLinodeKernels().then(function (kernels) {
+    if (_.isFunction(callback)) {
+      callback(kernels);
+    }
+  });
+};
+
+exports.getRegions = function (callback) {
+  exports.getDatacenters().then(function (datacenters) {
+    if (_.isFunction(callback)) {
+      callback(datacenters);
+    }
+  });
+};
+
+exports.getSizes = function (callback) {
+  exports.getPlans().then(function (plans) {
+    if (_.isFunction(callback)) {
+      callback(plans);
+    }
+  });
+};
+
+exports.reboot = function (instance, callback) {
+  exports.rebootLinode({ 'linode-name': instance.name })
+    .then(exports.waitForPendingJobs)
+    .then(function () {
+      if (_.isFunction(callback)) {
+        callback();
+      }
+    });
+};
+
+exports.resize = function (instance, size, callback) {
+  exports.getPlans().then(function (plans) {
+    var matchingPlan = getMatching(plans, size);
+    if (!matchingPlan) {
+      utils.die('No size found matching "' + size + '".');
+    }
+    var data = {
+      'linode-name': instance.name,
+      'plan-id': matchingPlan.id
+    };
+    exports.resizeLinode(data).then(function () {
+      if (_.isFunction(callback)) {
+        callback();
+      }
+    });
+  });
+};
+
+exports.shutdown = function (instance, callback) {
+  exports.shutdownLinode({ 'linode-name': instance.name })
+    .then(exports.waitForPendingJobs)
+    .then(function () {
+      if (_.isFunction(callback)) {
+        callback();
+      }
+    });
+};
+
+exports.updateInstanceMetadata = function (instance, callback) {
+  exports.getLinode({ 'linode-name': instance.name })
+    .catch(exports.errorCatcher)
+    .then(function (linodes) {
+      utils.updateInstance(instance.name, {
+        linode: linodes[0]
+      });
+
+      if (_.isFunction(callback)) {
+        callback();
+      }
+    });
+};
+
+exports.sync = exports.updateInstanceMetadata;
+
+// Internal functions
+
 exports.generateRandomPassword = function (length) {
   return crypto.randomBytes(length || 20).toString('hex');
 };
@@ -192,7 +331,7 @@ exports.getDistributions = function () {
   });
 };
 
-exports.getKernels = function () {
+exports.getLinodeKernels = function () {
   return apiPromise({
     action: 'avail.kernels',
     mapper: function (obj) {
@@ -236,20 +375,7 @@ exports.getDatacenters = function () {
   });
 };
 
-// name
-// datacenter-id || 6 (Newark)
-// datacenter-slug
-// distribution-id
-// distribution-slug || 'ubuntu-14-04-lts'
-// kernel-id
-// kernel-name || 'Latest 64 bit'
-// plan-id || 1 (Linode 2048)
-// plan-slug
-// password || (randomly generated)
-// payment-term || 1 (Monthly, if not metered)
-// ssh-key || overcast.key
-// ssh-pub-key || overcast.key.pub
-exports.create = function (args) {
+exports.createRequest = function (args) {
   var linode = {};
 
   return exports.normalizeArgs(args)
@@ -274,22 +400,19 @@ exports.create = function (args) {
     .catch(exports.errorCatcher);
 };
 
-// datacenter-id || 6 (Newark)
-// datacenter-slug
 // name
-// plan-id || 1 (Linode 2048)
-// plan-slug
+// region || datacenter-slug || datacenter-id || 6 (Newark)
+// size || plan-slug || plan-id || 1 (1024)
 // payment-term || 1 (Monthly, if not metered)
 exports.createLinode = function (args) {
   var linode = {};
   return exports.normalizeArgs(args).then(function (args) {
     linode = args;
-    utils.grey('Creating Linode "' + linode.name + '"...');
     return apiPromise({
       action: 'linode.create',
       data: {
         DatacenterID: args['datacenter-id'] || 6, // Defaults to Newark
-        PlanID: args['plan-id'] || 1, // Defaults to Linode 2048
+        PlanID: args['plan-id'] || 1, // Defaults to 1024
         PaymentTerm: args['payment-term'] || 1 // Defaults to monthly (if not metered)
       },
       transform: function (res) {
@@ -313,20 +436,18 @@ exports.createLinode = function (args) {
   });
 };
 
-// linode-id
-// linode-name
-// plan-id
-// plan-slug
+// linode-id || linode-name
+// size || plan-id || plan-slug
 exports.resizeLinode = function (args) {
   return new Promise(function (resolve, reject) {
     exports.normalizeArgs(args).then(function (args) {
       exports.request('linode.resize', {
         LinodeID: args['linode-id'],
-        PlanID: args['plan-id'] || 1 // Defaults to Linode 2048
+        PlanID: args['plan-id'] || 1 // Defaults to 1024
       }, function (err, res) {
         // Y U error on success Linode?
         if (err === 'ok') {
-          resolve();
+          resolve(args);
         } else {
           reject(new Error(err));
         }
@@ -335,15 +456,11 @@ exports.resizeLinode = function (args) {
   }).then(exports.waitForPendingJobs).catch(exports.errorCatcher);
 };
 
-// linode-id
-// linode-name
-// kernel-id
-// kernel-name
+// linode-id || linode-name
+// kernel || kernel-id || kernel-name
 exports.createConfig = function (args) {
-  utils.grey('Creating configuration...');
-
-  if (!args['kernel-id'] && !args['kernel-name']) {
-    args['kernel-name'] = 'Latest 64 bit';
+  if (!args['kernel'] && !args['kernel-id'] && !args['kernel-name']) {
+    args['kernel'] = 'Latest 64 bit';
   }
 
   return exports.normalizeArgs(args).then(exports.addLinodeToArgs).then(function (args) {
@@ -363,10 +480,8 @@ exports.createConfig = function (args) {
   });
 };
 
-// linode-id
-// linode-name
-// distribution-slug
-// distribution-id
+// linode-id || linode-name
+// image || distribution-slug || distribution-id || ubuntu-14-04-lts
 // password
 // ssh-key
 exports.createDiskFromDistribution = function (args) {
@@ -381,13 +496,11 @@ exports.createDiskFromDistribution = function (args) {
   args['ssh-pub-key'] = utils.normalizeKeyPath(args['ssh-pub-key'], 'overcast.key.pub');
   args['ssh-key-data'] = fs.readFileSync(args['ssh-pub-key'], 'utf8') + '';
 
-  if (!args['distribution-id'] && !args['distribution-slug']) {
+  if (!args['image'] && !args['distribution-id'] && !args['distribution-slug']) {
     args['distribution-slug'] = 'ubuntu-14-04-lts';
   }
 
   return exports.normalizeArgs(args).then(exports.addLinodeToArgs).then(function (args) {
-    args.size = args.size ? parseInt(args.size, 10) : args.linode.disk - 256;
-
     return apiPromise({
       action: 'linode.disk.createFromDistribution',
       data: {
@@ -396,7 +509,7 @@ exports.createDiskFromDistribution = function (args) {
         LinodeID: args['linode-id'],
         rootPass: args.password,
         rootSSHKey: args['ssh-key-data'] || '',
-        Size: args.size // in MB
+        Size: args.linode.disk - (args.swap || 256)
       },
       transform: function () {
         return args;
@@ -405,10 +518,9 @@ exports.createDiskFromDistribution = function (args) {
   });
 };
 
-// linode-id
-// linode-name
+// linode-id || linode-name
 exports.createSwapDisk = function (args) {
-  utils.grey('Creating swap disk...');
+  utils.grey('Creating ' + (args.swap || 256) + 'MB swap disk...');
 
   return exports.normalizeArgs(args).then(function (args) {
     return apiPromise({
@@ -416,7 +528,7 @@ exports.createSwapDisk = function (args) {
       data: {
         Label: 'Swap Disk',
         LinodeID: args['linode-id'],
-        Size: 256, // in MB
+        Size: args.swap || 256, // in MB
         Type: 'swap'
       },
       transform: function () {
@@ -427,8 +539,7 @@ exports.createSwapDisk = function (args) {
 };
 
 // disk-id
-// linode-id
-// linode-name
+// linode-id || linode-name
 exports.deleteDisk = function (args) {
   return exports.normalizeArgs(args).then(function (args) {
     return apiPromise({
@@ -444,8 +555,7 @@ exports.deleteDisk = function (args) {
   });
 };
 
-// linode-id
-// linode-name
+// linode-id || linode-name
 exports.deleteDisks = function (args) {
   return exports.normalizeArgs(args).then(exports.addLinodeToArgs).then(function (args) {
     _.each(args.linode.disks, function (disk) {
@@ -466,8 +576,7 @@ exports.deleteDisks = function (args) {
   }).delay(5000).then(exports.waitForPendingJobs);
 };
 
-// linode-id
-// linode-name
+// linode-id || linode-name
 _.each(['boot', 'delete', 'reboot', 'shutdown'], function (methodName) {
   exports[methodName + 'Linode'] = function (args) {
     return exports.normalizeArgs(args).then(function (args) {
@@ -504,16 +613,16 @@ exports.normalizeArgs = function (args) {
     if (args['linode-name']) {
       return getLinodeIDFromName(args, exports.normalizeArgs, resolve, reject);
     }
-    if (args['plan-slug']) {
+    if (args.size || args['plan-slug']) {
       return getPlanIDFromSlug(args, exports.normalizeArgs, resolve, reject);
     }
-    if (args['datacenter-slug']) {
+    if (args.region || args['datacenter-slug']) {
       return getDatacenterIDFromSlug(args, exports.normalizeArgs, resolve, reject);
     }
-    if (args['distribution-slug']) {
+    if (args.image || args['distribution-slug']) {
       return getDistributionIDFromSlug(args, exports.normalizeArgs, resolve, reject);
     }
-    if (args['kernel-name']) {
+    if (args.kernel || args['kernel-name']) {
       return getKernelIDFromName(args, exports.normalizeArgs, resolve, reject);
     }
     resolve(args);
@@ -521,93 +630,89 @@ exports.normalizeArgs = function (args) {
 };
 
 exports.errorCatcher = function (e) {
-  utils.red('Linode API Error: ' + (e.message ? e.message : e));
+  utils.die('Linode API Error: ' + (e.message ? e.message : e));
 };
 
 function getLinodeIDFromName(args, fn, resolve, reject) {
   return exports.getLinodes().then(function (linodes) {
-    var name = args['linode-name'];
-    var found = _.find(linodes, { name: name });
+    var key = args['linode-name'];
+    var found = _.find(linodes, { name: key });
     if (found) {
       delete args['linode-name'];
       args['linode-id'] = found.id;
       fn(args).then(resolve);
     } else {
-      reject(new Error('No linode found matching "' + name + '".'));
+      utils.die('No linode found matching "' + key + '".');
     }
   });
 }
 
 function getKernelIDFromName(args, fn, resolve, reject) {
-  return exports.getKernels().then(function (kernels) {
-    var name = args['kernel-name'];
+  return exports.getLinodeKernels().then(function (kernels) {
+    var key = args.kernel || args['kernel-name'];
     var found = _.find(kernels, function (kernel) {
-      return kernel.name.indexOf(name) !== -1;
+      return kernel.name.indexOf(key) !== -1;
     });
     if (found) {
+      delete args.kernel;
       delete args['kernel-name'];
       args['kernel-id'] = found.id;
       fn(args).then(resolve);
     } else {
-      reject(new Error('No kernel found matching "' + name + '".'));
+      utils.die('No kernel found matching "' + key + '".');
     }
   });
 }
 
 function getDistributionIDFromSlug(args, fn, resolve, reject) {
   return exports.getDistributions().then(function (distributions) {
-    var slug = args['distribution-slug'];
-    var found = _.find(distributions, { slug: slug });
+    var key = args.image || args['distribution-slug'];
+    var found = getMatching(distributions, key);
     if (found) {
+      delete args.image;
       delete args['distribution-slug'];
       args['distribution-id'] = found.id;
       fn(args).then(resolve);
     } else {
-      reject(new Error('No distribution found matching "' + slug + '".'));
-    }
-  });
-}
-
-function getDistributionIDFromName(args, fn, resolve, reject) {
-  return exports.getDistributions().then(function (distributions) {
-    var slug = args['distribution-name'];
-    var found = _.find(distributions, { slug: slug });
-    if (found) {
-      delete args['distribution-name'];
-      args['distribution-id'] = found.id;
-      fn(args).then(resolve);
-    } else {
-      reject(new Error('No distribution found matching "' + slug + '".'));
+      utils.die('No image found matching "' + key + '".');
     }
   });
 }
 
 function getPlanIDFromSlug(args, fn, resolve, reject) {
   return exports.getPlans().then(function (plans) {
-    var slug = parseInt(args['plan-slug'], 10);
-    var found = _.find(plans, { slug: slug });
+    var key = args.size || args['plan-slug'];
+    var found = getMatching(plans, key);
     if (found) {
+      delete args.size;
       delete args['plan-slug'];
       args['plan-id'] = found.id;
       fn(args).then(resolve);
     } else {
-      reject(new Error('No plan found matching "' + slug + '".'));
+      utils.die('No size found matching "' + key + '".');
     }
   });
 }
 
 function getDatacenterIDFromSlug(args, fn, resolve, reject) {
   return exports.getDatacenters().then(function (datacenters) {
-    var slug = args['datacenter-slug'];
-    var found = _.find(datacenters, { slug: slug });
+    var key = args.region || args['datacenter-slug'];
+    var found = getMatching(datacenters, key);
     if (found) {
+      delete args.region;
       delete args['datacenter-slug'];
       args['datacenter-id'] = found.id;
       fn(args).then(resolve);
     } else {
-      reject(new Error('No datacenter found matching "' + slug + '".'));
+      utils.die('No region found matching "' + key + '".');
     }
   });
+}
+
+function getMatching(collection, val) {
+  var matchAsString = utils.findUsingMultipleKeys(collection, val, ['id', 'name', 'slug']);
+  var matchAsInt = utils.findUsingMultipleKeys(collection, parseInt(val, 10), ['id', 'name', 'slug']);
+  return matchAsString || matchAsInt;
 }
 
 function apiPromise(options) {

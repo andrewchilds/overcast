@@ -17,7 +17,7 @@ var BUNDLED_IMAGE_URLS = {
   'precise64': 'https://cloud-images.ubuntu.com/vagrant/precise/current/precise-server-cloudimg-amd64-vagrant-disk1.box'
 };
 
-// Public interface
+// Provider interface
 
 exports.boot = function (instance, callback) {
   exports.startInstance(instance)
@@ -97,7 +97,7 @@ exports.shutdown = function (instance, callback) {
     });
 };
 
-// Private functions
+// Internal functions
 
 exports.parseCSV = function (str) {
   var arr = [];

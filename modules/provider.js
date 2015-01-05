@@ -169,6 +169,17 @@ exports.sync = function (api, args, callback) {
   });
 };
 
+exports.kernels = function (api, callback) {
+  exports.handleCommandNotFound(api.getKernels);
+
+  api.getKernels(function (kernels) {
+    utils.printCollection('kernels', kernels);
+    if (_.isFunction(callback)) {
+      callback();
+    }
+  });
+};
+
 // AKA datacenters (Linode).
 exports.regions = function (api, callback) {
   exports.handleCommandNotFound(api.getRegions);

@@ -92,3 +92,12 @@ exports.shouldBeVirtualbox = function (name, args) {
     return false;
   }
 };
+
+exports.shouldBeLinode = function (name, args) {
+  if (!args.instance || !args.instance.linode) {
+    utils.red('This instance has no Linode metadata attached.');
+    utils.red('Run this command and then try again:');
+    utils.die('overcast linode sync "' + args.instance.name + '"');
+    return false;
+  }
+};

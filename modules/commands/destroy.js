@@ -36,13 +36,13 @@ exports.run = function (args) {
   } else if (instance.linode) {
     command = require('./linode.js');
     args.command = 'linode';
+    args.subcommand = 'destroy';
+    args._.unshift(args.name);
+    delete args.name;
+    return cli.run(command.commands.destroy, args);
   } else {
     return utils.die('This instance doesn\'t belong to a recognized provider.');
   }
-
-  args._.unshift(args.name);
-  args._.unshift('destroy');
-  command.run(args);
 };
 
 exports.signatures = function () {

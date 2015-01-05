@@ -7,7 +7,7 @@ var cli = require('../cli');
 var API = {
   AWS: require('./aws.js'),
   DigitalOcean: require('./digitalocean.js'),
-  Linode: require('../providers/linode.js'),
+  Linode: require('./linode.js'),
   VirtualBox: require('./virtualbox.js')
 };
 
@@ -35,21 +35,23 @@ exports.run = function (args) {
       addPromise(function (resolve) {
         args.command = 'digitalocean';
         args.subcommand = 'reboot';
-        args._.unshift(args.name);
+        args._.unshift(instance.name);
         delete args.name;
         cli.run(API.DigitalOcean.commands.reboot, args, resolve);
       });
     } else if (instance.linode && instance.linode.id) {
       addPromise(function (resolve) {
-        API.Linode.rebootLinode({ 'linode-id': instance.linode.id }).then(function () {
-          utils.waitForBoot(instance, resolve);
-        });
+        args.command = 'linode';
+        args.subcommand = 'reboot';
+        args._.unshift(instance.name);
+        delete args.name;
+        cli.run(API.Linode.commands.reboot, args, resolve);
       });
     } else if (instance.aws && instance.aws.id) {
       addPromise(function (resolve) {
         args.command = 'aws';
         args.subcommand = 'reboot';
-        args._.unshift(args.name);
+        args._.unshift(instance.name);
         delete args.name;
         cli.run(API.AWS.commands.reboot, args, resolve);
       });
@@ -57,7 +59,7 @@ exports.run = function (args) {
       addPromise(function (resolve) {
         args.command = 'virtualbox';
         args.subcommand = 'reboot';
-        args._.unshift(args.name);
+        args._.unshift(instance.name);
         delete args.name;
         cli.run(API.VirtualBox.commands.reboot, args, resolve);
       });
