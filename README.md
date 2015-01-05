@@ -86,13 +86,9 @@ $ overcast run all /absolute/path/to/script ./relative/path/to/other/script
     $ overcast var set LINODE_API_KEY abc123
     ```
 
-4. To make working with Overcast easier, you can add tab completion and SSH aliases to quickly SSH in to any of your instances, by adding the following to your `.bash_profile`:
+4. To make working with Overcast easier, you can add bash tab completion by adding the following to your `.bash_profile`:
 
     ```sh
-    # Overcast SSH aliases
-    overcast aliases > $HOME/.overcast_aliases
-    source $HOME/.overcast_aliases
-
     # Overcast Tab completion
     _overcast_completions() {
       local cur=${COMP_WORDS[COMP_CWORD]}
