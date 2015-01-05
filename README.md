@@ -4,14 +4,9 @@ Overcast is a simple command line program designed to make it easy to spin up, c
 
 ![Screenshot](http://i.imgur.com/5x1gKVC.png)
 
-## Concepts
-
-- **Instances** are any machine you can SSH into.
-- **Clusters** are sets of instances.
-
 ## Features
 
-Create, reboot and destroy instances across DigitalOcean, Linode and Amazon, or locally using Vagrant + Virtualbox:
+Create, reboot and destroy instances across DigitalOcean, Linode and Amazon, or locally using Vagrant + Virtualbox.
 
 ```sh
 # Spin up a new Ubuntu 14.04 instance on DigitalOcean:
@@ -32,14 +27,7 @@ $ overcast virtualbox create db-04
 $ overcast run db-* install/core install/redis --parallel
 ```
 
-Import your already-running machines, wherever they are, using `overcast import` or by editing [`~/.overcast/clusters.json`](https://github.com/andrewchilds/overcast/tree/master/fixtures/example.clusters.json):
-
-```sh
-$ overcast import app-01 --ip 1.1.1.1 --ssh-key ~/.ssh/id_rsa
-$ overcast import app-02 --ip 2.2.2.2 --ssh-key ~/.ssh/id_rsa
-```
-
-Run multiple commands or multiple scripts on any or all of your instances at once, over SSH. Commands can be run sequentially or in parallel using the `--parallel` flag.
+Run multiple commands or multiple scripts on any of your instances over SSH. Commands can be run sequentially or in parallel. Avoid vendor lock-in by running and testing your deployment scripts across different providers.
 
 ```sh
 # Run bundled scripts, e.g. a LAMP stack:
@@ -58,20 +46,25 @@ Quickly SSH in to any instance by name.
 $ overcast ssh app-01
 ```
 
-Push and pull files between your local machine and any or all of your instances at once. Dynamically rewrite file paths to include the instance name using `{instance}` in either source or destination.
+Push and pull files between your local machine and any of your instances using SCP or rsync. Dynamically rewrite file paths to include the instance name using `{instance}` in either source or destination.
 
 ```sh
 $ overcast push app nginx/myapp.conf /etc/nginx/sites-enabled/myapp.conf
 $ overcast pull all /etc/nginx/sites-enabled/myapp.conf nginx/{instance}.myapp.conf
 ```
 
-Overcast is a thin wrapper around your native SSH client, and doesn't install or leave anything on the servers you communicate with, so Overcast itself has no real attack surface.
+Overcast is a thin wrapper around your SSH client and doesn't install or leave anything on the servers you communicate with, so Overcast itself has no real attack surface.
 
-A [script library](https://github.com/andrewchilds/overcast/tree/master/scripts) and [recipe library](https://github.com/andrewchilds/overcast/tree/master/recipes) are included to make it trivial to deploy common software stacks and applications. The libraries were written for and tested against Ubuntu/Debian systems, but you can just as easily run your own custom scripts as well:
+A library of [scripts](https://github.com/andrewchilds/overcast/tree/master/scripts) and [recipes](https://github.com/andrewchilds/overcast/tree/master/recipes) are included which make it easy to deploy a number of common software stacks and applications. The libraries were written for and tested against Ubuntu/Debian systems, but you can just as easily run your own custom scripts.
 
 ```sh
 $ overcast run all /absolute/path/to/script ./relative/path/to/other/script
 ```
+
+## Concepts
+
+- **Instances** are any machine you can SSH into.
+- **Clusters** are sets of instances.
 
 ## Installation (OS X/Linux)
 
@@ -665,7 +658,7 @@ Examples:
 ### overcast help
 
 ```
-  Overcast v0.6.6
+  Overcast v0.6.7
 
   Source code, issues, pull requests:
     https://github.com/andrewchilds/overcast
@@ -679,10 +672,10 @@ Examples:
     overcast [command] help
 
   Commands:
-    aliases aws cluster completions destroy digitalocean expose exposed
-    get health import info init instance key linode list ping port pull
-    push reboot remove run scriptvar slack ssh tunnel var virtualbox
-    wait
+    aliases aws cluster completions destroy digitalocean expose
+    exposed get health import info init instance key linode list
+    ping port pull push reboot remove run scriptvar slack ssh
+    tunnel var virtualbox wait
 
   Config directory:
     /path/to/.overcast
@@ -891,71 +884,159 @@ Examples:
   overcast
 ```
 
-### overcast linode
+### overcast linode boot
 
 ```
-  These functions require the LINODE_API_KEY variable to be set.
-  Your API keys can be found at https://manager.linode.com/profile/api
-
+Usage:
   overcast linode boot [name]
-    Boot a powered off linode.
 
-  overcast linode create [name] [options]
-    Creates a new Linode.
+Description:
+  Boot up an instance if powered off, otherwise do nothing.
+```
 
-      Option                    | Default
-      --cluster CLUSTER         | default
-      --datacenter-slug NAME    | newark
-      --datacenter-id ID        |
-      --distribution-slug NAME  | ubuntu-14-04-lts
-      --distribution-id ID      |
-      --kernel-id ID            |
-      --kernel-name NAME        | Latest 64 bit
-      --payment-term ID         | 1 (monthly, if not metered)
-      --plan-id ID              |
-      --plan-slug NAME          | 2048
-      --password PASSWORD       | autogenerated
-      --ssh-key KEY_PATH        | overcast.key
-      --ssh-pub-key KEY_PATH    | overcast.key.pub
+### overcast linode create
 
-    Example:
-    $ overcast linode create db.01 --cluster db --datacenter-slug london
+```
+Usage:
+  overcast linode create [name] [options...]
 
-  overcast linode datacenters
-    List available Linode datacenters.
+Description:
+  Creates a new instance on Linode.
 
-  overcast linode destroy [name]
-    Destroys a linode and removes it from your account.
-    Using --force overrides the confirm dialog. This is irreversible.
+Options:                 Defaults:
+  --cluster CLUSTER      default
+  --image IMAGE          ubuntu-14-04-lts
+  --kernel KERNEL        Latest 64 bit
+  --password PASSWORD    autogenerated
+  --payment-term ID      1 (monthly, if not metered)
+  --region REGION        newark
+  --size SIZE            1024
+  --ssh-key PATH         overcast.key
+  --ssh-pub-key PATH     overcast.key.pub
+  --swap MB              256
 
-      Option                    | Default
-      --force                   | false
+Examples:
+  # Specified size:
+  $ overcast linode create vm-01 --size 4096
 
-  overcast linode distributions
-    List available Linode distributions.
+  # Specified image and region:
+  $ overcast aws create vm-01 --image "Debian 7.7" --region london
+```
 
+### overcast linode destroy
+
+```
+Usage:
+  overcast linode destroy [name] [options...]
+
+Description:
+  Destroys a Linode instance.
+  Using --force overrides the confirm dialog.
+
+Options:     Defaults:
+  --force    false
+
+Examples:
+  $ overcast linode destroy vm-01 --force
+```
+
+### overcast linode images
+
+```
+Usage:
+  overcast linode images
+
+Description:
+  List all available images.
+```
+
+### overcast linode instances
+
+```
+Usage:
+  overcast linode instances
+
+Description:
+  List all instances in your account.
+```
+
+### overcast linode kernels
+
+```
+Usage:
   overcast linode kernels
-    List available Linode kernels.
 
-  overcast linode linodes
-    List all linodes in your account.
+Description:
+  List all available kernels.
+```
 
-  overcast linode plans
-    List available Linode plans.
+### overcast linode reboot
 
+```
+Usage:
   overcast linode reboot [name]
-    Reboots a linode.
 
-  overcast linode resize [name] [options]
-    Resizes a linode to the specified plan.
-    This will immediately shutdown and migrate your linode.
+Description:
+  Reboot an instance using the provider API.
+```
 
-      Option                    | Default
-      --plan-id ID              |
-      --plan-slug NAME          |
+### overcast linode regions
 
+```
+Usage:
+  overcast linode regions
+
+Description:
+  List all available regions.
+```
+
+### overcast linode resize
+
+```
+Usage:
+  overcast linode resize [name] [size] [options...]
+
+Description:
+  Shutdown, resize, and reboot a Linode instance.
+  [size] can be a size ID, name or slug.
+  If the --skip-boot flag is used, the instance will stay powered off.
+
+Options:         Defaults:
+  --skip-boot    false
+
+Examples:
+  # Resize an instance to 4096:
+  $ overcast linode resize vm-01 4096
+```
+
+### overcast linode shutdown
+
+```
+Usage:
   overcast linode shutdown [name]
-    Shut down a linode.
+
+Description:
+  Shut down an instance using the provider API.
+```
+
+### overcast linode sizes
+
+```
+Usage:
+  overcast linode sizes
+
+Description:
+  List all available instance sizes.
+```
+
+### overcast linode sync
+
+```
+Usage:
+  overcast linode sync [name]
+
+Description:
+  Fetch and update instance metadata.
 ```
 
 ### overcast list
@@ -1339,8 +1420,6 @@ Examples:
 [![Build Status](https://travis-ci.org/andrewchilds/overcast.svg?branch=master)](https://travis-ci.org/andrewchilds/overcast)
 
 ```sh
-git clone https://github.com/andrewchilds/overcast.git
-cd overcast
 npm test
 ```
 

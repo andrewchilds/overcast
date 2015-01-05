@@ -6,6 +6,13 @@ npm -g update overcast
 
 # Change Log
 
+**0.6.7** (Jan 5, 2015)
+
+- Rewrite `linode` command to use standard provider API.
+- To improve consistency across providers, `datacenters`, `distributions`, `linodes`, and `plans` commands are renamed to `regions`, `images`, `instances`, and `sizes`, though the original command names are still quietly supported for backward compatibility. Update `linode create` command to expect --image, --size, --region, though the original options are still supported.
+- Add `linode kernels` and `linode sync` commands.
+- Add --swap option to `linode create` command.
+
 **0.6.6** (Jan 2, 2015)
 
 - Rewrite `virtualbox` command to use standard provider API.
