@@ -50,19 +50,9 @@
 <p><a href="https://camo.githubusercontent.com/f6b14371011f49989e8aee84654c6036e065b6e4/687474703a2f2f692e696d6775722e636f6d2f357831674b56432e706e67" target="_blank"><img src="https://camo.githubusercontent.com/f6b14371011f49989e8aee84654c6036e065b6e4/687474703a2f2f692e696d6775722e636f6d2f357831674b56432e706e67" alt="Screenshot" data-canonical-src="http://i.imgur.com/5x1gKVC.png" style="max-width:100%;"></a></p>
 
 <h2>
-<a id="user-content-concepts" class="anchor" href="#concepts" aria-hidden="true"><span class="octicon octicon-link"></span></a>Concepts</h2>
-
-<ul class="task-list">
-<li>
-<strong>Instances</strong> are any machine you can SSH into.</li>
-<li>
-<strong>Clusters</strong> are sets of instances.</li>
-</ul>
-
-<h2>
 <a id="user-content-features" class="anchor" href="#features" aria-hidden="true"><span class="octicon octicon-link"></span></a>Features</h2>
 
-<p>Create, reboot and destroy instances across DigitalOcean, Linode and Amazon, or locally using Vagrant + Virtualbox:</p>
+<p>Create, reboot and destroy instances across DigitalOcean, Linode and Amazon, or locally using Vagrant + Virtualbox.</p>
 
 <div class="highlight highlight-sh"><pre><span class="pl-c"># Spin up a new Ubuntu 14.04 instance on DigitalOcean:</span>
 $ overcast digitalocean create db-01
@@ -81,12 +71,7 @@ $ overcast virtualbox create db-04
 <span class="pl-c"># Upgrade and install Redis across all of those instances in parallel:</span>
 $ overcast run db-<span class="pl-k">*</span> install/core install/redis --parallel</pre></div>
 
-<p>Import your already-running machines, wherever they are, using <code>overcast import</code> or by editing <a href="https://github.com/andrewchilds/overcast/tree/master/fixtures/example.clusters.json"><code>~/.overcast/clusters.json</code></a>:</p>
-
-<div class="highlight highlight-sh"><pre>$ overcast import app-01 --ip 1.1.1.1 --ssh-key <span class="pl-k">~</span>/.ssh/id_rsa
-$ overcast import app-02 --ip 2.2.2.2 --ssh-key <span class="pl-k">~</span>/.ssh/id_rsa</pre></div>
-
-<p>Run multiple commands or multiple scripts on any or all of your instances at once, over SSH. Commands can be run sequentially or in parallel using the <code>--parallel</code> flag.</p>
+<p>Run multiple commands or multiple scripts on any of your instances over SSH. Commands can be run sequentially or in parallel. Avoid vendor lock-in by running and testing your deployment scripts across different providers.</p>
 
 <div class="highlight highlight-sh"><pre><span class="pl-c"># Run bundled scripts, e.g. a LAMP stack:</span>
 $ overcast run lamp-01 install/core install/apache install/mysql install/php
@@ -101,16 +86,26 @@ $ overcast run db ./script.sh uptime <span class="pl-s1"><span class="pl-pds">"<
 
 <div class="highlight highlight-sh"><pre>$ overcast ssh app-01</pre></div>
 
-<p>Push and pull files between your local machine and any or all of your instances at once. Dynamically rewrite file paths to include the instance name using <code>{instance}</code> in either source or destination.</p>
+<p>Push and pull files between your local machine and any of your instances using SCP or rsync. Dynamically rewrite file paths to include the instance name using <code>{instance}</code> in either source or destination.</p>
 
 <div class="highlight highlight-sh"><pre>$ overcast push app nginx/myapp.conf /etc/nginx/sites-enabled/myapp.conf
 $ overcast pull all /etc/nginx/sites-enabled/myapp.conf nginx/{instance}.myapp.conf</pre></div>
 
-<p>Overcast is a thin wrapper around your native SSH client, and doesn't install or leave anything on the servers you communicate with, so Overcast itself has no real attack surface.</p>
+<p>Overcast is a thin wrapper around your SSH client and doesn't install or leave anything on the servers you communicate with, so Overcast itself has no real attack surface.</p>
 
-<p>A <a href="https://github.com/andrewchilds/overcast/tree/master/scripts">script library</a> and <a href="https://github.com/andrewchilds/overcast/tree/master/recipes">recipe library</a> are included to make it trivial to deploy common software stacks and applications. The libraries were written for and tested against Ubuntu/Debian systems, but you can just as easily run your own custom scripts as well:</p>
+<p>A library of <a href="https://github.com/andrewchilds/overcast/tree/master/scripts">scripts</a> and <a href="https://github.com/andrewchilds/overcast/tree/master/recipes">recipes</a> are included which make it easy to deploy a number of common software stacks and applications. The libraries were written for and tested against Ubuntu/Debian systems, but you can just as easily run your own custom scripts.</p>
 
 <div class="highlight highlight-sh"><pre>$ overcast run all /absolute/path/to/script ./relative/path/to/other/script</pre></div>
+
+<h2>
+<a id="user-content-concepts" class="anchor" href="#concepts" aria-hidden="true"><span class="octicon octicon-link"></span></a>Concepts</h2>
+
+<ul class="task-list">
+<li>
+<strong>Instances</strong> are any machine you can SSH into.</li>
+<li>
+<strong>Clusters</strong> are sets of instances.</li>
+</ul>
 
 <h2>
 <a id="user-content-installation-os-xlinux" class="anchor" href="#installation-os-xlinux" aria-hidden="true"><span class="octicon octicon-link"></span></a>Installation (OS X/Linux)</h2>
@@ -132,13 +127,9 @@ $ overcast var <span class="pl-s3">set</span> DIGITALOCEAN_API_KEY abc123
 $ overcast var <span class="pl-s3">set</span> LINODE_API_KEY abc123</pre></div>
 </li>
 <li>
-<p>To make working with Overcast easier, you can add tab completion and SSH aliases to quickly SSH in to any of your instances, by adding the following to your <code>.bash_profile</code>:</p>
+<p>To make working with Overcast easier, you can add bash tab completion by adding the following to your <code>.bash_profile</code>:</p>
 
-<div class="highlight highlight-sh"><pre><span class="pl-c"># Overcast SSH aliases</span>
-overcast aliases <span class="pl-k">&gt;</span> <span class="pl-vo">$HOME</span>/.overcast_aliases
-<span class="pl-s3">source</span> <span class="pl-vo">$HOME</span>/.overcast_aliases
-
-<span class="pl-c"># Overcast Tab completion</span>
+<div class="highlight highlight-sh"><pre><span class="pl-c"># Overcast Tab completion</span>
 <span class="pl-en">_overcast_completions</span>() {
   <span class="pl-s">local</span> cur=<span class="pl-vo">${COMP_WORDS[COMP_CWORD]}</span>
   COMPREPLY=(<span class="pl-s1"><span class="pl-pds">$(</span><span class="pl-s3">compgen</span> -W <span class="pl-s1"><span class="pl-pds">"</span><span class="pl-s1"><span class="pl-pds">`</span>overcast completions<span class="pl-pds">`</span></span><span class="pl-pds">"</span></span> -- <span class="pl-s1"><span class="pl-pds">"</span><span class="pl-vo">$cur</span><span class="pl-pds">"</span></span><span class="pl-pds">)</span></span>)
@@ -180,14 +171,14 @@ $ rm -rf <span class="pl-k">~</span>/.overcast</pre></div>
   variables.json    <span class="pl-c"># API keys, etc (see example.variables.json)</span></pre></div>
 
 <h2>
-<a id="user-content-design-goals--motivation" class="anchor" href="#design-goals--motivation" aria-hidden="true"><span class="octicon octicon-link"></span></a>Design Goals &amp; Motivation</h2>
+<a id="user-content-design-goals" class="anchor" href="#design-goals" aria-hidden="true"><span class="octicon octicon-link"></span></a>Design Goals</h2>
 
 <p>There are many server management frameworks out there already, but they generally involve a complex server-client implementation, a steep learning curve, or a giant, monolithic conceptual framework that requires taking a course to understand.</p>
 
 <p>I wanted something that had little to no learning curve, that did only what you asked it to do on the remote machines and nothing more, that just focused on multi-server provisioning and communication and leaves problems like process/state management and system monitoring to tools designed specifically for those problems.</p>
 
 <h2>
-<a id="user-content-example-app-deployment-recipes" class="anchor" href="#example-app-deployment-recipes" aria-hidden="true"><span class="octicon octicon-link"></span></a>Example App Deployment Recipes</h2>
+<a id="user-content-example-app-recipes" class="anchor" href="#example-app-recipes" aria-hidden="true"><span class="octicon octicon-link"></span></a>Example App Recipes</h2>
 
 <ul class="task-list">
 <li><a href="https://github.com/andrewchilds/overcast/blob/master/recipes/discourse">Discourse</a></li>
@@ -708,7 +699,7 @@ Examples:
 <h3>
 <a id="user-content-overcast-help" class="anchor" href="#overcast-help" aria-hidden="true"><span class="octicon octicon-link"></span></a>overcast help</h3>
 
-<pre><code>  Overcast v0.6.6
+<pre><code>  Overcast v0.6.7
 
   Source code, issues, pull requests:
     https://github.com/andrewchilds/overcast
@@ -722,10 +713,10 @@ Examples:
     overcast [command] help
 
   Commands:
-    aliases aws cluster completions destroy digitalocean expose exposed
-    get health import info init instance key linode list ping port pull
-    push reboot remove run scriptvar slack ssh tunnel var virtualbox
-    wait
+    aliases aws cluster completions destroy digitalocean expose
+    exposed get health import info init instance key linode list
+    ping port pull push reboot remove run scriptvar slack ssh
+    tunnel var virtualbox wait
 
   Config directory:
     /path/to/.overcast
@@ -935,70 +926,158 @@ Examples:
 </code></pre>
 
 <h3>
-<a id="user-content-overcast-linode" class="anchor" href="#overcast-linode" aria-hidden="true"><span class="octicon octicon-link"></span></a>overcast linode</h3>
+<a id="user-content-overcast-linode-boot" class="anchor" href="#overcast-linode-boot" aria-hidden="true"><span class="octicon octicon-link"></span></a>overcast linode boot</h3>
 
-<pre><code>  These functions require the LINODE_API_KEY variable to be set.
-  Your API keys can be found at https://manager.linode.com/profile/api
-
+<pre><code>Usage:
   overcast linode boot [name]
-    Boot a powered off linode.
 
-  overcast linode create [name] [options]
-    Creates a new Linode.
+Description:
+  Boot up an instance if powered off, otherwise do nothing.
+</code></pre>
 
-      Option                    | Default
-      --cluster CLUSTER         | default
-      --datacenter-slug NAME    | newark
-      --datacenter-id ID        |
-      --distribution-slug NAME  | ubuntu-14-04-lts
-      --distribution-id ID      |
-      --kernel-id ID            |
-      --kernel-name NAME        | Latest 64 bit
-      --payment-term ID         | 1 (monthly, if not metered)
-      --plan-id ID              |
-      --plan-slug NAME          | 2048
-      --password PASSWORD       | autogenerated
-      --ssh-key KEY_PATH        | overcast.key
-      --ssh-pub-key KEY_PATH    | overcast.key.pub
+<h3>
+<a id="user-content-overcast-linode-create" class="anchor" href="#overcast-linode-create" aria-hidden="true"><span class="octicon octicon-link"></span></a>overcast linode create</h3>
 
-    Example:
-    $ overcast linode create db.01 --cluster db --datacenter-slug london
+<pre><code>Usage:
+  overcast linode create [name] [options...]
 
-  overcast linode datacenters
-    List available Linode datacenters.
+Description:
+  Creates a new instance on Linode.
 
-  overcast linode destroy [name]
-    Destroys a linode and removes it from your account.
-    Using --force overrides the confirm dialog. This is irreversible.
+Options:                 Defaults:
+  --cluster CLUSTER      default
+  --image IMAGE          ubuntu-14-04-lts
+  --kernel KERNEL        Latest 64 bit
+  --password PASSWORD    autogenerated
+  --payment-term ID      1 (monthly, if not metered)
+  --region REGION        newark
+  --size SIZE            1024
+  --ssh-key PATH         overcast.key
+  --ssh-pub-key PATH     overcast.key.pub
+  --swap MB              256
 
-      Option                    | Default
-      --force                   | false
+Examples:
+  # Specified size:
+  $ overcast linode create vm-01 --size 4096
 
-  overcast linode distributions
-    List available Linode distributions.
+  # Specified image and region:
+  $ overcast aws create vm-01 --image "Debian 7.7" --region london
+</code></pre>
 
+<h3>
+<a id="user-content-overcast-linode-destroy" class="anchor" href="#overcast-linode-destroy" aria-hidden="true"><span class="octicon octicon-link"></span></a>overcast linode destroy</h3>
+
+<pre><code>Usage:
+  overcast linode destroy [name] [options...]
+
+Description:
+  Destroys a Linode instance.
+  Using --force overrides the confirm dialog.
+
+Options:     Defaults:
+  --force    false
+
+Examples:
+  $ overcast linode destroy vm-01 --force
+</code></pre>
+
+<h3>
+<a id="user-content-overcast-linode-images" class="anchor" href="#overcast-linode-images" aria-hidden="true"><span class="octicon octicon-link"></span></a>overcast linode images</h3>
+
+<pre><code>Usage:
+  overcast linode images
+
+Description:
+  List all available images.
+</code></pre>
+
+<h3>
+<a id="user-content-overcast-linode-instances" class="anchor" href="#overcast-linode-instances" aria-hidden="true"><span class="octicon octicon-link"></span></a>overcast linode instances</h3>
+
+<pre><code>Usage:
+  overcast linode instances
+
+Description:
+  List all instances in your account.
+</code></pre>
+
+<h3>
+<a id="user-content-overcast-linode-kernels" class="anchor" href="#overcast-linode-kernels" aria-hidden="true"><span class="octicon octicon-link"></span></a>overcast linode kernels</h3>
+
+<pre><code>Usage:
   overcast linode kernels
-    List available Linode kernels.
 
-  overcast linode linodes
-    List all linodes in your account.
+Description:
+  List all available kernels.
+</code></pre>
 
-  overcast linode plans
-    List available Linode plans.
+<h3>
+<a id="user-content-overcast-linode-reboot" class="anchor" href="#overcast-linode-reboot" aria-hidden="true"><span class="octicon octicon-link"></span></a>overcast linode reboot</h3>
 
+<pre><code>Usage:
   overcast linode reboot [name]
-    Reboots a linode.
 
-  overcast linode resize [name] [options]
-    Resizes a linode to the specified plan.
-    This will immediately shutdown and migrate your linode.
+Description:
+  Reboot an instance using the provider API.
+</code></pre>
 
-      Option                    | Default
-      --plan-id ID              |
-      --plan-slug NAME          |
+<h3>
+<a id="user-content-overcast-linode-regions" class="anchor" href="#overcast-linode-regions" aria-hidden="true"><span class="octicon octicon-link"></span></a>overcast linode regions</h3>
 
+<pre><code>Usage:
+  overcast linode regions
+
+Description:
+  List all available regions.
+</code></pre>
+
+<h3>
+<a id="user-content-overcast-linode-resize" class="anchor" href="#overcast-linode-resize" aria-hidden="true"><span class="octicon octicon-link"></span></a>overcast linode resize</h3>
+
+<pre><code>Usage:
+  overcast linode resize [name] [size] [options...]
+
+Description:
+  Shutdown, resize, and reboot a Linode instance.
+  [size] can be a size ID, name or slug.
+  If the --skip-boot flag is used, the instance will stay powered off.
+
+Options:         Defaults:
+  --skip-boot    false
+
+Examples:
+  # Resize an instance to 4096:
+  $ overcast linode resize vm-01 4096
+</code></pre>
+
+<h3>
+<a id="user-content-overcast-linode-shutdown" class="anchor" href="#overcast-linode-shutdown" aria-hidden="true"><span class="octicon octicon-link"></span></a>overcast linode shutdown</h3>
+
+<pre><code>Usage:
   overcast linode shutdown [name]
-    Shut down a linode.
+
+Description:
+  Shut down an instance using the provider API.
+</code></pre>
+
+<h3>
+<a id="user-content-overcast-linode-sizes" class="anchor" href="#overcast-linode-sizes" aria-hidden="true"><span class="octicon octicon-link"></span></a>overcast linode sizes</h3>
+
+<pre><code>Usage:
+  overcast linode sizes
+
+Description:
+  List all available instance sizes.
+</code></pre>
+
+<h3>
+<a id="user-content-overcast-linode-sync" class="anchor" href="#overcast-linode-sync" aria-hidden="true"><span class="octicon octicon-link"></span></a>overcast linode sync</h3>
+
+<pre><code>Usage:
+  overcast linode sync [name]
+
+Description:
+  Fetch and update instance metadata.
 </code></pre>
 
 <h3>
@@ -1382,9 +1461,7 @@ Examples:
 
 <p><a href="https://travis-ci.org/andrewchilds/overcast"><img src="https://camo.githubusercontent.com/f779007e740c407c8aaf18b9d253aa4047d9e5e9/68747470733a2f2f7472617669732d63692e6f72672f616e647265776368696c64732f6f766572636173742e7376673f6272616e63683d6d6173746572" alt="Build Status" data-canonical-src="https://travis-ci.org/andrewchilds/overcast.svg?branch=master" style="max-width:100%;"></a></p>
 
-<div class="highlight highlight-sh"><pre>git clone https://github.com/andrewchilds/overcast.git
-<span class="pl-s3">cd</span> overcast
-npm <span class="pl-s3">test</span></pre></div>
+<div class="highlight highlight-sh"><pre>npm <span class="pl-s3">test</span></pre></div>
 
 <h2>
 <a id="user-content-upgrading-overcast" class="anchor" href="#upgrading-overcast" aria-hidden="true"><span class="octicon octicon-link"></span></a>Upgrading Overcast</h2>
