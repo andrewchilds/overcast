@@ -21,7 +21,8 @@ commands.expose = {
     { name: 'port...', varName: 'ports', greedy: true }
   ],
   options: [
-    { usage: '--user NAME' },
+    { usage: '--user USERNAME' },
+    { usage: '--password PASSWORD' },
     { usage: '--whitelist "IP|RANGE"' },
     { usage: '--whitelist-PORT "IP|RANGE"' }
   ],

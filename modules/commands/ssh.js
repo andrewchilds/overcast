@@ -16,7 +16,8 @@ commands.ssh = {
     { name: 'instance', varName: 'name', filters: filters.findFirstMatchingInstance }
   ],
   options: [
-    { usage: '--user NAME' },
+    { usage: '--user USERNAME' },
+    { usage: '--password PASSWORD' },
     { usage: '--ssh-key PATH' }
   ],
   run: function (args) {
@@ -32,19 +33,32 @@ function connect(instance, args) {
   var privateKeyFile = utils.normalizeKeyPath(args['ssh-key'] || instance.ssh_key || utils.CONFIG_DIR + '/keys/overcast.key');
   var sshPort = instance.ssh_port || '22';
   var host = (args.user || instance.user || 'root') + '@' + instance.ip;
+  var password = (args.password || instance.password || '');
+  
+  var command = [];
+  if (password) {
+    command.push('sshpass');
+    command.push('-p' + password);
+  }
+  command.push('ssh');
+  command.push('-tt');
+  if (!password) {
+    command.push('-i');
+    command.push(privateKeyFile);
+  }
+  command.push('-p');
+  command.push(sshPort);
+  command.push('-o');
+  command.push('StrictHostKeyChecking=no');
+  if (password) {
+    command.push('-o');
+    command.push('PubkeyAuthentication=no');
+  }
+  command.push(host);
 
-  console.log('ssh -tt -i ' + privateKeyFile + ' -p ' + sshPort + ' ' + host);
+  console.log(command.join(' '));
 
-  var ssh = cp.spawn('ssh', [
-    '-tt',
-    '-i',
-    privateKeyFile,
-    '-p',
-    sshPort,
-    '-o',
-    'StrictHostKeyChecking=no',
-    host
-  ], {
+  var ssh = cp.spawn(command.shift(), command, {
     stdio: 'inherit'
   });
 

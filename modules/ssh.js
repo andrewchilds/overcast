@@ -47,6 +47,7 @@ function runOnInstance(instance, args, next) {
   sshExec({
     ip: instance.ip,
     user: args.user || instance.user,
+    password: args.password || instance.password,
     name: instance.name,
     ssh_key: args['ssh-key'] || instance.ssh_key,
     ssh_port: instance.ssh_port,
@@ -85,6 +86,7 @@ function sshExec(options, next) {
     OVERCAST_KEY: utils.escapeWindowsPath(options.ssh_key),
     OVERCAST_PORT: options.ssh_port,
     OVERCAST_USER: options.user,
+    OVERCAST_PASSWORD: options.password,
     OVERCAST_IP: options.ip,
     OVERCAST_SSH_ARGS: options.ssh_args
   });

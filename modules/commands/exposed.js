@@ -13,7 +13,8 @@ commands.exposed = {
     'Expects an Ubuntu server, untested on other distributions.'
   ],
   options: [
-    { usage: '--user NAME' },
+    { usage: '--user USERNAME' },
+    { usage: '--password PASSWORD' },
     { usage: '--machine-readable, --mr' }
   ],
   required: [{ name: 'instance|cluster|all', varName: 'name' }],

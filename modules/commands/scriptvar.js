@@ -22,7 +22,8 @@ commands.scriptvar = {
     { name: 'value', varName: 'var_value', raw: true }
   ],
   options: [
-    { usage: '--user NAME' },
+    { usage: '--user USERNAME' },
+    { usage: '--password PASSWORD' },
     { usage: '--continueOnError', default: 'false' },
     { usage: '--machine-readable, --mr', default: 'false' },
     { usage: '--parallel, -p', default: 'false' }

@@ -71,6 +71,7 @@ commands.import = {
     { usage: '--ssh-port PORT', default: '22' },
     { usage: '--ssh-key PATH', default: 'overcast.key' },
     { usage: '--user USERNAME', default: 'root' },
+    { usage: '--password PASSWORD' },
   ],
   run: function (args) {
     var instance = {
@@ -78,7 +79,8 @@ commands.import = {
       name: args.name,
       ssh_port: args['ssh-port'] || '22',
       ssh_key: args['ssh-key'] || 'overcast.key',
-      user: args.user || 'root'
+      user: args.user || 'root',
+      password: args.password || ''
     };
 
     utils.saveInstanceToCluster(args.cluster, instance, function () {
@@ -147,7 +149,8 @@ commands.update = {
     { usage: '--ip IP' },
     { usage: '--ssh-port PORT' },
     { usage: '--ssh-key PATH' },
-    { usage: '--user USERNAME' }
+    { usage: '--user USERNAME' },
+    { usage: '--password PASSWORD' }
   ],
   run: function (args) {
     var clusters = utils.getClusters();
@@ -187,8 +190,8 @@ commands.update = {
       messages.push('Instance "' + args.oldName + '" has been renamed to "' + args.name + '".');
     }
 
-    _.each(['ip', 'ssh-key', 'ssh-port', 'user'], function (prop) {
-      if (args[prop]) {
+    _.each(['ip', 'ssh-key', 'ssh-port', 'user', 'password'], function (prop) {
+      if (prop in args) {
         clusters[parentClusterName].instances[instance.name][prop.replace('-', '_')] = args[prop];
         messages.push('Instance "' + prop + '" has been updated to "' + args[prop] + '".');
       }
