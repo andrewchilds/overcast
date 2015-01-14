@@ -48,7 +48,7 @@ exports.shouldBeNewInstance = function (name, args) {
   if (!clusters[args.cluster]) {
     clusters[args.cluster] = { instances: {} };
     utils.saveClusters(clusters, function () {
-      utils.success('Cluster "' + args.name + '" has been created.');
+      utils.success('Cluster "' + args.cluster + '" has been created.');
     });
   } else if (clusters[args.cluster].instances[name]) {
     utils.die('Instance "' + name + '" already exists.');
