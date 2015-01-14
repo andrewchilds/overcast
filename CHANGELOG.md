@@ -6,6 +6,10 @@ npm -g update overcast
 
 # Change Log
 
+**0.6.8** (Jan 14, 2015)
+
+- Fix bug where incorrect arguments in certain cases caused clusters.json file to be wiped out. Fixes [#32](https://github.com/andrewchilds/overcast/issues/32).
+
 **0.6.7** (Jan 5, 2015)
 
 - Rewrite `linode` command to use standard provider API.
