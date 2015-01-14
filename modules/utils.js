@@ -310,11 +310,11 @@ exports.findClusterNameForInstance = function (instance) {
   return foundName;
 };
 
-exports.saveInstanceToCluster = function (cluster, instance) {
+exports.saveInstanceToCluster = function (clusterName, instance, callback) {
   var clusters = exports.getClusters();
-  clusters[cluster] = clusters[cluster] || { instances: {} };
-  clusters[cluster].instances[instance.name] = instance;
-  exports.saveClusters(clusters);
+  clusters[clusterName] = clusters[clusterName] || { instances: {} };
+  clusters[clusterName].instances[instance.name] = instance;
+  exports.saveClusters(clusters, callback);
 };
 
 exports.deleteInstance = function (instance, callback) {

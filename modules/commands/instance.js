@@ -73,9 +73,7 @@ commands.import = {
     { usage: '--user USERNAME', default: 'root' },
   ],
   run: function (args) {
-    var clusters = utils.getClusters();
-
-    clusters[args.cluster].instances[args.name] = {
+    var instance = {
       ip: args.ip,
       name: args.name,
       ssh_port: args['ssh-port'] || '22',
@@ -83,7 +81,7 @@ commands.import = {
       user: args.user || 'root'
     };
 
-    utils.saveClusters(clusters, function () {
+    utils.saveInstanceToCluster(args.cluster, instance, function () {
       utils.success('Instance "' + args.name + '" (' + args.ip +
         ') has been imported to the "' + args.cluster + '" cluster.');
     });
