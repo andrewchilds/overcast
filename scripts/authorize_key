@@ -1,0 +1,21 @@
+#!/bin/bash
+
+set -e
+# set -x
+
+if [ -z "$PUBLIC_KEY" ]; then
+  echo "Usage: scripts/authorize_key --env \"PUBLIC_KEY=[public-key-data]\""
+  exit 1
+fi
+
+sshdir="$HOME/.ssh"
+authorized_keys="$sshdir/authorized_keys"
+
+pushd ~/
+
+mkdir --parents "$sshdir"
+echo "${PUBLIC_KEY}" >> "$authorized_keys"
+sort --unique "--output=$authorized_keys" "$authorized_keys"
+chmod --recursive go-rwx "$sshdir"
+
+popd

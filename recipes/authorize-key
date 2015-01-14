@@ -1,0 +1,19 @@
+#!/bin/bash
+
+set -e
+# set -x
+
+basedir="`dirname $0`/.."
+run_on="$1"
+ssh_key="$2"
+
+if [ -z "$run_on" -o -z "$ssh_key" ]; then
+  echo "Usage: recipes/authorize-key [instance|cluster|all] [ssh-key]"
+  exit 1
+else
+  shift
+  shift
+fi
+
+public_key_data=`overcast key get "$ssh_key" --public-data`
+overcast run "$run_on" "$basedir/scripts/authorize_key" --env "PUBLIC_KEY=\"$public_key_data\"" "$@" 
