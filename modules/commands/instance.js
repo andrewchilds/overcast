@@ -192,8 +192,13 @@ commands.update = {
 
     _.each(['ip', 'ssh-key', 'ssh-port', 'user', 'password'], function (prop) {
       if (prop in args) {
-        clusters[parentClusterName].instances[instance.name][prop.replace('-', '_')] = args[prop];
-        messages.push('Instance "' + prop + '" has been updated to "' + args[prop] + '".');
+        if (args[prop]) {
+          clusters[parentClusterName].instances[instance.name][prop.replace('-', '_')] = args[prop];
+          messages.push('Instance property "' + prop + '" has been updated to "' + args[prop] + '".');
+        } else {
+          delete clusters[parentClusterName].instances[instance.name][prop.replace('-', '_')];
+          messages.push('Instance property "' + prop + '" has been unset.');
+        }
       }
     });
 
