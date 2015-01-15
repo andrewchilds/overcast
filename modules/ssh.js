@@ -76,8 +76,9 @@ function sshExec(options, next) {
   options.ssh_key = utils.normalizeKeyPath(options.ssh_key);
   options.ssh_port = options.ssh_port || '22';
   options.user = options.user || 'root';
+  options.password = options.password || '';
   options.name = options.name || 'Unknown';
-
+  
   var args = [
     utils.escapeWindowsPath(__dirname + '/../bin/ssh')
   ];
