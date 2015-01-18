@@ -5,8 +5,14 @@ if [ -z "$OVERCAST_SCRIPT_FILE" ]; then
     echo ""
     echo "\$ $OVERCAST_ENV$OVERCAST_COMMAND"
   fi
-  ssh -i $OVERCAST_KEY -p $OVERCAST_PORT $OVERCAST_USER@$OVERCAST_IP \
-    -o StrictHostKeyChecking=no $OVERCAST_SSH_ARGS "$OVERCAST_ENV $OVERCAST_COMMAND"
+  if [ -z "$OVERCAST_PASSWORD" ]; then
+    ssh -i $OVERCAST_KEY -p $OVERCAST_PORT $OVERCAST_USER@$OVERCAST_IP \
+      -o StrictHostKeyChecking=no $OVERCAST_SSH_ARGS "$OVERCAST_ENV $OVERCAST_COMMAND"
+  else
+    sshpass "-p$OVERCAST_PASSWORD" \
+      ssh -p $OVERCAST_PORT $OVERCAST_USER@$OVERCAST_IP \
+        -o StrictHostKeyChecking=no -o PubkeyAuthentication=no $OVERCAST_SSH_ARGS "$OVERCAST_ENV $OVERCAST_COMMAND"
+  fi
 else
   if [ -z "$SHELL_COMMAND" ]; then
     SHELL_COMMAND="/bin/bash -s"
@@ -15,6 +21,12 @@ else
     echo ""
     echo "\$ $OVERCAST_ENV$SHELL_COMMAND $OVERCAST_SCRIPT_FILE"
   fi
-  ssh -i $OVERCAST_KEY -p $OVERCAST_PORT $OVERCAST_USER@$OVERCAST_IP \
-    -o StrictHostKeyChecking=no $OVERCAST_SSH_ARGS "$OVERCAST_ENV $SHELL_COMMAND" < "$OVERCAST_SCRIPT_FILE"
+  if [ -z "$OVERCAST_PASSWORD" ]; then
+    ssh -i $OVERCAST_KEY -p $OVERCAST_PORT $OVERCAST_USER@$OVERCAST_IP \
+      -o StrictHostKeyChecking=no $OVERCAST_SSH_ARGS "$OVERCAST_ENV $SHELL_COMMAND" < "$OVERCAST_SCRIPT_FILE"
+  else
+    sshpass "-p$OVERCAST_PASSWORD" \
+      ssh -p $OVERCAST_PORT $OVERCAST_USER@$OVERCAST_IP \
+        -o StrictHostKeyChecking=no -o PubkeyAuthentication=no $OVERCAST_SSH_ARGS "$OVERCAST_ENV $SHELL_COMMAND" < "$OVERCAST_SCRIPT_FILE"
+  fi
 fi

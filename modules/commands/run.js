@@ -37,7 +37,8 @@ commands.run = {
   ],
   options: [
     { usage: '--env "KEY=VAL KEY=\'1 2 3\'"' },
-    { usage: '--user NAME' },
+    { usage: '--user USERNAME' },
+    { usage: '--password PASSWORD' },
     { usage: '--ssh-key PATH' },
     { usage: '--ssh-args ARGS' },
     { usage: '--continueOnError', default: 'false' },

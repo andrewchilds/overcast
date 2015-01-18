@@ -193,7 +193,7 @@ Options:                Defaults:
   --size SIZE           t1.micro
   --ssh-key PATH        overcast.key
   --ssh-pub-key PATH    overcast.key.pub
-  --user NAME           root
+  --user USERNAME       root
 
 Examples:
   # Specified size:
@@ -559,7 +559,8 @@ Description:
   Expects an Ubuntu server, untested on other distributions.
 
 Options:
-  --user NAME
+  --user USERNAME
+  --password PASSWORD
   --whitelist "IP|RANGE"
   --whitelist-PORT "IP|RANGE"
 
@@ -585,7 +586,8 @@ Description:
   Expects an Ubuntu server, untested on other distributions.
 
 Options:
-  --user NAME
+  --user USERNAME
+  --password PASSWORD
   --machine-readable, --mr
 ```
 
@@ -691,6 +693,7 @@ Options:               Defaults:
   --ssh-port PORT      22
   --ssh-key PATH       overcast.key
   --user USERNAME      root
+  --password PASSWORD
 ```
 
 ### overcast info
@@ -755,6 +758,7 @@ Options:               Defaults:
   --ssh-port PORT      22
   --ssh-key PATH       overcast.key
   --user USERNAME      root
+  --password PASSWORD
 
 Examples:
   $ overcast instance import app.01 127.0.0.1 --cluster app \
@@ -807,6 +811,7 @@ Options:
   --ssh-port PORT
   --ssh-key PATH
   --user USERNAME
+  --password PASSWORD
 
 Examples:
   $ overcast instance update app.01 --user myuser --ssh-key /path/to/key
@@ -1092,7 +1097,8 @@ Description:
 
 Options:         Defaults:
   --rsync        false
-  --user NAME
+  --user USERNAME
+  --password PASSWORD
 
 Examples:
   Assuming instances "app.01" and "app.02", this will expand to:
@@ -1116,7 +1122,8 @@ Description:
 
 Options:         Defaults:
   --rsync        false
-  --user NAME
+  --user USERNAME
+  --password PASSWORD
 
 Examples:
   Assuming instances "app.01" and "app.02", this will expand to:
@@ -1164,7 +1171,8 @@ Description:
 
 Options:                         Defaults:
   --env "KEY=VAL KEY='1 2 3'"
-  --user NAME
+  --user USERNAME
+  --password PASSWORD
   --ssh-key PATH
   --ssh-args ARGS
   --continueOnError              false
@@ -1200,7 +1208,8 @@ Description:
   Expects a shell variable format, for example MY_VAR_NAME="my_value"
 
 Options:                      Defaults:
-  --user NAME
+  --user USERNAME
+  --password PASSWORD
   --continueOnError           false
   --machine-readable, --mr    false
   --parallel, -p              false
@@ -1243,7 +1252,8 @@ Description:
   Opens an interactive SSH connection to an instance.
 
 Options:
-  --user NAME
+  --user USERNAME
+  --password PASSWORD
   --ssh-key PATH
 ```
 
@@ -1260,7 +1270,8 @@ Description:
   Multiple tunnels can be opened over a single connection.
 
 Options:
-  --user NAME
+  --user USERNAME
+  --password PASSWORD
   --ssh-key PATH
 
 Examples:

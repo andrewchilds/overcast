@@ -29,6 +29,7 @@ function runOnInstance(instance, args, next) {
   rsync({
     ip: instance.ip,
     user: args.user || instance.user,
+    password: args.password || instance.password,
     name: instance.name,
     ssh_key: args['ssh-key'] || instance.ssh_key,
     ssh_port: instance.ssh_port,
@@ -55,9 +56,25 @@ function rsync(options, next) {
   options.user = options.user || 'root';
   options.name = options.name || 'Unknown';
 
+  var ssh = [];
+  if (options.password) {
+    ssh.push('sshpass');
+    ssh.push('-p' + options.password);
+  }
+  ssh.push('ssh');
+  ssh.push('-p');
+  ssh.push(options.ssh_port);
+  if (options.password) {
+    ssh.push('-o');
+    ssh.push('PubkeyAuthentication=no');
+  } else {
+    ssh.push('-i');
+    ssh.push(options.ssh_key);
+  }
+  
   var args = [
     'rsync',
-    '-e "ssh -p ' + options.ssh_port + ' -i ' + options.ssh_key + '"',
+    '-e "' + ssh.join(' ') + '"',
     '-varuzP',
     '--delete',
     '--ignore-errors'

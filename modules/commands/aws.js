@@ -53,7 +53,7 @@ commands.create = {
     { usage: '--size SIZE', default: 't1.micro' },
     { usage: '--ssh-key PATH', default: 'overcast.key' },
     { usage: '--ssh-pub-key PATH', default: 'overcast.key.pub' },
-    { usage: '--user NAME', default: 'root' }
+    { usage: '--user USERNAME', default: 'root' }
   ],
   async: true,
   run: function (args, next) {

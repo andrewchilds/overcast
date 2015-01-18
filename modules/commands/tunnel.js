@@ -29,7 +29,8 @@ commands.tunnel = {
     { name: 'local-port((:hostname):remote-port)...', varName: 'firstPort', raw: true }
   ],
   options: [
-    { usage: '--user NAME' },
+    { usage: '--user USERNAME' },
+    { usage: '--password PASSWORD' },
     { usage: '--ssh-key PATH' }
   ],
   run: function (args) {
@@ -41,14 +42,26 @@ commands.tunnel = {
 };
 
 function connect(instance, args) {
-  var sshArgs = [
-    'ssh',
-    '-i',
-    utils.normalizeKeyPath(args['ssh-key'] || instance.ssh_key || 'overcast.key'),
-    '-p',
-    (instance.ssh_port || '22'),
-    '-o StrictHostKeyChecking=no'
-  ];
+  var password = (args.password || instance.password || '');
+  
+  var sshArgs = [];
+  if (password) {
+    sshArgs.push('sshpass');
+    sshArgs.push('-p' + password);
+  }
+  sshArgs.push('ssh');
+  if (!password) {
+    sshArgs.push('-i');
+    sshArgs.push(utils.normalizeKeyPath(args['ssh-key'] || instance.ssh_key || 'overcast.key'));
+  }
+  sshArgs.push('-p');
+  sshArgs.push((instance.ssh_port || '22'));
+  sshArgs.push('-o');
+  sshArgs.push('StrictHostKeyChecking=no');
+  if (password) {
+    sshArgs.push('-o');
+    sshArgs.push('PubkeyAuthentication=no');
+  }
 
   var ports = exports.normalizePorts(args._);
   _.each(ports, function (port) {

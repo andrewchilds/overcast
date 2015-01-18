@@ -29,6 +29,7 @@ function runOnInstance(instance, args, next) {
   scpExec({
     ip: instance.ip,
     user: args.user || instance.user,
+    password: args.password || instance.password,
     name: instance.name,
     ssh_key: args['ssh-key'] || instance.ssh_key,
     ssh_port: instance.ssh_port,
@@ -55,16 +56,25 @@ function scpExec(options, next) {
   options.user = options.user || 'root';
   options.name = options.name || 'Unknown';
 
-  var args = [
-    'scp',
-    '-r',
-    '-i',
-    options.ssh_key,
-    '-P',
-    options.ssh_port,
-    '-o',
-    'StrictHostKeyChecking=no'
-  ];
+  var args = [];
+  if (options.password) {
+    args.push('sshpass');
+    args.push('-p' + options.password);
+  }
+  args.push('scp');
+  args.push('-r');
+  if (!options.password) {
+    args.push('-i');
+    args.push(options.ssh_key);
+  }
+  args.push('-P');
+  args.push(options.ssh_port);
+  args.push('-o');
+  args.push('StrictHostKeyChecking=no');
+  if (options.password) {
+    args.push('-o');
+    args.push('PubkeyAuthentication=no');
+  }
 
   if (options.direction === 'pull') {
     options.dest = utils.convertToAbsoluteFilePath(options.dest);

@@ -29,7 +29,8 @@ commands.push = {
   ],
   options: [
     { usage: '--rsync', default: 'false' },
-    { usage: '--user NAME' }
+    { usage: '--user USERNAME' },
+    { usage: '--password PASSWORD' }
   ],
   run: function (args) {
     args.direction = 'push';
