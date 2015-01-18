@@ -78,7 +78,7 @@ function sshExec(options, next) {
   options.user = options.user || 'root';
   options.password = options.password || '';
   options.name = options.name || 'Unknown';
-  
+
   var args = [
     utils.escapeWindowsPath(__dirname + '/../bin/ssh')
   ];

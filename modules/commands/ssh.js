@@ -34,7 +34,7 @@ function connect(instance, args) {
   var sshPort = instance.ssh_port || '22';
   var host = (args.user || instance.user || 'root') + '@' + instance.ip;
   var password = (args.password || instance.password || '');
-  
+
   var command = [];
   if (password) {
     command.push('sshpass');
@@ -60,6 +60,14 @@ function connect(instance, args) {
 
   var ssh = cp.spawn(command.shift(), command, {
     stdio: 'inherit'
+  });
+
+  ssh.on('error', function (err) {
+    utils.red('There was an error running this command.');
+    if (password) {
+      utils.red('You need the "sshpass" program installed to use password-based');
+      utils.red('SSH authentication. Do you have that installed?');
+    }
   });
 
   ssh.on('exit', function (code) {
