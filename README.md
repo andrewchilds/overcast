@@ -656,7 +656,7 @@ Examples:
 ### overcast help
 
 ```
-  Overcast v0.6.8
+  Overcast v0.6.9
 
   Source code, issues, pull requests:
     https://github.com/andrewchilds/overcast
@@ -688,11 +688,11 @@ Usage:
 Description:
   Imports an existing instance to a cluster.
 
-Options:               Defaults:
-  --cluster CLUSTER    default
-  --ssh-port PORT      22
-  --ssh-key PATH       overcast.key
-  --user USERNAME      root
+Options:                 Defaults:
+  --cluster CLUSTER      default
+  --ssh-port PORT        22
+  --ssh-key PATH         overcast.key
+  --user USERNAME        root
   --password PASSWORD
 ```
 
@@ -753,11 +753,11 @@ Usage:
 Description:
   Imports an existing instance to a cluster.
 
-Options:               Defaults:
-  --cluster CLUSTER    default
-  --ssh-port PORT      22
-  --ssh-key PATH       overcast.key
-  --user USERNAME      root
+Options:                 Defaults:
+  --cluster CLUSTER      default
+  --ssh-port PORT        22
+  --ssh-key PATH         overcast.key
+  --user USERNAME        root
   --password PASSWORD
 
 Examples:
@@ -1074,12 +1074,19 @@ Usage:
   overcast port [instance|cluster|all] [port]
 
 Description:
-  Change the SSH port for an instance or a cluster.
-  This command will fail if the new port is not opened by iptables.
+  Change the SSH port for an instance or a cluster. This command fails
+  if the new port has not been previously opened by iptables.
+  See also the "expose" and "exposed" commands.
 
 Examples:
-  $ overcast port app-01 22222
-  $ overcast port db 22222
+  # Expose only necessary ports:
+  $ overcast expose vm-01 22 55522 80 443
+
+  # Update SSH port from 22 to 55522:
+  $ overcast port vm-01 55522
+
+  # Close port 22:
+  $ overcast expose vm-01 55522 80 443
 ```
 
 ### overcast pull
@@ -1095,8 +1102,8 @@ Description:
   .overcast/files directory. Any reference to {instance} in the destination
   will be replaced with the instance name.
 
-Options:         Defaults:
-  --rsync        false
+Options:                 Defaults:
+  --rsync                false
   --user USERNAME
   --password PASSWORD
 
@@ -1120,8 +1127,8 @@ Description:
   to the home directory. Any reference to {instance} in the source will be
   replaced with the instance name.
 
-Options:         Defaults:
-  --rsync        false
+Options:                 Defaults:
+  --rsync                false
   --user USERNAME
   --password PASSWORD
 

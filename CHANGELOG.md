@@ -6,6 +6,12 @@ npm -g update overcast
 
 # Change Log
 
+**0.6.9** (Jan 18, 2015)
+
+- Fix bug in port command that prevented instance config from being updated.
+- Rename overcast binaries to avoid accidental $PATH collision. Fixes [#30](https://github.com/andrewchilds/overcast/issues/30)
+- Adding support for password-based SSH authentication using `sshpass`. [#31](https://github.com/andrewchilds/overcast/pull/31)
+
 **0.6.8** (Jan 14, 2015)
 
 - Fix bug where incorrect arguments in certain cases caused clusters.json file to be wiped out. Fixes [#32](https://github.com/andrewchilds/overcast/issues/32).
