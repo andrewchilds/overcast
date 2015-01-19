@@ -1442,6 +1442,19 @@ Configuration files are left alone during an upgrade.
 
 Contributions are welcome. If you've got an idea for a feature or found a bug, please [open an issue](https://github.com/andrewchilds/overcast/issues). If you're a developer and want to help improve Overcast, [open a pull request](https://github.com/andrewchilds/overcast/pulls) with your changes.
 
+### Hacking Overcast
+
+```sh
+git clone git@github.com:andrewchilds/overcast.git
+cd overcast
+
+# To use local development version:
+bin/overcast [args...]
+
+# To use published version:
+overcast [args...]
+```
+
 ## Roadmap
 
 - Standardize Recipes
