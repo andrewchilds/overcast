@@ -80,7 +80,7 @@ function sshExec(options, next) {
   options.name = options.name || 'Unknown';
 
   var args = [
-    utils.escapeWindowsPath(__dirname + '/../bin/ssh')
+    utils.escapeWindowsPath(__dirname + '/../bin/overcast-ssh')
   ];
 
   var sshEnv = _.extend({}, process.env, {

@@ -188,7 +188,7 @@ exports.escapeWindowsPath = function (p) {
 exports.initOvercastDir = function (dest_dir, callback) {
   dest_dir += '/.overcast';
 
-  return cp.exec('bash ' + exports.escapeWindowsPath(__dirname + '/../bin/init'), {
+  return cp.exec('bash ' + exports.escapeWindowsPath(__dirname + '/../bin/overcast-init'), {
     env: _.extend({}, process.env, {
       OVERCAST_FIXTURE_DIR: exports.escapeWindowsPath(__dirname + '/../fixtures'),
       OVERCAST_DEST_DIR: exports.escapeWindowsPath(dest_dir)

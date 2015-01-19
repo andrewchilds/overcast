@@ -210,7 +210,7 @@ exports.createInstance = function (args) {
     var color = utils.SSH_COLORS[utils.SSH_COUNT++ % 5];
 
     var bashArgs = [
-      utils.escapeWindowsPath(__dirname + '/../../bin/vagrant')
+      utils.escapeWindowsPath(__dirname + '/../../bin/overcast-vagrant')
     ];
 
     var bashEnv = _.extend({}, process.env, {
