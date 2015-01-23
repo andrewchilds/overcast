@@ -6,6 +6,11 @@ npm -g update overcast
 
 # Change Log
 
+**0.6.10** (Jan 22, 2015)
+
+- Allow Security Groups to be defined in `aws create` command.
+- Set name tag during `aws create` command.
+
 **0.6.9** (Jan 18, 2015)
 
 - Fix bug in port command that prevented instance config from being updated.
