@@ -359,7 +359,8 @@ exports.createInstance = function (args) {
     MaxCount: 1,
     Monitoring: {
       Enabled: utils.argIsTruthy(args.monitoring)
-    }
+    },
+    SecurityGroupIds: args['security-group-ids'].split(' ') || []
   };
 
   return new Promise(function (resolve, reject) {
@@ -368,8 +369,20 @@ exports.createInstance = function (args) {
         reject(err);
       } else {
         debugLog(data);
-        args.CreatedInstances = data.Instances;
-        resolve(args);
+        var tagParams = {
+          Resources: [data.Instances[0].InstanceId],
+          Tags: [
+            { Key: 'Name', Value: args.name }
+          ]
+        };
+        ec2(args).createTags(tagParams, function (err) {
+          if (err) {
+            reject(err);
+          } else {
+            args.CreatedInstances = data.Instances;
+            resolve(args);
+          }
+        });
       }
     });
   });

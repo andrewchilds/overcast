@@ -185,22 +185,26 @@ Usage:
 Description:
   Creates a new EC2 instance.
 
-Options:                Defaults:
-  --cluster CLUSTER     default
-  --image IMAGE         ami-64e27e0c (Ubuntu 14.04 64bit, EBS, us-east-1)
-  --monitoring          false
-  --region REGION       us-east-1
-  --size SIZE           t1.micro
-  --ssh-key PATH        overcast.key
-  --ssh-pub-key PATH    overcast.key.pub
-  --user USERNAME       root
+Options:                      Defaults:
+  --cluster CLUSTER           default
+  --image IMAGE               ami-64e27e0c (Ubuntu 14.04 64bit, EBS, us-east-1)
+  --monitoring                false
+  --region REGION             us-east-1
+  --security-group-ids IDS    (default)
+  --size SIZE                 t1.micro
+  --ssh-key PATH              overcast.key
+  --ssh-pub-key PATH          overcast.key.pub
+  --user USERNAME             root
 
 Examples:
-  # Specified size:
+  # Specify size:
   $ overcast aws create vm-01 --size m1.small --user ubuntu
 
-  # Specified image and region (Ubuntu 14.04 64bit, EBS, us-west-2):
+  # Specify image and region (Ubuntu 14.04 64bit, EBS, us-west-2):
   $ overcast aws create vm-01 --region us-west-2 --image ami-978dd9a7 --user ubuntu
+
+  # Specify security groups, separated by spaces:
+  $ overcast aws create vm-01 --security-group-ids "sg-12a34b56 sg-90c32ab1" --user ubuntu
 
   # Enable root access:
   $ overcast aws create vm-02 --user ubuntu
