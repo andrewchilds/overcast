@@ -187,6 +187,7 @@ Description:
 
 Options:                      Defaults:
   --cluster CLUSTER           default
+  --availability-zone NAME    (default)
   --image IMAGE               ami-64e27e0c (Ubuntu 14.04 64bit, EBS, us-east-1)
   --monitoring                false
   --region REGION             us-east-1
@@ -205,6 +206,9 @@ Examples:
 
   # Specify security groups, separated by spaces:
   $ overcast aws create vm-01 --security-group-ids "sg-12a34b56 sg-90c32ab1" --user ubuntu
+
+  # Specify availability zone:
+  $ overcast aws create vm-01 --availability-zone us-east-1d --user ubuntu
 
   # Enable root access:
   $ overcast aws create vm-02 --user ubuntu

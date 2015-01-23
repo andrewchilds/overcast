@@ -359,9 +359,18 @@ exports.createInstance = function (args) {
     MaxCount: 1,
     Monitoring: {
       Enabled: utils.argIsTruthy(args.monitoring)
-    },
-    SecurityGroupIds: args['security-group-ids'].split(' ') || []
+    }
   };
+
+  if (args['security-group-ids']) {
+    params.SecurityGroupIds = args['security-group-ids'].split(' ');
+  }
+
+  if (args['availability-zone']) {
+    params.Placement = {
+      AvailabilityZone: args['availability-zone']
+    };
+  }
 
   return new Promise(function (resolve, reject) {
     ec2(args).runInstances(params, function (err, data) {

@@ -40,6 +40,9 @@ commands.create = {
     '# Specify security groups, separated by spaces:',
     '$ overcast aws create vm-01 --security-group-ids "sg-12a34b56 sg-90c32ab1" --user ubuntu',
     '',
+    '# Specify availability zone:',
+    '$ overcast aws create vm-01 --availability-zone us-east-1d --user ubuntu',
+    '',
     '# Enable root access:',
     '$ overcast aws create vm-02 --user ubuntu',
     '$ overcast run vm-02 allow_root_access_on_ec2',
@@ -50,6 +53,7 @@ commands.create = {
   ],
   options: [
     { usage: '--cluster CLUSTER', default: 'default' },
+    { usage: '--availability-zone NAME', default: '(default)' },
     { usage: '--image IMAGE', default: 'ami-64e27e0c (Ubuntu 14.04 64bit, EBS, us-east-1)' },
     { usage: '--monitoring', default: 'false' },
     { usage: '--region REGION', default: DEFAULT_REGION },
