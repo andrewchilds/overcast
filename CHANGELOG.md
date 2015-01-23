@@ -6,6 +6,10 @@ npm -g update overcast
 
 # Change Log
 
+**0.6.11** (Jan 23, 2015)
+
+- Allow Availability Zone to be defined in `aws create` command.
+
 **0.6.10** (Jan 22, 2015)
 
 - Allow Security Groups to be defined in `aws create` command.
