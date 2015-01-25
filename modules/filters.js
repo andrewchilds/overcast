@@ -45,7 +45,16 @@ exports.shouldBeNewInstance = function (name, args) {
     args.cluster = 'default';
   }
 
-  if (clusters[args.cluster] && clusters[args.cluster].instances[name]) {
+  if (clusters[name]) {
+    utils.die('"' + name + '" is already in use as a cluster name.');
+    return false;
+  } else if (name === 'all') {
+    utils.die('"all" is a special keyword that cannot be used for instance names.');
+    return false;
+  } else if (name.indexOf('*') !== -1) {
+    utils.die('Instance names cannot include asterisk characters.');
+    return false;
+  } else if (utils.findMatchingInstancesByInstanceName(name).length > 0) {
     utils.die('Instance "' + name + '" already exists.');
     return false;
   }
