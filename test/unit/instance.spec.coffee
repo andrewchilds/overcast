@@ -150,3 +150,17 @@ describe 'instance', ->
       savedInstance = utils.saveClusters.mostRecentCall.args[0].empty.instances.dummy01
       expect(savedInstance.name).toBe 'dummy01'
       expect(savedInstance.ip).toBe '127.0.0.2'
+
+    it 'should be able to update properties of multiple instances at once', ->
+      cli.execute('instance update db_* --ip 3.3.3.3')
+      updatedCluster = utils.saveClusters.mostRecentCall.args[0].db
+      expect(updatedCluster.instances.db_01.ip).toBe '3.3.3.3'
+      expect(updatedCluster.instances.db_02.ip).toBe '3.3.3.3'
+
+    it 'should be able to update properties of all instances in a cluster', ->
+      cli.execute('instance update db --user me --ssh-port 22222')
+      updatedCluster = utils.saveClusters.mostRecentCall.args[0].db
+      expect(updatedCluster.instances.db_01.user).toBe 'me'
+      expect(updatedCluster.instances.db_02.user).toBe 'me'
+      expect(updatedCluster.instances.db_01.ssh_port).toBe 22222
+      expect(updatedCluster.instances.db_02.ssh_port).toBe 22222

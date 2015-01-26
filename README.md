@@ -806,7 +806,7 @@ Examples:
 
 ```
 Usage:
-  overcast instance update [name] [options...]
+  overcast instance update [instance|cluster|all] [options...]
 
 Description:
   Update any instance property. Specifying --cluster will move the instance
@@ -822,7 +822,11 @@ Options:
   --password PASSWORD
 
 Examples:
+  # Update the user and ssh-key of an instance:
   $ overcast instance update app.01 --user myuser --ssh-key /path/to/key
+
+  # Update ssh-port of a cluster:
+  $ overcast instance update app-cluster --ssh-port 22222
 ```
 
 ### overcast key create

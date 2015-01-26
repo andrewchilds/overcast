@@ -134,15 +134,21 @@ commands.remove = {
 
 commands.update = {
   name: 'update',
-  usage: 'overcast instance update [name] [options...]',
+  usage: 'overcast instance update [instance|cluster|all] [options...]',
   description: [
     'Update any instance property. Specifying --cluster will move the instance',
     'to that cluster. Specifying --name will rename the instance.'
   ],
   examples: [
-    '$ overcast instance update app.01 --user myuser --ssh-key /path/to/key'
+    '# Update the user and ssh-key of an instance:',
+    '$ overcast instance update app.01 --user myuser --ssh-key /path/to/key',
+    '',
+    '# Update ssh-port of a cluster:',
+    '$ overcast instance update app-cluster --ssh-port 22222'
   ],
-  required: ['oldName'],
+  required: [
+    { name: 'instance|cluster|all', varName: 'oldName' }
+  ],
   options: [
     { usage: '--name NAME' },
     { usage: '--cluster CLUSTER' },
@@ -160,50 +166,60 @@ commands.update = {
       args.oldName = null;
     }
 
-    var instance = utils.findFirstMatchingInstance(args.oldName || args.name);
-    var parentClusterName = utils.findClusterNameForInstance(instance);
+    var instances = utils.findMatchingInstances(args.oldName || args.name);
     var messages = [];
 
-    if (args.cluster) {
-      if (!clusters[args.cluster]) {
-        return utils.die('No "' + args.cluster + '" cluster found. Known clusters are: ' +
-          _.keys(clusters).join(', ') + '.');
-      }
-      if (clusters[args.cluster].instances[instance.name]) {
-        return utils.die('An instance named "' + instance.name + '" already exists in the "' + args.cluster + '" cluster.');
-      }
-
-      delete clusters[parentClusterName].instances[instance.name];
-      clusters[args.cluster].instances[instance.name] = instance;
-      parentClusterName = args.cluster;
-      messages.push('Instance "' + instance.name + '" has been moved to the "' + args.cluster + '" cluster.');
-    }
-
-    if (args.oldName) {
-      if (clusters[parentClusterName].instances[args.name]) {
-        return utils.die('An instance named "' + args.name + '" already exists in the "' + parentClusterName + '" cluster.');
-      }
-
-      instance.name = args.name;
-      delete clusters[parentClusterName].instances[args.oldName];
-      clusters[parentClusterName].instances[args.name] = instance;
-      messages.push('Instance "' + args.oldName + '" has been renamed to "' + args.name + '".');
-    }
-
-    _.each(['ip', 'ssh-key', 'ssh-port', 'user', 'password'], function (prop) {
-      if (prop in args) {
-        if (args[prop]) {
-          clusters[parentClusterName].instances[instance.name][prop.replace('-', '_')] = args[prop];
-          messages.push('Instance property "' + prop + '" has been updated to "' + args[prop] + '".');
-        } else {
-          delete clusters[parentClusterName].instances[instance.name][prop.replace('-', '_')];
-          messages.push('Instance property "' + prop + '" has been unset.');
-        }
-      }
+    _.each(instances, function (instance) {
+      return exports.updateInstance(args, messages, clusters, instance);
     });
 
     utils.saveClusters(clusters, function () {
       _.each(messages, utils.success);
     });
   }
+};
+
+exports.updateInstance = function (args, messages, clusters, instance) {
+  var parentClusterName = utils.findClusterNameForInstance(instance);
+
+  if (args.cluster) {
+    if (!clusters[args.cluster]) {
+      utils.die('No "' + args.cluster + '" cluster found. Known clusters are: ' +
+        _.keys(clusters).join(', ') + '.');
+      return false;
+    }
+    if (clusters[args.cluster].instances[instance.name]) {
+      utils.die('An instance named "' + instance.name + '" already exists in the "' + args.cluster + '" cluster.');
+      return false;
+    }
+
+    delete clusters[parentClusterName].instances[instance.name];
+    clusters[args.cluster].instances[instance.name] = instance;
+    parentClusterName = args.cluster;
+    messages.push('Instance "' + instance.name + '" has been moved to the "' + args.cluster + '" cluster.');
+  }
+
+  if (args.oldName) {
+    if (clusters[parentClusterName].instances[args.name]) {
+      utils.die('An instance named "' + args.name + '" already exists in the "' + parentClusterName + '" cluster.');
+      return false;
+    }
+
+    instance.name = args.name;
+    delete clusters[parentClusterName].instances[args.oldName];
+    clusters[parentClusterName].instances[args.name] = instance;
+    messages.push('Instance "' + args.oldName + '" has been renamed to "' + args.name + '".');
+  }
+
+  _.each(['ip', 'ssh-key', 'ssh-port', 'user', 'password'], function (prop) {
+    if (prop in args) {
+      if (args[prop]) {
+        clusters[parentClusterName].instances[instance.name][prop.replace('-', '_')] = args[prop];
+        messages.push('Instance property "' + prop + '" has been updated to "' + args[prop] + '".');
+      } else {
+        delete clusters[parentClusterName].instances[instance.name][prop.replace('-', '_')];
+        messages.push('Instance property "' + prop + '" has been unset.');
+      }
+    }
+  });
 };
