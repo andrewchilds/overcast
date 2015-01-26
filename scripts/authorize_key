@@ -1,0 +1,34 @@
+#!/bin/bash
+
+# Push public key data to
+
+# Tested on:
+# Ubuntu 14.04
+
+# Usage:
+# overcast key create newKey
+# overcast key push vm-01 newKey
+# overcast instance update vm-01 --ssh-key newKey.key
+
+set -e
+# set -x
+
+if [ -z "$PUBLIC_KEY" ]; then
+  echo "Usage: overcast key push vm-01 myKeyName"
+  exit 1
+fi
+
+sshDir="$HOME/.ssh"
+authorizedKeysFile="$sshDir/authorized_keys"
+
+mkdir -p "$sshDir"
+
+if [ "$SHOULD_APPEND" = "true" ]; then
+  echo "$PUBLIC_KEY" >> "$authorizedKeysFile"
+  sort --unique "--output=$authorizedKeysFile" "$authorizedKeysFile"
+else
+  echo "$PUBLIC_KEY" > "$authorizedKeysFile"
+fi
+
+chmod 700 "$sshDir"
+chmod 600 "$authorizedKeysFile"

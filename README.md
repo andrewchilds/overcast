@@ -897,6 +897,40 @@ Examples:
   overcast
 ```
 
+### overcast key push
+
+```
+Usage:
+  overcast key push [instance|cluster|all] [name|path] [options...]
+
+Description:
+  Push a public SSH key to an instance or cluster. Accepts a key name,
+  filename, or full path. This will overwrite the existing authorized_keys
+  file, unless you use --append.
+
+Options:             Defaults:
+  --user USERNAME
+  --append, -a       false
+
+Examples:
+  # Generate new SSH key pair:
+  $ overcast key create newKey
+
+  # Push public key to instance, update instance config to use private key:
+  $ overcast key push vm-01 newKey
+  $ overcast instance update vm-01 --ssh-key newKey.key
+
+  # Same as above but using key path instead of key name:
+  $ overcast key push vm-02 "~/.ssh/id_rsa.pub"
+  $ overcast instance update vm-02 --ssh-key "~/.ssh/id_rsa"
+
+  # Push public key to instance using arbitrary user:
+  $ overcast key push vm-03 newKey --user myOtherUser
+
+  # Append public key to authorized_keys instead of overwriting:
+  $ overcast key push vm-04 newKey --append
+```
+
 ### overcast linode boot
 
 ```

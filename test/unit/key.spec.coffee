@@ -6,8 +6,22 @@ key = require('../../modules/commands/key')
 describe 'key', ->
 
   beforeEach ->
+    spyOn(utils, 'getClusters').andReturn({
+        default: {
+          instances: {
+            vm01: {
+              name: 'vm01',
+              ip: '1.2.3.4',
+              ssh_key: 'overcast.key',
+              ssh_port: '22',
+              user: 'root'
+            }
+          }
+        }
+      })
     spyOn(cli, 'missingArgument')
     spyOn(utils, 'die')
+    spyOn(utils, 'dieWithList')
 
   describe 'create', ->
     it 'should fail if name is missing', ->
@@ -103,3 +117,16 @@ describe 'key', ->
       cli.execute('key list')
       expect(console.log.argsForCall[0][0]).toBe 'dummy'
       expect(console.log.argsForCall[1][0]).toBe 'overcast'
+
+  describe 'push', ->
+    it 'should fail if instance name is missing', ->
+      cli.execute('key push')
+      expect(cli.missingArgument).toHaveBeenCalled()
+
+    it 'should fail if key path is missing', ->
+      cli.execute('key push vm01')
+      expect(cli.missingArgument).toHaveBeenCalled()
+
+    it 'should fail if instance does not exist', ->
+      cli.execute('key push vm99 myKeyName')
+      expect(utils.dieWithList).toHaveBeenCalled()

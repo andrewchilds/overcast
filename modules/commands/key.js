@@ -2,6 +2,7 @@ var fs = require('fs');
 var _ = require('lodash');
 var utils = require('../utils');
 var filters = require('../filters');
+var ssh = require('../ssh');
 
 var commands = {};
 exports.commands = commands;
@@ -90,6 +91,74 @@ commands.list = {
   run: function (args) {
     listKeys();
   }
+};
+
+commands.push = {
+  name: 'push',
+  usage: 'overcast key push [instance|cluster|all] [name|path] [options...]',
+  description: [
+    'Push a public SSH key to an instance or cluster. Accepts a key name,',
+    'filename, or full path. This will overwrite the existing authorized_keys',
+    'file, unless you use --append.'
+  ],
+  examples: [
+    '# Generate new SSH key pair:',
+    '$ overcast key create newKey',
+    '',
+    '# Push public key to instance, update instance config to use private key:',
+    '$ overcast key push vm-01 newKey',
+    '$ overcast instance update vm-01 --ssh-key newKey.key',
+    '',
+    '# Same as above but using key path instead of key name:',
+    '$ overcast key push vm-02 "~/.ssh/id_rsa.pub"',
+    '$ overcast instance update vm-02 --ssh-key "~/.ssh/id_rsa"',
+    '',
+    '# Push public key to instance using arbitrary user:',
+    '$ overcast key push vm-03 newKey --user myOtherUser',
+    '',
+    '# Append public key to authorized_keys instead of overwriting:',
+    '$ overcast key push vm-04 newKey --append'
+  ],
+  required: [
+    { name: 'instance|cluster|all', varName: 'name', filters: filters.findMatchingInstances },
+    { name: 'name|path', varName: 'path', raw: true }
+  ],
+  options: [
+    { usage: '--user USERNAME' },
+    { usage: '--append, -a', default: 'false' }
+  ],
+  run: function (args) {
+    var keyPath = exports.getKeyPath(args.path);
+    args.env = {
+      PUBLIC_KEY: fs.readFileSync(keyPath, { encoding: 'utf8' }),
+      SHOULD_APPEND: utils.argIsTruthy(args.append) || utils.argIsTruthy(args.a)
+    };
+
+    args._ = ['authorize_key'];
+    args.mr = true; // machine readable
+    ssh.run(args, function () {
+      utils.success('Key updated on ' + args.instances.length + ' instance(s).');
+      utils.grey('If this is the default user you use to SSH in,');
+      utils.grey('you need to update the instance configuration. For example:');
+      utils.grey('overcast instance update ' + args.name + ' --ssh-key myPrivateKey.key');
+    });
+  }
+};
+
+exports.getKeyPath = function (path) {
+  var keyPath = utils.normalizeKeyPath(path);
+  if (!fs.existsSync(keyPath)) {
+    if (fs.existsSync(keyPath + '.key.pub')) {
+      keyPath += '.key.pub';
+    } else if (fs.existsSync(keyPath + '.pub')) {
+      keyPath += '.pub';
+    } else {
+      utils.die('Key "' + keyPath + '" not found.');
+      return false;
+    }
+  }
+
+  return keyPath;
 };
 
 function printFile(file) {
