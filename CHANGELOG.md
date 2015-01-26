@@ -6,6 +6,12 @@ npm -g update overcast
 
 # Change Log
 
+**0.6.12** (Jan 25, 2015)
+
+- Add `key push` command to make it easier to automatically regenerate keys across multiple instances.
+- Change `instance update` command to work across multiple instances.
+- Disallow instances with the same name across different clusters. Fixes [#35](https://github.com/andrewchilds/overcast/issues/35).
+
 **0.6.11** (Jan 23, 2015)
 
 - Allow Availability Zone to be defined in `aws create` command.
