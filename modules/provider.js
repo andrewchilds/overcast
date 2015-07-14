@@ -214,3 +214,16 @@ exports.snapshots = function (api, callback) {
     }
   });
 };
+
+// AKA distributions (Linode).
+exports.addprivate = function (api, args, callback) {
+  exports.handleCommandNotFound(api.addPrivate);
+
+  utils.grey('Creating private ip on "' + args.instance.name + '"...');
+  api.addPrivate(args.instance, function () {
+    utils.success('Instance "' + args.instance.name + '" has private ip.');
+    if (_.isFunction(callback)) {
+      callback();
+    }
+  });
+};

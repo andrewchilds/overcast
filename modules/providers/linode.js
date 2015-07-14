@@ -633,6 +633,20 @@ exports.errorCatcher = function (e) {
   utils.die('Linode API Error: ' + (e.message ? e.message : e));
 };
 
+exports.addPrivate = function (instance, callback) {
+  return apiPromise({
+    action: 'linode.ip.addprivate',
+    data: { LinodeID: instance.linode.id },
+    mapper: function (obj) {
+      return {
+        address: obj.IPADDRESS,
+        id: obj.IPADDRESSID,
+        public: !!obj.ISPUBLIC
+      };
+    }
+  });
+};
+
 function getLinodeIDFromName(args, fn, resolve, reject) {
   return exports.getLinodes().then(function (linodes) {
     var key = args['linode-name'];
