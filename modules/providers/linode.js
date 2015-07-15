@@ -633,17 +633,24 @@ exports.errorCatcher = function (e) {
   utils.die('Linode API Error: ' + (e.message ? e.message : e));
 };
 
-exports.addPrivate = function (instance, callback) {
-  return apiPromise({
-    action: 'linode.ip.addprivate',
-    data: { LinodeID: instance.linode.id },
-    mapper: function (obj) {
-      return {
-        address: obj.IPADDRESS,
-        id: obj.IPADDRESSID,
-        public: !!obj.ISPUBLIC
-      };
-    }
+exports.addPrivate = function (args, callback) {
+  return exports.normalizeArgs(args).then(function (args) {
+    linode = args.instance.linode;
+    return apiPromise({
+      action: 'linode.ip.addprivate',
+      data: { LinodeID: linode.id },
+      mapper: function (obj) {
+        return {
+          address: obj.IPADDRESS,
+          id: obj.IPADDRESSID,
+          public: !!obj.ISPUBLIC
+        };
+      }
+    }).catch(exports.errorCatcher);
+  }).then(function () {
+    exports.updateInstanceMetadata(args.instance, function () {
+      utils.success('Instance "' + args.instance.name + '" rebuilt.');
+    });
   });
 };
 
