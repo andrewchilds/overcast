@@ -62,7 +62,7 @@ exports.handlePage = function (ph, page) {
         $('#Login_userEntryPanel2_PasswordTextBox').val(credentials.GODADDY_PASSWORD);
         $('#LoginImageButton_div').click();
       }, function(err, result){
-        exports.changeAction(ph, page, 4000);
+        exports.changeAction(ph, page, 6000);
       }, variables);
     });
   });
