@@ -183,7 +183,7 @@ exports.getLinodes = exports.getLinode = function (args) {
         };
       }
     });
-  }).map(function (linode) {
+  }).map(function (linode, index) {
     return new Promise(function (resolve, reject) {
       setTimeout(function() {
         var args = {};
@@ -194,7 +194,7 @@ exports.getLinodes = exports.getLinode = function (args) {
         })
       }, index * 400);
     });
-  }).map(function (linode) {
+  }).map(function (linode, index) {
     return new Promise(function (resolve, reject) {
       setTimeout(function() {
         var args = {};
