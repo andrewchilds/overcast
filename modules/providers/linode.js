@@ -185,25 +185,29 @@ exports.getLinodes = exports.getLinode = function (args) {
     });
   }).map(function (linode) {
     return new Promise(function (resolve, reject) {
-      var args = {};
-      args['linode-id'] = linode.id;
-      exports.getDisksForLinode(args).then(function (disks) {
-        linode.disks = disks;
-        resolve(linode);
-      });
+      setTimeout(function() {
+        var args = {};
+        args['linode-id'] = linode.id;
+        exports.getDisksForLinode(args).then(function (disks) {
+          linode.disks = disks;
+          resolve(linode);
+        })
+      }, index * 400);
     });
   }).map(function (linode) {
     return new Promise(function (resolve, reject) {
-      var args = {};
-      args['linode-id'] = linode.id;
-      exports.getIPsForLinode(args).then(function (IPs) {
-        linode.IPs = IPs;
-        var publicAddress = _.find(IPs, 'public');
-        if (publicAddress) {
-          linode.ip = publicAddress.address;
-        }
-        resolve(linode);
-      });
+      setTimeout(function() {
+        var args = {};
+        args['linode-id'] = linode.id;
+        exports.getIPsForLinode(args).then(function (IPs) {
+          linode.IPs = IPs;
+          var publicAddress = _.find(IPs, 'public');
+          if (publicAddress) {
+            linode.ip = publicAddress.address;
+          }
+          resolve(linode);
+        });
+      }, index * 400);
     });
   });
 };
