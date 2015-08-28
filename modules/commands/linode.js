@@ -195,3 +195,22 @@ commands.sync = {
     provider.sync(api, args, next);
   }
 };
+
+commands.addprivate = {
+  name: 'addprivate',
+  usage: 'overcast linode addprivate [name]',
+  description: [
+    'Add private IP on Linode instance.'
+  ],
+  examples: [
+    '$ overcast linode addprivate vm-01'
+  ],
+  required: [
+    { name: 'name', filters: [filters.findFirstMatchingInstance, filters.shouldBeLinode] }
+  ],
+  options: [],
+  async: true,
+  run: function (args, next) {
+    provider.addprivate(api, args, next);
+  }
+};

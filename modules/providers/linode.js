@@ -183,27 +183,31 @@ exports.getLinodes = exports.getLinode = function (args) {
         };
       }
     });
-  }).map(function (linode) {
+  }).map(function (linode, index) {
     return new Promise(function (resolve, reject) {
-      var args = {};
-      args['linode-id'] = linode.id;
-      exports.getDisksForLinode(args).then(function (disks) {
-        linode.disks = disks;
-        resolve(linode);
-      });
+      setTimeout(function() {
+        var args = {};
+        args['linode-id'] = linode.id;
+        exports.getDisksForLinode(args).then(function (disks) {
+          linode.disks = disks;
+          resolve(linode);
+        })
+      }, index * 400);
     });
-  }).map(function (linode) {
+  }).map(function (linode, index) {
     return new Promise(function (resolve, reject) {
-      var args = {};
-      args['linode-id'] = linode.id;
-      exports.getIPsForLinode(args).then(function (IPs) {
-        linode.IPs = IPs;
-        var publicAddress = _.find(IPs, 'public');
-        if (publicAddress) {
-          linode.ip = publicAddress.address;
-        }
-        resolve(linode);
-      });
+      setTimeout(function() {
+        var args = {};
+        args['linode-id'] = linode.id;
+        exports.getIPsForLinode(args).then(function (IPs) {
+          linode.IPs = IPs;
+          var publicAddress = _.find(IPs, 'public');
+          if (publicAddress) {
+            linode.ip = publicAddress.address;
+          }
+          resolve(linode);
+        });
+      }, index * 400);
     });
   });
 };
@@ -631,6 +635,27 @@ exports.normalizeArgs = function (args) {
 
 exports.errorCatcher = function (e) {
   utils.die('Linode API Error: ' + (e.message ? e.message : e));
+};
+
+exports.addPrivate = function (args, callback) {
+  return exports.normalizeArgs(args).then(function (args) {
+    linode = args.instance.linode;
+    return apiPromise({
+      action: 'linode.ip.addprivate',
+      data: { LinodeID: linode.id },
+      mapper: function (obj) {
+        return {
+          address: obj.IPADDRESS,
+          id: obj.IPADDRESSID,
+          public: !!obj.ISPUBLIC
+        };
+      }
+    }).catch(exports.errorCatcher);
+  }).then(function () {
+    exports.updateInstanceMetadata(args.instance, function () {
+      utils.success('Instance "' + args.instance.name + '" rebuilt.');
+    });
+  });
 };
 
 function getLinodeIDFromName(args, fn, resolve, reject) {
