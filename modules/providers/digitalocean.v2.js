@@ -1,3 +1,4 @@
+var fs = require('fs');
 var _ = require('lodash');
 var utils = require('../utils');
 var DigitalOcean = require('do-wrapper');
@@ -10,7 +11,50 @@ exports.name = 'DigitalOcean';
 // Provider interface
 
 exports.create = function (args, callback) {
+  args['ssh-pub-key'] = utils.normalizeKeyPath(args['ssh-pub-key'], 'overcast.key.pub');
 
+  exports.normalizeAndFindPropertiesForCreate(args, function () {
+    exports.getOrCreateOvercastKeyID(args['ssh-pub-key'], function (keyID) {
+      var query = {
+        backups: utils.argIsTruthy(args['backups-enabled']),
+        name: args.name,
+        private_networking: utils.argIsTruthy(args['private-networking']),
+        ssh_keys: [keyID],
+        image: args['image-slug'],
+        size: args['size-slug'],
+        region: args['region-slug']
+      };
+
+      exports.createRequest(args, query, callback);
+    });
+  });
+};
+
+exports.createRequest = function (args, query, callback) {
+  exports.getAPI().dropletsCreate(query, function (err, res, body) {
+    if (err) {
+      return utils.die('Got an error from the DigitalOcean API: ' + err);
+    }
+    if (body && body.droplet) {
+      utils.grey('Waiting for droplet to be created...');
+      exports.waitForActionToComplete(body.links.actions[0].id, function () {
+        exports.getInstance(body.droplet.id, function (droplet) {
+          var response = {
+            name: droplet.name,
+            ip: droplet.networks.v4[0].ip_address,
+            ssh_key: args['ssh-key'] || 'overcast.key',
+            ssh_port: args['ssh-port'] || '22',
+            user: 'root',
+            digitalocean: droplet
+          };
+
+          if (_.isFunction(callback)) {
+            callback(response);
+          }
+        });
+      });
+    }
+  });
 };
 
 exports.destroy = function (instance, callback) {
@@ -155,6 +199,35 @@ exports.createKey = function (keyData, callback) {
 
 // Internal functions
 
+/*
+  "action": {
+    "id": 36804636,
+    "status": "completed",
+    "type": "create",
+    "started_at": "2014-11-14T16:29:21Z",
+    "completed_at": "2014-11-14T16:30:06Z",
+    "resource_id": 3164444,
+    "resource_type": "droplet",
+    "region": "nyc3",
+    "region_slug": "nyc3"
+  }
+*/
+
+exports.waitForActionToComplete = function (id, callback) {
+  exports.getAPI().accountGetAction(id, function (err, res, body) {
+    if (err) {
+      return utils.die('Got an error from the DigitalOcean API: ' + err);
+    }
+    if (body && body.action && body.action.status === 'completed') {
+      callback();
+    } else {
+      setTimeout(function () {
+        exports.waitForActionToComplete(id, callback);
+      }, 5000);
+    }
+  });
+};
+
 exports.getAPI = function () {
   if (exports.API) {
     return exports.API;
@@ -171,6 +244,45 @@ exports.getAPI = function () {
   exports.API = new DigitalOcean(variables.DIGITALOCEAN_API_TOKEN);
 
   return exports.API;
+};
+
+exports.normalizeAndFindPropertiesForCreate = function (args, callback) {
+  args.image = args.image || args['image-id'] || args['image-slug'] || args['image-name'] || 'ubuntu-14-04-x64';
+  args.size = args.size || args['size-slug'] || args['size-name'] || '512mb';
+  args.region = args.region || args['region-slug'] || args['region-name'] || 'nyc3';
+
+  exports.getImages(function (images) {
+    var matchingImage = getMatching(images, args.image);
+    if (!matchingImage) {
+      return utils.die('No image found that matches "' + args.image + '".');
+    }
+    exports.getSizes(function (sizes) {
+      var matchingSize = getMatching(sizes, args.size);
+      if (!matchingSize) {
+        return utils.die('No size found that matches "' + args.size + '".');
+      }
+      exports.getRegions(function (regions) {
+        var matchingRegion = getMatching(regions, args.region);
+        if (!matchingRegion) {
+          return utils.die('No region found that matches "' + args.region + '".');
+        }
+
+        _.each(['image', 'image-id', 'image-slug', 'image-name',
+          'size', 'size-id', 'size-slug', 'size-name',
+          'region', 'region-id', 'region-slug', 'region-name'], function (key) {
+          delete args[key];
+        });
+
+        args['image-slug'] = matchingImage.slug;
+        args['size-slug'] = matchingSize.slug;
+        args['region-slug'] = matchingRegion.slug;
+
+        if (_.isFunction(callback)) {
+          callback();
+        }
+      });
+    });
+  });
 };
 
 exports.getOrCreateOvercastKeyID = function (pubKeyPath, callback) {
