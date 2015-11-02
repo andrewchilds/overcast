@@ -2,7 +2,7 @@ var _ = require('lodash');
 var utils = require('../utils');
 var filters = require('../filters');
 var provider = require('../provider');
-var api = require('../providers/digitalocean.js');
+var api = require('../providers/digitalocean.v2.js');
 
 var commands = {};
 exports.commands = commands;
