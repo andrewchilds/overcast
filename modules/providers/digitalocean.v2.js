@@ -36,7 +36,7 @@ exports.createRequest = function (args, query, callback) {
       return utils.die('Got an error from the DigitalOcean API: ' + err);
     }
     if (body && body.droplet) {
-      utils.grey('Waiting for droplet to be created...');
+      utils.grey('Waiting for instance to be created...');
       exports.waitForActionToComplete(body.links.actions[0].id, function () {
         exports.getInstance(body.droplet.id, function (droplet) {
           var response = {
@@ -58,19 +58,26 @@ exports.createRequest = function (args, query, callback) {
 };
 
 exports.destroy = function (instance, callback) {
-
+  exports.getAPI().dropletsDelete(instance.digitalocean.id, function (err, res, body) {
+    if (err) {
+      return utils.die('Got an error from the DigitalOcean API: ' + err);
+    }
+    if (_.isFunction(callback)) {
+      callback();
+    }
+  });
 };
 
 exports.boot = function (instance, callback) {
-
+  exports.dropletAction(instance, { type: 'power_on' }, callback);
 };
 
 exports.shutdown = function (instance, callback) {
-
+  exports.dropletAction(instance, { type: 'shutdown' }, callback);
 };
 
 exports.reboot = function (instance, callback) {
-
+  exports.dropletAction(instance, { type: 'reboot' }, callback);
 };
 
 exports.rebuild = function (instance, image, callback) {
@@ -244,6 +251,15 @@ exports.getAPI = function () {
   exports.API = new DigitalOcean(variables.DIGITALOCEAN_API_TOKEN);
 
   return exports.API;
+};
+
+exports.dropletAction = function (instance, data, callback) {
+  exports.getAPI().dropletsRequestAction(instance.digitalocean.id, data, function (err, res, body) {
+    if (err || body.message) {
+      return utils.die('Got an error from the DigitalOcean API: ' + (err || body.message));
+    }
+    exports.waitForActionToComplete(body.action.id, callback);
+  });
 };
 
 exports.normalizeAndFindPropertiesForCreate = function (args, callback) {
