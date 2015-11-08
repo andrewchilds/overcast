@@ -15,8 +15,7 @@
 # 2. Add your DigitalOcean API credentials to $HOME/.overcast/variables.json:
 #
 #    {
-#      "DIGITALOCEAN_CLIENT_ID": "YOUR_CLIENT_ID",
-#      "DIGITALOCEAN_API_KEY": "YOUR_API_KEY"
+#      "DIGITALOCEAN_API_TOKEN": "YOUR_API_TOKEN"
 #    }
 #
 # 3. Sign up for an account on https://mandrillapp.com/ to handle email
