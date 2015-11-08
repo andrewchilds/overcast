@@ -81,15 +81,26 @@ exports.reboot = function (instance, callback) {
 };
 
 exports.rebuild = function (instance, image, callback) {
-
+  exports.ensureDropletIsShutDown(instance, function () {
+    exports.dropletAction(instance, { type: 'rebuild', image: image }, callback);
+  });
 };
 
 exports.resize = function (instance, size, callback) {
+  var isDiskIncrease = exports.isDiskIncrease(instance.digitalocean.size.slug, size);
+  if (!isDiskIncrease) {
+    utils.die('You can only increase the size of the disk image (' + instance.digitalocean.size.slug + ').');
+  }
 
+  exports.ensureDropletIsShutDown(instance, function () {
+    exports.dropletAction(instance, { type: 'resize', disk: true, size: size }, callback);
+  });
 };
 
 exports.snapshot = function (instance, snapshotName, callback) {
-
+  exports.ensureDropletIsShutDown(instance, function () {
+    exports.dropletAction(instance, { type: 'snapshot', name: snapshotName }, callback);
+  });
 };
 
 exports.getImages = function (callback) {
@@ -129,10 +140,14 @@ exports.getInstance = function (instance, callback) {
   });
 };
 
+exports.sync = function (instance, callback) {
+  exports.updateInstanceMetadata(instance, callback);
+};
+
 exports.updateInstanceMetadata = function (instance, callback) {
   exports.getInstance(instance, function (droplet) {
     utils.updateInstance(instance.name, {
-      ip: droplet.ip_address,
+      ip: droplet.networks.v4[0].ip_address,
       digitalocean: droplet
     });
 
@@ -206,19 +221,29 @@ exports.createKey = function (keyData, callback) {
 
 // Internal functions
 
-/*
-  "action": {
-    "id": 36804636,
-    "status": "completed",
-    "type": "create",
-    "started_at": "2014-11-14T16:29:21Z",
-    "completed_at": "2014-11-14T16:30:06Z",
-    "resource_id": 3164444,
-    "resource_type": "droplet",
-    "region": "nyc3",
-    "region_slug": "nyc3"
-  }
-*/
+exports.ensureDropletIsShutDown = function (instance, callback) {
+  exports.getInstance(instance, function (droplet) {
+    if (droplet.status === 'off') {
+      callback();
+    } else {
+      exports.shutdown(instance, function () {
+        exports.waitForShutdown(instance, callback);
+      });
+    }
+  });
+};
+
+exports.waitForShutdown = function (instance, callback) {
+  exports.getInstance(instance, function (droplet) {
+    if (droplet.status === 'off') {
+      callback();
+    } else {
+      setTimeout(function () {
+        exports.waitForShutdown(instance, callback);
+      }, 3000);
+    }
+  });
+};
 
 exports.waitForActionToComplete = function (id, callback) {
   exports.getAPI().accountGetAction(id, function (err, res, body) {
@@ -258,7 +283,9 @@ exports.dropletAction = function (instance, data, callback) {
     if (err || body.message) {
       return utils.die('Got an error from the DigitalOcean API: ' + (err || body.message));
     }
-    exports.waitForActionToComplete(body.action.id, callback);
+    exports.waitForActionToComplete(body.action.id, function () {
+      exports.updateInstanceMetadata(instance, callback);
+    });
   });
 };
 
@@ -328,6 +355,14 @@ exports.returnOnlyIDNameSlug = function (collection) {
       slug: obj.slug
     };
   });
+};
+
+exports.isDiskIncrease = function (oldSize, newSize) {
+  function normalizeSize(s) {
+    return s.indexOf('mb') !== -1 ? parseInt(s, 10) : parseInt(s, 10) * 1000;
+  }
+
+  return normalizeSize(newSize) > normalizeSize(oldSize);
 };
 
 function getMatching(collection, val) {

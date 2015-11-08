@@ -149,7 +149,7 @@ commands.resize = {
   usage: 'overcast digitalocean resize [name] [size] [options...]',
   description: [
     'Shutdown, resize, and reboot a DigitalOcean instance.',
-    '[size] can be a size ID, name or slug.',
+    '[size] must be a valid size slug.',
     'If the --skip-boot flag is used, the instance will stay powered off.'
   ],
   examples: [
