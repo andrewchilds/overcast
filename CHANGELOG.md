@@ -6,6 +6,10 @@ npm -g update overcast
 
 # Change Log
 
+**1.0.0** (Nov 7, 2015)
+
+- Update DigitalOcean provider API to v2. Fixes [#40](https://github.com/andrewchilds/overcast/issues/40). DigitalOcean commands now expect a DIGITALOCEAN_API_TOKEN variable.
+
 **0.6.12** (Jan 25, 2015)
 
 - Add `key push` command to make it easier to automatically regenerate keys across multiple instances.

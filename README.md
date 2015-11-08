@@ -663,7 +663,7 @@ Examples:
 ### overcast help
 
 ```
-  Overcast v0.6.12
+  Overcast v1.0.0
 
   Source code, issues, pull requests:
     https://github.com/andrewchilds/overcast
