@@ -9,8 +9,7 @@
   },
   "license": "MIT",
   "engines": {
-    "node": "0.10.x",
-    "npm": "2.1.x"
+    "node": ">=0.10.x"
   },
   "main": "overcast.js",
   "scripts": {
@@ -19,10 +18,11 @@
   "bin": {
     "overcast": "bin/overcast"
   },
-  "dependencies": {
+  "frozenDependencies": {
     "aws-sdk": "2.0.0-rc.14",
     "bluebird": "1.2.1",
     "colors": "0.6.2",
+    "do-wrapper": "3.0.1",
     "linode-api": "0.1.2",
     "lodash": "2.4.1",
     "minimist": "0.0.8",

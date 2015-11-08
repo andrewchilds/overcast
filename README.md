@@ -4,9 +4,9 @@ Overcast is a simple command line program designed to make it easy to spin up, c
 
 ![Screenshot](http://i.imgur.com/5x1gKVC.png)
 
-## Features
+## Avoid Vendor Lock-in.
 
-Create, reboot and destroy instances across DigitalOcean, Linode and Amazon, or locally using Vagrant + Virtualbox.
+Create, reboot and destroy instances across DigitalOcean, Linode, Amazon, or locally using Virtualbox.
 
 ```sh
 # Spin up a new Ubuntu 14.04 instance on DigitalOcean:
@@ -27,7 +27,7 @@ $ overcast virtualbox create db-04
 $ overcast run db-* install/core install/redis --parallel
 ```
 
-Run multiple commands or multiple scripts on any of your instances over SSH. Commands can be run sequentially or in parallel. Avoid vendor lock-in by running and testing your deployment scripts across different providers.
+Run multiple commands or multiple scripts on any of your instances over SSH. Commands can be run sequentially or in parallel. Run and test your deployment scripts across different providers.
 
 ```sh
 # Run bundled scripts, e.g. a LAMP stack:
@@ -81,8 +81,7 @@ $ overcast run all /absolute/path/to/script ./relative/path/to/other/script
     ```sh
     $ overcast var set AWS_KEY my_aws_key
     $ overcast var set AWS_SECRET my_aws_secret
-    $ overcast var set DIGITALOCEAN_CLIENT_ID abc123
-    $ overcast var set DIGITALOCEAN_API_KEY abc123
+    $ overcast var set DIGITALOCEAN_API_TOKEN abc123
     $ overcast var set LINODE_API_KEY abc123
     ```
 
@@ -488,7 +487,7 @@ Usage:
 
 Description:
   Shutdown, resize, and reboot a DigitalOcean instance.
-  [size] can be a size ID, name or slug.
+  [size] must be a valid size slug.
   If the --skip-boot flag is used, the instance will stay powered off.
 
 Options:         Defaults:

@@ -2,7 +2,7 @@ var _ = require('lodash');
 var utils = require('../utils');
 var filters = require('../filters');
 var provider = require('../provider');
-var api = require('../providers/digitalocean.js');
+var api = require('../providers/digitalocean.v2.js');
 
 var commands = {};
 exports.commands = commands;
@@ -149,7 +149,7 @@ commands.resize = {
   usage: 'overcast digitalocean resize [name] [size] [options...]',
   description: [
     'Shutdown, resize, and reboot a DigitalOcean instance.',
-    '[size] can be a size ID, name or slug.',
+    '[size] must be a valid size slug.',
     'If the --skip-boot flag is used, the instance will stay powered off.'
   ],
   examples: [

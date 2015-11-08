@@ -677,7 +677,7 @@ exports.printCollection = function (type, collection) {
   }
 
   _.each(collection, function (obj) {
-    var name = obj.name || obj.Name || obj._name;
+    var name = obj.name || obj.Name || obj._name || obj.slug;
     console.log('');
     console.log(name);
     exports.prettyPrint(obj, 2);
