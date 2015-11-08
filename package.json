@@ -18,7 +18,7 @@
   "bin": {
     "overcast": "bin/overcast"
   },
-  "dependencies": {
+  "frozenDependencies": {
     "aws-sdk": "2.0.0-rc.14",
     "bluebird": "1.2.1",
     "colors": "0.6.2",
