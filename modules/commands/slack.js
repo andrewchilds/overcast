@@ -58,5 +58,5 @@ exports.send = function (options) {
 
   var slack = require('slack-notify')(variables.SLACK_WEBHOOK_URL);
   slack.send(options);
-  utils.success('Message sent to Slack.');
+  utils.success('\nMessage sent to Slack.');
 };
