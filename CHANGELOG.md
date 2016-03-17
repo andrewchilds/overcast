@@ -6,6 +6,10 @@ npm -g update overcast
 
 # Change Log
 
+**1.0.2** (Nov 7, 2015)
+
+- Add .npmignore file.
+
 **1.0.1** (Nov 7, 2015)
 
 - Shrinkwrap npm dependencies.
