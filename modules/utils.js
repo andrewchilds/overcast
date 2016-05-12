@@ -21,20 +21,13 @@ exports.module = function (fn) {
   return obj;
 };
 
-// https://gist.github.com/victorquinn/8030190
-exports.promiseWhile = function (condition, action, value) {
-  var resolver = Promise.defer();
-
-  var loop = function() {
-    if (!condition()) {
-      return resolver.resolve(value);
+// http://stackoverflow.com/questions/29375100/while-loop-using-bluebird-promises
+exports.promiseWhile = function (predicate, action, value) {
+  return Promise.resolve(value).then(predicate).then(function (condition) {
+    if (condition) {
+      return exports.promiseWhile(predicate, action, action());
     }
-    return Promise.cast(action()).then(loop).catch(resolver.reject);
-  };
-
-  process.nextTick(loop);
-
-  return resolver.promise;
+  });
 };
 
 exports.runSubcommand = function (args, subcommands, helpFn) {

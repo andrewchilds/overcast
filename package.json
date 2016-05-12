@@ -19,15 +19,15 @@
     "overcast": "bin/overcast"
   },
   "dependencies": {
-    "aws-sdk": "2.0.0-rc.14",
-    "bluebird": "1.2.1",
-    "colors": "0.6.2",
-    "do-wrapper": "3.0.1",
+    "aws-sdk": "2.3.10",
+    "bluebird": "3.3.5",
+    "colors": "1.1.2",
+    "do-wrapper": "3.6.0",
     "linode-api": "0.1.2",
-    "lodash": "2.4.1",
-    "minimist": "0.0.8",
-    "rimraf": "2.2.8",
-    "slack-notify": "0.1.1"
+    "lodash": "3.10.1",
+    "minimist": "1.2.0",
+    "rimraf": "2.5.2",
+    "slack-notify": "0.1.6"
   },
   "devDependencies": {
     "jasmine-node": "1.14.5"
