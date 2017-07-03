@@ -103,25 +103,22 @@ exports.snapshot = function (instance, snapshotName, callback) {
   });
 };
 
+function _handlePaginatedResponse(err, body, callback) {
+  if (err) {
+    return utils.die('Got an error from the DigitalOcean API: ' + err);
+  }
+  callback(body);
+}
+
 exports.getImages = function (callback) {
-  exports.getAPI().imagesGetAll({}, function (err, res, body) {
-    if (err) {
-      return utils.die('Got an error from the DigitalOcean API: ' + err);
-    }
-    if (body && body.images) {
-      callback(body.images);
-    }
+  exports.getAPI().imagesGetAll({ includeAll: true, per_page: 50 }, function (err, res, body) {
+    _handlePaginatedResponse(err, body, callback);
   });
 };
 
 exports.getInstances = function (args, callback) {
-  exports.getAPI().dropletsGetAll({}, function (err, res, body) {
-    if (err) {
-      return utils.die('Got an error from the DigitalOcean API: ' + err);
-    }
-    if (body && body.droplets) {
-      callback(body.droplets);
-    }
+  exports.getAPI().dropletsGetAll({ includeAll: true, per_page: 50 }, function (err, res, body) {
+    _handlePaginatedResponse(err, body, callback);
   });
 };
 
@@ -162,46 +159,26 @@ exports.getKernels = function (callback) { };
 */
 
 exports.getRegions = function (callback) {
-  exports.getAPI().regionsGetAll({}, function (err, res, body) {
-    if (err) {
-      return utils.die('Got an error from the DigitalOcean API: ' + err);
-    }
-    if (body && body.regions) {
-      callback(body.regions);
-    }
+  exports.getAPI().regionsGetAll({ includeAll: true, per_page: 50 }, function (err, res, body) {
+    _handlePaginatedResponse(err, body, callback);
   });
 };
 
 exports.getSizes = function (callback) {
-  exports.getAPI().sizesGetAll({}, function (err, res, body) {
-    if (err) {
-      return utils.die('Got an error from the DigitalOcean API: ' + err);
-    }
-    if (body && body.sizes) {
-      callback(body.sizes);
-    }
+  exports.getAPI().sizesGetAll({ includeAll: true, per_page: 50 }, function (err, res, body) {
+    _handlePaginatedResponse(err, body, callback);
   });
 };
 
 exports.getSnapshots = function (callback) {
-  exports.getAPI().imagesGetAll({ private: true }, function (err, res, body) {
-    if (err) {
-      return utils.die('Got an error from the DigitalOcean API: ' + err);
-    }
-    if (body && body.images) {
-      callback(body.images);
-    }
+  exports.getAPI().imagesGetAll({ includeAll: true, per_page: 50, private: true }, function (err, res, body) {
+    _handlePaginatedResponse(err, body, callback);
   });
 };
 
 exports.getKeys = function (callback) {
-  exports.getAPI().accountGetKeys({}, function (err, res, body) {
-    if (err) {
-      return utils.die('Got an error from the DigitalOcean API: ' + err);
-    }
-    if (body && body.ssh_keys) {
-      callback(body.ssh_keys);
-    }
+  exports.getAPI().accountGetKeys({ includeAll: true, per_page: 50 }, function (err, res, body) {
+    _handlePaginatedResponse(err, body, callback);
   });
 };
 
