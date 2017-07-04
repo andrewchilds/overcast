@@ -1,7 +1,7 @@
 var fs = require('fs');
 var _ = require('lodash');
 var utils = require('../utils');
-var DigitalOcean = require('do-wrapper');
+var DigitalOcean = require('overcast-do-wrapper');
 
 exports.API = null;
 
