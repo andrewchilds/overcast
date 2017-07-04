@@ -6,6 +6,11 @@ npm -g update overcast
 
 # Change Log
 
+**1.0.3** (Jul 3, 2017)
+
+- Fix bug where some `digitalocean` commands were broken due to the DigitalOcean API adding pagination. Fixes [#54](https://github.com/andrewchilds/overcast/issues/54).
+- Update npm dependencies.
+
 **1.0.2** (Nov 7, 2015)
 
 - Add .npmignore file.
