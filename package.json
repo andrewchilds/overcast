@@ -1,7 +1,7 @@
 {
   "name": "overcast",
   "description": "A simple command line program designed to make it easy to spin up, configure, and interact with any number of machines over SSH.",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "repository": "https://github.com/andrewchilds/overcast.git",
   "author": {
     "name": "Andrew Childs",
@@ -22,7 +22,7 @@
     "aws-sdk": "2.0.0-rc.14",
     "bluebird": "1.2.1",
     "colors": "1.1.2",
-    "do-wrapper": "andrewchilds/do-wrapper#includeAll-fix",
+    "overcast-do-wrapper": "3.11.2",
     "linode-api": "0.1.2",
     "lodash": "3.10.1",
     "minimist": "1.2.0",

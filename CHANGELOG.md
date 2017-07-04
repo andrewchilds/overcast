@@ -6,6 +6,10 @@ npm -g update overcast
 
 # Change Log
 
+**1.0.4** (Jul 3, 2017)
+
+- Temporarily use forked npm package of `do-wrapper` as `overcast-do-wrapper`, until fixes from 1.0.3 are merged into upstream.
+
 **1.0.3** (Jul 3, 2017)
 
 - Fix bug where some `digitalocean` commands were broken due to the DigitalOcean API adding pagination. Fixes [#54](https://github.com/andrewchilds/overcast/issues/54).
