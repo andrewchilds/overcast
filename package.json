@@ -19,7 +19,7 @@
     "overcast": "bin/overcast"
   },
   "dependencies": {
-    "aws-sdk": "2.0.0-rc.14",
+    "aws-sdk": "2.80.0",
     "bluebird": "1.2.1",
     "colors": "1.1.2",
     "overcast-do-wrapper": "3.11.2",

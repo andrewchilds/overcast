@@ -233,7 +233,7 @@ exports.createKey = function (args) {
 
     var params = {
       KeyName: keyName,
-      PublicKeyMaterial: new Buffer(keyData).toString('base64')
+      PublicKeyMaterial: new Buffer(keyData)
     };
 
     ec2(args).importKeyPair(params, function (err, data) {
@@ -302,10 +302,9 @@ exports.getImages = function (args) {
 
 exports.getFilteredInstances = function (args) {
   args = args || {};
-
   return new Promise(function (resolve, reject) {
     ec2(args).describeInstances({
-      Filters: args.Filters || [],
+      Filters: args.Filters,
       InstanceIds: args.InstanceIds || args.InstanceId ? [args.InstanceId] : []
     }, function (err, data) {
       if (err) {
