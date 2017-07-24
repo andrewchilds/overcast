@@ -302,9 +302,10 @@ exports.getImages = function (args) {
 
 exports.getFilteredInstances = function (args) {
   args = args || {};
+
   return new Promise(function (resolve, reject) {
     ec2(args).describeInstances({
-      Filters: args.Filters,
+      Filters: args.Filters || [],
       InstanceIds: args.InstanceIds || args.InstanceId ? [args.InstanceId] : []
     }, function (err, data) {
       if (err) {
