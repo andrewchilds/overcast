@@ -21,6 +21,17 @@ exports.module = function (fn) {
   return obj;
 };
 
+// Expects an array of functions with a (context, callback) signature,
+// that returns the context object to the callback function.
+exports.chainSequence = function (context, fnArray) {
+  var fn = fnArray.shift();
+  fn(context, function (context) {
+    if (fnArray.length > 0) {
+      exports.chainSequence(context, fnArray);
+    }
+  });
+};
+
 // https://gist.github.com/victorquinn/8030190
 exports.promiseWhile = function (condition, action, value) {
   var resolver = Promise.defer();
