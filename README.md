@@ -1,12 +1,12 @@
 # ![Overcast Logo](http://i.imgur.com/eCBl2NI.png)
 
-Overcast is a simple command line program designed to make it easy to spin up, configure and manage clusters of machines, without the learning curve or complexity of existing server management tools.
+Overcast is a command line program designed to make it easy to spin up, configure and manage clusters of machines across multiple cloud providers.
 
 ![Screenshot](http://i.imgur.com/5x1gKVC.png)
 
 ## Avoid Vendor Lock-in.
 
-Create, reboot and destroy instances across DigitalOcean, Linode, Amazon, or locally using Virtualbox.
+Create, reboot and destroy instances across Amazon EC2, DigitalOcean, Linode, or locally using Virtualbox.
 
 ```sh
 # Spin up a new Ubuntu 14.04 instance on DigitalOcean:
@@ -61,11 +61,6 @@ A library of [scripts](https://github.com/andrewchilds/overcast/tree/master/scri
 $ overcast run all /absolute/path/to/script ./relative/path/to/other/script
 ```
 
-## Concepts
-
-- **Instances** are any machine you can SSH into.
-- **Clusters** are sets of instances.
-
 ## Installation (OS X/Linux)
 
 1. Install [Node.js](https://github.com/joyent/node/wiki/Installing-Node.js-via-package-manager) if not already installed.
@@ -99,7 +94,7 @@ $ overcast run all /absolute/path/to/script ./relative/path/to/other/script
 
 ## Installation (Windows)
 
-Using Overcast on Windows is possible, but **unsupported**. Instructions TBD.
+Using Overcast on Windows is possible, but **not supported**.
 
 ## Uninstallation
 
@@ -1519,4 +1514,4 @@ overcast [args...]
 
 ## License
 
-MIT. Copyright &copy; 2014 [Andrew Childs](http://twitter.com/andrewchilds).
+MIT. Copyright &copy; 2014-2017 [Andrew Childs](http://twitter.com/andrewchilds).
