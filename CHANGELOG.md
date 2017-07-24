@@ -6,7 +6,7 @@ npm -g update overcast
 
 # Change Log
 
-**1.0.6** (Jul 24, 2017)
+**1.0.7** (Jul 24, 2017)
 
 - Upgrade to latest `aws-sdk` package, allowing use of new AWS regions. Fixes [#46](https://github.com/andrewchilds/overcast/issues/46).
 

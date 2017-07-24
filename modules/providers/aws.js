@@ -330,9 +330,6 @@ exports.getFilteredInstances = function (args, callback) {
     params.Filters = args.Filters;
   }
 
-  console.log('getFilteredInstances');
-  console.log(params);
-
   ec2(args).describeInstances(params, function (err, data) {
     if (err) {
       _catch(err);
