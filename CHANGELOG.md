@@ -6,6 +6,10 @@ npm -g update overcast
 
 # Change Log
 
+**1.0.8** (Apr 4, 2018)
+
+- Handle more than a single "reservation" when describing AWS instances.
+
 **1.0.7** (Jul 24, 2017)
 
 - Upgrade to latest `aws-sdk` package, allowing use of new AWS regions. Fixes [#46](https://github.com/andrewchilds/overcast/issues/46).
