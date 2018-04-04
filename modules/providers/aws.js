@@ -335,11 +335,14 @@ exports.getFilteredInstances = function (args, callback) {
       _catch(err);
     } else {
       _debugLog(data);
-      if (data.Reservations[0]) {
-        args.Instances = data.Reservations[0].Instances;
-      } else {
-        args.Instances = [];
+      args.Instances = [];
+
+      if (data.Reservations.length > 0) {
+        _.each(data.Reservations, function (reservation) {
+          args.Instances = args.Instances.concat(reservation.Instances);
+        });
       }
+
       callback(args);
     }
   });
