@@ -36,9 +36,9 @@ commands.slack = {
       username: args.user || 'Overcast'
     };
 
-    var custom_fields = _.extend({}, args);
+    var custom_fields = Object.assign({}, args);
     var keys = ['_', 'channel', 'command', 'message', 'icon-emoji', 'icon-url', 'message', 'user'];
-    _.each(keys, function (key) {
+    _.each(keys, key => {
       delete custom_fields[key];
     });
 
@@ -48,15 +48,20 @@ commands.slack = {
   }
 };
 
-exports.send = function (options) {
-  var variables = utils.getVariables();
-  if (!variables.SLACK_WEBHOOK_URL) {
+exports.send = (options) => {
+  const vars = utils.getVariables();
+
+  if (!vars.SLACK_WEBHOOK_URL) {
     utils.grey('No message sent.');
     utils.grey('Please add SLACK_WEBHOOK_URL to ' + utils.VARIABLES_JSON + '.');
+
     return false;
   }
 
-  var slack = require('slack-notify')(variables.SLACK_WEBHOOK_URL);
-  slack.send(options);
-  utils.success('Message sent to Slack.');
+  const slack = require('slack-notify')(vars.SLACK_WEBHOOK_URL);
+  slack.send(options).then(() => {
+    utils.success('Message sent to Slack.');
+  }).catch((err) => {
+    utils.red('Unable to send message to Slack: ' + err);
+  });
 };

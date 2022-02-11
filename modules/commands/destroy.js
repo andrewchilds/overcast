@@ -1,7 +1,7 @@
 var utils = require('../utils');
 var cli = require('../cli');
 
-exports.run = function (args) {
+exports.run = args => {
   utils.argShift(args, 'name');
 
   if (!args.name) {
@@ -45,13 +45,13 @@ exports.run = function (args) {
   }
 };
 
-exports.signatures = function () {
+exports.signatures = () => {
   return [
     '  overcast destroy [name]'
   ];
 };
 
-exports.help = function () {
+exports.help = () => {
   utils.printArray([
     'overcast destroy [instance]',
     '  Destroy an instance using the provider API.'.grey,

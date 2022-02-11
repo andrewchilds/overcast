@@ -3,12 +3,12 @@ var cp = require('child_process');
 var _ = require('lodash');
 var utils = require('./utils');
 
-exports.run = function (args) {
+exports.run = args => {
   var instances = utils.findMatchingInstances(args.name);
   utils.handleInstanceOrClusterNotFound(instances, args);
 
   if (args.parallel || args.p) {
-    _.each(instances, function (instance) {
+    _.each(instances, instance => {
       runOnInstance(instance, _.cloneDeep(args));
     });
   } else {
@@ -18,7 +18,7 @@ exports.run = function (args) {
 
 function runOnInstances(stack, args) {
   var instance = stack.shift();
-  runOnInstance(instance, _.cloneDeep(args), function () {
+  runOnInstance(instance, _.cloneDeep(args), () => {
     if (stack.length > 0) {
       runOnInstances(stack, args);
     }
@@ -37,8 +37,8 @@ function runOnInstance(instance, args, next) {
     direction: args.direction,
     source: args.source,
     dest: args.dest
-  }, function () {
-    if (_.isFunction(next)) {
+  }, () => {
+    if (utils.isFunction(next)) {
       next();
     }
   });
@@ -71,7 +71,7 @@ function rsync(options, next) {
     ssh.push('-i');
     ssh.push(options.ssh_key);
   }
-  
+
   var args = [
     'rsync',
     '-e "' + ssh.join(' ') + '"',
@@ -97,15 +97,15 @@ function rsync(options, next) {
   utils.grey(args.join(' '));
   var rsyncProcess = utils.spawn(args);
 
-  rsyncProcess.stdout.on('data', function (data) {
+  rsyncProcess.stdout.on('data', data => {
     utils.prefixPrint(options.name, color, data);
   });
 
-  rsyncProcess.stderr.on('data', function (data) {
+  rsyncProcess.stderr.on('data', data => {
     utils.prefixPrint(options.name, color, data, 'grey');
   });
 
-  rsyncProcess.on('exit', function (code) {
+  rsyncProcess.on('exit', code => {
     if (code !== 0) {
       var str = 'rsync exited with a non-zero code (' + code + '). Stopping execution...';
       utils.prefixPrint(options.name, color, str, 'red');
@@ -113,7 +113,7 @@ function rsync(options, next) {
     }
     utils.success(options.source + ' transferred to ' + options.dest);
     console.log('');
-    if (_.isFunction(next)) {
+    if (utils.isFunction(next)) {
       next();
     }
   });

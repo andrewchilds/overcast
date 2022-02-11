@@ -64,7 +64,7 @@ function connect(instance, args) {
   }
 
   var ports = exports.normalizePorts(args._);
-  _.each(ports, function (port) {
+  _.each(ports, port => {
     sshArgs.push('-L ' + port.localPort + ':' + port.remoteHost + ':' + port.remotePort);
   });
 
@@ -75,19 +75,19 @@ function connect(instance, args) {
 
   utils.grey(sshArgs.join(' '));
 
-  _.each(ports, function (port) {
+  _.each(ports, port => {
     utils.cyan('Tunneling from ' + port.localPort + ' to ' + port.remoteHost + ':' + port.remotePort + '.');
   });
 
-  ssh.stdout.on('data', function (data) {
+  ssh.stdout.on('data', data => {
     utils.grey(data.toString());
   });
 
-  ssh.stderr.on('data', function (data) {
+  ssh.stderr.on('data', data => {
     utils.grey(data.toString());
   });
 
-  ssh.on('exit', function (code) {
+  ssh.on('exit', code => {
     if (code !== 0) {
       utils.die('SSH connection exited with a non-zero code (' + code + '). Stopping execution...');
     }
@@ -95,10 +95,10 @@ function connect(instance, args) {
   });
 }
 
-exports.normalizePorts = function (arr) {
+exports.normalizePorts = arr => {
   var ports = [];
 
-  _.each(arr, function (str) {
+  _.each(arr, str => {
     str = (str + '').split(':');
     ports.push({
       localPort: str[0],

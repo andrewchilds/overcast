@@ -25,7 +25,7 @@ commands.boot = {
   }
 };
 
-commands.start = _.extend({ alias: true }, commands.boot);
+commands.start = Object.assign({ alias: true }, commands.boot);
 
 commands.create = {
   name: 'create',
@@ -103,4 +103,4 @@ commands.shutdown = {
   }
 };
 
-commands.stop = _.extend({ alias: true }, commands.shutdown);
+commands.stop = Object.assign({ alias: true }, commands.shutdown);

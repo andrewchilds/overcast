@@ -3,8 +3,6 @@ var path = require('path');
 var crypto = require('crypto');
 var cp = require('child_process');
 var _ = require('lodash');
-var colors = require('colors');
-var Promise = require('bluebird');
 var listCommand = require('./commands/list');
 
 exports.VERSION = '1.0.8';
@@ -15,40 +13,48 @@ exports.variablesCache = null;
 exports.SSH_COUNT = 0;
 exports.SSH_COLORS = ['cyan', 'green', 'red', 'yellow', 'magenta', 'blue'];
 
-exports.module = function (fn) {
-  var obj = {};
-  fn(obj);
-  return obj;
+exports.isArray = (v) => {
+  return Array.isArray(v);
 };
 
-// Expects an array of functions with a (context, callback) signature,
-// that returns the context object to the callback function.
-exports.chainSequence = function (context, fnArray) {
-  var fn = fnArray.shift();
-  fn(context, function (context) {
-    if (fnArray.length > 0) {
-      exports.chainSequence(context, fnArray);
-    }
+exports.isObject = (v) => {
+  return typeof v === 'object' && v !== null;
+};
+
+exports.isNumber = (v) => {
+  return typeof v === 'number';
+};
+
+exports.isString = (v) => {
+  return typeof v === 'string';
+};
+
+exports.isFunction = (v) => {
+  return typeof v === 'function';
+};
+
+exports.eachObject = (o, cb) => {
+  Object.keys(o).forEach((k) => {
+    cb(o[k], k);
   });
 };
 
-// https://gist.github.com/victorquinn/8030190
-exports.promiseWhile = function (condition, action, value) {
-  var resolver = Promise.defer();
-
-  var loop = function() {
-    if (!condition()) {
-      return resolver.resolve(value);
-    }
-    return Promise.cast(action()).then(loop).catch(resolver.reject);
-  };
-
-  process.nextTick(loop);
-
-  return resolver.promise;
+exports.mapObject = (o, cb) => {
+  const mapped = [];
+  Object.keys(o).map((k) => {
+    mapped.push(cb(o[k], k));
+  });
+  return mapped;
 };
 
-exports.runSubcommand = function (args, subcommands, helpFn) {
+exports.times = (maxIndex, cb) => {
+  const index = 0;
+  while (index < maxIndex) {
+    cb(index++);
+  }
+}
+
+exports.runSubcommand = (args, subcommands, helpFn) => {
   if (args.subcommand && subcommands[args.subcommand]) {
     var command = subcommands[args.subcommand];
     if (args.name === 'help' || args._[0] === 'help') {
@@ -62,32 +68,32 @@ exports.runSubcommand = function (args, subcommands, helpFn) {
   return exports.missingCommand(helpFn);
 };
 
-exports.getCommands = function () {
+exports.getCommands = () => {
   return require('./commands');
 };
 
-exports.findConfig = function (callback) {
-  exports.walkDir(process.cwd(), function (dir) {
+exports.findConfig = done => {
+  exports.walkDir(process.cwd(), dir => {
     exports.setConfigDir(dir);
-    (callback || _.noop)();
+    done();
   });
 };
 
-exports.setConfigDir = function (dir) {
+exports.setConfigDir = dir => {
   exports.CONFIG_DIR = dir;
   exports.CLUSTERS_JSON = dir + '/clusters.json';
   exports.VARIABLES_JSON = dir + '/variables.json';
 };
 
-exports.getKeyFileFromName = function (keyName) {
+exports.getKeyFileFromName = keyName => {
   return exports.CONFIG_DIR + '/keys/' + keyName + '.key';
 };
 
-exports.keyExists = function (keyName) {
+exports.keyExists = keyName => {
   return fs.existsSync(exports.getKeyFileFromName(keyName));
 };
 
-exports.createKey = function (keyName, callback) {
+exports.createKey = (keyName, callback) => {
   var keyFile = exports.getKeyFileFromName(keyName);
   var keysDir = exports.CONFIG_DIR + '/keys';
 
@@ -96,17 +102,19 @@ exports.createKey = function (keyName, callback) {
   }
 
   var keygen = exports.spawn('ssh-keygen -t rsa -N "" -f ' + keyFile);
-  keygen.on('exit', function (code) {
+  keygen.on('exit', code => {
     if (code !== 0) {
       exports.red('Error generating SSH key.');
       exports.die(err);
     } else {
-      (callback || _.noop)(keyFile);
+      if (exports.isFunction(callback)) {
+        callback(keyFile);
+      }
     }
   });
 };
 
-exports.deleteKey = function (keyName, callback) {
+exports.deleteKey = (keyName, callback) => {
   var keyFile = exports.getKeyFileFromName(keyName);
   var pubKeyFile = keyFile + '.pub';
 
@@ -116,26 +124,28 @@ exports.deleteKey = function (keyName, callback) {
     }
   }
 
-  fs.unlink(keyFile, function (e) {
+  fs.unlink(keyFile, e => {
     handleError(e, keyFile);
-    fs.unlink(pubKeyFile, function (e) {
+    fs.unlink(pubKeyFile, e => {
       handleError(e, pubKeyFile);
-      (callback || _.noop)();
+      if (exports.isFunction(callback)) {
+        callback();
+      }
     });
   });
 };
 
-exports.deleteFromKnownHosts = function (instance, callback) {
+exports.deleteFromKnownHosts = (instance, callback) => {
   var ssh = exports.spawn('ssh-keygen -R ' + instance.ip);
-  ssh.on('exit', function (code) {
+  ssh.on('exit', code => {
     exports.grey(instance.ip + ' removed from ' + exports.getUserHome() + '/.ssh/known_hosts.');
-    if (_.isFunction(callback)) {
+    if (exports.isFunction(callback)) {
       callback(instance);
     }
   });
 };
 
-exports.normalizeKeyPath = function (keyPath, keyName) {
+exports.normalizeKeyPath = (keyPath, keyName) => {
   keyName = keyName || 'overcast.key';
 
   if (!keyPath) {
@@ -154,23 +164,23 @@ exports.normalizeKeyPath = function (keyPath, keyName) {
 };
 
 // Ref: http://stackoverflow.com/questions/9080085/node-js-find-home-directory-in-platform-agnostic-way
-exports.getUserHome = function () {
+exports.getUserHome = () => {
   return process.env.HOME || process.env.HOMEPATH || process.env.USERPROFILE;
 };
 
-exports.createHashedKeyName = function (keyData) {
+exports.createHashedKeyName = keyData => {
   return 'overcast.' + crypto.createHash('md5').update(keyData).digest('hex');
 };
 
-exports.replaceInstanceName = function (name, str) {
+exports.replaceInstanceName = (name, str) => {
   return str.replace(/\{instance\}/g, name);
 };
 
-exports.isAbsolute = function (p) {
+exports.isAbsolute = p => {
   return path.resolve(p) === path.normalize(p) || p.charAt(0) === '/';
 };
 
-exports.convertToAbsoluteFilePath = function (p) {
+exports.convertToAbsoluteFilePath = p => {
   if (!exports.isAbsolute(p)) {
     var cwdFile = path.normalize(path.resolve(process.cwd(), p));
     if (fs.existsSync(cwdFile)) {
@@ -182,9 +192,9 @@ exports.convertToAbsoluteFilePath = function (p) {
   return exports.normalizeWindowsPath(p);
 };
 
-exports.normalizeWindowsPath = function (p) {
+exports.normalizeWindowsPath = p => {
   if (process.platform === 'win32') {
-    return p.replace(/^[A-Z]:(\\|\/)/i, function(m) {
+    return p.replace(/^[A-Z]:(\\|\/)/i, m => {
       return '/' + m[0].toLowerCase() + '/';
     });
   }
@@ -192,19 +202,19 @@ exports.normalizeWindowsPath = function (p) {
   return p;
 };
 
-exports.escapeWindowsPath = function (p) {
+exports.escapeWindowsPath = p => {
   return p.replace(/\\/g, '\\\\');
 };
 
-exports.initOvercastDir = function (dest_dir, callback) {
+exports.initOvercastDir = (dest_dir, callback) => {
   dest_dir += '/.overcast';
 
   return cp.exec('bash ' + exports.escapeWindowsPath(__dirname + '/../bin/overcast-init'), {
-    env: _.extend({}, process.env, {
+    env: Object.assign({}, process.env, {
       OVERCAST_FIXTURE_DIR: exports.escapeWindowsPath(__dirname + '/../fixtures'),
       OVERCAST_DEST_DIR: exports.escapeWindowsPath(dest_dir)
     })
-  }, function (err, stdout, stderr) {
+  }, (err, stdout, stderr) => {
     if (err) {
       exports.die('Unable to create .overcast directory.');
     } else {
@@ -213,15 +223,15 @@ exports.initOvercastDir = function (dest_dir, callback) {
   });
 };
 
-exports.walkDir = function(dir, callback) {
+exports.walkDir = (dir, callback) => {
   if (!dir || dir === '/') {
     // No config directory found!
     // Fallback to config directory in $HOME.
-    return exports.initOvercastDir(exports.getUserHome(), function () {
+    return exports.initOvercastDir(exports.getUserHome(), () => {
       callback(exports.getUserHome() + '/.overcast');
     });
   }
-  fs.exists(dir + '/.overcast', function (exists) {
+  fs.exists(dir + '/.overcast', exists => {
     if (exists) {
       callback(dir + '/.overcast');
     } else {
@@ -232,19 +242,19 @@ exports.walkDir = function(dir, callback) {
   });
 };
 
-exports.argShift = function (args, key) {
+exports.argShift = (args, key) => {
   args[key] = exports.sanitize(args._.shift());
 };
 
-exports.argIsTruthy = function (arg) {
+exports.argIsTruthy = arg => {
   return !!(arg && arg !== 'false');
 };
 
 // http://stackoverflow.com/questions/5364928/node-js-require-all-files-in-a-folder
-exports.requireDirectory = function (dir) {
+exports.requireDirectory = dir => {
   var output = {};
 
-  fs.readdirSync(dir).forEach(function (file) {
+  fs.readdirSync(dir).forEach(file => {
     if (/.+\.js/g.test(file) && file !== 'index.js') {
       var name = file.replace('.js', '');
       output[name] = require(dir + file);
@@ -254,13 +264,13 @@ exports.requireDirectory = function (dir) {
   return output;
 };
 
-exports.findMatchingInstances = function (name) {
+exports.findMatchingInstances = name => {
   var clusters = exports.getClusters();
   var instances = [];
 
   if (name === 'all') {
-    _.each(clusters, function (cluster) {
-      _.each(cluster.instances, function (instance) {
+    _.each(clusters, cluster => {
+      _.each(cluster.instances, instance => {
         instances.push(instance);
       });
     });
@@ -273,7 +283,7 @@ exports.findMatchingInstances = function (name) {
   return instances;
 };
 
-exports.findMatchingInstancesByInstanceName = function (name) {
+exports.findMatchingInstancesByInstanceName = name => {
   var clusters = exports.getClusters();
   var instances = [];
 
@@ -282,9 +292,9 @@ exports.findMatchingInstancesByInstanceName = function (name) {
     name = exports.convertWildcard(name);
   }
 
-  _.each(clusters, function (cluster) {
+  _.each(clusters, cluster => {
     if (hasWildcard) {
-      _.each(cluster.instances, function (instance, instanceName) {
+      _.each(cluster.instances, (instance, instanceName) => {
         if (name.test(instanceName)) {
           instances.push(instance);
         }
@@ -299,20 +309,20 @@ exports.findMatchingInstancesByInstanceName = function (name) {
   return instances;
 };
 
-exports.findFirstMatchingInstance = function (name) {
+exports.findFirstMatchingInstance = name => {
   return exports.findMatchingInstancesByInstanceName(name)[0];
 };
 
-exports.convertWildcard = function (name) {
+exports.convertWildcard = name => {
   // Instance names are sanitized, so we don't have to worry about regexp edge cases.
   return new RegExp(name.replace(/-/g, '\\-').replace(/\./g, '\\.').replace(/\*/g, '.*'));
 };
 
-exports.findClusterNameForInstance = function (instance) {
+exports.findClusterNameForInstance = instance => {
   var clusters = exports.getClusters();
   var foundName;
 
-  _.each(clusters, function (cluster, clusterName) {
+  _.each(clusters, (cluster, clusterName) => {
     if (!foundName && cluster.instances[instance.name]) {
       foundName = clusterName;
     }
@@ -321,17 +331,17 @@ exports.findClusterNameForInstance = function (instance) {
   return foundName;
 };
 
-exports.saveInstanceToCluster = function (clusterName, instance, callback) {
+exports.saveInstanceToCluster = (clusterName, instance, callback) => {
   var clusters = exports.getClusters();
   clusters[clusterName] = clusters[clusterName] || { instances: {} };
   clusters[clusterName].instances[instance.name] = instance;
   exports.saveClusters(clusters, callback);
 };
 
-exports.deleteInstance = function (instance, callback) {
+exports.deleteInstance = (instance, callback) => {
   var clusters = exports.getClusters();
 
-  _.each(clusters, function (cluster) {
+  _.each(clusters, (cluster) => {
     if (cluster.instances[instance.name] &&
       cluster.instances[instance.name].ip === instance.ip) {
       delete cluster.instances[instance.name];
@@ -342,12 +352,12 @@ exports.deleteInstance = function (instance, callback) {
   exports.deleteFromKnownHosts(instance, callback);
 };
 
-exports.updateInstance = function (name, updates, callback) {
+exports.updateInstance = (name, updates, callback) => {
   var clusters = exports.getClusters();
-  _.each(clusters, function (cluster, clusterName) {
-    _.each(cluster.instances, function (instance) {
+  _.each(clusters, (cluster, clusterName) => {
+    _.each(cluster.instances, (instance) => {
       if (instance.name === name) {
-        _.extend(instance, updates);
+        Object.assign(instance, updates);
       }
     });
   });
@@ -355,7 +365,7 @@ exports.updateInstance = function (name, updates, callback) {
   exports.saveClusters(clusters, callback);
 };
 
-exports.getVariables = function () {
+exports.getVariables = () => {
   if (exports.variablesCache) {
     return exports.variablesCache;
   }
@@ -366,28 +376,26 @@ exports.getVariables = function () {
       exports.variablesCache = data;
       return data;
     } catch (e) {
-      console.log('Unable to parse the variables.json file. Please correct the parsing error.'.red);
-      process.exit(1);
+      exports.die('Unable to parse the variables.json file. Please correct the parsing error.');
     }
+  } else {
+    exports.die('Unable to find the variables.json file.');
   }
-
-  return {};
 };
 
-exports.saveVariables = function (variables, done) {
+exports.saveVariables = (variables) => {
   exports.variablesCache = variables;
-  fs.writeFile(exports.VARIABLES_JSON, JSON.stringify(variables, null, 2), function (err) {
+
+  fs.writeFile(exports.VARIABLES_JSON, JSON.stringify(variables, null, 2), (err) => {
     if (err) {
-      exports.error('Error saving variables.json.');
+      exports.red('Error saving variables.json.');
     } else {
-      if (_.isFunction(done)) {
-        done();
-      }
+      exports.success('Variables saved.');
     }
   });
 };
 
-exports.getClusters = function () {
+exports.getClusters = () => {
   if (exports.clustersCache) {
     return exports.clustersCache;
   }
@@ -398,37 +406,37 @@ exports.getClusters = function () {
       exports.clustersCache = data;
       return data;
     } catch (e) {
-      console.log('Unable to parse the clusters.json file. Please correct the parsing error.'.red);
-      process.exit(1);
+      exports.die('Unable to parse the clusters.json file. Please correct the parsing error.');
     }
+  } else {
+    exports.die('Unable to find the clusters.json file.');
   }
-  return {};
 };
 
-exports.saveClusters = function (clusters, done) {
+exports.saveClusters = (clusters, done) => {
   exports.clustersCache = clusters;
-  fs.writeFile(exports.CLUSTERS_JSON, JSON.stringify(clusters, null, 2), function (err) {
+  fs.writeFile(exports.CLUSTERS_JSON, JSON.stringify(clusters, null, 2), (err) => {
     if (err) {
-      exports.error('Error saving clusters.json.');
+      exports.red('Error saving clusters.json.');
     } else {
-      if (_.isFunction(done)) {
+      if (exports.isFunction(done)) {
         done();
       }
     }
   });
 };
 
-exports.unknownCommand = function () {
+exports.unknownCommand = () => {
   exports.red('Unknown command.');
 };
 
-exports.tokenize = function (str) {
+exports.tokenize = str => {
   var tokens = [];
   var isQuoted = false;
   var token = '';
   var chunks = str.split(' ');
 
-  _.each(chunks, function (chunk) {
+  _.each(chunks, chunk => {
     if (!chunk) {
       return;
     }
@@ -466,7 +474,7 @@ exports.tokenize = function (str) {
   return _.compact(tokens);
 };
 
-exports.sanitize = function (str) {
+exports.sanitize = str => {
   if (!str) {
     str = '';
   } else if (!str.replace) {
@@ -476,12 +484,12 @@ exports.sanitize = function (str) {
   return str.replace(/[^0-9a-zA-Z\.\-\_\* ]/g, '');
 };
 
-exports.capitalize = function (str) {
+exports.capitalize = str => {
   str = str + '';
   return str.charAt(0).toUpperCase() + str.slice(1);
 };
 
-exports.padRight = function (str, length, padChar) {
+exports.padRight = (str, length, padChar) => {
   str = str + '';
   padChar = padChar || ' ';
   while (str.length < length) {
@@ -491,7 +499,7 @@ exports.padRight = function (str, length, padChar) {
   return str;
 };
 
-exports.padLeft = function (str, length, padChar) {
+exports.padLeft = (str, length, padChar) => {
   str = str + '';
   padChar = padChar || ' ';
   while (str.length < length) {
@@ -501,18 +509,18 @@ exports.padLeft = function (str, length, padChar) {
   return str;
 };
 
-exports.printArray = function (arr) {
+exports.printArray = (arr) => {
   console.log('  ' + arr.join("\n  "));
 };
 
-exports.forceArray = function (strOrArray) {
-  return _.isArray(strOrArray) ? strOrArray : [strOrArray];
+exports.forceArray = (strOrArray) => {
+  return exports.isArray(strOrArray) ? strOrArray : [strOrArray];
 };
 
-exports.findUsingMultipleKeys = function (collection, val, keys) {
+exports.findUsingMultipleKeys = (collection, val, keys) => {
   var match = null;
-  _.each(collection, function (obj) {
-    _.each(keys, function (key) {
+  _.each(collection, (obj) => {
+    _.each(keys, (key) => {
       if (obj[key] && obj[key] === val) {
         match = obj;
         return false;
@@ -526,20 +534,20 @@ exports.findUsingMultipleKeys = function (collection, val, keys) {
   return match;
 };
 
-exports.die = function (str) {
+exports.die = (str) => {
   exports.red(str);
   process.exit(1);
 };
 
-exports.dieWithList = function (str) {
+exports.dieWithList = (str) => {
   exports.red(str);
   console.log('');
   listCommand.run();
   process.exit(1);
 };
 
-exports.handleInstanceOrClusterNotFound = function (instances, args) {
-  if (_.isEmpty(instances)) {
+exports.handleInstanceOrClusterNotFound = (instances, args) => {
+  if (!instances || instances.length === 0) {
     exports.red('No instance or cluster found matching "' + args.name + '".');
     console.log('');
     listCommand.run();
@@ -547,7 +555,7 @@ exports.handleInstanceOrClusterNotFound = function (instances, args) {
   }
 };
 
-exports.handleInstanceNotFound = function (instance, args) {
+exports.handleInstanceNotFound = (instance, args) => {
   if (!instance) {
     exports.red('No instance found matching "' + args.name + '".');
     console.log('');
@@ -556,14 +564,14 @@ exports.handleInstanceNotFound = function (instance, args) {
   }
 };
 
-exports.missingParameter = function (name, helpFn) {
+exports.missingParameter = (name, helpFn) => {
   exports.red('Missing ' + name + ' parameter.');
   console.log('');
   helpFn();
   process.exit(1);
 };
 
-exports.missingCommand = function (helpFn) {
+exports.missingCommand = (helpFn) => {
   exports.red('Missing or unknown command.');
   console.log('');
   helpFn();
@@ -580,20 +588,20 @@ _.each({
   success: 'green',
   yellow: 'yellow',
   white: 'white'
-}, function (color, fnName) {
-  exports[fnName] = function (str) {
+}, (color, fnName) => {
+  exports[fnName] = (str) => {
     console.log((str + '')[color]);
   };
 });
 
-exports.prefixPrint = function (prefix, prefixColor, buffer, textColor) {
+exports.prefixPrint = (prefix, prefixColor, buffer, textColor) => {
   prefix = (prefix + ': ')[prefixColor];
   var str = textColor ? buffer.toString()[textColor] : buffer.toString();
   str = str.replace(/\r/g, "\r" + prefix).replace(/\n/g, "\n" + prefix);
   process.stdout.write(str);
 };
 
-exports.progress = function (percentage, elapsed) {
+exports.progress = (percentage, elapsed) => {
   percentage = percentage || 0;
   percentage = parseFloat(percentage);
 
@@ -606,28 +614,32 @@ exports.progress = function (percentage, elapsed) {
   }
 
   var width = Math.max(1, Math.ceil(percentage / 2));
-  var hashes = _.times(width, function (i) {
+  var hashes = utils.times(width, (i) => {
     i += Math.round(_.now() / 250);
     var char = i % 3 ? ' ' : '/';
     return char.cyan.inverse;
   });
-  var spaces = _.times(50 - width, function () { return '-'.grey; });
+  var spaces = utils.times(50 - width, () => {
+    return '-'.grey;
+  });
   var str = ' ' + hashes.join('') + spaces.join('') + (' ' + remaining + ' seconds left').grey;
 
   exports.clearLine();
   process.stdout.write(str + "\r");
 };
 
-exports.clearLine = function () {
-  var str = _.times(70, function () { return ' '; });
+exports.clearLine = () => {
+  var str = utils.times(70, () => {
+    return ' ';
+  });
   process.stdout.write(str.join('') + "\r");
 };
 
 exports.progressComplete = exports.clearLine;
 
-exports.progressBar = function (testFn, callback) {
+exports.progressBar = (testFn, callback) => {
   var startTime = _.now();
-  var interval = setInterval(function () {
+  var interval = setInterval(() => {
     var percentage = testFn();
     if (percentage < 100) {
       exports.progress(percentage, _.now() - startTime);
@@ -641,53 +653,53 @@ exports.progressBar = function (testFn, callback) {
   return interval;
 };
 
-exports.waitForProgress = function (seconds, callback, percentage) {
+exports.waitForProgress = (seconds, callback) => {
   var startTime = _.now();
-  exports.progressBar(function () {
+  exports.progressBar(() => {
     return ((_.now() - startTime) / (seconds * 1000)) * 100;
   }, callback);
 };
 
-exports.waitForBoot = function (instance, callback, startTime) {
+exports.waitForBoot = (instance, callback, startTime) => {
   if (!startTime) {
     startTime = _.now();
     exports.grey('Waiting until we can connect to ' + instance.name + '...');
   }
 
-  exports.testConnection(instance, function (canConnect) {
+  exports.testConnection(instance, canConnect => {
     var delayBetweenPolls = 2000;
 
     if (canConnect) {
       var duration = (_.now() - startTime) / 1000;
       exports.green('Connection established after ' + Math.ceil(duration) + ' seconds.');
-      if (_.isFunction(callback)) {
+      if (exports.isFunction(callback)) {
         callback();
       }
     } else {
-      setTimeout(function () {
+      setTimeout(() => {
         exports.waitForBoot(instance, callback, startTime);
       }, delayBetweenPolls);
     }
   });
 };
 
-exports.fixedWait = function (seconds, callback) {
+exports.fixedWait = (seconds, callback) => {
   seconds = seconds || 60;
   exports.grey('Waiting ' + seconds + ' seconds...');
-  exports.waitForProgress(seconds, function () {
+  exports.waitForProgress(seconds, () => {
     exports.success('OK.');
-    if (_.isFunction(callback)) {
+    if (exports.isFunction(callback)) {
       callback();
     }
   });
 };
 
-exports.printCollection = function (type, collection) {
-  if (_.isEmpty(collection)) {
+exports.printCollection = (type, collection) => {
+  if (collection.length === 0) {
     return exports.red('No ' + type + ' found.');
   }
 
-  _.each(collection, function (obj) {
+  collection.forEach((obj) => {
     var name = obj.name || obj.Name || obj._name || obj.slug;
     console.log('');
     console.log(name);
@@ -695,22 +707,24 @@ exports.printCollection = function (type, collection) {
   });
 };
 
-exports.prettyPrint = function (obj, indent, stepBy) {
+exports.prettyPrint = (obj, indent, stepBy) => {
   var prefix = '';
-  _.times(indent || 0, function () { prefix += ' '; });
+  utils.times(indent || 0, () => {
+    prefix += ' ';
+  });
   stepBy = stepBy || 2;
 
-  _.each(obj, function (val, key) {
+  exports.eachObject(obj, (val, key) => {
     if (key === '_name') {
       return;
     }
 
-    if (_.isArray(val) || _.isPlainObject(val)) {
+    if (exports.isArray(val) || exports.isObject(val)) {
       exports.grey(prefix + key + ':');
       exports.prettyPrint(val, indent + stepBy, stepBy);
     } else {
       var valStr = val;
-      if (_.isArray(val) && val.length === 0) {
+      if (exports.isArray(val) && val.length === 0) {
         valStr = '[]';
       } else if (val === '') {
         valStr = '""';
@@ -720,15 +734,15 @@ exports.prettyPrint = function (obj, indent, stepBy) {
   });
 };
 
-exports.printSignatures = function (commands) {
-  return _.map(commands, function (command) {
+exports.printSignatures = (commands) => {
+  return commands.map((command) => {
     return command.signature ? '  ' + command.signature : '';
   });
 };
 
-exports.printCommandHelp = function (commands) {
+exports.printCommandHelp = (commands) => {
   var first = true;
-  _.each(commands, function (command) {
+  commands.forEach((command) => {
     if (command.help) {
       if (first) {
         first = false;
@@ -740,7 +754,7 @@ exports.printCommandHelp = function (commands) {
   });
 };
 
-exports.testConnection = function (instance, callback) {
+exports.testConnection = (instance, callback) => {
   var key = exports.normalizeKeyPath(exports.escapeWindowsPath(instance.ssh_key));
   var port = instance.ssh_port || 22;
   var host = instance.user + '@' + instance.ip;
@@ -749,13 +763,13 @@ exports.testConnection = function (instance, callback) {
 
   var ssh = exports.spawn(command);
 
-  var timeout = setTimeout(function () {
+  var timeout = setTimeout(() => {
     callbackOnce(false);
     ssh.kill();
   }, 8000);
 
   var alreadyCalled = false;
-  var callbackOnce = function (result) {
+  var callbackOnce = (result) => {
     if (!alreadyCalled) {
       clearTimeout(timeout);
       alreadyCalled = true;
@@ -763,7 +777,7 @@ exports.testConnection = function (instance, callback) {
     }
   };
 
-  ssh.on('exit', function (code) {
+  ssh.on('exit', (code) => {
     if (code === 0) {
       callbackOnce(true);
     } else {
@@ -773,14 +787,14 @@ exports.testConnection = function (instance, callback) {
 };
 
 // Based on https://github.com/mattijs/node-rsync/blob/master/rsync.js#L436
-exports.spawn = function (command, overrides) {
+exports.spawn = (command, overrides) => {
   overrides = overrides || {};
-  if (_.isArray(command)) {
+  if (exports.isArray(command)) {
     command = command.join(' ');
   }
 
   var options = { stdio: 'pipe' };
-  options.env = _.isPlainObject(overrides.env) ? _.extend({}, process.env, overrides.env) : process.env;
+  options.env = exports.isObject(overrides.env) ? Object.assign({}, process.env, overrides.env) : process.env;
 
   if (overrides.cwd) {
     options.cwd = overrides.cwd;

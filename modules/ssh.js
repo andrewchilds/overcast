@@ -4,11 +4,11 @@ var cp = require('child_process');
 var _ = require('lodash');
 var utils = require('./utils');
 
-exports.run = function (args, callback) {
+exports.run = (args, callback) => {
   // Handle cases where minimist mistakenly parses ssh-args (e.g. "-tt" becomes { t: true }).
   if (args['ssh-args'] === true) {
     var rawArgs = process.argv.slice(2);
-    var rawArgsIndex = _.indexOf(rawArgs, '--ssh-args') + 1;
+    var rawArgsIndex = rawArgs.findIndex(arg => arg === '--ssh-args') + 1;
     if (rawArgs[rawArgsIndex]) {
       args['ssh-args'] = rawArgs[rawArgsIndex];
     }
@@ -18,10 +18,10 @@ exports.run = function (args, callback) {
   utils.handleInstanceOrClusterNotFound(instances, args);
 
   if (args.parallel || args.p) {
-    _.each(instances, function (instance) {
+    _.each(instances, instance => {
       runOnInstance(instance, _.cloneDeep(args));
     });
-    if (_.isFunction(callback)) {
+    if (utils.isFunction(callback)) {
       callback();
     }
   } else {
@@ -31,11 +31,11 @@ exports.run = function (args, callback) {
 
 function runOnInstances(stack, args, callback) {
   var instance = stack.shift();
-  runOnInstance(instance, _.cloneDeep(args), function () {
+  runOnInstance(instance, _.cloneDeep(args), () => {
     if (stack.length > 0) {
       runOnInstances(stack, args, callback);
     } else {
-      if (_.isFunction(callback)) {
+      if (utils.isFunction(callback)) {
         callback();
       }
     }
@@ -51,16 +51,16 @@ function runOnInstance(instance, args, next) {
     name: instance.name,
     ssh_key: args['ssh-key'] || instance.ssh_key,
     ssh_port: instance.ssh_port,
-    ssh_args: _.isString(args['ssh-args']) ? args['ssh-args'] : '',
+    ssh_args: utils.isString(args['ssh-args']) ? args['ssh-args'] : '',
     continueOnError: args.continueOnError,
     machineReadable: args['mr'] || args['machine-readable'],
     env: args.env,
     command: command,
     shell_command: args['shell-command']
-  }, function () {
+  }, () => {
     if (args._.length > 0) {
       runOnInstance(instance, args, next);
-    } else if (_.isFunction(next)) {
+    } else if (utils.isFunction(next)) {
       next();
     }
   });
@@ -83,7 +83,7 @@ function sshExec(options, next) {
     utils.escapeWindowsPath(__dirname + '/../bin/overcast-ssh')
   ];
 
-  var sshEnv = _.extend({}, process.env, {
+  var sshEnv = Object.assign({}, process.env, {
     OVERCAST_KEY: utils.escapeWindowsPath(options.ssh_key),
     OVERCAST_PORT: options.ssh_port,
     OVERCAST_USER: options.user,
@@ -93,13 +93,13 @@ function sshExec(options, next) {
   });
 
   if (options.env) {
-    if (_.isPlainObject(options.env)) {
-      sshEnv.OVERCAST_ENV = _.map(options.env, function (val, key) {
+    if (utils.isObject(options.env)) {
+      sshEnv.OVERCAST_ENV = utils.mapObject(options.env, (val, key) => {
         return key + '="' + (val + '').replace(/"/g, '\"') + '"';
       }).join(' ');
-    } else if (_.isArray(options.env)) {
+    } else if (utils.isArray(options.env)) {
       sshEnv.OVERCAST_ENV = options.env.join(' ');
-    } else if (_.isString(options.env)) {
+    } else if (utils.isString(options.env)) {
       sshEnv.OVERCAST_ENV = options.env.trim();
     }
     if (sshEnv.OVERCAST_ENV) {
@@ -132,7 +132,7 @@ function sshExec(options, next) {
   var ssh = cp.spawn('bash', args, { env: sshEnv });
   var connectionProblem = false;
 
-  ssh.stdout.on('data', function (data) {
+  ssh.stdout.on('data', data => {
     if (options.machineReadable) {
       process.stdout.write(data + '');
     } else {
@@ -140,7 +140,7 @@ function sshExec(options, next) {
     }
   });
 
-  ssh.stderr.on('data', function (data) {
+  ssh.stderr.on('data', data => {
     if (_.contains(data.toString(), 'Operation timed out') ||
       _.contains(data.toString(), 'No route to host') ||
       _.contains(data.toString(), 'Host is down')) {
@@ -154,7 +154,7 @@ function sshExec(options, next) {
     }
   });
 
-  ssh.on('exit', function (code) {
+  ssh.on('exit', code => {
     if (connectionProblem && code === 255) {
       options.retries = options.retries ? options.retries + 1 : 1;
       options.maxRetries = options.maxRetries || 3;
@@ -180,7 +180,7 @@ function sshExec(options, next) {
     if (!options.machineReadable) {
       console.log('');
     }
-    if (_.isFunction(next)) {
+    if (utils.isFunction(next)) {
       next();
     }
   });

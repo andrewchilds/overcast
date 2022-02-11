@@ -62,7 +62,7 @@ function connect(instance, args) {
     stdio: 'inherit'
   });
 
-  ssh.on('error', function (err) {
+  ssh.on('error', err => {
     utils.red('There was an error running this command.');
     if (password) {
       utils.red('You need the "sshpass" program installed to use password-based');
@@ -70,7 +70,7 @@ function connect(instance, args) {
     }
   });
 
-  ssh.on('exit', function (code) {
+  ssh.on('exit', code => {
     process.stdin.pause();
 
     if (code !== 0) {

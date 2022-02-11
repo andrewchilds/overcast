@@ -20,7 +20,7 @@ commands.count = {
   ],
   required: [{ name: 'name', filters: filters.findMatchingCluster }],
   run: function (args) {
-    console.log(_.keys(args.cluster.instances).length);
+    console.log(Object.keys(args.cluster.instances).length);
   }
 };
 
@@ -34,7 +34,7 @@ commands.create = {
     var clusters = utils.getClusters();
     clusters[args.name] = { instances: {} };
 
-    utils.saveClusters(clusters, function () {
+    utils.saveClusters(clusters, () => {
       utils.success('Cluster "' + args.name + '" has been created.');
     });
   }
@@ -55,7 +55,7 @@ commands.rename = {
     clusters[args.newName] = clusters[args.name];
     delete clusters[args.name];
 
-    utils.saveClusters(clusters, function () {
+    utils.saveClusters(clusters, () => {
       utils.success('Cluster "' + args.name + '" has been renamed to "' + args.newName + '".');
     });
   }
@@ -76,15 +76,15 @@ commands.remove = {
     var clusters = utils.getClusters();
 
     var orphaned = 0;
-    if (!_.isEmpty(clusters[args.name].instances)) {
-      orphaned = _.keys(clusters[args.name].instances).length;
+    if (clusters[args.name].instances) {
+      orphaned = Object.keys(clusters[args.name].instances).length;
       clusters.orphaned = clusters.orphaned || { instances: {} };
-      _.extend(clusters.orphaned.instances, clusters[args.name].instances);
+      Object.assign(clusters.orphaned.instances, clusters[args.name].instances);
     }
 
     delete clusters[args.name];
 
-    utils.saveClusters(clusters, function () {
+    utils.saveClusters(clusters, () => {
       utils.success('Cluster "' + args.name + '" has been removed.');
       if (orphaned) {
         if (args.name === 'orphaned') {

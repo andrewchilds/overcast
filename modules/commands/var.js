@@ -13,10 +13,10 @@ commands.list = {
     var vars = utils.getVariables();
     utils.grey('Using ' + utils.VARIABLES_JSON);
     console.log('');
-    _.each(vars, function (value, name) {
+    _.each(vars, (value, name) => {
       if (value === '') {
         console.log(name + ' ' + ('empty string').red);
-      } else if (_.isNull(value)) {
+      } else if (value === null) {
         console.log(name + ' ' + ('null').red);
       } else {
         console.log(name + ' ' + value.green);
@@ -38,7 +38,6 @@ commands.set = {
     var vars = utils.getVariables();
     vars[args.name] = args.value;
     utils.saveVariables(vars);
-    utils.success('OK.');
   }
 };
 
@@ -77,7 +76,6 @@ commands.delete = {
     if (vars[args.name]) {
       vars[args.name] = '';
       utils.saveVariables(vars);
-      utils.success('OK.');
     } else {
       utils.grey('Variable not found, no action taken.');
     }

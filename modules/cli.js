@@ -3,21 +3,21 @@ var _ = require('lodash');
 var minimist = require('minimist');
 var utils = require('./utils');
 
-exports.init = function () {
-  utils.findConfig(function () {
+exports.init = () => {
+  utils.findConfig(() => {
     if (utils.keyExists('overcast')) {
       exports.execute();
     } else {
-      utils.createKey('overcast', function () {
+      utils.createKey('overcast', () => {
         exports.execute();
       });
     }
   });
 };
 
-exports.execute = function (argString) {
+exports.execute = (argString) => {
   var argArray = process.argv.slice(2);
-  if (argString && _.isString(argString)) {
+  if (argString && utils.isString(argString)) {
     argArray = utils.tokenize(argString);
   }
 
@@ -48,8 +48,8 @@ exports.execute = function (argString) {
   }
 };
 
-exports.findMatchingCommand = function (command, args) {
-  var names = _.keys(command.commands);
+exports.findMatchingCommand = (command, args) => {
+  var names = Object.keys(command.commands);
   if (names.length === 1) {
     return command.commands[names[0]];
   } else {
@@ -58,11 +58,7 @@ exports.findMatchingCommand = function (command, args) {
   }
 };
 
-exports.hasSubCommands = function (command) {
-  return _.keys(command.commands).length > 1;
-};
-
-exports.run = function (command, args, next) {
+exports.run = (command, args, next) => {
   var shortCircuit = false;
   args = args || { _: [] };
 
@@ -70,8 +66,8 @@ exports.run = function (command, args, next) {
     return exports.compileHelp(command);
   }
 
-  _.each(command.required, function (required) {
-    if (_.isString(required)) {
+  _.each(command.required, (required) => {
+    if (utils.isString(required)) {
       required = { name: required };
     }
 
@@ -91,8 +87,8 @@ exports.run = function (command, args, next) {
 
     if (args[key]) {
       required.filters = utils.forceArray(required.filters);
-      _.each(required.filters, function (filter) {
-        if (_.isFunction(filter)) {
+      _.each(required.filters, (filter) => {
+        if (utils.isFunction(filter)) {
           // Allow filters to short-circuit a command run without
           // needing process.exit.
           if (filter(args[key], args) === false) {
@@ -109,18 +105,18 @@ exports.run = function (command, args, next) {
   }
 
   command.run(args, next);
-  if (!command.async && _.isFunction(next)) {
+  if (!command.async && utils.isFunction(next)) {
     next();
   }
 };
 
-exports.missingArgument = function (name, command) {
+exports.missingArgument = (name, command) => {
   utils.red('Missing ' + name + ' argument.');
   exports.compileHelp(command);
   process.exit(1);
 };
 
-exports.missingCommand = function (command, args) {
+exports.missingCommand = (command, args) => {
   var exitCode = 0;
   if (args.subcommand && args.subcommand !== 'help' && args.command !== 'help') {
     utils.red('Missing or unknown command.');
@@ -131,13 +127,13 @@ exports.missingCommand = function (command, args) {
     exports.printLines(command.banner);
   }
 
-  if (_.keys(command.commands).length > 1) {
+  if (Object.keys(command.commands).length > 1) {
     console.log('');
     console.log('overcast ' + args.command + ' [command] help');
     exports.printLines('View extended help.', { color: 'grey', pad: 2 });
   }
 
-  _.each(command.commands, function (command) {
+  _.each(command.commands, (command) => {
     if (command.alias === true) {
       return;
     }
@@ -150,8 +146,8 @@ exports.missingCommand = function (command, args) {
   process.exit(exitCode);
 };
 
-exports.compileHelp = function (command, skipFirstLine) {
-  _.each(['usage', 'description', 'options', 'examples'], function (key) {
+exports.compileHelp = (command, skipFirstLine) => {
+  ['usage', 'description', 'options', 'examples'].forEach((key) => {
     if (command[key]) {
       // Used by bin/docs:
       if (skipFirstLine !== true) {
@@ -168,9 +164,9 @@ exports.compileHelp = function (command, skipFirstLine) {
   });
 };
 
-exports.printCommandOptions = function (options) {
+exports.printCommandOptions = (options) => {
   var hasDefaults = false;
-  var maxLength = _.max(options, function (option) {
+  var maxLength = _.max(options, (option) => {
     if (option.default) {
       hasDefaults = true;
     }
@@ -181,16 +177,16 @@ exports.printCommandOptions = function (options) {
     headline = utils.padRight(headline, maxLength + 2) + 'Defaults:';
   }
   utils.grey(headline);
-  _.each(options, function (option) {
+  options.forEach((option) => {
     console.log('  ' + utils.padRight(option.usage, maxLength) + (option.default || ''));
   });
 };
 
-exports.printLines = function (strOrArray, options) {
+exports.printLines = (strOrArray, options) => {
   options = options || {};
-  _.each(utils.forceArray(strOrArray), function (str) {
+  utils.forceArray(strOrArray).forEach((str) => {
     if (options.pad) {
-      _.times(options.pad, function () {
+      utils.times(options.pad, () => {
         str = ' ' + str;
       });
     }

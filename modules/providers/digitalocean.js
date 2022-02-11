@@ -14,11 +14,11 @@ exports.name = 'DigitalOcean';
 
 // Provider interface
 
-exports.create = function (args, callback) {
+exports.create = (args, callback) => {
   args['ssh-pub-key'] = utils.normalizeKeyPath(args['ssh-pub-key'], 'overcast.key.pub');
 
-  exports.normalizeAndFindPropertiesForCreate(args, function () {
-    exports.getOrCreateOvercastKeyID(args['ssh-pub-key'], function (keyID) {
+  exports.normalizeAndFindPropertiesForCreate(args, () => {
+    exports.getOrCreateOvercastKeyID(args['ssh-pub-key'], keyID => {
       var query = {
         backups_enabled: utils.argIsTruthy(args['backups-enabled']),
         name: args.name,
@@ -34,14 +34,14 @@ exports.create = function (args, callback) {
   });
 };
 
-exports.createRequest = function (args, query, callback) {
+exports.createRequest = (args, query, callback) => {
   exports.request({
     endpoint: 'droplets/new',
     query: query,
     callback: function (result) {
       if (result && result.droplet && result.droplet.event_id) {
-        waitForEventToFinish(result.droplet.event_id, function () {
-          exports.getInstance(result.droplet.id, function (droplet) {
+        waitForEventToFinish(result.droplet.event_id, () => {
+          exports.getInstance(result.droplet.id, droplet => {
             var response = {
               name: droplet.name,
               ip: droplet.ip_address,
@@ -51,7 +51,7 @@ exports.createRequest = function (args, query, callback) {
               digitalocean: droplet
             };
 
-            if (_.isFunction(callback)) {
+            if (utils.isFunction(callback)) {
               callback(response);
             }
           });
@@ -61,7 +61,7 @@ exports.createRequest = function (args, query, callback) {
   });
 };
 
-exports.destroy = function (instance, callback) {
+exports.destroy = (instance, callback) => {
   exports.request({
     endpoint: 'droplets/' + instance.digitalocean.id + '/destroy',
     query: { scrub_data: 1 },
@@ -69,22 +69,22 @@ exports.destroy = function (instance, callback) {
   });
 };
 
-exports.boot = function (instance, callback) {
+exports.boot = (instance, callback) => {
   exports.eventedRequest({
     endpoint: 'droplets/' + instance.digitalocean.id + '/power_on',
     callback: callback
   });
 };
 
-exports.shutdown = function (instance, callback) {
+exports.shutdown = (instance, callback) => {
   exports.eventedRequest({
     endpoint: 'droplets/' + instance.digitalocean.id + '/power_off',
     callback: callback
   });
 };
 
-exports.snapshot = function (instance, snapshotName, callback) {
-  exports.shutdown(instance, function () {
+exports.snapshot = (instance, snapshotName, callback) => {
+  exports.shutdown(instance, () => {
     exports.eventedRequest({
       endpoint: 'droplets/' + instance.digitalocean.id + '/snapshot',
       query: { name: snapshotName },
@@ -93,15 +93,15 @@ exports.snapshot = function (instance, snapshotName, callback) {
   });
 };
 
-exports.reboot = function (instance, callback) {
+exports.reboot = (instance, callback) => {
   exports.eventedRequest({
     endpoint: 'droplets/' + instance.digitalocean.id + '/reboot',
     callback: callback
   });
 };
 
-exports.rebuild = function (instance, image, callback) {
-  exports.getImages(function (images) {
+exports.rebuild = (instance, image, callback) => {
+  exports.getImages(images => {
     var match = getMatching(images, image);
     if (!match) {
       return utils.die('No image found that matches "' + image + '".');
@@ -115,14 +115,14 @@ exports.rebuild = function (instance, image, callback) {
   });
 };
 
-exports.resize = function (instance, size, callback) {
-  exports.getSizes(function (sizes) {
+exports.resize = (instance, size, callback) => {
+  exports.getSizes(sizes => {
     var match = getMatching(sizes, size);
     if (!match) {
       return utils.die('No size found that matches "' + size + '".');
     }
 
-    exports.shutdown(instance, function () {
+    exports.shutdown(instance, () => {
       exports.eventedRequest({
         endpoint: 'droplets/' + instance.digitalocean.id + '/resize',
         query: { size_id: match.id },
@@ -132,7 +132,7 @@ exports.resize = function (instance, size, callback) {
   });
 };
 
-exports.getKeys = function (callback) {
+exports.getKeys = callback => {
   exports.request({
     endpoint: 'ssh_keys',
     callback: function (result) {
@@ -143,7 +143,7 @@ exports.getKeys = function (callback) {
   });
 };
 
-exports.createKey = function (keyData, callback) {
+exports.createKey = (keyData, callback) => {
   exports.request({
     endpoint: 'ssh_keys/new',
     query: {
@@ -158,30 +158,30 @@ exports.createKey = function (keyData, callback) {
   });
 };
 
-exports.getImages = function (callback) {
+exports.getImages = callback => {
   exports.request({
     endpoint: 'images',
     callback: function (result) {
       if (result && result.images) {
-        callback(exports.returnOnlyIDNameSlug(result.images));
+        callback(returnOnlyIDNameSlug(result.images));
       }
     }
   });
 };
 
-exports.getSnapshots = function (callback) {
+exports.getSnapshots = callback => {
   exports.request({
     endpoint: 'images',
     query: { filter: 'my_images' },
     callback: function (result) {
       if (result && result.images) {
-        callback(exports.returnOnlyIDNameSlug(result.images));
+        callback(returnOnlyIDNameSlug(result.images));
       }
     }
   });
 };
 
-exports.getInstances = function (args, callback) {
+exports.getInstances = (args, callback) => {
   exports.request({
     endpoint: 'droplets',
     callback: function (result) {
@@ -192,9 +192,9 @@ exports.getInstances = function (args, callback) {
   });
 };
 
-exports.getInstance = function (instance, callback) {
+exports.getInstance = (instance, callback) => {
   // exports.create passes in an id, since instance doesn't exist yet.
-  var id = _.isPlainObject(instance) && instance.digitalocean && instance.digitalocean.id ?
+  var id = utils.isObject(instance) && instance.digitalocean && instance.digitalocean.id ?
     instance.digitalocean.id : instance;
 
   exports.request({
@@ -207,20 +207,20 @@ exports.getInstance = function (instance, callback) {
   });
 };
 
-exports.updateInstanceMetadata = function (instance, callback) {
-  exports.getInstance(instance, function (droplet) {
+exports.updateInstanceMetadata = (instance, callback) => {
+  exports.getInstance(instance, droplet => {
     utils.updateInstance(instance.name, {
       ip: droplet.ip_address,
       digitalocean: droplet
     });
 
-    if (_.isFunction(callback)) {
+    if (utils.isFunction(callback)) {
       callback();
     }
   });
 };
 
-exports.getRegions = function (callback) {
+exports.getRegions = callback => {
   exports.request({
     endpoint: 'regions',
     callback: function (result) {
@@ -231,7 +231,7 @@ exports.getRegions = function (callback) {
   });
 };
 
-exports.getSizes = function (callback) {
+exports.getSizes = callback => {
   exports.request({
     endpoint: 'sizes',
     callback: function (result) {
@@ -242,8 +242,8 @@ exports.getSizes = function (callback) {
   });
 };
 
-exports.sync = function (instance, callback) {
-  exports.getInstances(function (instances) {
+exports.sync = (instance, callback) => {
+  exports.getInstances((instances) => {
     var match = utils.findUsingMultipleKeys(instances, instance.name, ['name']);
 
     if (!match) {
@@ -259,7 +259,7 @@ exports.sync = function (instance, callback) {
       digitalocean: match
     });
 
-    if (_.isFunction(callback)) {
+    if (utils.isFunction(callback)) {
       callback(match);
     }
   });
@@ -267,8 +267,8 @@ exports.sync = function (instance, callback) {
 
 // Internal functions
 
-exports.returnOnlyIDNameSlug = function (collection) {
-  return _.map(collection, function (obj) {
+function returnOnlyIDNameSlug(collection) {
+  return collection.map((obj) => {
     return {
       id: obj.id,
       name: obj.name,
@@ -277,10 +277,10 @@ exports.returnOnlyIDNameSlug = function (collection) {
   });
 };
 
-exports.getOrCreateOvercastKeyID = function (pubKeyPath, callback) {
+exports.getOrCreateOvercastKeyID = (pubKeyPath, callback) => {
   var keyData = fs.readFileSync(pubKeyPath, 'utf8') + '';
 
-  exports.getKeys(function (keys) {
+  exports.getKeys((keys) => {
     var key = _.find(keys, {
       name: utils.createHashedKeyName(keyData)
     });
@@ -289,36 +289,36 @@ exports.getOrCreateOvercastKeyID = function (pubKeyPath, callback) {
       callback(key.id);
     } else {
       utils.grey('Uploading new SSH key: ' + pubKeyPath);
-      exports.createKey(keyData, function (key) {
+      exports.createKey(keyData, (key) => {
         callback(key.id);
       });
     }
   });
 };
 
-exports.normalizeAndFindPropertiesForCreate = function (args, callback) {
+exports.normalizeAndFindPropertiesForCreate = (args, callback) => {
   args.image = args.image || args['image-id'] || args['image-slug'] || args['image-name'] || 'ubuntu-14-04-x64';
   args.size = args.size || args['size-id'] || args['size-slug'] || args['size-name'] || '512mb';
   args.region = args.region || args['region-id'] || args['region-slug'] || args['region-name'] || 'nyc3';
 
-  exports.getImages(function (images) {
+  exports.getImages(images => {
     var matchingImage = getMatching(images, args.image);
     if (!matchingImage) {
       return utils.die('No image found that matches "' + args.image + '".');
     }
-    exports.getSizes(function (sizes) {
+    exports.getSizes(sizes => {
       var matchingSize = getMatching(sizes, args.size);
       if (!matchingSize) {
         return utils.die('No size found that matches "' + args.size + '".');
       }
-      exports.getRegions(function (regions) {
+      exports.getRegions(regions => {
         var matchingRegion = getMatching(regions, args.region);
         if (!matchingRegion) {
           return utils.die('No region found that matches "' + args.region + '".');
         }
 
         _.each(['image', 'image-id', 'image-slug', 'image-name', 'size', 'size-id',
-          'size-slug', 'size-name', 'region', 'region-id', 'region-slug', 'region-name'], function (key) {
+          'size-slug', 'size-name', 'region', 'region-id', 'region-slug', 'region-name'], key => {
           delete args[key];
         });
 
@@ -326,7 +326,7 @@ exports.normalizeAndFindPropertiesForCreate = function (args, callback) {
         args['size-id'] = matchingSize.id;
         args['region-id'] = matchingRegion.id;
 
-        if (_.isFunction(callback)) {
+        if (utils.isFunction(callback)) {
           callback();
         }
       });
@@ -342,21 +342,21 @@ function waitForEventToFinish(event_id, callback) {
   var percentage = 0;
   var response = {};
 
-  var eventTimeout = setTimeout(function () {
+  var eventTimeout = setTimeout(() => {
     utils.red('This event has not finished in ' + EVENT_TIMEOUT_NAME + ', assuming it finished successfully...');
     percentage = 100;
   }, EVENT_TIMEOUT);
 
-  utils.progressBar(function () {
+  utils.progressBar(() => {
     return percentage;
-  }, function () {
+  }, () => {
     clearTimeout(eventTimeout);
-    if (_.isFunction(callback)) {
+    if (utils.isFunction(callback)) {
       callback(response);
     }
   });
 
-  var requestLoop = function () {
+  var requestLoop = () => {
     exports.request({
       endpoint: 'events/' + event_id,
       callback: function (result) {
@@ -375,7 +375,7 @@ function waitForEventToFinish(event_id, callback) {
   requestLoop();
 }
 
-exports.eventedRequest = function (options) {
+exports.eventedRequest = options => {
   exports.request({
     endpoint: options.endpoint,
     query: options.query,
@@ -394,7 +394,7 @@ exports.eventedRequest = function (options) {
 //   data: {},
 //   callback: function (stderr, stdout) {}
 // });
-exports.request = function (options) {
+exports.request = options => {
   var variables = utils.getVariables();
   options.query = options.query || {};
   options.query.client_id = variables.DIGITALOCEAN_CLIENT_ID;
@@ -418,15 +418,15 @@ exports.request = function (options) {
   var stderr = null;
   var stdout = '';
 
-  curl.stdout.on('data', function (data) {
+  curl.stdout.on('data', data => {
     stdout += data;
   });
 
-  curl.stderr.on('data', function (data) {
+  curl.stderr.on('data', data => {
     stderr += data;
   });
 
-  curl.on('close', function (code) {
+  curl.on('close', code => {
     if (code !== 0) {
       return utils.die('Got a non-zero exit code from DigitalOcean API (' + code + ').');
     }
@@ -442,12 +442,12 @@ exports.request = function (options) {
     }
 
     if (stdout && stdout.status && stdout.status === 'ERROR') {
-      if (_.isFunction(options.onError)) {
+      if (utils.isFunction(options.onError)) {
         options.onError(stdout);
       }
       utils.die('Error response from API: ' + stdout.error_message);
     } else if (stdout && stdout.status && stdout.status === 'OK') {
-      if (_.isFunction(options.callback)) {
+      if (utils.isFunction(options.callback)) {
         options.callback(stdout);
       }
     } else {

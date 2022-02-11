@@ -1,6 +1,6 @@
 var utils = require('./utils');
 
-exports.findMatchingInstances = function (name, args) {
+exports.findMatchingInstances = (name, args) => {
   args.instances = utils.findMatchingInstances(name);
 
   if (args.instances.length === 0) {
@@ -9,7 +9,7 @@ exports.findMatchingInstances = function (name, args) {
   }
 };
 
-exports.findFirstMatchingInstance = function (name, args) {
+exports.findFirstMatchingInstance = (name, args) => {
   args.instance = utils.findFirstMatchingInstance(name);
 
   if (!args.instance) {
@@ -18,7 +18,7 @@ exports.findFirstMatchingInstance = function (name, args) {
   }
 };
 
-exports.findMatchingCluster = function (name, args) {
+exports.findMatchingCluster = (name, args) => {
   var clusters = utils.getClusters();
   args.cluster = clusters[name];
 
@@ -28,7 +28,7 @@ exports.findMatchingCluster = function (name, args) {
   }
 };
 
-exports.shouldBeNewCluster = function (name, args) {
+exports.shouldBeNewCluster = (name, args) => {
   var clusters = utils.getClusters();
 
   if (clusters[name]) {
@@ -37,7 +37,7 @@ exports.shouldBeNewCluster = function (name, args) {
   }
 };
 
-exports.shouldBeNewInstance = function (name, args) {
+exports.shouldBeNewInstance = (name, args) => {
   var clusters = utils.getClusters();
 
   if (!args.cluster) {
@@ -60,28 +60,28 @@ exports.shouldBeNewInstance = function (name, args) {
   }
 };
 
-exports.shouldBeNewKey = function (name, args) {
+exports.shouldBeNewKey = (name, args) => {
   if (utils.keyExists(name)) {
     utils.grey('The key "' + name + '" already exists, no action taken.');
     return false;
   }
 };
 
-exports.shouldBeExistingKey = function (name, args) {
+exports.shouldBeExistingKey = (name, args) => {
   if (!utils.keyExists(name)) {
     utils.grey('The key "' + name + '" was not found, no action taken.');
     return false;
   }
 };
 
-exports.shouldBeAWS = function (name, args) {
+exports.shouldBeAWS = (name, args) => {
   if (!args.instance || !args.instance.aws) {
     utils.die('This instance has no AWS metadata attached.');
     return false;
   }
 };
 
-exports.shouldBeDigitalOcean = function (name, args) {
+exports.shouldBeDigitalOcean = (name, args) => {
   if (!args.instance || !args.instance.digitalocean) {
     utils.red('This instance has no DigitalOcean metadata attached.');
     utils.red('Run this command and then try again:');
@@ -90,14 +90,14 @@ exports.shouldBeDigitalOcean = function (name, args) {
   }
 };
 
-exports.shouldBeVirtualbox = function (name, args) {
+exports.shouldBeVirtualbox = (name, args) => {
   if (!args.instance || !args.instance.virtualbox) {
     utils.die('This instance has no Virtualbox metadata attached.');
     return false;
   }
 };
 
-exports.shouldBeLinode = function (name, args) {
+exports.shouldBeLinode = (name, args) => {
   if (!args.instance || !args.instance.linode) {
     utils.red('This instance has no Linode metadata attached.');
     utils.red('Run this command and then try again:');

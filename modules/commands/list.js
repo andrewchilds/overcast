@@ -14,16 +14,16 @@ commands.list = {
 
     utils.grey('Using ' + utils.CONFIG_DIR + '/clusters.json');
 
-    if (_.isEmpty(clusters)) {
+    if (!clusters) {
       console.log('');
       utils.note('No clusters found.');
       return false;
     }
 
-    _.each(clusters, function (cluster, clusterName) {
+    _.each(clusters, (cluster, clusterName) => {
       console.log('');
       utils.grey(clusterName);
-      _.each(cluster.instances, function (instance) {
+      _.each(cluster.instances, instance => {
         var origin = '(' + instance.user + '@' + instance.ip + ':' + (instance.ssh_port || 22) + ')';
         var provider = getProviderName(instance);
         var str = '  ' + instance.name + ' ' + origin + (provider ? ' ' + provider.green : '');
@@ -34,13 +34,13 @@ commands.list = {
 };
 
 // Backwards compatibility:
-exports.run = function () {
+exports.run = () => {
   cli.run(commands.list);
 };
 
 function getProviderName(instance) {
   var name = '';
-  _.each(['digitalocean', 'linode', 'aws', 'virtualbox'], function (provider) {
+  ['digitalocean', 'virtualbox'].forEach((provider) => {
     if (instance[provider]) {
       name = '(' + provider + ')';
     }

@@ -17,7 +17,7 @@ commands.info = {
 
     utils.grey('Using ' + utils.CONFIG_DIR + '/clusters.json');
 
-    if (_.isEmpty(clusters)) {
+    if (!clusters) {
       console.log('');
       utils.grey('No clusters found.');
       return false;
@@ -25,7 +25,7 @@ commands.info = {
 
     if (args.instances) {
       console.log('');
-      _.each(args.instances, function (instance) {
+      _.each(args.instances, instance => {
         console.log(instance.name);
         utils.prettyPrint(instance, 2);
       });
@@ -33,10 +33,10 @@ commands.info = {
       return false;
     }
 
-    _.each(clusters, function (cluster, clusterName) {
+    _.each(clusters, (cluster, clusterName) => {
       console.log('');
       utils.cyan(clusterName);
-      _.each(cluster.instances, function (instance) {
+      _.each(cluster.instances, instance => {
         console.log('');
         console.log('  ' + instance.name);
         utils.prettyPrint(instance, 4);

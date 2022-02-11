@@ -29,22 +29,22 @@ function getCompletions() {
   var list = [];
 
   function pushWords(signature) {
-    _.each(signature.split(' '), function (word) {
+    signature.split(' ').forEach((word) => {
       if (word && word.length > 3 && word.charAt(0) !== '[') {
         list.push(word);
       }
     });
   }
 
-  _.each(utils.getCommands(), function (command) {
+  _.each(utils.getCommands(), command => {
     if (command.signatures) {
-      _.each(command.signatures(), function (signature) {
+      _.each(command.signatures(), signature => {
         pushWords(signature);
       });
     } else if (command.commands) {
-      _.each(command.commands, function (command) {
+      _.each(command.commands, command => {
         command.usage = utils.forceArray(command.usage);
-        _.each(command.usage, function (usage) {
+        _.each(command.usage, usage => {
           pushWords(usage);
         });
       });
@@ -52,12 +52,12 @@ function getCompletions() {
   });
 
   var clusters = utils.getClusters();
-  _.each(clusters, function (cluster, clusterName) {
+  _.each(clusters, (cluster, clusterName) => {
     list.push(clusterName);
-    _.each(cluster.instances, function (instance, instanceName) {
+    _.each(cluster.instances, (instance, instanceName) => {
       list.push(instanceName);
     });
   });
 
-  return _.unique(list);
+  return list;
 }

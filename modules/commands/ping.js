@@ -20,14 +20,14 @@ commands.ping = {
   options: [{ usage: '--count N, -c N', default: '3' }],
   run: function (args) {
     var count = args.count || args.c || 3;
-    _.each(args.instances, function (instance) {
+    _.each(args.instances, instance => {
       ping(instance, count);
     });
   }
 };
 
 function ping(instance, count) {
-  cp.exec('ping -c ' + count + ' ' + instance.ip, function (err, stdout) {
+  cp.exec('ping -c ' + count + ' ' + instance.ip, (err, stdout) => {
     var color = utils.SSH_COLORS[utils.SSH_COUNT++ % 5];
     var averagePing = stdout.match(/ ([\d\.]+)\/([\d\.]+)\/([\d\.]+)\/([\d\.]+) ms/);
     var prefix = instance.name + ': ';

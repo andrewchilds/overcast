@@ -11,7 +11,7 @@ var API = {
   VirtualBox: require('./virtualbox.js')
 };
 
-exports.run = function (args) {
+exports.run = args => {
   utils.argShift(args, 'name');
 
   if (!args.name) {
@@ -25,14 +25,14 @@ exports.run = function (args) {
 
   function addPromise(fn) {
     // We need to overwrite queue to make `then` sequential.
-    self.queue = self.queue.then(function () {
+    self.queue = self.queue.then(() => {
       return new Promise(fn);
     });
   }
 
-  _.each(instances, function (instance) {
+  _.each(instances, instance => {
     if (instance.digitalocean) {
-      addPromise(function (resolve) {
+      addPromise(resolve => {
         args.command = 'digitalocean';
         args.subcommand = 'reboot';
         args._.unshift(instance.name);
@@ -40,7 +40,7 @@ exports.run = function (args) {
         cli.run(API.DigitalOcean.commands.reboot, args, resolve);
       });
     } else if (instance.linode && instance.linode.id) {
-      addPromise(function (resolve) {
+      addPromise(resolve => {
         args.command = 'linode';
         args.subcommand = 'reboot';
         args._.unshift(instance.name);
@@ -48,7 +48,7 @@ exports.run = function (args) {
         cli.run(API.Linode.commands.reboot, args, resolve);
       });
     } else if (instance.aws && instance.aws.id) {
-      addPromise(function (resolve) {
+      addPromise(resolve => {
         args.command = 'aws';
         args.subcommand = 'reboot';
         args._.unshift(instance.name);
@@ -56,7 +56,7 @@ exports.run = function (args) {
         cli.run(API.AWS.commands.reboot, args, resolve);
       });
     } else if (instance.virtualbox) {
-      addPromise(function (resolve) {
+      addPromise(resolve => {
         args.command = 'virtualbox';
         args.subcommand = 'reboot';
         args._.unshift(instance.name);
@@ -64,10 +64,10 @@ exports.run = function (args) {
         cli.run(API.VirtualBox.commands.reboot, args, resolve);
       });
     } else {
-      addPromise(function (resolve) {
-        ssh.run({ name: instance.name, _: ['reboot'] }, function () {
+      addPromise(resolve => {
+        ssh.run({ name: instance.name, _: ['reboot'] }, () => {
           // Giving the server some time to shutdown before testing for connectivity.
-          setTimeout(function () {
+          setTimeout(() => {
             utils.waitForBoot(instance, resolve);
           }, 10 * 1000);
         });
@@ -75,20 +75,20 @@ exports.run = function (args) {
     }
   });
 
-  self.queue.catch(function (err) {
+  self.queue.catch(err => {
     utils.die('Error: ' + err);
-  }).then(function () {
+  }).then(() => {
     utils.success('All instances rebooted.');
   });
 };
 
-exports.signatures = function () {
+exports.signatures = () => {
   return [
     '  overcast reboot [instance|cluster|all]'
   ];
 };
 
-exports.help = function () {
+exports.help = () => {
   utils.printArray([
     'overcast reboot [instance|cluster|all]',
     '  Reboot an instance or cluster.'.grey,

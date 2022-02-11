@@ -29,12 +29,12 @@ commands.get = {
     { name: 'instance|cluster|all', varName: 'name', filters: filters.findMatchingInstances },
     { name: 'attr...', varName: 'attr', greedy: true }
   ],
-  run: function (args) {
+  run: (args) => {
     var output = [];
     args.attr = args.attr.split(' ');
 
-    _.each(args.instances, function (instance) {
-      _.each(args.attr, function (attr) {
+    _.each(args.instances, (instance) => {
+      _.each(args.attr, (attr) => {
         attr = attr.replace(/-/g, '_');
         if (attr === 'origin') {
           output.push(instance.user + '@' + instance.ip + ':' + instance.ssh_port);
@@ -47,7 +47,7 @@ commands.get = {
     if (args.s || args['single-line']) {
       console.log(output.join(' '));
     } else {
-      _.each(output, function (line) {
+      _.each(output, (line) => {
         console.log(line);
       });
     }
@@ -73,7 +73,7 @@ commands.import = {
     { usage: '--user USERNAME', default: 'root' },
     { usage: '--password PASSWORD' },
   ],
-  run: function (args) {
+  run: (args) => {
     var instance = {
       ip: args.ip,
       name: args.name,
@@ -83,7 +83,7 @@ commands.import = {
       password: args.password || ''
     };
 
-    utils.saveInstanceToCluster(args.cluster, instance, function () {
+    utils.saveInstanceToCluster(args.cluster, instance, () => {
       utils.success('Instance "' + args.name + '" (' + args.ip +
         ') has been imported to the "' + args.cluster + '" cluster.');
     });
@@ -101,13 +101,13 @@ commands.list = {
     '$ overcast instance list',
     '$ overcast instance list app-cluster db-cluster'
   ],
-  run: function (args) {
-    var clusters = utils.getClusters();
-    var scope = (args._ && args._.length > 0) ? args._ : _.keys(clusters);
+  run: (args) => {
+    const clusters = utils.getClusters();
+    const scope = (args._ && args._.length > 0) ? args._ : Object.keys(clusters);
 
-    _.each(clusters, function (cluster, clusterName) {
-      if (_.indexOf(scope, clusterName) !== -1) {
-        _.each(cluster.instances, function (instance) {
+    utils.eachObject(clusters, (cluster, clusterName) => {
+      if (scope.findIndex(s => s === clusterName) !== -1) {
+        utils.eachObject(cluster.instances, (instance) => {
           console.log(instance.name);
         });
       }
@@ -126,9 +126,9 @@ commands.remove = {
     '$ overcast instance remove app-01'
   ],
   required: [{ name: 'name', filters: filters.findFirstMatchingInstance }],
-  run: function (args) {
-    utils.success('Instance "' + args.instance.name + '" removed.');
+  run: (args) => {
     utils.deleteInstance(args.instance);
+    utils.success('Instance "' + args.instance.name + '" removed.');
   }
 };
 
@@ -158,7 +158,7 @@ commands.update = {
     { usage: '--user USERNAME' },
     { usage: '--password PASSWORD' }
   ],
-  run: function (args) {
+  run: (args) => {
     var clusters = utils.getClusters();
 
     if (!args.name) {
@@ -169,23 +169,23 @@ commands.update = {
     var instances = utils.findMatchingInstances(args.oldName || args.name);
     var messages = [];
 
-    _.each(instances, function (instance) {
+    _.each(instances, (instance) => {
       return exports.updateInstance(args, messages, clusters, instance);
     });
 
-    utils.saveClusters(clusters, function () {
+    utils.saveClusters(clusters, () => {
       _.each(messages, utils.success);
     });
   }
 };
 
-exports.updateInstance = function (args, messages, clusters, instance) {
+exports.updateInstance = (args, messages, clusters, instance) => {
   var parentClusterName = utils.findClusterNameForInstance(instance);
 
   if (args.cluster) {
     if (!clusters[args.cluster]) {
       utils.die('No "' + args.cluster + '" cluster found. Known clusters are: ' +
-        _.keys(clusters).join(', ') + '.');
+        Object.keys(clusters).join(', ') + '.');
       return false;
     }
     if (clusters[args.cluster].instances[instance.name]) {
@@ -211,7 +211,7 @@ exports.updateInstance = function (args, messages, clusters, instance) {
     messages.push('Instance "' + args.oldName + '" has been renamed to "' + args.name + '".');
   }
 
-  _.each(['ip', 'ssh-key', 'ssh-port', 'user', 'password'], function (prop) {
+  _.each(['ip', 'ssh-key', 'ssh-port', 'user', 'password'], (prop) => {
     if (prop in args) {
       if (args[prop]) {
         clusters[parentClusterName].instances[instance.name][prop.replace('-', '_')] = args[prop];

@@ -41,7 +41,7 @@ commands.expose = {
       exposed_ports: args.ports
     };
     args._ = ['install/iptables'];
-    _.each(args, function (val, key) {
+    _.each(args, (val, key) => {
       if (key.indexOf('whitelist') === 0) {
         args.env[key.replace('-', '_')] = val;
       }

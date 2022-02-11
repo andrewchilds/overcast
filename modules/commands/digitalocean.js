@@ -20,7 +20,7 @@ commands.boot = {
   }
 };
 
-commands.poweron = _.extend({ alias: true }, commands.boot);
+commands.poweron = Object.assign({ alias: true }, commands.boot);
 
 commands.create = {
   name: 'create',
@@ -95,7 +95,7 @@ commands.instances = {
   }
 };
 
-commands.droplets = _.extend({ alias: true }, commands.instances);
+commands.droplets = Object.assign({ alias: true }, commands.instances);
 
 commands.reboot = {
   name: 'reboot',
@@ -217,7 +217,7 @@ commands.sizes = {
   }
 };
 
-commands.types = _.extend({ alias: true }, commands.sizes);
+commands.types = Object.assign({ alias: true }, commands.sizes);
 
 commands.sync = {
   name: 'sync',

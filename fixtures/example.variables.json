@@ -1,7 +1,4 @@
 {
-  "AWS_KEY": "",
-  "AWS_SECRET": "",
   "DIGITALOCEAN_API_TOKEN": "",
-  "LINODE_API_KEY": "",
   "SLACK_WEBHOOK_URL": ""
 }

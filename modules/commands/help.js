@@ -4,7 +4,7 @@ var _ = require('lodash');
 var utils = require('../utils');
 var cli = require('../cli');
 
-exports.run = function (args) {
+exports.run = args => {
   if (!args.subcommand) {
     utils.argShift(args, 'subcommand');
   }
@@ -32,10 +32,10 @@ exports.run = function (args) {
   exports.help();
 };
 
-exports.help = function () {
+exports.help = () => {
   var signatures = [];
   var row = ' ';
-  _.each(utils.getCommands(), function (command, name) {
+  _.each(utils.getCommands(), (command, name) => {
     if (name !== 'help' && (command.signatures || command.commands)) {
       if (row.length > 58) {
         signatures.push(row);

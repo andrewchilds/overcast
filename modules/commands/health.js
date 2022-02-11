@@ -55,26 +55,26 @@ commands.health = {
 
     var data = {};
     var old = utils.prefixPrint;
-    utils.prefixPrint = function (name, color, line) {
+    utils.prefixPrint = (name, color, line) => {
       data[name] = data[name] || '';
       data[name] += line;
     };
 
-    ssh.run(args, function () {
+    ssh.run(args, () => {
       var output = {};
       utils.prefixPrint = old;
-      _.each(data, function (raw, name) {
+      _.each(data, (raw, name) => {
         raw = prepareJSONformat(raw);
         var metrics;
         try {
           metrics = JSON.parse(raw);
-          _.each(metrics, function (val, key) {
-            if (_.isString(val) && key !== 'disk_space_used_percentage') {
+          _.each(metrics, (val, key) => {
+            if (utils.isString(val) && key !== 'disk_space_used_percentage') {
               metrics[key] = parseFloat(val);
             }
           });
           metrics.processes = _.compact(metrics.processes);
-          _.each(metrics.processes, function (process, key) {
+          _.each(metrics.processes, (process, key) => {
             process = process.split(' ');
             var obj = {
               user: process.shift(),
