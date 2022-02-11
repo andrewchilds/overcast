@@ -1,4 +1,4 @@
-import utils from './utils';
+import * as utils from './utils.js';
 
 export function findMatchingInstances(name, args) {
   args.instances = utils.findMatchingInstances(name);
@@ -51,7 +51,7 @@ export function shouldBeNewInstance(name, args) {
   } else if (name === 'all') {
     utils.die('"all" is a special keyword that cannot be used for instance names.');
     return false;
-  } else if (name.indexOf('*') !== -1) {
+  } else if (name.includes('*')) {
     utils.die('Instance names cannot include asterisk characters.');
     return false;
   } else if (utils.findMatchingInstancesByInstanceName(name).length > 0) {
@@ -74,34 +74,18 @@ export function shouldBeExistingKey(name, args) {
   }
 }
 
-export function shouldBeAWS(name, args) {
-  if (!args.instance || !args.instance.aws) {
-    utils.die('This instance has no AWS metadata attached.');
-    return false;
-  }
-}
-
-export function shouldBeDigitalOcean(name, args) {
-  if (!args.instance || !args.instance.digitalocean) {
+export function shouldBeDigitalOcean(name, {instance}) {
+  if (!instance || !instance.digitalocean) {
     utils.red('This instance has no DigitalOcean metadata attached.');
     utils.red('Run this command and then try again:');
-    utils.die(`overcast digitalocean sync "${args.instance.name}"`);
+    utils.die(`overcast digitalocean sync "${instance.name}"`);
     return false;
   }
 }
 
-export function shouldBeVirtualbox(name, args) {
-  if (!args.instance || !args.instance.virtualbox) {
+export function shouldBeVirtualbox(name, {instance}) {
+  if (!instance || !instance.virtualbox) {
     utils.die('This instance has no Virtualbox metadata attached.');
-    return false;
-  }
-}
-
-export function shouldBeLinode(name, args) {
-  if (!args.instance || !args.instance.linode) {
-    utils.red('This instance has no Linode metadata attached.');
-    utils.red('Run this command and then try again:');
-    utils.die(`overcast linode sync "${args.instance.name}"`);
     return false;
   }
 }

@@ -1,8 +1,7 @@
-import _ from 'lodash';
-import utils from '../utils';
+import * as utils from '../utils.js';
 
 const commands = {};
-export {commands};
+export default commands;
 
 commands.aliases = {
   name: 'aliases',
@@ -22,9 +21,9 @@ commands.aliases = {
     '  overcast aliases > $HOME/.overcast_aliases',
     '  source $HOME/.overcast_aliases'
   ],
-  run: function (args) {
-    utils.each(utils.getClusters(), cluster => {
-      utils.each(cluster.instances, instance => {
+  run: (args) => {
+    utils.eachObject(utils.getClusters(), ({instances}) => {
+      utils.each(instances, instance => {
         console.log(`alias ssh.${instance.name}="ssh -i ${utils.normalizeKeyPath(instance.ssh_key)} -p ${instance.ssh_port} ${instance.user}@${instance.ip}"`);
       });
     });

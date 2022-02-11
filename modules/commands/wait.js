@@ -1,8 +1,8 @@
 import _ from 'lodash';
-import utils from '../utils';
+import * as utils from '../utils.js';
 
 const commands = {};
-export {commands};
+export default commands;
 
 commands.wait = {
   name: 'wait',
@@ -14,7 +14,7 @@ commands.wait = {
     '$ overcast wait 30'
   ],
   required: ['seconds'],
-  run: function (args) {
-    utils.fixedWait(args.seconds);
+  run: function({seconds}) {
+    utils.fixedWait(seconds);
   }
 };

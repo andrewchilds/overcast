@@ -3,7 +3,7 @@ minimist = require('minimist')
 utils = require('../../modules/utils')
 
 # Quick and dirty implementation of argument parsing that handles quoted strings
-exports.parseArgs = (argStr = '') ->
+parseArgs = (argStr = '') ->
   args = []
   quoted = false
   utils.each(argStr.split(' '), (arg) ->
@@ -23,14 +23,14 @@ exports.parseArgs = (argStr = '') ->
   )
   args
 
-exports.mockArgs = (argStr = '') ->
-  args = minimist(exports.parseArgs(argStr))
+mockArgs = (argStr = '') ->
+  args = minimist(parseArgs(argStr))
   utils.argShift(args, 'command')
   args
 
-exports.mock = {}
+mock = {}
 
-exports.mock.emitter = ->
+mock.emitter = ->
   {
     stdout: {
       on: ->

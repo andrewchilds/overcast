@@ -1,26 +1,26 @@
 import fs from 'fs';
 import _ from 'lodash';
-import utils from '../utils';
-import filters from '../filters';
-import ssh from '../ssh';
+import * as utils from '../utils.js';
+import * as filters from '../filters.js';
+import * as ssh from '../ssh.js';
 
 const commands = {};
-export {commands};
+export default commands;
 
 commands.create = {
   name: 'create',
-  usage: 'overcast key create [name]',
+  usage: 'overcast sshkey create [name]',
   description: 'Creates a new SSH key in the current .overcast config.',
   examples: [
-    '$ overcast key create myKeyName',
+    '$ overcast sshkey create myKeyName',
     'New SSH key "myKeyName" created.',
     ' - /path/to/.overcast/keys/myKeyName.key',
     ' - /path/to/.overcast/keys/myKeyName.key.pub'
   ],
   required: [{ name: 'name', filters: filters.shouldBeNewKey }],
-  run: function (args) {
-    utils.createKey(args.name, keyPath => {
-      utils.success(`New SSH key "${args.name}" created.`);
+  run: function({name}) {
+    utils.createKey(name, keyPath => {
+      utils.success(`New SSH key "${name}" created.`);
       utils.grey(` - ${keyPath}`);
       utils.grey(` - ${keyPath}.pub`);
     });
@@ -29,23 +29,23 @@ commands.create = {
 
 commands.delete = {
   name: 'delete',
-  usage: 'overcast key delete [name]',
+  usage: 'overcast sshkey delete [name]',
   description: 'Deletes SSH public/private key files from the current .overcast config.',
   examples: [
-    '$ overcast key delete myKeyName',
+    '$ overcast sshkey delete myKeyName',
     'SSH key "myKeyName" deleted.'
   ],
   required: [{ name: 'name', filters: filters.shouldBeExistingKey }],
-  run: function (args) {
-    utils.deleteKey(args.name, () => {
-      utils.success(`SSH key "${args.name}" deleted.`);
+  run: function({name}) {
+    utils.deleteKey(name, () => {
+      utils.success(`SSH key "${name}" deleted.`);
     });
   }
 };
 
 commands.get = {
   name: 'get',
-  usage: 'overcast key get [name] [option]',
+  usage: 'overcast sshkey get [name] [option]',
   description: [
     'Display the requested SSH key data or path from the current .overcast config.',
     'Defaults to displaying the public key data if no option found.'
@@ -57,9 +57,9 @@ commands.get = {
     { usage: '--private-path' }
   ],
   examples: [
-    '$ overcast key get myKeyName',
+    '$ overcast sshkey get myKeyName',
     '[public key data]',
-    '$ overcast key get myKeyName --private-data',
+    '$ overcast sshkey get myKeyName --private-data',
     '[private key data]'
   ],
   required: [{ name: 'name', filters: filters.shouldBeExistingKey }],
@@ -81,10 +81,10 @@ commands.get = {
 
 commands.list = {
   name: 'list',
-  usage: 'overcast key list',
+  usage: 'overcast sshkey list',
   description: 'List the found SSH key names in the current .overcast config.',
   examples: [
-    '$ overcast key list',
+    '$ overcast sshkey list',
     'myKeyName',
     'overcast'
   ],
@@ -95,7 +95,7 @@ commands.list = {
 
 commands.push = {
   name: 'push',
-  usage: 'overcast key push [instance|cluster|all] [name|path] [options...]',
+  usage: 'overcast sshkey push [instance|cluster|all] [name|path] [options...]',
   description: [
     'Push a public SSH key to an instance or cluster. Accepts a key name,',
     'filename, or full path. This will overwrite the existing authorized_keys',
@@ -103,21 +103,21 @@ commands.push = {
   ],
   examples: [
     '# Generate new SSH key pair:',
-    '$ overcast key create newKey',
+    '$ overcast sshkey create newKey',
     '',
     '# Push public key to instance, update instance config to use private key:',
-    '$ overcast key push vm-01 newKey',
+    '$ overcast sshkey push vm-01 newKey',
     '$ overcast instance update vm-01 --ssh-key newKey.key',
     '',
     '# Same as above but using key path instead of key name:',
-    '$ overcast key push vm-02 "~/.ssh/id_rsa.pub"',
+    '$ overcast sshkey push vm-02 "~/.ssh/id_rsa.pub"',
     '$ overcast instance update vm-02 --ssh-key "~/.ssh/id_rsa"',
     '',
     '# Push public key to instance using arbitrary user:',
-    '$ overcast key push vm-03 newKey --user myOtherUser',
+    '$ overcast sshkey push vm-03 newKey --user myOtherUser',
     '',
     '# Append public key to authorized_keys instead of overwriting:',
-    '$ overcast key push vm-04 newKey --append'
+    '$ overcast sshkey push vm-04 newKey --append'
   ],
   required: [
     { name: 'instance|cluster|all', varName: 'name', filters: filters.findMatchingInstances },
@@ -128,7 +128,7 @@ commands.push = {
     { usage: '--append, -a', default: 'false' }
   ],
   run: function (args) {
-    const keyPath = exports.getKeyPath(args.path);
+    const keyPath = getKeyPath(args.path);
     args.env = {
       PUBLIC_KEY: fs.readFileSync(keyPath, { encoding: 'utf8' }),
       SHOULD_APPEND: utils.argIsTruthy(args.append) || utils.argIsTruthy(args.a)

@@ -1,7 +1,5 @@
-import fs from 'fs';
-import cp from 'child_process';
 import _ from 'lodash';
-import utils from './utils';
+import * as utils from './utils.js';
 
 export function run(args) {
   var instances = utils.findMatchingInstances(args.name);

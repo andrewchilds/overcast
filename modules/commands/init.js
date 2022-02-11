@@ -1,9 +1,9 @@
 import fs from 'fs';
 import _ from 'lodash';
-import utils from '../utils';
+import * as utils from '../utils.js';
 
 const commands = {};
-export {commands};
+export default commands;
 
 commands.init = {
   name: 'init',

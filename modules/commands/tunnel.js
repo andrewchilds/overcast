@@ -1,9 +1,9 @@
 import _ from 'lodash';
-import utils from '../utils';
-import filters from '../filters';
+import * as utils from '../utils.js';
+import * as filters from '../filters.js';
 
 const commands = {};
-export {commands};
+export default commands;
 
 commands.tunnel = {
   name: 'tunnel',
@@ -63,9 +63,9 @@ function connect(instance, args) {
     sshArgs.push('PubkeyAuthentication=no');
   }
 
-  const ports = exports.normalizePorts(args._);
-  utils.each(ports, port => {
-    sshArgs.push(`-L ${port.localPort}:${port.remoteHost}:${port.remotePort}`);
+  const ports = normalizePorts(args._);
+  utils.each(ports, ({localPort, remoteHost, remotePort}) => {
+    sshArgs.push(`-L ${localPort}:${remoteHost}:${remotePort}`);
   });
 
   sshArgs.push(`${args.user || instance.user || 'root'}@${instance.ip}`);
@@ -75,8 +75,8 @@ function connect(instance, args) {
 
   utils.grey(sshArgs.join(' '));
 
-  utils.each(ports, port => {
-    utils.cyan(`Tunneling from ${port.localPort} to ${port.remoteHost}:${port.remotePort}.`);
+  utils.each(ports, ({localPort, remoteHost, remotePort}) => {
+    utils.cyan(`Tunneling from ${localPort} to ${remoteHost}:${remotePort}.`);
   });
 
   ssh.stdout.on('data', data => {

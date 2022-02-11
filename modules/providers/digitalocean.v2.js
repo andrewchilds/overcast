@@ -1,18 +1,21 @@
 import fs from 'fs';
-import _ from 'lodash';
-import utils from '../utils';
+import * as utils from '../utils.js';
 import DigitalOcean from 'overcast-do-wrapper';
-export const API = null;
-export const id = 'digitalocean';
-export const name = 'DigitalOcean';
+
+const PRIVATE_CACHE = {
+  API: null
+};
+
+// export const id = 'digitalocean';
+// export const name = 'DigitalOcean';
 
 // Provider interface
 
 export function create(args, callback) {
   args['ssh-pub-key'] = utils.normalizeKeyPath(args['ssh-pub-key'], 'overcast.key.pub');
 
-  exports.normalizeAndFindPropertiesForCreate(args, () => {
-    exports.getOrCreateOvercastKeyID(args['ssh-pub-key'], keyID => {
+  normalizeAndFindPropertiesForCreate(args, () => {
+    getOrCreateOvercastKeyID(args['ssh-pub-key'], keyID => {
       const query = {
         backups: utils.argIsTruthy(args['backups-enabled']),
         name: args.name,
@@ -23,20 +26,20 @@ export function create(args, callback) {
         region: args['region-slug']
       };
 
-      exports.createRequest(args, query, callback);
+      createRequest(args, query, callback);
     });
   });
 }
 
 export function createRequest(args, query, callback) {
-  exports.getAPI().dropletsCreate(query, (err, res, body) => {
+  getAPI().dropletsCreate(query, (err, res, body) => {
     if (err) {
       return utils.die(`Got an error from the DigitalOcean API: ${err}`);
     }
     if (body && body.droplet) {
       utils.grey('Waiting for instance to be created...');
-      exports.waitForActionToComplete(body.links.actions[0].id, () => {
-        exports.getInstance(body.droplet.id, droplet => {
+      waitForActionToComplete(body.links.actions[0].id, () => {
+        getInstance(body.droplet.id, droplet => {
           const response = {
             name: droplet.name,
             ip: droplet.networks.v4[0].ip_address,
@@ -55,8 +58,8 @@ export function createRequest(args, query, callback) {
   });
 }
 
-export function destroy(instance, callback) {
-  exports.getAPI().dropletsDelete(instance.digitalocean.id, (err, res, body) => {
+export function destroy({digitalocean}, callback) {
+  getAPI().dropletsDelete(digitalocean.id, (err, res, body) => {
     if (err) {
       return utils.die(`Got an error from the DigitalOcean API: ${err}`);
     }
@@ -67,37 +70,37 @@ export function destroy(instance, callback) {
 }
 
 export function boot(instance, callback) {
-  exports.dropletAction(instance, { type: 'power_on' }, callback);
+  dropletAction(instance, { type: 'power_on' }, callback);
 }
 
 export function shutdown(instance, callback) {
-  exports.dropletAction(instance, { type: 'shutdown' }, callback);
+  dropletAction(instance, { type: 'shutdown' }, callback);
 }
 
 export function reboot(instance, callback) {
-  exports.dropletAction(instance, { type: 'reboot' }, callback);
+  dropletAction(instance, { type: 'reboot' }, callback);
 }
 
 export function rebuild(instance, image, callback) {
-  exports.ensureDropletIsShutDown(instance, () => {
-    exports.dropletAction(instance, { type: 'rebuild', image }, callback);
+  ensureDropletIsShutDown(instance, () => {
+    dropletAction(instance, { type: 'rebuild', image }, callback);
   });
 }
 
 export function resize(instance, size, callback) {
-  const isDiskIncrease = exports.isDiskIncrease(instance.digitalocean.size.slug, size);
+  const isDiskIncrease = isDiskIncrease(instance.digitalocean.size.slug, size);
   if (!isDiskIncrease) {
     utils.die(`You can only increase the size of the disk image (${instance.digitalocean.size.slug}).`);
   }
 
-  exports.ensureDropletIsShutDown(instance, () => {
-    exports.dropletAction(instance, { type: 'resize', disk: true, size }, callback);
+  ensureDropletIsShutDown(instance, () => {
+    dropletAction(instance, { type: 'resize', disk: true, size }, callback);
   });
 }
 
 export function snapshot(instance, snapshotName, callback) {
-  exports.ensureDropletIsShutDown(instance, () => {
-    exports.dropletAction(instance, { type: 'snapshot', name: snapshotName }, callback);
+  ensureDropletIsShutDown(instance, () => {
+    dropletAction(instance, { type: 'snapshot', name: snapshotName }, callback);
   });
 }
 
@@ -109,23 +112,23 @@ function _handlePaginatedResponse(err, body, callback) {
 }
 
 export function getImages(callback) {
-  exports.getAPI().imagesGetAll({ includeAll: true, per_page: 50 }, (err, res, body) => {
+  getAPI().imagesGetAll({ includeAll: true, per_page: 50 }, (err, res, body) => {
     _handlePaginatedResponse(err, body, callback);
   });
 }
 
 export function getInstances(args, callback) {
-  exports.getAPI().dropletsGetAll({ includeAll: true, per_page: 50 }, (err, res, body) => {
+  getAPI().dropletsGetAll({ includeAll: true, per_page: 50 }, (err, res, body) => {
     _handlePaginatedResponse(err, body, callback);
   });
 }
 
 export function getInstance(instance, callback) {
-  // exports.create passes in an id, since instance doesn't exist yet.
+  // create passes in an id, since instance doesn't exist yet.
   const id = utils.isObject(instance) && instance.digitalocean ?
     instance.digitalocean.id : instance;
 
-  exports.getAPI().dropletsGetById(id, (err, res, body) => {
+  getAPI().dropletsGetById(id, (err, res, body) => {
     if (err) {
       return utils.die(`Got an error from the DigitalOcean API: ${err}`);
     }
@@ -136,11 +139,11 @@ export function getInstance(instance, callback) {
 }
 
 export function sync(instance, callback) {
-  exports.updateInstanceMetadata(instance, callback);
+  updateInstanceMetadata(instance, callback);
 }
 
 export function updateInstanceMetadata(instance, callback) {
-  exports.getInstance(instance, droplet => {
+  getInstance(instance, droplet => {
     utils.updateInstance(instance.name, {
       ip: droplet.networks.v4[0].ip_address,
       digitalocean: droplet
@@ -153,35 +156,35 @@ export function updateInstanceMetadata(instance, callback) {
 }
 
 /*
-exports.getKernels = function (callback) { };
+export function getKernels = (callback) => {};
 */
 
 export function getRegions(callback) {
-  exports.getAPI().regionsGetAll({ includeAll: true, per_page: 50 }, (err, res, body) => {
+  getAPI().regionsGetAll({ includeAll: true, per_page: 50 }, (err, res, body) => {
     _handlePaginatedResponse(err, body, callback);
   });
 }
 
 export function getSizes(callback) {
-  exports.getAPI().sizesGetAll({ includeAll: true, per_page: 50 }, (err, res, body) => {
+  getAPI().sizesGetAll({ includeAll: true, per_page: 50 }, (err, res, body) => {
     _handlePaginatedResponse(err, body, callback);
   });
 }
 
 export function getSnapshots(callback) {
-  exports.getAPI().imagesGetAll({ includeAll: true, per_page: 50, private: true }, (err, res, body) => {
+  getAPI().imagesGetAll({ includeAll: true, per_page: 50, private: true }, (err, res, body) => {
     _handlePaginatedResponse(err, body, callback);
   });
 }
 
 export function getKeys(callback) {
-  exports.getAPI().accountGetKeys({ includeAll: true, per_page: 50 }, (err, res, body) => {
+  getAPI().accountGetKeys({ includeAll: true, per_page: 50 }, (err, res, body) => {
     _handlePaginatedResponse(err, body, callback);
   });
 }
 
 export function createKey(keyData, callback) {
-  exports.getAPI().accountAddKey({
+  getAPI().accountAddKey({
     name: utils.createHashedKeyName(keyData),
     public_key: `${keyData}`
   }, (err, res, body) => {
@@ -197,31 +200,31 @@ export function createKey(keyData, callback) {
 // Internal functions
 
 export function ensureDropletIsShutDown(instance, callback) {
-  exports.getInstance(instance, droplet => {
-    if (droplet.status === 'off') {
+  getInstance(instance, ({status}) => {
+    if (status === 'off') {
       callback();
     } else {
-      exports.shutdown(instance, () => {
-        exports.waitForShutdown(instance, callback);
+      shutdown(instance, () => {
+        waitForShutdown(instance, callback);
       });
     }
   });
 }
 
 export function waitForShutdown(instance, callback) {
-  exports.getInstance(instance, droplet => {
-    if (droplet.status === 'off') {
+  getInstance(instance, ({status}) => {
+    if (status === 'off') {
       callback();
     } else {
       setTimeout(() => {
-        exports.waitForShutdown(instance, callback);
+        waitForShutdown(instance, callback);
       }, 3000);
     }
   });
 }
 
 export function waitForActionToComplete(id, callback) {
-  exports.getAPI().accountGetAction(id, (err, res, body) => {
+  getAPI().accountGetAction(id, (err, res, body) => {
     if (err) {
       return utils.die(`Got an error from the DigitalOcean API: ${err}`);
     }
@@ -229,37 +232,37 @@ export function waitForActionToComplete(id, callback) {
       callback();
     } else {
       setTimeout(() => {
-        exports.waitForActionToComplete(id, callback);
+        waitForActionToComplete(id, callback);
       }, 5000);
     }
   });
 }
 
 export function getAPI() {
-  if (exports.API) {
-    return exports.API;
+  if (PRIVATE_CACHE.API) {
+    return PRIVATE_CACHE.API;
   }
 
-  const variables = utils.getVariables();
-  if (!variables.DIGITALOCEAN_API_TOKEN) {
+  const vars = utils.getVariables();
+  if (!vars.DIGITALOCEAN_API_TOKEN) {
     utils.red('The variable DIGITALOCEAN_API_TOKEN is not set.');
     utils.red('Go to https://cloud.digitalocean.com/settings/applications');
     utils.red('to get this variable, then run the following command:');
     return utils.die('overcast var set DIGITALOCEAN_API_TOKEN [your_api_token]');
   }
 
-  exports.API = new DigitalOcean(variables.DIGITALOCEAN_API_TOKEN);
+  PRIVATE_CACHE.API = new DigitalOcean(vars.DIGITALOCEAN_API_TOKEN);
 
-  return exports.API;
+  return PRIVATE_CACHE.API;
 }
 
 export function dropletAction(instance, data, callback) {
-  exports.getAPI().dropletsRequestAction(instance.digitalocean.id, data, (err, res, body) => {
-    if (err || body.message) {
-      return utils.die(`Got an error from the DigitalOcean API: ${err || body.message}`);
+  getAPI().dropletsRequestAction(instance.digitalocean.id, data, (err, res, {message, action}) => {
+    if (err || message) {
+      return utils.die(`Got an error from the DigitalOcean API: ${err || message}`);
     }
-    exports.waitForActionToComplete(body.action.id, () => {
-      exports.updateInstanceMetadata(instance, callback);
+    waitForActionToComplete(action.id, () => {
+      updateInstanceMetadata(instance, callback);
     });
   });
 }
@@ -269,17 +272,17 @@ export function normalizeAndFindPropertiesForCreate(args, callback) {
   args.size = args.size || args['size-slug'] || args['size-name'] || '512mb';
   args.region = args.region || args['region-slug'] || args['region-name'] || 'nyc3';
 
-  exports.getImages((images) => {
+  getImages((images) => {
     const matchingImage = getMatching(images, args.image);
     if (!matchingImage) {
       return utils.die(`No image found that matches "${args.image}".`);
     }
-    exports.getSizes((sizes) => {
+    getSizes((sizes) => {
       const matchingSize = getMatching(sizes, args.size);
       if (!matchingSize) {
         return utils.die(`No size found that matches "${args.size}".`);
       }
-      exports.getRegions((regions) => {
+      getRegions((regions) => {
         const matchingRegion = getMatching(regions, args.region);
         if (!matchingRegion) {
           return utils.die(`No region found that matches "${args.region}".`);
@@ -306,16 +309,16 @@ export function normalizeAndFindPropertiesForCreate(args, callback) {
 export function getOrCreateOvercastKeyID(pubKeyPath, callback) {
   const keyData = `${fs.readFileSync(pubKeyPath, 'utf8')}`;
 
-  exports.getKeys((keys) => {
-    const key = _.find(keys, {
-      name: utils.createHashedKeyName(keyData)
+  getKeys((keys) => {
+    const key = keys.find(({ name }) => {
+      return name === utils.createHashedKeyName(keyData);
     });
     if (key) {
       utils.grey(`Using SSH key: ${pubKeyPath}`);
       callback(key.id);
     } else {
       utils.grey(`Uploading new SSH key: ${pubKeyPath}`);
-      exports.createKey(keyData, (key) => {
+      createKey(keyData, (key) => {
         callback(key.id);
       });
     }
@@ -324,7 +327,7 @@ export function getOrCreateOvercastKeyID(pubKeyPath, callback) {
 
 export function isDiskIncrease(oldSize, newSize) {
   function normalizeSize(s) {
-    return s.indexOf('mb') !== -1 ? parseInt(s, 10) : parseInt(s, 10) * 1000;
+    return s.includes('mb') ? parseInt(s, 10) : parseInt(s, 10) * 1000;
   }
 
   return normalizeSize(newSize) > normalizeSize(oldSize);

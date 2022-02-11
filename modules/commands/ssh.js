@@ -1,10 +1,10 @@
 import cp from 'child_process';
 import _ from 'lodash';
-import utils from '../utils';
-import filters from '../filters';
+import * as utils from '../utils.js';
+import * as filters from '../filters.js';
 
 const commands = {};
-export {commands};
+export default commands;
 
 commands.ssh = {
   name: 'ssh',

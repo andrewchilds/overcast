@@ -1,7 +1,6 @@
 import fs from 'fs';
-import _ from 'lodash';
-import utils from '../utils';
-import cli from '../cli';
+import * as utils from '../utils.js';
+import * as cli from '../cli.js';
 
 export function run(args) {
   if (!args.subcommand) {
@@ -28,7 +27,7 @@ export function run(args) {
     }
   }
 
-  exports.help();
+  help();
 }
 
 export function help() {
@@ -46,25 +45,25 @@ export function help() {
   signatures.push(row);
 
   utils.printArray([
-    (`Overcast v${utils.VERSION}`).grey,
+    (`Overcast v${utils.VERSION}`),
     '',
-    'Source code, issues, pull requests:'.grey,
+    'Source code, issues, pull requests:',
     '  https://github.com/andrewchilds/overcast',
     '',
-    'Usage:'.grey,
+    'Usage:',
     '  overcast [command] [options...]',
     '',
-    'Help:'.grey,
+    'Help:',
     '  overcast help',
     '  overcast help [command]',
     '  overcast [command] help',
     '',
-    'Commands:'.grey
+    'Commands:'
   ]);
   utils.printArray(signatures);
   utils.printArray([
     '',
-    'Config directory:'.grey,
-    `  ${utils.CONFIG_DIR.cyan}`
+    'Config directory:',
+    `  ${utils.CONFIG_DIR}`
   ]);
 }

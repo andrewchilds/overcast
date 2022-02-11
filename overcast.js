@@ -1,4 +1,3 @@
-import * as cli from './modules/cli.js';
-import * as utils from './modules/utils.js';
+import { init } from './modules/cli.js';
 
-export { cli, utils };
+init();

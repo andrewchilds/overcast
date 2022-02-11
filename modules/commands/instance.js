@@ -1,9 +1,9 @@
 import _ from 'lodash';
-import utils from '../utils';
-import filters from '../filters';
+import * as utils from '../utils.js';
+import * as filters from '../filters.js';
 
 const commands = {};
-export {commands};
+export default commands;
 
 commands.get = {
   name: 'get',
@@ -104,10 +104,10 @@ commands.list = {
     const clusters = utils.getClusters();
     const scope = (args._ && args._.length > 0) ? args._ : Object.keys(clusters);
 
-    utils.eachObject(clusters, (cluster, clusterName) => {
+    utils.eachObject(clusters, ({instances}, clusterName) => {
       if (scope.findIndex(s => s === clusterName) !== -1) {
-        utils.eachObject(cluster.instances, (instance) => {
-          console.log(instance.name);
+        utils.eachObject(instances, ({name}) => {
+          console.log(name);
         });
       }
     });
@@ -125,9 +125,9 @@ commands.remove = {
     '$ overcast instance remove app-01'
   ],
   required: [{ name: 'name', filters: filters.findFirstMatchingInstance }],
-  run: (args) => {
-    utils.deleteInstance(args.instance);
-    utils.success(`Instance "${args.instance.name}" removed.`);
+  run: ({instance}) => {
+    utils.deleteInstance(instance);
+    utils.success(`Instance "${instance.name}" removed.`);
   }
 };
 
@@ -169,7 +169,7 @@ commands.update = {
     const messages = [];
 
     utils.each(instances, (instance) => {
-      return exports.updateInstance(args, messages, clusters, instance);
+      return updateInstance(args, messages, clusters, instance);
     });
 
     utils.saveClusters(clusters, () => {

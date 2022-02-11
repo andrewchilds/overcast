@@ -3,12 +3,15 @@ import path from 'path';
 import crypto from 'crypto';
 import cp from 'child_process';
 import _ from 'lodash';
-import listCommand from './commands/list';
-export var VERSION = '1.0.8';
-export var clustersCache = null;
-export var variablesCache = null;
-export var SSH_COUNT = 0;
-export var SSH_COLORS = ['cyan', 'green', 'red', 'yellow', 'magenta', 'blue'];
+import chalk from 'chalk';
+import listCommand from './commands/list.js';
+
+export const VERSION = '1.0.8';
+export const SSH_COLORS = ['cyan', 'green', 'red', 'yellow', 'magenta', 'blue'];
+
+export let clustersCache = null;
+export let variablesCache = null;
+export let SSH_COUNT = 0;
 
 export function isArray(v) {
   return Array.isArray(v);
@@ -31,12 +34,10 @@ export function isFunction(v) {
 }
 
 export function each(o, cb) {
-  if (exports.isObject(o)) {
+  if (isObject(o)) {
     throw new Error('This is an Object, replace with eachObject.');
-    exports.eachObject(o, cb);
-  } else if (exports.isArray(o)) {
+  } else if (isArray(o)) {
     throw new Error('This is an Array, replace with forEach.');
-    o.forEach(cb);
   }
 }
 
@@ -45,6 +46,21 @@ export function eachObject(o, cb) {
     console.log(k);
     cb(o[k], k);
   });
+}
+
+export function maxValueFromArray(arr, cb) {
+  let max = 0;
+  let result = false;
+
+  arr.forEach((o) => {
+    const v = cb(o);
+    if (v > max) {
+      max = v;
+      result = o;
+    }
+  });
+
+  return max;
 }
 
 export function mapObject(o, cb) {
@@ -73,7 +89,7 @@ export function runSubcommand(args, subcommands, helpFn) {
     return command.run(args);
   }
 
-  return exports.missingCommand(helpFn);
+  return missingCommand(helpFn);
 }
 
 export function getCommands() {
@@ -81,41 +97,41 @@ export function getCommands() {
 }
 
 export function findConfig(done) {
-  exports.walkDir(process.cwd(), dir => {
-    exports.setConfigDir(dir);
+  walkDir(process.cwd(), dir => {
+    setConfigDir(dir);
     done();
   });
 }
 
 export function setConfigDir(dir) {
-  exports.CONFIG_DIR = dir;
-  exports.CLUSTERS_JSON = dir + '/clusters.json';
-  exports.VARIABLES_JSON = dir + '/variables.json';
+  CONFIG_DIR = dir;
+  CLUSTERS_JSON = dir + '/clusters.json';
+  VARIABLES_JSON = dir + '/variables.json';
 }
 
 export function getKeyFileFromName(keyName) {
-  return exports.CONFIG_DIR + '/keys/' + keyName + '.key';
+  return CONFIG_DIR + '/keys/' + keyName + '.key';
 }
 
 export function keyExists(keyName) {
-  return fs.existsSync(exports.getKeyFileFromName(keyName));
+  return fs.existsSync(getKeyFileFromName(keyName));
 }
 
 export function createKey(keyName, callback) {
-  var keyFile = exports.getKeyFileFromName(keyName);
-  var keysDir = exports.CONFIG_DIR + '/keys';
+  var keyFile = getKeyFileFromName(keyName);
+  var keysDir = CONFIG_DIR + '/keys';
 
   if (!fs.existsSync(keysDir)) {
     fs.mkdirSync(keysDir);
   }
 
-  var keygen = exports.spawn('ssh-keygen -t rsa -N "" -f ' + keyFile);
+  var keygen = spawn('ssh-keygen -t rsa -N "" -f ' + keyFile);
   keygen.on('exit', code => {
     if (code !== 0) {
-      exports.red('Error generating SSH key.');
-      exports.die(err);
+      red('Error generating SSH key.');
+      die(err);
     } else {
-      if (exports.isFunction(callback)) {
+      if (isFunction(callback)) {
         callback(keyFile);
       }
     }
@@ -123,12 +139,12 @@ export function createKey(keyName, callback) {
 }
 
 export function deleteKey(keyName, callback) {
-  var keyFile = exports.getKeyFileFromName(keyName);
+  var keyFile = getKeyFileFromName(keyName);
   var pubKeyFile = keyFile + '.pub';
 
   function handleError(e, name) {
     if (e) {
-      exports.grey('Unable to delete ' + name + ' - perhaps it wasn\'t found.');
+      grey('Unable to delete ' + name + ' - perhaps it wasn\'t found.');
     }
   }
 
@@ -136,7 +152,7 @@ export function deleteKey(keyName, callback) {
     handleError(e, keyFile);
     fs.unlink(pubKeyFile, e => {
       handleError(e, pubKeyFile);
-      if (exports.isFunction(callback)) {
+      if (isFunction(callback)) {
         callback();
       }
     });
@@ -144,10 +160,10 @@ export function deleteKey(keyName, callback) {
 }
 
 export function deleteFromKnownHosts(instance, callback) {
-  var ssh = exports.spawn('ssh-keygen -R ' + instance.ip);
+  var ssh = spawn('ssh-keygen -R ' + instance.ip);
   ssh.on('exit', code => {
-    exports.grey(instance.ip + ' removed from ' + exports.getUserHome() + '/.ssh/known_hosts.');
-    if (exports.isFunction(callback)) {
+    grey(instance.ip + ' removed from ' + getUserHome() + '/.ssh/known_hosts.');
+    if (isFunction(callback)) {
       callback(instance);
     }
   });
@@ -157,17 +173,17 @@ export function normalizeKeyPath(keyPath, keyName) {
   keyName = keyName || 'overcast.key';
 
   if (!keyPath) {
-    return path.resolve(exports.CONFIG_DIR, 'keys', keyName);
+    return path.resolve(CONFIG_DIR, 'keys', keyName);
   }
 
-  if (exports.isAbsolute(keyPath)) {
+  if (isAbsolute(keyPath)) {
     return keyPath;
   } else if (keyPath.indexOf('~/') === 0) {
-    return keyPath.replace('~/', exports.getUserHome() + '/');
+    return keyPath.replace('~/', getUserHome() + '/');
   } else if (keyPath.indexOf('$HOME') === 0) {
-    return keyPath.replace('$HOME', exports.getUserHome());
+    return keyPath.replace('$HOME', getUserHome());
   } else {
-    return path.resolve(exports.CONFIG_DIR, 'keys', keyPath);
+    return path.resolve(CONFIG_DIR, 'keys', keyPath);
   }
 }
 
@@ -189,15 +205,15 @@ export function isAbsolute(p) {
 }
 
 export function convertToAbsoluteFilePath(p) {
-  if (!exports.isAbsolute(p)) {
+  if (!isAbsolute(p)) {
     var cwdFile = path.normalize(path.resolve(process.cwd(), p));
     if (fs.existsSync(cwdFile)) {
       p = cwdFile;
     } else {
-      p = path.resolve(exports.CONFIG_DIR, 'files', p);
+      p = path.resolve(CONFIG_DIR, 'files', p);
     }
   }
-  return exports.normalizeWindowsPath(p);
+  return normalizeWindowsPath(p);
 }
 
 export function normalizeWindowsPath(p) {
@@ -217,14 +233,14 @@ export function escapeWindowsPath(p) {
 export function initOvercastDir(dest_dir, callback) {
   dest_dir += '/.overcast';
 
-  return cp.exec('bash ' + exports.escapeWindowsPath(__dirname + '/../bin/overcast-init'), {
+  return cp.exec('bash ' + escapeWindowsPath(__dirname + '/../bin/overcast-init'), {
     env: Object.assign({}, process.env, {
-      OVERCAST_FIXTURE_DIR: exports.escapeWindowsPath(__dirname + '/../fixtures'),
-      OVERCAST_DEST_DIR: exports.escapeWindowsPath(dest_dir)
+      OVERCAST_FIXTURE_DIR: escapeWindowsPath(__dirname + '/../fixtures'),
+      OVERCAST_DEST_DIR: escapeWindowsPath(dest_dir)
     })
   }, (err, stdout, stderr) => {
     if (err) {
-      exports.die('Unable to create .overcast directory.');
+      die('Unable to create .overcast directory.');
     } else {
       (callback || _.noop)(dest_dir);
     }
@@ -235,8 +251,8 @@ export function walkDir(dir, callback) {
   if (!dir || dir === '/') {
     // No config directory found!
     // Fallback to config directory in $HOME.
-    return exports.initOvercastDir(exports.getUserHome(), () => {
-      callback(exports.getUserHome() + '/.overcast');
+    return initOvercastDir(getUserHome(), () => {
+      callback(getUserHome() + '/.overcast');
     });
   }
   fs.exists(dir + '/.overcast', exists => {
@@ -245,64 +261,50 @@ export function walkDir(dir, callback) {
     } else {
       dir = dir.split('/');
       dir.pop();
-      exports.walkDir(dir.join('/'), callback);
+      walkDir(dir.join('/'), callback);
     }
   });
 }
 
 export function argShift(args, key) {
-  args[key] = exports.sanitize(args._.shift());
+  args[key] = sanitize(args._.shift());
 }
 
 export function argIsTruthy(arg) {
   return !!(arg && arg !== 'false');
 }
 
-// http://stackoverflow.com/questions/5364928/node-js-require-all-files-in-a-folder
-export function requireDirectory(dir) {
-  var output = {};
-
-  fs.readdirSync(dir).forEach(file => {
-    if (/.+\.js/g.test(file) && file !== 'index.js') {
-      var name = file.replace('.js', '');
-      output[name] = require(dir + file);
-    }
-  });
-
-  return output;
-}
-
 export function findMatchingInstances(name) {
-  var clusters = exports.getClusters();
+  var clusters = getClusters();
   var instances = [];
 
   if (name === 'all') {
-    exports.each(clusters, cluster => {
-      exports.each(cluster.instances, instance => {
+    each(clusters, cluster => {
+      each(cluster.instances, instance => {
         instances.push(instance);
       });
     });
   } else if (clusters[name]) {
     instances = _.toArray(clusters[name].instances);
   } else {
-    instances = exports.findMatchingInstancesByInstanceName(name);
+    instances = findMatchingInstancesByInstanceName(name);
   }
 
   return instances;
 }
 
 export function findMatchingInstancesByInstanceName(name) {
-  var clusters = exports.getClusters();
+  var clusters = getClusters();
   var instances = [];
 
   var hasWildcard = name.indexOf('*') !== -1;
   if (hasWildcard) {
-    name = exports.convertWildcard(name);
+    name = convertWildcard(name);
   }
 
-  exports.each(clusters, cluster => {
+  each(clusters, cluster => {
     if (hasWildcard) {
-      exports.each(cluster.instances, (instance, instanceName) => {
+      each(cluster.instances, (instance, instanceName) => {
         if (name.test(instanceName)) {
           instances.push(instance);
         }
@@ -318,7 +320,7 @@ export function findMatchingInstancesByInstanceName(name) {
 }
 
 export function findFirstMatchingInstance(name) {
-  return exports.findMatchingInstancesByInstanceName(name)[0];
+  return findMatchingInstancesByInstanceName(name)[0];
 }
 
 export function convertWildcard(name) {
@@ -327,10 +329,10 @@ export function convertWildcard(name) {
 }
 
 export function findClusterNameForInstance(instance) {
-  var clusters = exports.getClusters();
+  var clusters = getClusters();
   var foundName;
 
-  exports.each(clusters, (cluster, clusterName) => {
+  each(clusters, (cluster, clusterName) => {
     if (!foundName && cluster.instances[instance.name]) {
       foundName = clusterName;
     }
@@ -340,94 +342,94 @@ export function findClusterNameForInstance(instance) {
 }
 
 export function saveInstanceToCluster(clusterName, instance, callback) {
-  var clusters = exports.getClusters();
+  var clusters = getClusters();
   clusters[clusterName] = clusters[clusterName] || { instances: {} };
   clusters[clusterName].instances[instance.name] = instance;
-  exports.saveClusters(clusters, callback);
+  saveClusters(clusters, callback);
 }
 
 export function deleteInstance(instance, callback) {
-  var clusters = exports.getClusters();
+  var clusters = getClusters();
 
-  exports.each(clusters, (cluster) => {
+  each(clusters, (cluster) => {
     if (cluster.instances[instance.name] &&
       cluster.instances[instance.name].ip === instance.ip) {
       delete cluster.instances[instance.name];
     }
   });
 
-  exports.saveClusters(clusters);
-  exports.deleteFromKnownHosts(instance, callback);
+  saveClusters(clusters);
+  deleteFromKnownHosts(instance, callback);
 }
 
 export function updateInstance(name, updates, callback) {
-  var clusters = exports.getClusters();
-  exports.each(clusters, (cluster, clusterName) => {
-    exports.each(cluster.instances, (instance) => {
+  var clusters = getClusters();
+  each(clusters, (cluster, clusterName) => {
+    each(cluster.instances, (instance) => {
       if (instance.name === name) {
         Object.assign(instance, updates);
       }
     });
   });
 
-  exports.saveClusters(clusters, callback);
+  saveClusters(clusters, callback);
 }
 
 export function getVariables() {
-  if (exports.variablesCache) {
-    return exports.variablesCache;
+  if (variablesCache) {
+    return variablesCache;
   }
 
-  if (fs.existsSync(exports.VARIABLES_JSON)) {
+  if (fs.existsSync(VARIABLES_JSON)) {
     try {
-      var data = require(exports.VARIABLES_JSON);
-      exports.variablesCache = data;
+      var data = require(VARIABLES_JSON);
+      variablesCache = data;
       return data;
     } catch (e) {
-      exports.die('Unable to parse the variables.json file. Please correct the parsing error.');
+      die('Unable to parse the variables.json file. Please correct the parsing error.');
     }
   } else {
-    exports.die('Unable to find the variables.json file.');
+    die('Unable to find the variables.json file.');
   }
 }
 
 export function saveVariables(variables) {
-  exports.variablesCache = variables;
+  variablesCache = variables;
 
-  fs.writeFile(exports.VARIABLES_JSON, JSON.stringify(variables, null, 2), (err) => {
+  fs.writeFile(VARIABLES_JSON, JSON.stringify(variables, null, 2), (err) => {
     if (err) {
-      exports.red('Error saving variables.json.');
+      red('Error saving variables.json.');
     } else {
-      exports.success('Variables saved.');
+      success('Variables saved.');
     }
   });
 }
 
 export function getClusters() {
-  if (exports.clustersCache) {
-    return exports.clustersCache;
+  if (clustersCache) {
+    return clustersCache;
   }
 
-  if (fs.existsSync(exports.CLUSTERS_JSON)) {
+  if (fs.existsSync(CLUSTERS_JSON)) {
     try {
-      var data = require(exports.CLUSTERS_JSON);
-      exports.clustersCache = data;
+      var data = require(CLUSTERS_JSON);
+      clustersCache = data;
       return data;
     } catch (e) {
-      exports.die('Unable to parse the clusters.json file. Please correct the parsing error.');
+      die('Unable to parse the clusters.json file. Please correct the parsing error.');
     }
   } else {
-    exports.die('Unable to find the clusters.json file.');
+    die('Unable to find the clusters.json file.');
   }
 }
 
 export function saveClusters(clusters, done) {
-  exports.clustersCache = clusters;
-  fs.writeFile(exports.CLUSTERS_JSON, JSON.stringify(clusters, null, 2), (err) => {
+  clustersCache = clusters;
+  fs.writeFile(CLUSTERS_JSON, JSON.stringify(clusters, null, 2), (err) => {
     if (err) {
-      exports.red('Error saving clusters.json.');
+      red('Error saving clusters.json.');
     } else {
-      if (exports.isFunction(done)) {
+      if (isFunction(done)) {
         done();
       }
     }
@@ -435,7 +437,7 @@ export function saveClusters(clusters, done) {
 }
 
 export function unknownCommand() {
-  exports.red('Unknown command.');
+  red('Unknown command.');
 }
 
 export function tokenize(str) {
@@ -444,7 +446,7 @@ export function tokenize(str) {
   var token = '';
   var chunks = str.split(' ');
 
-  exports.each(chunks, chunk => {
+  each(chunks, chunk => {
     if (!chunk) {
       return;
     }
@@ -522,13 +524,13 @@ export function printArray(arr) {
 }
 
 export function forceArray(strOrArray) {
-  return exports.isArray(strOrArray) ? strOrArray : [strOrArray];
+  return isArray(strOrArray) ? strOrArray : [strOrArray];
 }
 
 export function findUsingMultipleKeys(collection, val, keys) {
   var match = null;
-  exports.each(collection, (obj) => {
-    exports.each(keys, (key) => {
+  each(collection, (obj) => {
+    each(keys, (key) => {
       if (obj[key] && obj[key] === val) {
         match = obj;
         return false;
@@ -543,12 +545,12 @@ export function findUsingMultipleKeys(collection, val, keys) {
 }
 
 export function die(str) {
-  exports.red(str);
+  red(str);
   process.exit(1);
 }
 
 export function dieWithList(str) {
-  exports.red(str);
+  red(str);
   console.log('');
   listCommand.run();
   process.exit(1);
@@ -556,7 +558,7 @@ export function dieWithList(str) {
 
 export function handleInstanceOrClusterNotFound(instances, args) {
   if (!instances || instances.length === 0) {
-    exports.red('No instance or cluster found matching "' + args.name + '".');
+    red('No instance or cluster found matching "' + args.name + '".');
     console.log('');
     listCommand.run();
     process.exit(1);
@@ -565,7 +567,7 @@ export function handleInstanceOrClusterNotFound(instances, args) {
 
 export function handleInstanceNotFound(instance, args) {
   if (!instance) {
-    exports.red('No instance found matching "' + args.name + '".');
+    red('No instance found matching "' + args.name + '".');
     console.log('');
     listCommand.run();
     process.exit(1);
@@ -573,34 +575,28 @@ export function handleInstanceNotFound(instance, args) {
 }
 
 export function missingParameter(name, helpFn) {
-  exports.red('Missing ' + name + ' parameter.');
+  red('Missing ' + name + ' parameter.');
   console.log('');
   helpFn();
   process.exit(1);
 }
 
 export function missingCommand(helpFn) {
-  exports.red('Missing or unknown command.');
+  red('Missing or unknown command.');
   console.log('');
   helpFn();
   process.exit(1);
 }
 
-exports.eachObject({
-  alert: 'yellow',
-  cyan: 'cyan',
-  green: 'green',
-  grey: 'grey',
-  note: 'cyan',
-  red: 'red',
-  success: 'green',
-  yellow: 'yellow',
-  white: 'white'
-}, (color, fnName) => {
-  exports[fnName] = (str) => {
-    console.log((str + '')[color]);
-  };
-});
+export const alert = chalk.yellow;
+export const cyan = chalk.cyan;
+export const green = chalk.green;
+export const grey = chalk.grey;
+export const note = chalk.cyan;
+export const red = chalk.red;
+export const success = chalk.green;
+export const white = chalk.white;
+export const yellow = chalk.yellow;
 
 export function prefixPrint(prefix, prefixColor, buffer, textColor) {
   prefix = (prefix + ': ')[prefixColor];
@@ -622,38 +618,37 @@ export function progress(percentage, elapsed) {
   }
 
   var width = Math.max(1, Math.ceil(percentage / 2));
-  var hashes = exports.times(width, (i) => {
+  var hashes = times(width, (i) => {
     i += Math.round(_.now() / 250);
-    var char = i % 3 ? ' ' : '/';
-    return char.cyan.inverse;
+    return i % 3 ? ' ' : '/';
   });
-  var spaces = exports.times(50 - width, () => {
-    return '-'.grey;
+  var spaces = times(50 - width, () => {
+    return '-';
   });
-  var str = ' ' + hashes.join('') + spaces.join('') + (' ' + remaining + ' seconds left').grey;
+  var str = ' ' + hashes.join('') + spaces.join('') + (' ' + remaining + ' seconds left');
 
-  exports.clearLine();
+  clearLine();
   process.stdout.write(str + "\r");
 }
 
 export function clearLine() {
-  var str = exports.times(70, () => {
+  var str = times(70, () => {
     return ' ';
   });
   process.stdout.write(str.join('') + "\r");
 }
 
-export var progressComplete = exports.clearLine;
+export var progressComplete = clearLine;
 
 export function progressBar(testFn, callback) {
   var startTime = _.now();
   var interval = setInterval(() => {
     var percentage = testFn();
     if (percentage < 100) {
-      exports.progress(percentage, _.now() - startTime);
+      progress(percentage, _.now() - startTime);
     } else {
       clearInterval(interval);
-      exports.progressComplete();
+      progressComplete();
       (callback || _.noop)();
     }
   }, 250);
@@ -663,7 +658,7 @@ export function progressBar(testFn, callback) {
 
 export function waitForProgress(seconds, callback) {
   var startTime = _.now();
-  exports.progressBar(() => {
+  progressBar(() => {
     return ((_.now() - startTime) / (seconds * 1000)) * 100;
   }, callback);
 }
@@ -671,21 +666,21 @@ export function waitForProgress(seconds, callback) {
 export function waitForBoot(instance, callback, startTime) {
   if (!startTime) {
     startTime = _.now();
-    exports.grey('Waiting until we can connect to ' + instance.name + '...');
+    grey('Waiting until we can connect to ' + instance.name + '...');
   }
 
-  exports.testConnection(instance, canConnect => {
+  testConnection(instance, canConnect => {
     var delayBetweenPolls = 2000;
 
     if (canConnect) {
       var duration = (_.now() - startTime) / 1000;
-      exports.green('Connection established after ' + Math.ceil(duration) + ' seconds.');
-      if (exports.isFunction(callback)) {
+      green('Connection established after ' + Math.ceil(duration) + ' seconds.');
+      if (isFunction(callback)) {
         callback();
       }
     } else {
       setTimeout(() => {
-        exports.waitForBoot(instance, callback, startTime);
+        waitForBoot(instance, callback, startTime);
       }, delayBetweenPolls);
     }
   });
@@ -693,10 +688,10 @@ export function waitForBoot(instance, callback, startTime) {
 
 export function fixedWait(seconds, callback) {
   seconds = seconds || 60;
-  exports.grey('Waiting ' + seconds + ' seconds...');
-  exports.waitForProgress(seconds, () => {
-    exports.success('OK.');
-    if (exports.isFunction(callback)) {
+  grey('Waiting ' + seconds + ' seconds...');
+  waitForProgress(seconds, () => {
+    success('OK.');
+    if (isFunction(callback)) {
       callback();
     }
   });
@@ -704,40 +699,40 @@ export function fixedWait(seconds, callback) {
 
 export function printCollection(type, collection) {
   if (collection.length === 0) {
-    return exports.red('No ' + type + ' found.');
+    return red('No ' + type + ' found.');
   }
 
   collection.forEach((obj) => {
     var name = obj.name || obj.Name || obj._name || obj.slug;
     console.log('');
     console.log(name);
-    exports.prettyPrint(obj, 2);
+    prettyPrint(obj, 2);
   });
 }
 
 export function prettyPrint(obj, indent, stepBy) {
   var prefix = '';
-  exports.times(indent || 0, () => {
+  times(indent || 0, () => {
     prefix += ' ';
   });
   stepBy = stepBy || 2;
 
-  exports.eachObject(obj, (val, key) => {
+  eachObject(obj, (val, key) => {
     if (key === '_name') {
       return;
     }
 
-    if (exports.isArray(val) || exports.isObject(val)) {
-      exports.grey(prefix + key + ':');
-      exports.prettyPrint(val, indent + stepBy, stepBy);
+    if (isArray(val) || isObject(val)) {
+      grey(prefix + key + ':');
+      prettyPrint(val, indent + stepBy, stepBy);
     } else {
       var valStr = val;
-      if (exports.isArray(val) && val.length === 0) {
+      if (isArray(val) && val.length === 0) {
         valStr = '[]';
       } else if (val === '') {
         valStr = '""';
       }
-      exports.grey(prefix + key + ': ' + valStr);
+      grey(prefix + key + ': ' + valStr);
     }
   });
 }
@@ -763,13 +758,13 @@ export function printCommandHelp(commands) {
 }
 
 export function testConnection(instance, callback) {
-  var key = exports.normalizeKeyPath(exports.escapeWindowsPath(instance.ssh_key));
+  var key = normalizeKeyPath(escapeWindowsPath(instance.ssh_key));
   var port = instance.ssh_port || 22;
   var host = instance.user + '@' + instance.ip;
   var command = 'ssh -i ' + key + ' -p ' + port + ' ' + host +
     ' -o StrictHostKeyChecking=no "echo hi"';
 
-  var ssh = exports.spawn(command);
+  var ssh = spawn(command);
 
   var timeout = setTimeout(() => {
     callbackOnce(false);
@@ -797,12 +792,12 @@ export function testConnection(instance, callback) {
 // Based on https://github.com/mattijs/node-rsync/blob/master/rsync.js#L436
 export function spawn(command, overrides) {
   overrides = overrides || {};
-  if (exports.isArray(command)) {
+  if (isArray(command)) {
     command = command.join(' ');
   }
 
   var options = { stdio: 'pipe' };
-  options.env = exports.isObject(overrides.env) ? Object.assign({}, process.env, overrides.env) : process.env;
+  options.env = isObject(overrides.env) ? Object.assign({}, process.env, overrides.env) : process.env;
 
   if (overrides.cwd) {
     options.cwd = overrides.cwd;

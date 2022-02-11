@@ -1,19 +1,16 @@
-import utils from '../utils';
-import cli from '../cli';
+import * as utils from '../utils.js';
 
 const commands = {};
-export {commands};
+export default commands;
 
 commands.list = {
   name: 'list',
   usage: 'overcast list',
   description: 'List your cluster and instance definitions.',
-  run: function (args) {
+  run: (args) => {
     const clusters = utils.getClusters();
 
     utils.grey(`Using ${utils.CONFIG_DIR}/clusters.json`);
-
-    console.log(clusters);
 
     if (!clusters) {
       console.log('');
@@ -21,22 +18,17 @@ commands.list = {
       return false;
     }
 
-    utils.eachObject(clusters, (cluster, clusterName) => {
+    utils.eachObject(clusters, ({instances}, clusterName) => {
       utils.grey(clusterName);
-      utils.eachObject(cluster.instances, (instance) => {
+      utils.eachObject(instances, (instance) => {
         const origin = `(${instance.user}@${instance.ip}:${instance.ssh_port || 22})`;
         const provider = getProviderName(instance);
-        const str = `  ${instance.name} ${origin}${provider ? ` ${provider.green}` : ''}`;
+        const str = `  ${instance.name} ${origin} (${provider || 'Unknown Provider'})`;
         console.log(str);
       });
     });
   }
 };
-
-// Backwards compatibility:
-export function run() {
-  cli.run(commands.list);
-}
 
 function getProviderName(instance) {
   let name = '';

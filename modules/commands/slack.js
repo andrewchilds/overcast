@@ -1,8 +1,8 @@
-import _ from 'lodash';
-import utils from '../utils';
+import SlackNotify from 'slack-notify';
+import * as utils from '../utils.js';
 
 const commands = {};
-export {commands};
+export default commands;
 
 commands.slack = {
   name: 'slack',
@@ -44,7 +44,7 @@ commands.slack = {
 
     options.fields = custom_fields;
 
-    exports.send(options);
+    send(options);
   }
 };
 
@@ -58,7 +58,7 @@ export function send(options) {
     return false;
   }
 
-  const slack = require('slack-notify')(vars.SLACK_WEBHOOK_URL);
+  const slack = SlackNotify(vars.SLACK_WEBHOOK_URL);
   slack.send(options).then(() => {
     utils.success('Message sent to Slack.');
   }).catch((err) => {

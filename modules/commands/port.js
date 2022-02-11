@@ -1,10 +1,10 @@
 import _ from 'lodash';
-import utils from '../utils';
-import ssh from '../ssh';
-import filters from '../filters';
+import * as utils from '../utils.js';
+import * as ssh from '../ssh.js';
+import * as filters from '../filters.js';
 
 const commands = {};
-export {commands};
+export default commands;
 
 commands.port = {
   name: 'port',
@@ -36,8 +36,8 @@ commands.port = {
 
     args._ = ['change_ssh_port'];
     ssh.run(args, () => {
-      utils.each(args.instances, instance => {
-        utils.updateInstance(instance.name, {
+      utils.each(args.instances, ({name}) => {
+        utils.updateInstance(name, {
           ssh_port: new_ssh_port
         });
       });

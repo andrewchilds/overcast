@@ -1,5 +1,5 @@
 import readline from 'readline';
-import utils from './utils';
+import * as utils from './utils.js';
 
 export function handleCommandNotFound(fn) {
   if (!utils.isFunction(fn)) {
@@ -8,7 +8,7 @@ export function handleCommandNotFound(fn) {
 }
 
 export function create(api, args, callback) {
-  exports.handleCommandNotFound(api.create);
+  handleCommandNotFound(api.create);
 
   utils.grey(`Creating new instance "${args.name}" on ${api.name}...`);
   api.create(args, instance => {
@@ -19,7 +19,7 @@ export function create(api, args, callback) {
 }
 
 export function destroy(api, args, callback) {
-  exports.handleCommandNotFound(api.destroy);
+  handleCommandNotFound(api.destroy);
 
   const onDestroy = () => {
     utils.deleteInstance(args.instance, callback);
@@ -36,7 +36,7 @@ export function destroy(api, args, callback) {
   });
 
   const q = `Do you really want to destroy "${args.instance.name}"? [Y/n]`;
-  rl.question(q.yellow, answer => {
+  rl.question(q, answer => {
     rl.close();
     if (answer !== '' && answer !== 'Y' && answer !== 'y') {
       utils.grey('No action taken.');
@@ -47,7 +47,7 @@ export function destroy(api, args, callback) {
 }
 
 export function boot(api, args, callback) {
-  exports.handleCommandNotFound(api.boot);
+  handleCommandNotFound(api.boot);
 
   utils.grey(`Booting "${args.instance.name}"...`);
   api.boot(args.instance, () => {
@@ -57,7 +57,7 @@ export function boot(api, args, callback) {
 }
 
 export function shutdown(api, args, callback) {
-  exports.handleCommandNotFound(api.shutdown);
+  handleCommandNotFound(api.shutdown);
 
   utils.grey(`Shutting down "${args.instance.name}"...`);
   api.shutdown(args.instance, () => {
@@ -69,7 +69,7 @@ export function shutdown(api, args, callback) {
 }
 
 export function reboot(api, args, callback) {
-  exports.handleCommandNotFound(api.reboot);
+  handleCommandNotFound(api.reboot);
 
   utils.grey(`Rebooting "${args.instance.name}"...`);
   api.reboot(args.instance, () => {
@@ -79,11 +79,11 @@ export function reboot(api, args, callback) {
 }
 
 export function rebuild(api, args, callback) {
-  exports.handleCommandNotFound(api.rebuild);
+  handleCommandNotFound(api.rebuild);
 
   utils.grey(`Rebuilding "${args.instance.name}" using image "${args.image}"...`);
   api.rebuild(args.instance, args.image, () => {
-    exports.updateInstanceMetadata(api, args, () => {
+    updateInstanceMetadata(api, args, () => {
       utils.success(`Instance "${args.instance.name}" rebuilt.`);
       utils.waitForBoot(args.instance, callback);
     });
@@ -91,11 +91,11 @@ export function rebuild(api, args, callback) {
 }
 
 export function resize(api, args, callback) {
-  exports.handleCommandNotFound(api.resize);
+  handleCommandNotFound(api.resize);
 
   utils.grey(`Resizing "${args.instance.name}" to "${args.size}"...`);
   api.resize(args.instance, args.size, () => {
-    exports.updateInstanceMetadata(api, args, () => {
+    updateInstanceMetadata(api, args, () => {
       utils.success(`Instance "${args.instance.name}" resized.`);
       if (args.skipBoot || args['skip-boot']) {
         utils.grey('Skipping boot since --skip-boot flag was used.');
@@ -103,14 +103,14 @@ export function resize(api, args, callback) {
           callback();
         }
       } else {
-        exports.boot(api, args, callback);
+        boot(api, args, callback);
       }
     });
   });
 }
 
 export function snapshot(api, args, callback) {
-  exports.handleCommandNotFound(api.snapshot);
+  handleCommandNotFound(api.snapshot);
 
   utils.grey(`Saving snapshot "${args.snapshotName}" of "${args.instance.name}"...`);
   api.snapshot(args.instance, args.snapshotName, () => {
@@ -121,7 +121,7 @@ export function snapshot(api, args, callback) {
 
 // AKA distributions (Linode).
 export function images(api, callback) {
-  exports.handleCommandNotFound(api.getImages);
+  handleCommandNotFound(api.getImages);
 
   api.getImages(images => {
     utils.printCollection('images', images);
@@ -133,7 +133,7 @@ export function images(api, callback) {
 
 // AKA droplets (DO) or linodes (Linode).
 export function instances(api, args, callback) {
-  exports.handleCommandNotFound(api.getInstances);
+  handleCommandNotFound(api.getInstances);
 
   // AWS needs args.region, DigitalOcean does not.
   api.getInstances(args, instances => {
@@ -145,19 +145,19 @@ export function instances(api, args, callback) {
 }
 
 export function instance(api, args, callback) {
-  exports.handleCommandNotFound(api.getInstance);
+  handleCommandNotFound(api.getInstance);
 
   api.getInstance(args.instance, callback);
 }
 
 export function updateInstanceMetadata(api, args, callback) {
-  exports.handleCommandNotFound(api.updateInstanceMetadata);
+  handleCommandNotFound(api.updateInstanceMetadata);
 
   api.updateInstanceMetadata(args.instance, callback);
 }
 
 export function sync(api, args, callback) {
-  exports.handleCommandNotFound(api.sync);
+  handleCommandNotFound(api.sync);
 
   utils.grey(`Fetching metadata for "${args.instance.name}"...`);
   api.sync(args.instance, () => {
@@ -169,7 +169,7 @@ export function sync(api, args, callback) {
 }
 
 export function kernels(api, callback) {
-  exports.handleCommandNotFound(api.getKernels);
+  handleCommandNotFound(api.getKernels);
 
   api.getKernels(kernels => {
     utils.printCollection('kernels', kernels);
@@ -181,7 +181,7 @@ export function kernels(api, callback) {
 
 // AKA datacenters (Linode).
 export function regions(api, callback) {
-  exports.handleCommandNotFound(api.getRegions);
+  handleCommandNotFound(api.getRegions);
 
   api.getRegions(regions => {
     utils.printCollection('regions', regions);
@@ -193,7 +193,7 @@ export function regions(api, callback) {
 
 // AKA types (AWS) or plans (Linode).
 export function sizes(api, callback) {
-  exports.handleCommandNotFound(api.getSizes);
+  handleCommandNotFound(api.getSizes);
 
   api.getSizes(sizes => {
     utils.printCollection('sizes', sizes);
@@ -204,7 +204,7 @@ export function sizes(api, callback) {
 }
 
 export function snapshots(api, callback) {
-  exports.handleCommandNotFound(api.getSnapshots);
+  handleCommandNotFound(api.getSnapshots);
 
   api.getSnapshots(snapshots => {
     utils.printCollection('snapshots', snapshots);

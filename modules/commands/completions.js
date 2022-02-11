@@ -1,8 +1,7 @@
-import _ from 'lodash';
-import utils from '../utils';
+import * as utils from '../utils.js';
 
 const commands = {};
-export {commands};
+export default commands;
 
 commands.completions = {
   name: 'completions',
@@ -52,9 +51,9 @@ function getCompletions() {
   });
 
   const clusters = utils.getClusters();
-  utils.each(clusters, (cluster, clusterName) => {
+  utils.each(clusters, ({instances}, clusterName) => {
     list.push(clusterName);
-    utils.each(cluster.instances, (instance, instanceName) => {
+    utils.each(instances, (instance, instanceName) => {
       list.push(instanceName);
     });
   });

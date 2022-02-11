@@ -1,46 +1,42 @@
-import fs from 'fs';
-import _ from 'lodash';
 import minimist from 'minimist';
-import utils from './utils';
+import * as utils from './utils.js';
+import commands from './commands/index.js';
 
 export function init() {
   utils.findConfig(() => {
+    const args = process.argv.slice(2).join(' ');
+
     if (utils.keyExists('overcast')) {
-      exports.execute();
+      execute(args);
     } else {
       utils.createKey('overcast', () => {
-        exports.execute();
+        execute(args);
       });
     }
   });
 }
 
 export function execute(argString) {
-  let argArray = process.argv.slice(2);
-  if (argString && utils.isString(argString)) {
-    argArray = utils.tokenize(argString);
+  if (!argString) {
+    return utils.die('Nothing to execute (cli.execute).');
   }
+
+  let argArray = utils.tokenize(argString);
 
   const args = minimist(argArray);
   utils.argShift(args, 'command');
 
-  const file = utils.escapeWindowsPath(`${__dirname}/commands/${args.command}.js`);
-  let command;
-  if (fs.existsSync(file)) {
-    command = require(file);
-  } else {
-    command = require('./commands/help');
-  }
+  const command = commands[args.command] || commands.help;
 
   if ((args._[0] === 'help' || args.help) && command.help) {
     command.help(args);
   } else {
     if (command.commands) {
-      const matchingCommand = exports.findMatchingCommand(command, args);
+      const matchingCommand = findMatchingCommand(command.commands, args);
       if (matchingCommand) {
-        exports.run(matchingCommand, args);
+        run(matchingCommand, args);
       } else {
-        exports.missingCommand(command, args);
+        missingCommand(command, args);
       }
     } else {
       command.run(args);
@@ -48,13 +44,13 @@ export function execute(argString) {
   }
 }
 
-export function findMatchingCommand(command, args) {
-  const names = Object.keys(command.commands);
+export function findMatchingCommand(commands, args) {
+  const names = Object.keys(commands);
   if (names.length === 1) {
-    return command.commands[names[0]];
+    return commands[names[0]];
   } else {
     utils.argShift(args, 'subcommand');
-    return command.commands[args.subcommand];
+    return commands[args.subcommand];
   }
 }
 
@@ -63,7 +59,7 @@ export function run(command, args, next) {
   args = args || { _: [] };
 
   if (args._[0] === 'help') {
-    return exports.compileHelp(command);
+    return compileHelp(command);
   }
 
   utils.each(command.required, (required) => {
@@ -81,7 +77,7 @@ export function run(command, args, next) {
     }
 
     if (!args[key] && !required.optional) {
-      exports.missingArgument(`[${required.name}]`, command);
+      missingArgument(`[${required.name}]`, command);
       shortCircuit = true;
     }
 
@@ -112,35 +108,35 @@ export function run(command, args, next) {
 
 export function missingArgument(name, command) {
   utils.red(`Missing ${name} argument.`);
-  exports.compileHelp(command);
+  compileHelp(command);
   process.exit(1);
 }
 
-export function missingCommand(command, args) {
+export function missingCommand({banner, commands}, args) {
   let exitCode = 0;
   if (args.subcommand && args.subcommand !== 'help' && args.command !== 'help') {
     utils.red('Missing or unknown command.');
     exitCode = 1;
   }
 
-  if (command.banner) {
-    exports.printLines(command.banner);
+  if (banner) {
+    printLines(banner);
   }
 
-  if (Object.keys(command.commands).length > 1) {
+  if (Object.keys(commands).length > 1) {
     console.log('');
     console.log(`overcast ${args.command} [command] help`);
-    exports.printLines('View extended help.', { color: 'grey', pad: 2 });
+    printLines('View extended help.', { color: 'grey', pad: 2 });
   }
 
-  utils.each(command.commands, (command) => {
-    if (command.alias === true) {
+  utils.each(commands, ({alias, usage, description}) => {
+    if (alias === true) {
       return;
     }
 
     console.log('');
-    exports.printLines(command.usage);
-    exports.printLines(command.description, { color: 'grey', pad: 2 });
+    printLines(usage);
+    printLines(description, { color: 'grey', pad: 2 });
   });
 
   process.exit(exitCode);
@@ -155,10 +151,10 @@ export function compileHelp(command, skipFirstLine) {
       }
       skipFirstLine = false;
       if (key === 'options') {
-        exports.printCommandOptions(command.options);
+        printCommandOptions(command.options);
       } else {
         utils.grey(`${utils.capitalize(key)}:`);
-        exports.printLines(command[key], { pad: 2 });
+        printLines(command[key], { pad: 2 });
       }
     }
   });
@@ -166,7 +162,7 @@ export function compileHelp(command, skipFirstLine) {
 
 export function printCommandOptions(options) {
   let hasDefaults = false;
-  const maxLength = _.max(options, (option) => {
+  const maxLength = utils.maxValueFromArray(options, (option) => {
     if (option.default) {
       hasDefaults = true;
     }

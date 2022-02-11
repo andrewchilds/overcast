@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import cp from 'child_process';
 import _ from 'lodash';
-import utils from './utils';
+import * as utils from './utils.js';
 
 export function run(args, callback) {
   // Handle cases where minimist mistakenly parses ssh-args (e.g. "-tt" becomes { t: true }).

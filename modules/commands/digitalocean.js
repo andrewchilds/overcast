@@ -1,11 +1,9 @@
-import _ from 'lodash';
-import utils from '../utils';
-import filters from '../filters';
-import provider from '../provider';
-import api from '../providers/digitalocean.v2.js';
+import * as filters from '../filters.js';
+import * as provider from '../provider.js';
+import * as api from '../providers/digitalocean.v2.js';
 
 const commands = {};
-export {commands};
+export default commands;
 
 commands.boot = {
   name: 'boot',

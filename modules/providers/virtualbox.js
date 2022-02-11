@@ -1,15 +1,13 @@
 import fs from 'fs';
-import AWS from 'aws-sdk';
 import cp from 'child_process';
-import _ from 'lodash';
 import rimraf from 'rimraf';
-import utils from '../utils';
+import * as utils from '../utils.js';
 
 var FIRST_IP = '192.168.22.10';
 var OVERCAST_VAGRANT_DIR = utils.getUserHome() + '/.overcast-vagrant';
 
-export var id = 'virtualbox';
-export var name = 'VirtualBox';
+// export var id = 'virtualbox';
+// export var name = 'VirtualBox';
 
 var BUNDLED_IMAGE_URLS = {
   'trusty64': 'https://cloud-images.ubuntu.com/vagrant/trusty/current/trusty-server-cloudimg-amd64-vagrant-disk1.box',
@@ -19,8 +17,8 @@ var BUNDLED_IMAGE_URLS = {
 // Provider interface
 
 export function boot(instance, callback) {
-  exports.startInstance(instance)
-    .catch(exports.catch)
+  startInstance(instance)
+    .catch(genericCatch)
     .then(() => {
       if (utils.isFunction(callback)) {
         callback();
@@ -39,10 +37,10 @@ export function create(args, callback) {
     cpus: args.cpus || '1'
   }, args);
 
-  exports.getVagrantImages(args)
-    .then(exports.createVagrantBox)
-    .then(exports.createInstance)
-    .catch(exports.catch)
+  getVagrantImages(args)
+    .then(createVagrantBox)
+    .then(createInstance)
+    .catch(genericCatch)
     .then(args => {
       var instance = {
         name: args.name,
@@ -66,8 +64,8 @@ export function create(args, callback) {
 }
 
 export function destroy(instance, callback) {
-  exports.destroyInstance(instance)
-    .catch(exports.catch)
+  destroyInstance(instance)
+    .catch(genericCatch)
     .then(() => {
       if (utils.isFunction(callback)) {
         callback();
@@ -76,9 +74,9 @@ export function destroy(instance, callback) {
 }
 
 export function reboot(instance, callback) {
-  exports.stopInstance(instance)
-    .then(exports.startInstance)
-    .catch(exports.catch)
+  stopInstance(instance)
+    .then(startInstance)
+    .catch(genericCatch)
     .then(instance => {
       if (utils.isFunction(callback)) {
         callback();
@@ -87,8 +85,8 @@ export function reboot(instance, callback) {
 }
 
 export function shutdown(instance, callback) {
-  exports.stopInstance(instance)
-    .catch(exports.catch)
+  stopInstance(instance)
+    .catch(genericCatch)
     .then(() => {
       if (utils.isFunction(callback)) {
         callback();
@@ -123,7 +121,7 @@ export function getVagrantImages(args) {
       if (code !== 0) {
         reject();
       } else {
-        stdout = exports.parseCSV(stdout);
+        stdout = parseCSV(stdout);
         var images = [];
         utils.each(stdout, row => {
           if (row[2] === 'box-name') {
@@ -171,7 +169,7 @@ export function createVagrantBox(args) {
 export function nextAvailableIP(ip) {
   if (fs.existsSync(OVERCAST_VAGRANT_DIR + '/' + ip)) {
     var existing = fs.readdirSync(OVERCAST_VAGRANT_DIR);
-    return exports.findNextAvailableIP(existing);
+    return findNextAvailableIP(existing);
   } else {
     return ip;
   }
@@ -200,7 +198,7 @@ export function findNextAvailableIP(existing) {
 
 export function createInstance(args) {
   return new Promise((resolve, reject) => {
-    var ip = exports.nextAvailableIP(args.ip || FIRST_IP);
+    var ip = nextAvailableIP(args.ip || FIRST_IP);
     utils.grey('Using IP address ' + ip + '.');
 
     args.ip = ip;
@@ -318,7 +316,7 @@ export function destroyInstance(instance) {
   });
 }
 
-export function catch(err) {
+export function genericCatch(err) {
   utils.die(err && err.message ? err.message : err);
 }
 

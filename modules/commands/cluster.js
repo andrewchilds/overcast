@@ -1,9 +1,8 @@
-import _ from 'lodash';
-import utils from '../utils';
-import filters from '../filters';
+import * as utils from '../utils.js';
+import * as filters from '../filters.js';
 
 const commands = {};
-export {commands};
+export default commands;
 
 commands.count = {
   name: 'count',
@@ -18,8 +17,8 @@ commands.count = {
     '> 1'
   ],
   required: [{ name: 'name', filters: filters.findMatchingCluster }],
-  run: function (args) {
-    console.log(Object.keys(args.cluster.instances).length);
+  run: function({cluster}) {
+    console.log(Object.keys(cluster.instances).length);
   }
 };
 
@@ -29,12 +28,12 @@ commands.create = {
   description: 'Creates a new cluster.',
   examples: '$ overcast cluster create db',
   required: [{ name: 'name', filters: filters.shouldBeNewCluster }],
-  run: function (args) {
+  run: function({name}) {
     const clusters = utils.getClusters();
-    clusters[args.name] = { instances: {} };
+    clusters[name] = { instances: {} };
 
     utils.saveClusters(clusters, () => {
-      utils.success(`Cluster "${args.name}" has been created.`);
+      utils.success(`Cluster "${name}" has been created.`);
     });
   }
 };
@@ -48,14 +47,14 @@ commands.rename = {
     { name: 'name', filters: filters.findMatchingCluster },
     { name: 'new-name', varName: 'newName', filters: filters.shouldBeNewCluster }
   ],
-  run: function (args) {
+  run: function({newName, name}) {
     const clusters = utils.getClusters();
 
-    clusters[args.newName] = clusters[args.name];
-    delete clusters[args.name];
+    clusters[newName] = clusters[name];
+    delete clusters[name];
 
     utils.saveClusters(clusters, () => {
-      utils.success(`Cluster "${args.name}" has been renamed to "${args.newName}".`);
+      utils.success(`Cluster "${name}" has been renamed to "${newName}".`);
     });
   }
 };
@@ -71,22 +70,22 @@ commands.remove = {
   required: [
     { name: 'name', filters: filters.findMatchingCluster }
   ],
-  run: function (args) {
+  run: function({name}) {
     const clusters = utils.getClusters();
 
     let orphaned = 0;
-    if (clusters[args.name].instances) {
-      orphaned = Object.keys(clusters[args.name].instances).length;
+    if (clusters[name].instances) {
+      orphaned = Object.keys(clusters[name].instances).length;
       clusters.orphaned = clusters.orphaned || { instances: {} };
-      Object.assign(clusters.orphaned.instances, clusters[args.name].instances);
+      Object.assign(clusters.orphaned.instances, clusters[name].instances);
     }
 
-    delete clusters[args.name];
+    delete clusters[name];
 
     utils.saveClusters(clusters, () => {
-      utils.success(`Cluster "${args.name}" has been removed.`);
+      utils.success(`Cluster "${name}" has been removed.`);
       if (orphaned) {
-        if (args.name === 'orphaned') {
+        if (name === 'orphaned') {
           utils.alert(`The ${orphaned} instance(s) in the "orphaned" cluster were removed.`);
         } else {
           utils.alert(`The ${orphaned} instance(s) from this cluster were moved to the "orphaned" cluster.`);

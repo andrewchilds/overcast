@@ -1,9 +1,8 @@
-import _ from 'lodash';
-import utils from '../utils';
-import ssh from '../ssh';
+import * as utils from '../utils.js';
+import * as ssh from '../ssh.js';
 
 const commands = {};
-export {commands};
+export default commands;
 
 commands.expose = {
   name: 'expose',

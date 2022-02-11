@@ -1,9 +1,8 @@
-import _ from 'lodash';
-import utils from '../utils';
-import filters from '../filters';
+import * as utils from '../utils.js';
+import * as filters from '../filters.js';
 
 const commands = {};
-export {commands};
+export default commands;
 
 commands.info = {
   name: 'info',
@@ -12,7 +11,7 @@ commands.info = {
     `${utils.CONFIG_DIR}/clusters.json`,
     'Optionally display only instances matching [name].'],
   required: [{ name: 'name', optional: true, filters: filters.findMatchingInstances }],
-  run: function (args) {
+  run: function({instances}) {
     const clusters = utils.getClusters();
 
     utils.grey(`Using ${utils.CONFIG_DIR}/clusters.json`);
@@ -23,9 +22,9 @@ commands.info = {
       return false;
     }
 
-    if (args.instances) {
+    if (instances) {
       console.log('');
-      utils.each(args.instances, instance => {
+      utils.each(instances, instance => {
         console.log(instance.name);
         utils.prettyPrint(instance, 2);
       });
@@ -33,10 +32,10 @@ commands.info = {
       return false;
     }
 
-    utils.each(clusters, (cluster, clusterName) => {
+    utils.each(clusters, ({instances}, clusterName) => {
       console.log('');
       utils.cyan(clusterName);
-      utils.each(cluster.instances, instance => {
+      utils.each(instances, instance => {
         console.log('');
         console.log(`  ${instance.name}`);
         utils.prettyPrint(instance, 4);

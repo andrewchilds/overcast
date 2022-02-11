@@ -2,7 +2,7 @@ import fs from 'fs';
 import querystring from 'querystring';
 import cp from 'child_process';
 import _ from 'lodash';
-import utils from '../utils';
+import * as utils from '../utils.js';
 
 const API_URL = 'https://api.digitalocean.com/';
 const EVENT_TIMEOUT = 1000 * 60 * 10;
@@ -17,8 +17,8 @@ export const name = 'DigitalOcean';
 export function create(args, callback) {
   args['ssh-pub-key'] = utils.normalizeKeyPath(args['ssh-pub-key'], 'overcast.key.pub');
 
-  exports.normalizeAndFindPropertiesForCreate(args, () => {
-    exports.getOrCreateOvercastKeyID(args['ssh-pub-key'], keyID => {
+  normalizeAndFindPropertiesForCreate(args, () => {
+    getOrCreateOvercastKeyID(args['ssh-pub-key'], keyID => {
       const query = {
         backups_enabled: utils.argIsTruthy(args['backups-enabled']),
         name: args.name,
@@ -29,19 +29,19 @@ export function create(args, callback) {
         region_id: args['region-id']
       };
 
-      exports.createRequest(args, query, callback);
+      createRequest(args, query, callback);
     });
   });
 }
 
 export function createRequest(args, query, callback) {
-  exports.request({
+  request({
     endpoint: 'droplets/new',
     query,
     callback: function (result) {
       if (result && result.droplet && result.droplet.event_id) {
         waitForEventToFinish(result.droplet.event_id, () => {
-          exports.getInstance(result.droplet.id, droplet => {
+          getInstance(result.droplet.id, droplet => {
             const response = {
               name: droplet.name,
               ip: droplet.ip_address,
@@ -61,31 +61,31 @@ export function createRequest(args, query, callback) {
   });
 }
 
-export function destroy(instance, callback) {
-  exports.request({
-    endpoint: `droplets/${instance.digitalocean.id}/destroy`,
+export function destroy({digitalocean}, callback) {
+  request({
+    endpoint: `droplets/${digitalocean.id}/destroy`,
     query: { scrub_data: 1 },
     callback
   });
 }
 
-export function boot(instance, callback) {
-  exports.eventedRequest({
-    endpoint: `droplets/${instance.digitalocean.id}/power_on`,
+export function boot({digitalocean}, callback) {
+  eventedRequest({
+    endpoint: `droplets/${digitalocean.id}/power_on`,
     callback
   });
 }
 
-export function shutdown(instance, callback) {
-  exports.eventedRequest({
-    endpoint: `droplets/${instance.digitalocean.id}/power_off`,
+export function shutdown({digitalocean}, callback) {
+  eventedRequest({
+    endpoint: `droplets/${digitalocean.id}/power_off`,
     callback
   });
 }
 
 export function snapshot(instance, snapshotName, callback) {
-  exports.shutdown(instance, () => {
-    exports.eventedRequest({
+  shutdown(instance, () => {
+    eventedRequest({
       endpoint: `droplets/${instance.digitalocean.id}/snapshot`,
       query: { name: snapshotName },
       callback
@@ -93,22 +93,22 @@ export function snapshot(instance, snapshotName, callback) {
   });
 }
 
-export function reboot(instance, callback) {
-  exports.eventedRequest({
-    endpoint: `droplets/${instance.digitalocean.id}/reboot`,
+export function reboot({digitalocean}, callback) {
+  eventedRequest({
+    endpoint: `droplets/${digitalocean.id}/reboot`,
     callback
   });
 }
 
-export function rebuild(instance, image, callback) {
-  exports.getImages(images => {
+export function rebuild({digitalocean}, image, callback) {
+  getImages(images => {
     const match = getMatching(images, image);
     if (!match) {
       return utils.die(`No image found that matches "${image}".`);
     }
 
-    exports.eventedRequest({
-      endpoint: `droplets/${instance.digitalocean.id}/rebuild`,
+    eventedRequest({
+      endpoint: `droplets/${digitalocean.id}/rebuild`,
       query: { image_id: match.id },
       callback
     });
@@ -116,14 +116,14 @@ export function rebuild(instance, image, callback) {
 }
 
 export function resize(instance, size, callback) {
-  exports.getSizes(sizes => {
+  getSizes(sizes => {
     const match = getMatching(sizes, size);
     if (!match) {
       return utils.die(`No size found that matches "${size}".`);
     }
 
-    exports.shutdown(instance, () => {
-      exports.eventedRequest({
+    shutdown(instance, () => {
+      eventedRequest({
         endpoint: `droplets/${instance.digitalocean.id}/resize`,
         query: { size_id: match.id },
         callback
@@ -133,7 +133,7 @@ export function resize(instance, size, callback) {
 }
 
 export function getKeys(callback) {
-  exports.request({
+  request({
     endpoint: 'ssh_keys',
     callback: function (result) {
       if (result && result.ssh_keys) {
@@ -144,7 +144,7 @@ export function getKeys(callback) {
 }
 
 export function createKey(keyData, callback) {
-  exports.request({
+  request({
     endpoint: 'ssh_keys/new',
     query: {
       name: utils.createHashedKeyName(keyData),
@@ -159,7 +159,7 @@ export function createKey(keyData, callback) {
 }
 
 export function getImages(callback) {
-  exports.request({
+  request({
     endpoint: 'images',
     callback: function (result) {
       if (result && result.images) {
@@ -170,7 +170,7 @@ export function getImages(callback) {
 }
 
 export function getSnapshots(callback) {
-  exports.request({
+  request({
     endpoint: 'images',
     query: { filter: 'my_images' },
     callback: function (result) {
@@ -182,7 +182,7 @@ export function getSnapshots(callback) {
 }
 
 export function getInstances(args, callback) {
-  exports.request({
+  request({
     endpoint: 'droplets',
     callback: function (result) {
       if (result && result.droplets) {
@@ -193,11 +193,11 @@ export function getInstances(args, callback) {
 }
 
 export function getInstance(instance, callback) {
-  // exports.create passes in an id, since instance doesn't exist yet.
+  // create passes in an id, since instance doesn't exist yet.
   const id = utils.isObject(instance) && instance.digitalocean && instance.digitalocean.id ?
     instance.digitalocean.id : instance;
 
-  exports.request({
+  request({
     endpoint: `droplets/${id}`,
     callback: function (result) {
       if (result && result.droplet) {
@@ -208,7 +208,7 @@ export function getInstance(instance, callback) {
 }
 
 export function updateInstanceMetadata(instance, callback) {
-  exports.getInstance(instance, droplet => {
+  getInstance(instance, droplet => {
     utils.updateInstance(instance.name, {
       ip: droplet.ip_address,
       digitalocean: droplet
@@ -221,7 +221,7 @@ export function updateInstanceMetadata(instance, callback) {
 }
 
 export function getRegions(callback) {
-  exports.request({
+  request({
     endpoint: 'regions',
     callback: function (result) {
       if (result && result.regions) {
@@ -232,7 +232,7 @@ export function getRegions(callback) {
 }
 
 export function getSizes(callback) {
-  exports.request({
+  request({
     endpoint: 'sizes',
     callback: function (result) {
       if (result && result.sizes) {
@@ -243,7 +243,7 @@ export function getSizes(callback) {
 }
 
 export function sync(instance, callback) {
-  exports.getInstances((instances) => {
+  getInstances((instances) => {
     let match = utils.findUsingMultipleKeys(instances, instance.name, ['name']);
 
     if (!match) {
@@ -280,7 +280,7 @@ function returnOnlyIDNameSlug(collection) {
 export function getOrCreateOvercastKeyID(pubKeyPath, callback) {
   const keyData = `${fs.readFileSync(pubKeyPath, 'utf8')}`;
 
-  exports.getKeys((keys) => {
+  getKeys((keys) => {
     const key = _.find(keys, {
       name: utils.createHashedKeyName(keyData)
     });
@@ -289,7 +289,7 @@ export function getOrCreateOvercastKeyID(pubKeyPath, callback) {
       callback(key.id);
     } else {
       utils.grey(`Uploading new SSH key: ${pubKeyPath}`);
-      exports.createKey(keyData, (key) => {
+      createKey(keyData, (key) => {
         callback(key.id);
       });
     }
@@ -301,17 +301,17 @@ export function normalizeAndFindPropertiesForCreate(args, callback) {
   args.size = args.size || args['size-id'] || args['size-slug'] || args['size-name'] || '512mb';
   args.region = args.region || args['region-id'] || args['region-slug'] || args['region-name'] || 'nyc3';
 
-  exports.getImages(images => {
+  getImages(images => {
     const matchingImage = getMatching(images, args.image);
     if (!matchingImage) {
       return utils.die(`No image found that matches "${args.image}".`);
     }
-    exports.getSizes(sizes => {
+    getSizes(sizes => {
       const matchingSize = getMatching(sizes, args.size);
       if (!matchingSize) {
         return utils.die(`No size found that matches "${args.size}".`);
       }
-      exports.getRegions(regions => {
+      getRegions(regions => {
         const matchingRegion = getMatching(regions, args.region);
         if (!matchingRegion) {
           return utils.die(`No region found that matches "${args.region}".`);
@@ -357,7 +357,7 @@ function waitForEventToFinish(event_id, callback) {
   });
 
   const requestLoop = () => {
-    exports.request({
+    request({
       endpoint: `events/${event_id}`,
       callback: function (result) {
         if (result && result.event) {
@@ -375,13 +375,13 @@ function waitForEventToFinish(event_id, callback) {
   requestLoop();
 }
 
-export function eventedRequest(options) {
-  exports.request({
-    endpoint: options.endpoint,
-    query: options.query,
+export function eventedRequest({endpoint, query, callback}) {
+  request({
+    endpoint: endpoint,
+    query: query,
     callback: function (result) {
       if (result && result.event_id) {
-        waitForEventToFinish(result.event_id, options.callback);
+        waitForEventToFinish(result.event_id, callback);
       }
     }
   });
@@ -410,7 +410,7 @@ export function request(options) {
 
   const args = constructCurlArgs(options);
 
-  if (exports.DEBUG) {
+  if (DEBUG) {
     console.log(`curl ${args.join(' ')}`);
   }
 
@@ -437,7 +437,7 @@ export function request(options) {
       return utils.die(`Exception thrown while parsing DigitalOcean API output: ${stdout}`);
     }
 
-    if (exports.DEBUG) {
+    if (DEBUG) {
       console.log(JSON.stringify(stdout, null, 4));
     }
 
@@ -456,12 +456,12 @@ export function request(options) {
   });
 }
 
-function constructCurlArgs(options) {
-  const url = `${API_URL + options.endpoint}?${querystring.stringify(options.query || {})}`;
-  const args = ['-s', '-X', options.type || 'GET'];
+function constructCurlArgs({endpoint, query, type, data}) {
+  const url = `${API_URL + endpoint}?${querystring.stringify(query || {})}`;
+  const args = ['-s', '-X', type || 'GET'];
 
-  if (options.data) {
-    args.push('-d', JSON.stringify(options.data));
+  if (data) {
+    args.push('-d', JSON.stringify(data));
   }
   args.push(url);
 

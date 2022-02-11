@@ -1,11 +1,9 @@
-import _ from 'lodash';
-import utils from '../utils';
-import filters from '../filters';
-import provider from '../provider';
-import api from '../providers/virtualbox';
+import * as filters from '../filters.js';
+import * as provider from '../provider.js';
+import * as api from '../providers/virtualbox.js';
 
 const commands = {};
-export {commands};
+export default commands;
 
 export const banner = [
   'These commands require VirtualBox and Vagrant to be installed on',

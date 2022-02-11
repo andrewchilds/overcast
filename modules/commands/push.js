@@ -1,10 +1,10 @@
 import _ from 'lodash';
-import utils from '../utils';
-import scp from '../scp';
-import rsync from '../rsync';
+import * as utils from '../utils.js';
+import * as scp from '../scp.js';
+import * as rsync from '../rsync.js';
 
 const commands = {};
-export {commands};
+export default commands;
 
 commands.push = {
   name: 'push',

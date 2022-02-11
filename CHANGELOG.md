@@ -6,6 +6,23 @@ npm -g update overcast
 
 # Change Log
 
+**2.0.0** (2022)
+
+Codebase refactor:
+
+- Refactored codebase to use modern ES6, ESM syntax
+- Removed `lodash`, `bluebird` dependencies
+- Replaced `colors` dependency with `chalk`
+- Upgraded all remaining dependencies to latest
+
+Product simplification:
+
+- Removed `health` command, which doesn't need to be part of the core app
+- Removed unnecessary `get`, `import`, `destroy`, and `reboot` alias commands
+- Removed AWS and Linode as providers - may revisit adding them back in if there is enough demand
+- Renamed `var` command to the not-reserved `vars`
+- Renamed the overly-general `key` command to `sshkey`
+
 **1.0.8** (Apr 4, 2018)
 
 - Handle more than a single "reservation" when describing AWS instances.

@@ -4,7 +4,7 @@ utils = require('../../modules/utils.js')
 
 process.chdir(__dirname)
 
-exports.overcast = (args, callback) ->
+overcast = (args, callback) ->
   # The jasmine 2.0 approach (using done()) wasn't working with jasmine-node,
   # so going back to the old (1.3) way of doing async.
   done = false
