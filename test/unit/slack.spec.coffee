@@ -1,6 +1,6 @@
-cli = require('../../modules/cli')
-utils = require('../../modules/utils')
-slack = require('../../modules/commands/slack')
+cli = require('../../src/cli')
+utils = require('../../src/utils')
+slack = require('../../src/commands/slack')
 
 describe 'slack', ->
   beforeEach ->

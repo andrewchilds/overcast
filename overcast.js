@@ -1,3 +1,3 @@
-import { init } from './modules/cli.js';
+import { init } from './src/cli.js';
 
 init();

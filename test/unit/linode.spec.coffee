@@ -1,6 +1,6 @@
-cli = require('../../modules/cli')
-utils = require('../../modules/utils')
-api = require('../../modules/providers/linode')
+cli = require('../../src/cli')
+utils = require('../../src/utils')
+api = require('../../src/providers/linode')
 
 MOCK_CLUSTERS = {
   default: {

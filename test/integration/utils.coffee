@@ -1,6 +1,6 @@
 fs = require('fs')
 cp = require('child_process')
-utils = require('../../modules/utils.js')
+utils = require('../../src/utils.js')
 
 process.chdir(__dirname)
 

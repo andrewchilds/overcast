@@ -2,8 +2,8 @@
 
 // Generates Markdown-formatted API documentation from module/command help functions.
 
-import { compileHelp } from '../modules/cli.js';
-import * as utils from '../modules/utils.js';
+import { compileHelp } from '../src/cli.js';
+import * as utils from '../src/utils.js';
 import allCommands from '../commands/index.js';
 
 utils.findConfig(() => {

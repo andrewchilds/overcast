@@ -1,5 +1,5 @@
-cli = require('../../modules/cli')
-utils = require('../../modules/utils')
+cli = require('../../src/cli')
+utils = require('../../src/utils')
 
 describe 'completions', ->
   beforeEach ->

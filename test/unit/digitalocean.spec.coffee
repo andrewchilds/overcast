@@ -1,6 +1,6 @@
-cli = require('../../modules/cli')
-utils = require('../../modules/utils')
-api = require('../../modules/providers/digitalocean.v2')
+cli = require('../../src/cli')
+utils = require('../../src/utils')
+api = require('../../src/providers/digitalocean.v2')
 
 MOCK_CLUSTERS = {
   default: {

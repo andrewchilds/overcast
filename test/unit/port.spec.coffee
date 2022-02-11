@@ -1,6 +1,6 @@
-cli = require('../../modules/cli')
-utils = require('../../modules/utils')
-ssh = require('../../modules/ssh')
+cli = require('../../src/cli')
+utils = require('../../src/utils')
+ssh = require('../../src/ssh')
 
 describe 'port', ->
   beforeEach ->

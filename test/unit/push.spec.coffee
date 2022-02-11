@@ -1,5 +1,5 @@
-cli = require('../../modules/cli')
-scp = require('../../modules/scp')
+cli = require('../../src/cli')
+scp = require('../../src/scp')
 
 describe 'push', ->
   beforeEach ->

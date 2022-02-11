@@ -1,6 +1,6 @@
 _ = require('lodash')
 minimist = require('minimist')
-utils = require('../../modules/utils')
+utils = require('../../src/utils')
 
 # Quick and dirty implementation of argument parsing that handles quoted strings
 parseArgs = (argStr = '') ->

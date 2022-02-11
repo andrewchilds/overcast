@@ -1,7 +1,7 @@
 fs = require('fs')
-cli = require('../../modules/cli')
-utils = require('../../modules/utils')
-key = require('../../modules/commands/key')
+cli = require('../../src/cli')
+utils = require('../../src/utils')
+key = require('../../src/commands/key')
 
 describe 'key', ->
 

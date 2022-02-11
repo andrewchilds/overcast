@@ -1,7 +1,7 @@
 _ = require('lodash')
-cli = require('../../modules/cli')
-utils = require('../../modules/utils')
-tunnel = require('../../modules/commands/tunnel')
+cli = require('../../src/cli')
+utils = require('../../src/utils')
+tunnel = require('../../src/commands/tunnel')
 specUtils = require('./utils')
 
 describe 'tunnel', ->

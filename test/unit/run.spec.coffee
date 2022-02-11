@@ -1,5 +1,5 @@
-ssh = require('../../modules/ssh')
-cli = require('../../modules/cli')
+ssh = require('../../src/ssh')
+cli = require('../../src/cli')
 
 describe 'run', ->
   beforeEach ->
