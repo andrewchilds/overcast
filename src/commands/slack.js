@@ -60,6 +60,6 @@ export function send(options) {
   slack.send(options).then(() => {
     utils.success('Message sent to Slack.');
   }).catch((err) => {
-    utils.red(`Unable to send message to Slack: ${err}`);
+    utils.failure(`Unable to send message to Slack: ${err}`);
   });
 }

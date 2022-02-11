@@ -6,7 +6,7 @@ import _ from 'lodash';
 import chalk from 'chalk';
 import * as listCommand from './commands/list.js';
 
-export const VERSION = '1.0.8';
+export const VERSION = '2.0.0-alpha';
 export const SSH_COLORS = ['cyan', 'green', 'red', 'yellow', 'magenta', 'blue'];
 
 export let CONFIG_DIR;
@@ -127,7 +127,7 @@ export function createKey(keyName, callback) {
   var keygen = spawn('ssh-keygen -t rsa -N "" -f ' + keyFile);
   keygen.on('exit', code => {
     if (code !== 0) {
-      red('Error generating SSH key.');
+      failure('Error generating SSH key.');
       die(err);
     } else {
       if (isFunction(callback)) {
@@ -426,7 +426,7 @@ export function saveClusters(clusters, done) {
   clustersCache = clusters;
   fs.writeFile(CLUSTERS_JSON, JSON.stringify(clusters, null, 2), (err) => {
     if (err) {
-      red('Error saving clusters.json.');
+      failure('Error saving clusters.json.');
     } else {
       if (isFunction(done)) {
         done();
@@ -436,7 +436,7 @@ export function saveClusters(clusters, done) {
 }
 
 export function unknownCommand() {
-  red('Unknown command.');
+  failure('Unknown command.');
 }
 
 export function tokenize(str) {
@@ -543,12 +543,12 @@ export function findUsingMultipleKeys(collection, val, keys) {
 }
 
 export function die(str) {
-  red(str);
+  failure(str);
   process.exit(1);
 }
 
 export function dieWithList(str) {
-  red(str);
+  failure(str);
   console.log('');
   listCommand.run();
   process.exit(1);
@@ -556,7 +556,7 @@ export function dieWithList(str) {
 
 export function handleInstanceOrClusterNotFound(instances, args) {
   if (!instances || instances.length === 0) {
-    red('No instance or cluster found matching "' + args.name + '".');
+    failure('No instance or cluster found matching "' + args.name + '".');
     console.log('');
     listCommand.run();
     process.exit(1);
@@ -565,7 +565,7 @@ export function handleInstanceOrClusterNotFound(instances, args) {
 
 export function handleInstanceNotFound(instance, args) {
   if (!instance) {
-    red('No instance found matching "' + args.name + '".');
+    failure('No instance found matching "' + args.name + '".');
     console.log('');
     listCommand.run();
     process.exit(1);
@@ -573,25 +573,20 @@ export function handleInstanceNotFound(instance, args) {
 }
 
 export function missingParameter(name, helpFn) {
-  red('Missing ' + name + ' parameter.');
+  failure('Missing ' + name + ' parameter.');
   console.log('');
   helpFn();
   process.exit(1);
 }
 
 export function missingCommand(helpFn) {
-  red('Missing or unknown command.');
+  failure('Missing or unknown command.');
   console.log('');
   helpFn();
   process.exit(1);
 }
 
-export const cyan = chalk.cyan;
-export const green = chalk.green;
 export const grey = chalk.grey;
-export const red = chalk.red;
-export const white = chalk.white;
-export const yellow = chalk.yellow;
 
 export const success = (str) => {
   console.log(chalk.green(str));
@@ -685,7 +680,7 @@ export function waitForBoot(instance, callback, startTime) {
 
     if (canConnect) {
       var duration = (_.now() - startTime) / 1000;
-      green('Connection established after ' + Math.ceil(duration) + ' seconds.');
+      success('Connection established after ' + Math.ceil(duration) + ' seconds.');
       if (isFunction(callback)) {
         callback();
       }
@@ -710,7 +705,7 @@ export function fixedWait(seconds, callback) {
 
 export function printCollection(type, collection) {
   if (collection.length === 0) {
-    return red('No ' + type + ' found.');
+    return failure('No ' + type + ' found.');
   }
 
   collection.forEach((obj) => {

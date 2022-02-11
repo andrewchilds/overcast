@@ -75,7 +75,7 @@ function connect(instance, args) {
   console.log(utils.grey(sshArgs.join(' ')));
 
   utils.each(ports, ({localPort, remoteHost, remotePort}) => {
-    utils.cyan(`Tunneling from ${localPort} to ${remoteHost}:${remotePort}.`);
+    utils.note(`Tunneling from ${localPort} to ${remoteHost}:${remotePort}.`);
   });
 
   ssh.stdout.on('data', data => {

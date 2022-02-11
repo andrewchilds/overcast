@@ -33,7 +33,7 @@ commands.info = {
 
     utils.eachObject(clusters, ({instances}, clusterName) => {
       console.log('');
-      utils.cyan(clusterName);
+      utils.note(clusterName);
       utils.eachObject(instances, instance => {
         console.log('');
         console.log(`  ${instance.name}`);

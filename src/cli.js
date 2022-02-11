@@ -106,7 +106,7 @@ export function run(command, args, next) {
 }
 
 export function missingArgument(name, command) {
-  utils.red(`Missing ${name} argument.`);
+  utils.failure(`Missing ${name} argument.`);
   compileHelp(command);
   process.exit(1);
 }
@@ -114,7 +114,7 @@ export function missingArgument(name, command) {
 export function missingCommand({banner, commands}, args) {
   let exitCode = 0;
   if (args.subcommand && args.subcommand !== 'help' && args.command !== 'help') {
-    utils.red('Missing or unknown command.');
+    utils.failure('Missing or unknown command.');
     exitCode = 1;
   }
 

@@ -1,3 +1,4 @@
+import chalk from 'chalk';
 import * as utils from '../utils.js';
 
 export const commands = {};
@@ -23,7 +24,7 @@ commands.list = {
       utils.eachObject(instances, (instance) => {
         const origin = `(${instance.user}@${instance.ip}:${instance.ssh_port || 22})`;
         const provider = getProviderName(instance);
-        const str = `  ${instance.name} ${origin} (${utils.green(provider || 'unknown provider')})`;
+        const str = `  ${instance.name} ${origin} (${chalk.green(provider || 'unknown provider')})`;
         console.log(str);
       });
     });

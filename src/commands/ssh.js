@@ -62,10 +62,10 @@ function connect(instance, args) {
   });
 
   ssh.on('error', err => {
-    utils.red('There was an error running this command.');
+    utils.failure('There was an error running this command.');
     if (password) {
-      utils.red('You need the "sshpass" program installed to use password-based');
-      utils.red('SSH authentication. Do you have that installed?');
+      utils.failure('You need the "sshpass" program installed to use password-based');
+      utils.failure('SSH authentication. Do you have that installed?');
     }
   });
 

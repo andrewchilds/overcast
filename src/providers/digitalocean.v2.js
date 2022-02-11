@@ -245,9 +245,9 @@ export function getAPI() {
 
   const vars = utils.getVariables();
   if (!vars.DIGITALOCEAN_API_TOKEN) {
-    utils.red('The variable DIGITALOCEAN_API_TOKEN is not set.');
-    utils.red('Go to https://cloud.digitalocean.com/settings/applications');
-    utils.red('to get this variable, then run the following command:');
+    utils.failure('The variable DIGITALOCEAN_API_TOKEN is not set.');
+    utils.failure('Go to https://cloud.digitalocean.com/settings/applications');
+    utils.failure('to get this variable, then run the following command:');
     return utils.die('overcast var set DIGITALOCEAN_API_TOKEN [your_api_token]');
   }
 

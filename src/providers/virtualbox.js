@@ -160,7 +160,7 @@ export function createVagrantBox(args) {
         }
       });
     } else {
-      utils.red('Image "' + args.image + '" not found. Please add this using Vagrant:');
+      utils.failure('Image "' + args.image + '" not found. Please add this using Vagrant:');
       utils.die('vagrant box add --name "' + args.image + '" [image-url]');
     }
   });
@@ -182,7 +182,7 @@ export function findNextAvailableIP(existing) {
     ip = ip.split('.');
     if (ip[3] === '255') {
       if (ip[2] === '255') {
-        utils.red('Congratulations! You seem to have used all available IP addresses in the 192.168 block.');
+        utils.failure('Congratulations! You seem to have used all available IP addresses in the 192.168 block.');
         utils.die('Please destroy some of these instances before making a new one.');
       }
       ip[2] = parseInt(ip[2], 10) + 1;

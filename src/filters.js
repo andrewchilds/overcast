@@ -76,8 +76,8 @@ export function shouldBeExistingKey(name, args) {
 
 export function shouldBeDigitalOcean(name, {instance}) {
   if (!instance || !instance.digitalocean) {
-    console.log(utils.red('This instance has no DigitalOcean metadata attached.'));
-    console.log(utils.red('Run this command and then try again:'));
+    utils.failure('This instance has no DigitalOcean metadata attached.');
+    utils.failure('Run this command and then try again:');
     utils.die(`overcast digitalocean sync "${instance.name}"`);
     return false;
   }

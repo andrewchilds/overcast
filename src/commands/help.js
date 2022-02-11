@@ -1,3 +1,4 @@
+import chalk from 'chalk';
 import * as utils from '../utils.js';
 import allCommands from './index.js';
 
@@ -12,7 +13,7 @@ commands.help = {
   run: (args) => {
     const signatures = [];
     let row = ' ';
-    utils.each(allCommands, (command, name) => {
+    utils.eachObject(allCommands, (command, name) => {
       if (name !== 'help' && (command.signatures || command.commands)) {
         if (row.length > 58) {
           signatures.push(row);
@@ -26,24 +27,24 @@ commands.help = {
     utils.printArray([
       (`This is Overcast v${utils.VERSION}.`),
       '',
-      'Source code, issues, pull requests:',
-      '  https://github.com/andrewchilds/overcast',
+      chalk.grey('Source code, issues, pull requests:'),
+      chalk.cyan('  https://github.com/andrewchilds/overcast'),
       '',
-      'Usage:',
+      chalk.grey('Usage:'),
       '  overcast [command] [options...]',
       '',
-      'Help:',
+      chalk.grey('Help:'),
       '  overcast help',
       '  overcast help [command]',
       '  overcast [command] help',
       '',
-      'Commands:'
+      chalk.grey('Commands:')
     ]);
     utils.printArray(signatures);
     utils.printArray([
       '',
       'Config directory:',
-      `  ${utils.CONFIG_DIR}`
+      chalk.cyan(`  ${utils.CONFIG_DIR}`)
     ]);
   }
 };
