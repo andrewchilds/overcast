@@ -33,8 +33,8 @@ commands.get = {
     var output = [];
     args.attr = args.attr.split(' ');
 
-    _.each(args.instances, (instance) => {
-      _.each(args.attr, (attr) => {
+    utils.each(args.instances, (instance) => {
+      utils.each(args.attr, (attr) => {
         attr = attr.replace(/-/g, '_');
         if (attr === 'origin') {
           output.push(instance.user + '@' + instance.ip + ':' + instance.ssh_port);
@@ -47,7 +47,7 @@ commands.get = {
     if (args.s || args['single-line']) {
       console.log(output.join(' '));
     } else {
-      _.each(output, (line) => {
+      utils.each(output, (line) => {
         console.log(line);
       });
     }
@@ -169,12 +169,12 @@ commands.update = {
     var instances = utils.findMatchingInstances(args.oldName || args.name);
     var messages = [];
 
-    _.each(instances, (instance) => {
+    utils.each(instances, (instance) => {
       return exports.updateInstance(args, messages, clusters, instance);
     });
 
     utils.saveClusters(clusters, () => {
-      _.each(messages, utils.success);
+      utils.each(messages, utils.success);
     });
   }
 };
@@ -211,7 +211,7 @@ exports.updateInstance = (args, messages, clusters, instance) => {
     messages.push('Instance "' + args.oldName + '" has been renamed to "' + args.name + '".');
   }
 
-  _.each(['ip', 'ssh-key', 'ssh-port', 'user', 'password'], (prop) => {
+  ['ip', 'ssh-key', 'ssh-port', 'user', 'password'].forEach((prop) => {
     if (prop in args) {
       if (args[prop]) {
         clusters[parentClusterName].instances[instance.name][prop.replace('-', '_')] = args[prop];

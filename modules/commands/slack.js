@@ -38,7 +38,7 @@ commands.slack = {
 
     var custom_fields = Object.assign({}, args);
     var keys = ['_', 'channel', 'command', 'message', 'icon-emoji', 'icon-url', 'message', 'user'];
-    _.each(keys, key => {
+    utils.each(keys, key => {
       delete custom_fields[key];
     });
 

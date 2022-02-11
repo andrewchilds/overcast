@@ -30,7 +30,7 @@ exports.run = args => {
     });
   }
 
-  _.each(instances, instance => {
+  utils.each(instances, instance => {
     if (instance.digitalocean) {
       addPromise(resolve => {
         args.command = 'digitalocean';

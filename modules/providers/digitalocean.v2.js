@@ -82,7 +82,7 @@ exports.reboot = (instance, callback) => {
 
 exports.rebuild = (instance, image, callback) => {
   exports.ensureDropletIsShutDown(instance, () => {
-    exports.dropletAction(instance, { type: 'rebuild', image: image }, callback);
+    exports.dropletAction(instance, { type: 'rebuild', image }, callback);
   });
 };
 
@@ -93,7 +93,7 @@ exports.resize = (instance, size, callback) => {
   }
 
   exports.ensureDropletIsShutDown(instance, () => {
-    exports.dropletAction(instance, { type: 'resize', disk: true, size: size }, callback);
+    exports.dropletAction(instance, { type: 'resize', disk: true, size }, callback);
   });
 };
 

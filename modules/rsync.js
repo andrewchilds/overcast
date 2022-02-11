@@ -8,7 +8,7 @@ exports.run = args => {
   utils.handleInstanceOrClusterNotFound(instances, args);
 
   if (args.parallel || args.p) {
-    _.each(instances, instance => {
+    utils.each(instances, instance => {
       runOnInstance(instance, _.cloneDeep(args));
     });
   } else {

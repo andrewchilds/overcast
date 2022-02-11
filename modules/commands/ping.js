@@ -20,7 +20,7 @@ commands.ping = {
   options: [{ usage: '--count N, -c N', default: '3' }],
   run: function (args) {
     var count = args.count || args.c || 3;
-    _.each(args.instances, instance => {
+    utils.each(args.instances, instance => {
       ping(instance, count);
     });
   }

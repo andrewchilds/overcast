@@ -101,7 +101,7 @@ exports.shutdown = (instance, callback) => {
 
 exports.parseCSV = str => {
   var arr = [];
-  _.each((str || '').split("\n"), row => {
+  utils.each((str || '').split("\n"), row => {
     row = row.trim();
     if (row) {
       // TODO: This doesn't handle double quotes or escaped commas. Fix me.
@@ -126,7 +126,7 @@ exports.getVagrantImages = args => {
       } else {
         stdout = exports.parseCSV(stdout);
         var images = [];
-        _.each(stdout, row => {
+        utils.each(stdout, row => {
           if (row[2] === 'box-name') {
             images.push(row[3]);
           }

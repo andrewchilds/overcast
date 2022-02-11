@@ -25,7 +25,7 @@ commands.info = {
 
     if (args.instances) {
       console.log('');
-      _.each(args.instances, instance => {
+      utils.each(args.instances, instance => {
         console.log(instance.name);
         utils.prettyPrint(instance, 2);
       });
@@ -33,10 +33,10 @@ commands.info = {
       return false;
     }
 
-    _.each(clusters, (cluster, clusterName) => {
+    utils.each(clusters, (cluster, clusterName) => {
       console.log('');
       utils.cyan(clusterName);
-      _.each(cluster.instances, instance => {
+      utils.each(cluster.instances, instance => {
         console.log('');
         console.log('  ' + instance.name);
         utils.prettyPrint(instance, 4);

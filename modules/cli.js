@@ -66,7 +66,7 @@ exports.run = (command, args, next) => {
     return exports.compileHelp(command);
   }
 
-  _.each(command.required, (required) => {
+  utils.each(command.required, (required) => {
     if (utils.isString(required)) {
       required = { name: required };
     }
@@ -87,7 +87,7 @@ exports.run = (command, args, next) => {
 
     if (args[key]) {
       required.filters = utils.forceArray(required.filters);
-      _.each(required.filters, (filter) => {
+      utils.each(required.filters, (filter) => {
         if (utils.isFunction(filter)) {
           // Allow filters to short-circuit a command run without
           // needing process.exit.
@@ -133,7 +133,7 @@ exports.missingCommand = (command, args) => {
     exports.printLines('View extended help.', { color: 'grey', pad: 2 });
   }
 
-  _.each(command.commands, (command) => {
+  utils.each(command.commands, (command) => {
     if (command.alias === true) {
       return;
     }

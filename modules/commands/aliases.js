@@ -23,8 +23,8 @@ commands.aliases = {
     '  source $HOME/.overcast_aliases'
   ],
   run: function (args) {
-    _.each(utils.getClusters(), cluster => {
-      _.each(cluster.instances, instance => {
+    utils.each(utils.getClusters(), cluster => {
+      utils.each(cluster.instances, instance => {
         console.log('alias ssh.' + instance.name + '="ssh -i ' +
           utils.normalizeKeyPath(instance.ssh_key) + ' -p ' + instance.ssh_port +
           ' ' + instance.user + '@' + instance.ip + '"');

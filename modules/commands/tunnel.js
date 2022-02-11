@@ -43,7 +43,7 @@ commands.tunnel = {
 
 function connect(instance, args) {
   var password = (args.password || instance.password || '');
-  
+
   var sshArgs = [];
   if (password) {
     sshArgs.push('sshpass');
@@ -64,7 +64,7 @@ function connect(instance, args) {
   }
 
   var ports = exports.normalizePorts(args._);
-  _.each(ports, port => {
+  utils.each(ports, port => {
     sshArgs.push('-L ' + port.localPort + ':' + port.remoteHost + ':' + port.remotePort);
   });
 
@@ -75,7 +75,7 @@ function connect(instance, args) {
 
   utils.grey(sshArgs.join(' '));
 
-  _.each(ports, port => {
+  utils.each(ports, port => {
     utils.cyan('Tunneling from ' + port.localPort + ' to ' + port.remoteHost + ':' + port.remotePort + '.');
   });
 
@@ -98,7 +98,7 @@ function connect(instance, args) {
 exports.normalizePorts = arr => {
   var ports = [];
 
-  _.each(arr, str => {
+  utils.each(arr, str => {
     str = (str + '').split(':');
     ports.push({
       localPort: str[0],

@@ -20,10 +20,10 @@ commands.list = {
       return false;
     }
 
-    _.each(clusters, (cluster, clusterName) => {
+    utils.each(clusters, (cluster, clusterName) => {
       console.log('');
       utils.grey(clusterName);
-      _.each(cluster.instances, instance => {
+      utils.each(cluster.instances, instance => {
         var origin = '(' + instance.user + '@' + instance.ip + ':' + (instance.ssh_port || 22) + ')';
         var provider = getProviderName(instance);
         var str = '  ' + instance.name + ' ' + origin + (provider ? ' ' + provider.green : '');

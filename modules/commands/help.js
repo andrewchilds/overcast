@@ -35,7 +35,7 @@ exports.run = args => {
 exports.help = () => {
   var signatures = [];
   var row = ' ';
-  _.each(utils.getCommands(), (command, name) => {
+  utils.each(utils.getCommands(), (command, name) => {
     if (name !== 'help' && (command.signatures || command.commands)) {
       if (row.length > 58) {
         signatures.push(row);

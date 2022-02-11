@@ -36,15 +36,15 @@ function getCompletions() {
     });
   }
 
-  _.each(utils.getCommands(), command => {
+  utils.each(utils.getCommands(), command => {
     if (command.signatures) {
-      _.each(command.signatures(), signature => {
+      utils.each(command.signatures(), signature => {
         pushWords(signature);
       });
     } else if (command.commands) {
-      _.each(command.commands, command => {
+      utils.each(command.commands, command => {
         command.usage = utils.forceArray(command.usage);
-        _.each(command.usage, usage => {
+        utils.each(command.usage, usage => {
           pushWords(usage);
         });
       });
@@ -52,9 +52,9 @@ function getCompletions() {
   });
 
   var clusters = utils.getClusters();
-  _.each(clusters, (cluster, clusterName) => {
+  utils.each(clusters, (cluster, clusterName) => {
     list.push(clusterName);
-    _.each(cluster.instances, (instance, instanceName) => {
+    utils.each(cluster.instances, (instance, instanceName) => {
       list.push(instanceName);
     });
   });

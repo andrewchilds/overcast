@@ -6,7 +6,7 @@ utils = require('../../modules/utils')
 exports.parseArgs = (argStr = '') ->
   args = []
   quoted = false
-  _.each(argStr.split(' '), (arg) ->
+  utils.each(argStr.split(' '), (arg) ->
     if (quoted)
       if (arg.charAt(arg.length - 1) is '"')
         arg = arg.substr(0, arg.length - 1)

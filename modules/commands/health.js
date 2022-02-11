@@ -63,18 +63,18 @@ commands.health = {
     ssh.run(args, () => {
       var output = {};
       utils.prefixPrint = old;
-      _.each(data, (raw, name) => {
+      utils.each(data, (raw, name) => {
         raw = prepareJSONformat(raw);
         var metrics;
         try {
           metrics = JSON.parse(raw);
-          _.each(metrics, (val, key) => {
+          utils.each(metrics, (val, key) => {
             if (utils.isString(val) && key !== 'disk_space_used_percentage') {
               metrics[key] = parseFloat(val);
             }
           });
           metrics.processes = _.compact(metrics.processes);
-          _.each(metrics.processes, (process, key) => {
+          utils.each(metrics.processes, (process, key) => {
             process = process.split(' ');
             var obj = {
               user: process.shift(),

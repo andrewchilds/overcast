@@ -13,7 +13,7 @@ commands.list = {
     var vars = utils.getVariables();
     utils.grey('Using ' + utils.VARIABLES_JSON);
     console.log('');
-    _.each(vars, (value, name) => {
+    utils.each(vars, (value, name) => {
       if (value === '') {
         console.log(name + ' ' + ('empty string').red);
       } else if (value === null) {

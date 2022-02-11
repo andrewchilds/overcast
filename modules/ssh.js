@@ -18,7 +18,7 @@ exports.run = (args, callback) => {
   utils.handleInstanceOrClusterNotFound(instances, args);
 
   if (args.parallel || args.p) {
-    _.each(instances, instance => {
+    utils.each(instances, instance => {
       runOnInstance(instance, _.cloneDeep(args));
     });
     if (utils.isFunction(callback)) {
@@ -55,7 +55,7 @@ function runOnInstance(instance, args, next) {
     continueOnError: args.continueOnError,
     machineReadable: args['mr'] || args['machine-readable'],
     env: args.env,
-    command: command,
+    command,
     shell_command: args['shell-command']
   }, () => {
     if (args._.length > 0) {

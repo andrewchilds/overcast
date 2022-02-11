@@ -37,7 +37,7 @@ exports.create = (args, callback) => {
 exports.createRequest = (args, query, callback) => {
   exports.request({
     endpoint: 'droplets/new',
-    query: query,
+    query,
     callback: function (result) {
       if (result && result.droplet && result.droplet.event_id) {
         waitForEventToFinish(result.droplet.event_id, () => {
@@ -65,21 +65,21 @@ exports.destroy = (instance, callback) => {
   exports.request({
     endpoint: 'droplets/' + instance.digitalocean.id + '/destroy',
     query: { scrub_data: 1 },
-    callback: callback
+    callback
   });
 };
 
 exports.boot = (instance, callback) => {
   exports.eventedRequest({
     endpoint: 'droplets/' + instance.digitalocean.id + '/power_on',
-    callback: callback
+    callback
   });
 };
 
 exports.shutdown = (instance, callback) => {
   exports.eventedRequest({
     endpoint: 'droplets/' + instance.digitalocean.id + '/power_off',
-    callback: callback
+    callback
   });
 };
 
@@ -88,7 +88,7 @@ exports.snapshot = (instance, snapshotName, callback) => {
     exports.eventedRequest({
       endpoint: 'droplets/' + instance.digitalocean.id + '/snapshot',
       query: { name: snapshotName },
-      callback: callback
+      callback
     });
   });
 };
@@ -96,7 +96,7 @@ exports.snapshot = (instance, snapshotName, callback) => {
 exports.reboot = (instance, callback) => {
   exports.eventedRequest({
     endpoint: 'droplets/' + instance.digitalocean.id + '/reboot',
-    callback: callback
+    callback
   });
 };
 
@@ -110,7 +110,7 @@ exports.rebuild = (instance, image, callback) => {
     exports.eventedRequest({
       endpoint: 'droplets/' + instance.digitalocean.id + '/rebuild',
       query: { image_id: match.id },
-      callback: callback
+      callback
     });
   });
 };
@@ -126,7 +126,7 @@ exports.resize = (instance, size, callback) => {
       exports.eventedRequest({
         endpoint: 'droplets/' + instance.digitalocean.id + '/resize',
         query: { size_id: match.id },
-        callback: callback
+        callback
       });
     });
   });
@@ -317,8 +317,8 @@ exports.normalizeAndFindPropertiesForCreate = (args, callback) => {
           return utils.die('No region found that matches "' + args.region + '".');
         }
 
-        _.each(['image', 'image-id', 'image-slug', 'image-name', 'size', 'size-id',
-          'size-slug', 'size-name', 'region', 'region-id', 'region-slug', 'region-name'], key => {
+        ['image', 'image-id', 'image-slug', 'image-name', 'size', 'size-id',
+          'size-slug', 'size-name', 'region', 'region-id', 'region-slug', 'region-name'].forEach(key => {
           delete args[key];
         });
 

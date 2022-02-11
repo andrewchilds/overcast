@@ -31,12 +31,12 @@ commands.port = {
   run: function (args) {
     var new_ssh_port = args.port + '';
     args.env = {
-      new_ssh_port: new_ssh_port
+      new_ssh_port
     };
 
     args._ = ['change_ssh_port'];
     ssh.run(args, () => {
-      _.each(args.instances, instance => {
+      utils.each(args.instances, instance => {
         utils.updateInstance(instance.name, {
           ssh_port: new_ssh_port
         });

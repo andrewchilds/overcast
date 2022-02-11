@@ -33,6 +33,16 @@ exports.isFunction = (v) => {
   return typeof v === 'function';
 };
 
+exports.each = (o, cb) => {
+  if (exports.isObject(o)) {
+    exports.yellow('This is an Object, replace with eachObject:' + o);
+    exports.eachObject(o, cb);
+  } else if (exports.isArray(o)) {
+    exports.yellow('This is an Array, replace with forEach:' + o);
+    o.forEach(cb);
+  }
+};
+
 exports.eachObject = (o, cb) => {
   Object.keys(o).forEach((k) => {
     cb(o[k], k);
@@ -269,8 +279,8 @@ exports.findMatchingInstances = name => {
   var instances = [];
 
   if (name === 'all') {
-    _.each(clusters, cluster => {
-      _.each(cluster.instances, instance => {
+    utils.each(clusters, cluster => {
+      utils.each(cluster.instances, instance => {
         instances.push(instance);
       });
     });
@@ -292,9 +302,9 @@ exports.findMatchingInstancesByInstanceName = name => {
     name = exports.convertWildcard(name);
   }
 
-  _.each(clusters, cluster => {
+  utils.each(clusters, cluster => {
     if (hasWildcard) {
-      _.each(cluster.instances, (instance, instanceName) => {
+      utils.each(cluster.instances, (instance, instanceName) => {
         if (name.test(instanceName)) {
           instances.push(instance);
         }
@@ -322,7 +332,7 @@ exports.findClusterNameForInstance = instance => {
   var clusters = exports.getClusters();
   var foundName;
 
-  _.each(clusters, (cluster, clusterName) => {
+  utils.each(clusters, (cluster, clusterName) => {
     if (!foundName && cluster.instances[instance.name]) {
       foundName = clusterName;
     }
@@ -341,7 +351,7 @@ exports.saveInstanceToCluster = (clusterName, instance, callback) => {
 exports.deleteInstance = (instance, callback) => {
   var clusters = exports.getClusters();
 
-  _.each(clusters, (cluster) => {
+  utils.each(clusters, (cluster) => {
     if (cluster.instances[instance.name] &&
       cluster.instances[instance.name].ip === instance.ip) {
       delete cluster.instances[instance.name];
@@ -354,8 +364,8 @@ exports.deleteInstance = (instance, callback) => {
 
 exports.updateInstance = (name, updates, callback) => {
   var clusters = exports.getClusters();
-  _.each(clusters, (cluster, clusterName) => {
-    _.each(cluster.instances, (instance) => {
+  utils.each(clusters, (cluster, clusterName) => {
+    utils.each(cluster.instances, (instance) => {
       if (instance.name === name) {
         Object.assign(instance, updates);
       }
@@ -436,7 +446,7 @@ exports.tokenize = str => {
   var token = '';
   var chunks = str.split(' ');
 
-  _.each(chunks, chunk => {
+  utils.each(chunks, chunk => {
     if (!chunk) {
       return;
     }
@@ -519,8 +529,8 @@ exports.forceArray = (strOrArray) => {
 
 exports.findUsingMultipleKeys = (collection, val, keys) => {
   var match = null;
-  _.each(collection, (obj) => {
-    _.each(keys, (key) => {
+  utils.each(collection, (obj) => {
+    utils.each(keys, (key) => {
       if (obj[key] && obj[key] === val) {
         match = obj;
         return false;
@@ -578,7 +588,7 @@ exports.missingCommand = (helpFn) => {
   process.exit(1);
 };
 
-_.each({
+utils.each({
   alert: 'yellow',
   cyan: 'cyan',
   green: 'green',
