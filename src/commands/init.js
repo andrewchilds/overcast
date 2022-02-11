@@ -11,7 +11,7 @@ commands.init = {
     'Create an .overcast config directory in the current working directory.',
     'No action taken if one already exists.'
   ],
-  run: function (args) {
+  run: (args) => {
     const cwd = process.cwd();
 
     if (fs.existsSync(`${cwd}/.overcast`)) {

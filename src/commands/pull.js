@@ -31,7 +31,7 @@ commands.pull = {
     { usage: '--user USERNAME' },
     { usage: '--password PASSWORD' }
   ],
-  run: function (args) {
+  run: (args) => {
     args.direction = 'pull';
 
     if (utils.argIsTruthy(args.rsync)) {

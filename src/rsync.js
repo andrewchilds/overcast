@@ -92,7 +92,7 @@ function rsync(options, next) {
     return utils.die('No direction specified.');
   }
 
-  utils.grey(args.join(' '));
+  console.log(utils.grey(args.join(' ')));
   var rsyncProcess = utils.spawn(args);
 
   rsyncProcess.stdout.on('data', data => {
@@ -109,7 +109,7 @@ function rsync(options, next) {
       utils.prefixPrint(options.name, color, str, 'red');
       process.exit(1);
     }
-    utils.success(options.source + ' transferred to ' + options.dest);
+    console.log(utils.success(options.source + ' transferred to ' + options.dest));
     console.log('');
     if (utils.isFunction(next)) {
       next();

@@ -284,10 +284,10 @@ export function getOrCreateOvercastKeyID(pubKeyPath, callback) {
       return name === utils.createHashedKeyName(keyData);
     });
     if (key) {
-      utils.grey(`Using SSH key: ${pubKeyPath}`);
+      console.log(utils.grey(`Using SSH key: ${pubKeyPath}`));
       callback(key.id);
     } else {
-      utils.grey(`Uploading new SSH key: ${pubKeyPath}`);
+      console.log(utils.grey(`Uploading new SSH key: ${pubKeyPath}`));
       createKey(keyData, (key) => {
         callback(key.id);
       });
@@ -342,7 +342,7 @@ function waitForEventToFinish(event_id, callback) {
   let response = {};
 
   const eventTimeout = setTimeout(() => {
-    utils.red(`This event has not finished in ${EVENT_TIMEOUT_NAME}, assuming it finished successfully...`);
+    console.log(utils.red(`This event has not finished in ${EVENT_TIMEOUT_NAME}, assuming it finished successfully...`));
     percentage = 100;
   }, EVENT_TIMEOUT);
 
@@ -400,10 +400,10 @@ export function request(options) {
   options.query.api_key = variables.DIGITALOCEAN_API_KEY;
 
   if (!variables.DIGITALOCEAN_CLIENT_ID || !variables.DIGITALOCEAN_API_KEY) {
-    utils.red('The variables DIGITALOCEAN_CLIENT_ID and DIGITALOCEAN_API_KEY are not set.');
-    utils.red('Go to https://cloud.digitalocean.com/api_access to get these variables,');
-    utils.red('then run the following commands:');
-    utils.red('overcast var set DIGITALOCEAN_CLIENT_ID [your_client_id]');
+    console.log(utils.red('The variables DIGITALOCEAN_CLIENT_ID and DIGITALOCEAN_API_KEY are not set.'));
+    console.log(utils.red('Go to https://cloud.digitalocean.com/api_access to get these variables,'));
+    console.log(utils.red('then run the following commands:'));
+    console.log(utils.red('overcast var set DIGITALOCEAN_CLIENT_ID [your_client_id]'));
     return utils.die('overcast var set DIGITALOCEAN_API_KEY [your_api_key]');
   }
 

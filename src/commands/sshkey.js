@@ -17,11 +17,11 @@ commands.create = {
     ' - /path/to/.overcast/keys/myKeyName.key.pub'
   ],
   required: [{ name: 'name', filters: filters.shouldBeNewKey }],
-  run: function({name}) {
+  run: ({ name }) => {
     utils.createKey(name, keyPath => {
-      utils.success(`New SSH key "${name}" created.`);
-      utils.grey(` - ${keyPath}`);
-      utils.grey(` - ${keyPath}.pub`);
+      console.log(utils.success(`New SSH key "${name}" created.`));
+      console.log(utils.grey(` - ${keyPath}`));
+      console.log(utils.grey(` - ${keyPath}.pub`));
     });
   }
 };
@@ -35,9 +35,9 @@ commands.delete = {
     'SSH key "myKeyName" deleted.'
   ],
   required: [{ name: 'name', filters: filters.shouldBeExistingKey }],
-  run: function({name}) {
+  run: ({ name }) => {
     utils.deleteKey(name, () => {
-      utils.success(`SSH key "${name}" deleted.`);
+      console.log(utils.success(`SSH key "${name}" deleted.`));
     });
   }
 };
@@ -62,7 +62,7 @@ commands.get = {
     '[private key data]'
   ],
   required: [{ name: 'name', filters: filters.shouldBeExistingKey }],
-  run: function (args) {
+  run: (args) => {
     const keyFile = utils.getKeyFileFromName(args.name);
     const publicKeyFile = `${keyFile}.pub`;
 
@@ -87,7 +87,7 @@ commands.list = {
     'myKeyName',
     'overcast'
   ],
-  run: function (args) {
+  run: (args) => {
     listKeys();
   }
 };
@@ -126,7 +126,7 @@ commands.push = {
     { usage: '--user USERNAME' },
     { usage: '--append, -a', default: 'false' }
   ],
-  run: function (args) {
+  run: (args) => {
     const keyPath = getKeyPath(args.path);
     args.env = {
       PUBLIC_KEY: fs.readFileSync(keyPath, { encoding: 'utf8' }),
@@ -136,10 +136,10 @@ commands.push = {
     args._ = ['authorize_key'];
     args.mr = true; // machine readable
     ssh.run(args, () => {
-      utils.success(`Key updated on ${args.instances.length} instance(s).`);
-      utils.grey('If this is the default user you use to SSH in,');
-      utils.grey('you need to update the instance configuration. For example:');
-      utils.grey(`overcast instance update ${args.name} --ssh-key myPrivateKey.key`);
+      console.log(utils.success(`Key updated on ${args.instances.length} instance(s).`));
+      console.log(utils.grey('If this is the default user you use to SSH in,'));
+      console.log(utils.grey('you need to update the instance configuration. For example:'));
+      console.log(utils.grey(`overcast instance update ${args.name} --ssh-key myPrivateKey.key`));
     });
   }
 };

@@ -19,7 +19,7 @@ commands.ssh = {
     { usage: '--password PASSWORD' },
     { usage: '--ssh-key PATH' }
   ],
-  run: function (args) {
+  run: (args) => {
     // Fix "possible EventEmitter memory leak detected" errors.
     // Ref: https://github.com/andrewchilds/overcast/issues/14
     process.stdin.setMaxListeners(0);

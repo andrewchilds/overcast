@@ -32,7 +32,7 @@ commands.tunnel = {
     { usage: '--password PASSWORD' },
     { usage: '--ssh-key PATH' }
   ],
-  run: function (args) {
+  run: (args) => {
     args._.unshift(args.firstPort);
     delete args.firstPort;
 
@@ -72,18 +72,18 @@ function connect(instance, args) {
 
   const ssh = utils.spawn(sshArgs);
 
-  utils.grey(sshArgs.join(' '));
+  console.log(utils.grey(sshArgs.join(' ')));
 
   utils.each(ports, ({localPort, remoteHost, remotePort}) => {
     utils.cyan(`Tunneling from ${localPort} to ${remoteHost}:${remotePort}.`);
   });
 
   ssh.stdout.on('data', data => {
-    utils.grey(data.toString());
+    console.log(utils.grey(data.toString()));
   });
 
   ssh.stderr.on('data', data => {
-    utils.grey(data.toString());
+    console.log(utils.grey(data.toString()));
   });
 
   ssh.on('exit', code => {

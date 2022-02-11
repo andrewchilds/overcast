@@ -9,7 +9,7 @@ commands.help = {
   description: [
     'Provides help about Overcast and specific commands.'
   ],
-  run: function (args) {
+  run: (args) => {
     const signatures = [];
     let row = ' ';
     utils.each(allCommands, (command, name) => {

@@ -27,7 +27,7 @@ commands.port = {
     { name: 'instance|cluster|all', varName: 'name', filters: filters.findMatchingInstances },
     { name: 'port' }
   ],
-  run: function (args) {
+  run: (args) => {
     const new_ssh_port = `${args.port}`;
     args.env = {
       new_ssh_port

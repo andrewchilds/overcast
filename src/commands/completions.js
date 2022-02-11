@@ -19,7 +19,7 @@ commands.completions = {
     '}',
     'complete -F _overcast_completions overcast'
   ],
-  run: function (args) {
+  run: (args) => {
     console.log(getCompletions().join(" "));
   }
 };

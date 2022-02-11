@@ -138,7 +138,7 @@ export function getVagrantImages(args) {
 export function createVagrantBox(args) {
   return new Promise((resolve, reject) => {
     if (args.vagrantImages && args.vagrantImages.indexOf(args.image) !== -1) {
-      utils.grey('Image "' + args.image + '" found.');
+      console.log(utils.grey('Image "' + args.image + '" found.'));
       resolve(args);
     } else if (BUNDLED_IMAGE_URLS[args.image]) {
       var color = utils.SSH_COLORS[utils.SSH_COUNT++ % 5];
@@ -199,7 +199,7 @@ export function findNextAvailableIP(existing) {
 export function createInstance(args) {
   return new Promise((resolve, reject) => {
     var ip = nextAvailableIP(args.ip || FIRST_IP);
-    utils.grey('Using IP address ' + ip + '.');
+    console.log(utils.grey('Using IP address ' + ip + '.'));
 
     args.ip = ip;
     args.dir = OVERCAST_VAGRANT_DIR + '/' + ip;

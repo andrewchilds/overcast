@@ -25,7 +25,7 @@ commands.scriptvar = {
     { usage: '--machine-readable, --mr', default: 'false' },
     { usage: '--parallel, -p', default: 'false' }
   ],
-  run: function (args) {
+  run: (args) => {
     args._ = ['set_script_var'];
     args.env = {
       VAR_FILENAME: args.var_filename,

@@ -47,7 +47,6 @@ export function each(o, cb) {
 
 export function eachObject(o, cb) {
   Object.keys(o).forEach((k) => {
-    console.log(k);
     cb(o[k], k);
   });
 }
@@ -64,7 +63,7 @@ export function maxValueFromArray(arr, cb) {
     }
   });
 
-  return max;
+  return result;
 }
 
 export function mapObject(o, cb) {
@@ -590,7 +589,7 @@ export function missingCommand(helpFn) {
 export const alert = chalk.yellow;
 export const cyan = chalk.cyan;
 export const green = chalk.green;
-export const grey = chalk.blackBright;
+export const grey = chalk.grey;
 export const note = chalk.cyan;
 export const red = chalk.red;
 export const success = chalk.green;

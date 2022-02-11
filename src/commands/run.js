@@ -45,7 +45,7 @@ commands.run = {
     { usage: '--parallel, -p', default: 'false' },
     { usage: '--shell-command "COMMAND"', default: 'bash -s' },
   ],
-  run: function (args) {
+  run: (args) => {
     args._.unshift(args.firstCommandOrFile);
     delete args.firstCommandOrFile;
 

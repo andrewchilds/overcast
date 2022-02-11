@@ -17,7 +17,7 @@ commands.ping = {
     { name: 'name', filters: filters.findMatchingInstances }
   ],
   options: [{ usage: '--count N, -c N', default: '3' }],
-  run: function (args) {
+  run: (args) => {
     const count = args.count || args.c || 3;
     utils.each(args.instances, instance => {
       ping(instance, count);

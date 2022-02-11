@@ -26,7 +26,7 @@ commands.slack = {
     { usage: '--user NAME', default: 'Overcast' },
     { usage: '--KEY VALUE' }
   ],
-  run: function (args) {
+  run: (args) => {
     const options = {
       channel: args.channel || '#alerts',
       icon_emoji: args['icon-emoji'] || ':cloud:',
@@ -50,8 +50,8 @@ export function send(options) {
   const vars = utils.getVariables();
 
   if (!vars.SLACK_WEBHOOK_URL) {
-    utils.grey('No message sent.');
-    utils.grey(`Please add SLACK_WEBHOOK_URL to ${utils.VARIABLES_JSON}.`);
+    console.log(utils.grey('No message sent.'));
+    console.log(utils.grey(`Please add SLACK_WEBHOOK_URL to ${utils.VARIABLES_JSON}.`));
 
     return false;
   }

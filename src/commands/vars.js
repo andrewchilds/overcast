@@ -7,9 +7,9 @@ commands.list = {
   name: 'list',
   usage: 'overcast vars list',
   description: `List variables in ${utils.VARIABLES_JSON}.`,
-  run: function (args) {
+  run: (args) => {
     const vars = utils.getVariables();
-    utils.grey(`Using ${utils.VARIABLES_JSON}`);
+    console.log(utils.grey(`Using ${utils.VARIABLES_JSON}`));
     console.log('');
     utils.each(vars, (value, name) => {
       if (value === '') {
@@ -75,7 +75,7 @@ commands.delete = {
       vars[name] = '';
       utils.saveVariables(vars);
     } else {
-      utils.grey('Variable not found, no action taken.');
+      console.log(utils.grey('Variable not found, no action taken.'));
     }
   }
 };

@@ -128,7 +128,7 @@ export function missingCommand({banner, commands}, args) {
     printLines('View extended help.', { color: 'grey', pad: 2 });
   }
 
-  utils.each(commands, ({alias, usage, description}) => {
+  utils.eachObject(commands, ({ alias, usage, description }) => {
     if (alias === true) {
       return;
     }
@@ -152,7 +152,7 @@ export function compileHelp(command, skipFirstLine) {
       if (key === 'options') {
         printCommandOptions(command.options);
       } else {
-        utils.grey(`${utils.capitalize(key)}:`);
+        console.log(utils.grey(`${utils.capitalize(key)}:`));
         printLines(command[key], { pad: 2 });
       }
     }
@@ -171,7 +171,7 @@ export function printCommandOptions(options) {
   if (hasDefaults) {
     headline = `${utils.padRight(headline, maxLength + 2)}Defaults:`;
   }
-  utils.grey(headline);
+  console.log(utils.grey(headline));
   options.forEach((option) => {
     console.log(`  ${utils.padRight(option.usage, maxLength)}${option.default || ''}`);
   });

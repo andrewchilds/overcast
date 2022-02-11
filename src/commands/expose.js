@@ -34,7 +34,7 @@ commands.expose = {
     'Only allow SSH and MySQL connections from 1.2.3.4 or from 5.6.7.xxx:',
     '$ overcast expose mysql 22 3306 --whitelist "1.2.3.4 5.6.7.0/24"'
   ],
-  run: function (args) {
+  run: (args) => {
     args.env = {
       exposed_ports: args.ports
     };

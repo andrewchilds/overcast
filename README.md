@@ -124,7 +124,6 @@ I wanted something that had little to no learning curve, that did only what you 
   - [Overcast Charts](https://github.com/andrewchilds/overcast-charts)
 
 ## Command Reference
-
 ### overcast aliases
 
 ```
@@ -145,116 +144,6 @@ Description:
   add this to your .bash_profile:
     overcast aliases > $HOME/.overcast_aliases
     source $HOME/.overcast_aliases
-```
-
-### overcast aws boot
-
-```
-Usage:
-  overcast aws boot [name]
-
-Description:
-  Boot up an EC2 instance.
-```
-
-### overcast aws create
-
-```
-Usage:
-  overcast aws create [name] [options...]
-
-Description:
-  Creates a new EC2 instance.
-
-Options:                      Defaults:
-  --cluster CLUSTER           default
-  --availability-zone NAME    (default)
-  --image IMAGE               ami-64e27e0c (Ubuntu 14.04 64bit, EBS, us-east-1)
-  --monitoring                false
-  --region REGION             us-east-1
-  --security-group-ids IDS    (default)
-  --size SIZE                 t1.micro
-  --ssh-key PATH              overcast.key
-  --ssh-pub-key PATH          overcast.key.pub
-  --user USERNAME             root
-
-Examples:
-  # Specify size:
-  $ overcast aws create vm-01 --size m1.small --user ubuntu
-
-  # Specify image and region (Ubuntu 14.04 64bit, EBS, us-west-2):
-  $ overcast aws create vm-01 --region us-west-2 --image ami-978dd9a7 --user ubuntu
-
-  # Specify security groups, separated by spaces:
-  $ overcast aws create vm-01 --security-group-ids "sg-12a34b56 sg-90c32ab1" --user ubuntu
-
-  # Specify availability zone:
-  $ overcast aws create vm-01 --availability-zone us-east-1d --user ubuntu
-
-  # Enable root access:
-  $ overcast aws create vm-02 --user ubuntu
-  $ overcast run vm-02 allow_root_access_on_ec2
-  $ overcast instance update vm-02 --user root
-```
-
-### overcast aws destroy
-
-```
-Usage:
-  overcast aws destroy [name] [options...]
-
-Description:
-  Destroys an EC2 instance.
-  Using --force overrides the confirm dialog.
-
-Options:     Defaults:
-  --force    false
-
-Examples:
-  $ overcast aws destroy vm-01
-```
-
-### overcast aws instances
-
-```
-Usage:
-  overcast aws instances [options...]
-
-Description:
-  List all EC2 instances in your account.
-
-Options:             Defaults:
-  --region REGION    us-east-1
-```
-
-### overcast aws reboot
-
-```
-Usage:
-  overcast aws reboot [name]
-
-Description:
-  Reboots an EC2 instance.
-```
-
-### overcast aws regions
-
-```
-Usage:
-  overcast aws regions
-
-Description:
-  List all EC2 regions.
-```
-
-### overcast aws shutdown
-
-```
-Usage:
-  overcast aws shutdown [name]
-
-Description:
-  Shut down an EC2 instance.
 ```
 
 ### overcast cluster count
@@ -333,19 +222,6 @@ Description:
     return 0
   }
   complete -F _overcast_completions overcast
-```
-
-### overcast destroy
-
-```
-  overcast destroy [instance]
-    Destroy an instance using the provider API.
-
-      Option      | Default
-      --force     | false
-
-    Example:
-    $ overcast destroy app-01
 ```
 
 ### overcast digitalocean boot
@@ -580,109 +456,14 @@ Options:
   --machine-readable, --mr
 ```
 
-### overcast get
-
-```
-Usage:
-  overcast get [instance|cluster|all] [attr...] [options...]
-
-Description:
-  Returns the attribute(s) for the instance or cluster, one per line,
-  or space-delimited using the --single-line option.
-  "origin" is a compound attribute that returns user@ip:ssh-port.
-
-Options:               Defaults:
-  --single-line, -s    false
-```
-
-### overcast health
-
-```
-Usage:
-  overcast health [instance|cluster|all]
-
-Description:
-  Outputs common health statistics in JSON format.
-  Expects an Ubuntu or Debian server.
-
-Examples:
-  Example JSON response:
-  {
-    "my_instance_name": {
-      "cpu_1min": 0.53,
-      "cpu_5min": 0.05,
-      "cpu_15min": 0.10,
-      "disk_total": 19592,     // in MB
-      "disk_used": 13445,      // in MB
-      "disk_free": 5339,       // in MB
-      "mem_total": 1000,       // in MB
-      "mem_used": 904,         // in MB
-      "mem_free": 96,          // in MB
-      "cache_used": 589,       // in MB
-      "cache_free": 410,       // in MB
-      "swap_total": 255,       // in MB
-      "swap_used": 124,        // in MB
-      "swap_free": 131,        // in MB
-      "tcp": 152,              // open TCP connections
-      "rx_bytes": 196396703,   // total bytes received
-      "tx_bytes": 47183785,    // total bytes transmitted
-      "io_reads": 1871210,     // total bytes read
-      "io_writes": 6446448,    // total bytes written
-      "processes": [
-        {
-          "user": "root",
-          "pid": 1,
-          "cpu%": 0,
-          "mem%": 0,
-          "time": "0:01",
-          "command": "/sbin/init"
-        }
-      ]
-    }
-  }
-```
-
 ### overcast help
 
 ```
-  Overcast v1.0.8
-
-  Source code, issues, pull requests:
-    https://github.com/andrewchilds/overcast
-
-  Usage:
-    overcast [command] [options...]
-
-  Help:
-    overcast help
-    overcast help [command]
-    overcast [command] help
-
-  Commands:
-    aliases aws cluster completions destroy digitalocean expose
-    exposed get health import info init instance key linode list
-    ping port pull push reboot remove run scriptvar slack ssh
-    tunnel var virtualbox wait
-
-  Config directory:
-    /path/to/.overcast
-```
-
-### overcast import
-
-```
 Usage:
-  overcast import [name] [ip] [options...]
+  overcast help
 
 Description:
-  Imports an existing instance to a cluster.
-
-Options:                 Defaults:
-  --cluster CLUSTER      default
-  --ssh-port PORT        22
-  --ssh-key PATH         overcast.key
-  --user USERNAME        root
-  --password PASSWORD
+  Provides help about Overcast and specific commands.
 ```
 
 ### overcast info
@@ -810,263 +591,6 @@ Examples:
   $ overcast instance update app-cluster --ssh-port 22222
 ```
 
-### overcast key create
-
-```
-Usage:
-  overcast key create [name]
-
-Description:
-  Creates a new SSH key in the current .overcast config.
-
-Examples:
-  $ overcast key create myKeyName
-  New SSH key "myKeyName" created.
-   - /path/to/.overcast/keys/myKeyName.key
-   - /path/to/.overcast/keys/myKeyName.key.pub
-```
-
-### overcast key delete
-
-```
-Usage:
-  overcast key delete [name]
-
-Description:
-  Deletes SSH public/private key files from the current .overcast config.
-
-Examples:
-  $ overcast key delete myKeyName
-  SSH key "myKeyName" deleted.
-```
-
-### overcast key get
-
-```
-Usage:
-  overcast key get [name] [option]
-
-Description:
-  Display the requested SSH key data or path from the current .overcast config.
-  Defaults to displaying the public key data if no option found.
-
-Options:
-  --public-data
-  --private-data
-  --public-path
-  --private-path
-
-Examples:
-  $ overcast key get myKeyName
-  [public key data]
-  $ overcast key get myKeyName --private-data
-  [private key data]
-```
-
-### overcast key list
-
-```
-Usage:
-  overcast key list
-
-Description:
-  List the found SSH key names in the current .overcast config.
-
-Examples:
-  $ overcast key list
-  myKeyName
-  overcast
-```
-
-### overcast key push
-
-```
-Usage:
-  overcast key push [instance|cluster|all] [name|path] [options...]
-
-Description:
-  Push a public SSH key to an instance or cluster. Accepts a key name,
-  filename, or full path. This will overwrite the existing authorized_keys
-  file, unless you use --append.
-
-Options:             Defaults:
-  --user USERNAME
-  --append, -a       false
-
-Examples:
-  # Generate new SSH key pair:
-  $ overcast key create newKey
-
-  # Push public key to instance, update instance config to use private key:
-  $ overcast key push vm-01 newKey
-  $ overcast instance update vm-01 --ssh-key newKey.key
-
-  # Same as above but using key path instead of key name:
-  $ overcast key push vm-02 "~/.ssh/id_rsa.pub"
-  $ overcast instance update vm-02 --ssh-key "~/.ssh/id_rsa"
-
-  # Push public key to instance using arbitrary user:
-  $ overcast key push vm-03 newKey --user myOtherUser
-
-  # Append public key to authorized_keys instead of overwriting:
-  $ overcast key push vm-04 newKey --append
-```
-
-### overcast linode boot
-
-```
-Usage:
-  overcast linode boot [name]
-
-Description:
-  Boot up an instance if powered off, otherwise do nothing.
-```
-
-### overcast linode create
-
-```
-Usage:
-  overcast linode create [name] [options...]
-
-Description:
-  Creates a new instance on Linode.
-
-Options:                 Defaults:
-  --cluster CLUSTER      default
-  --image IMAGE          ubuntu-14-04-lts
-  --kernel KERNEL        Latest 64 bit
-  --password PASSWORD    autogenerated
-  --payment-term ID      1 (monthly, if not metered)
-  --region REGION        newark
-  --size SIZE            1024
-  --ssh-key PATH         overcast.key
-  --ssh-pub-key PATH     overcast.key.pub
-  --swap MB              256
-
-Examples:
-  # Specified size:
-  $ overcast linode create vm-01 --size 4096
-
-  # Specified image and region:
-  $ overcast aws create vm-01 --image "Debian 7.7" --region london
-```
-
-### overcast linode destroy
-
-```
-Usage:
-  overcast linode destroy [name] [options...]
-
-Description:
-  Destroys a Linode instance.
-  Using --force overrides the confirm dialog.
-
-Options:     Defaults:
-  --force    false
-
-Examples:
-  $ overcast linode destroy vm-01 --force
-```
-
-### overcast linode images
-
-```
-Usage:
-  overcast linode images
-
-Description:
-  List all available images.
-```
-
-### overcast linode instances
-
-```
-Usage:
-  overcast linode instances
-
-Description:
-  List all instances in your account.
-```
-
-### overcast linode kernels
-
-```
-Usage:
-  overcast linode kernels
-
-Description:
-  List all available kernels.
-```
-
-### overcast linode reboot
-
-```
-Usage:
-  overcast linode reboot [name]
-
-Description:
-  Reboot an instance using the provider API.
-```
-
-### overcast linode regions
-
-```
-Usage:
-  overcast linode regions
-
-Description:
-  List all available regions.
-```
-
-### overcast linode resize
-
-```
-Usage:
-  overcast linode resize [name] [size] [options...]
-
-Description:
-  Shutdown, resize, and reboot a Linode instance.
-  [size] can be a size ID, name or slug.
-  If the --skip-boot flag is used, the instance will stay powered off.
-
-Options:         Defaults:
-  --skip-boot    false
-
-Examples:
-  # Resize an instance to 4096:
-  $ overcast linode resize vm-01 4096
-```
-
-### overcast linode shutdown
-
-```
-Usage:
-  overcast linode shutdown [name]
-
-Description:
-  Shut down an instance using the provider API.
-```
-
-### overcast linode sizes
-
-```
-Usage:
-  overcast linode sizes
-
-Description:
-  List all available instance sizes.
-```
-
-### overcast linode sync
-
-```
-Usage:
-  overcast linode sync [name]
-
-Description:
-  Fetch and update instance metadata.
-```
-
 ### overcast list
 
 ```
@@ -1164,31 +688,6 @@ Examples:
     - .overcast/files/app.01.bashrc
     - .overcast/files/app.02.bashrc
   $ overcast push app {instance}.bashrc .bashrc
-```
-
-### overcast reboot
-
-```
-  overcast reboot [instance|cluster|all]
-    Reboot an instance or cluster.
-
-    If the instance was created using AWS, DigitalOcean or Linode,
-    this will use the provider API. Otherwise this will execute the "reboot"
-    command on the server and then wait until the server is responsive.
-```
-
-### overcast remove
-
-```
-Usage:
-  overcast remove [name]
-
-Description:
-  Removes an instance from the index.
-  The server itself is not affected by this action.
-
-Examples:
-  $ overcast instance remove app-01
 ```
 
 ### overcast run
@@ -1291,6 +790,108 @@ Options:
   --ssh-key PATH
 ```
 
+### overcast sshkey create
+
+```
+Usage:
+  overcast sshkey create [name]
+
+Description:
+  Creates a new SSH key in the current .overcast config.
+
+Examples:
+  $ overcast sshkey create myKeyName
+  New SSH key "myKeyName" created.
+   - /path/to/.overcast/keys/myKeyName.key
+   - /path/to/.overcast/keys/myKeyName.key.pub
+```
+
+### overcast sshkey delete
+
+```
+Usage:
+  overcast sshkey delete [name]
+
+Description:
+  Deletes SSH public/private key files from the current .overcast config.
+
+Examples:
+  $ overcast sshkey delete myKeyName
+  SSH key "myKeyName" deleted.
+```
+
+### overcast sshkey get
+
+```
+Usage:
+  overcast sshkey get [name] [option]
+
+Description:
+  Display the requested SSH key data or path from the current .overcast config.
+  Defaults to displaying the public key data if no option found.
+
+Options:
+  --public-data
+  --private-data
+  --public-path
+  --private-path
+
+Examples:
+  $ overcast sshkey get myKeyName
+  [public key data]
+  $ overcast sshkey get myKeyName --private-data
+  [private key data]
+```
+
+### overcast sshkey list
+
+```
+Usage:
+  overcast sshkey list
+
+Description:
+  List the found SSH key names in the current .overcast config.
+
+Examples:
+  $ overcast sshkey list
+  myKeyName
+  overcast
+```
+
+### overcast sshkey push
+
+```
+Usage:
+  overcast sshkey push [instance|cluster|all] [name|path] [options...]
+
+Description:
+  Push a public SSH key to an instance or cluster. Accepts a key name,
+  filename, or full path. This will overwrite the existing authorized_keys
+  file, unless you use --append.
+
+Options:             Defaults:
+  --user USERNAME
+  --append, -a       false
+
+Examples:
+  # Generate new SSH key pair:
+  $ overcast sshkey create newKey
+
+  # Push public key to instance, update instance config to use private key:
+  $ overcast sshkey push vm-01 newKey
+  $ overcast instance update vm-01 --ssh-key newKey.key
+
+  # Same as above but using key path instead of key name:
+  $ overcast sshkey push vm-02 "~/.ssh/id_rsa.pub"
+  $ overcast instance update vm-02 --ssh-key "~/.ssh/id_rsa"
+
+  # Push public key to instance using arbitrary user:
+  $ overcast sshkey push vm-03 newKey --user myOtherUser
+
+  # Append public key to authorized_keys instead of overwriting:
+  $ overcast sshkey push vm-04 newKey --append
+```
+
 ### overcast tunnel
 
 ```
@@ -1319,58 +920,58 @@ Examples:
   $ overcast tunnel app-01 3000:otherhost.com:4000
 ```
 
-### overcast var list
+### overcast vars list
 
 ```
 Usage:
-  overcast var list
+  overcast vars list
 
 Description:
-  List variables in /path/to/.overcast/variables.json.
+  List variables in undefined.
 ```
 
-### overcast var set
+### overcast vars set
 
 ```
 Usage:
-  overcast var set [name] [value]
+  overcast vars set [name] [value]
 
 Description:
-  Set a variable in /path/to/.overcast/variables.json.
+  Set a variable in undefined.
 
 Examples:
-  $ overcast var set AWS_KEY myawskey12345
-  $ overcast var set MY_CUSTOM_VARIABLE_NAME foo
+  $ overcast vars set AWS_KEY myawskey12345
+  $ overcast vars set MY_CUSTOM_VARIABLE_NAME foo
 ```
 
-### overcast var get
+### overcast vars get
 
 ```
 Usage:
-  overcast var get [name]
+  overcast vars get [name]
 
 Description:
-  Get a variable from /path/to/.overcast/variables.json.
+  Get a variable from undefined.
 
 Examples:
-  $ overcast var get AWS_KEY
+  $ overcast vars get AWS_KEY
   > myawskey12345
 
-  $ overcast var get MY_CUSTOM_VARIABLE_NAME
+  $ overcast vars get MY_CUSTOM_VARIABLE_NAME
   > foo
 ```
 
-### overcast var delete
+### overcast vars delete
 
 ```
 Usage:
-  overcast var delete [name]
+  overcast vars delete [name]
 
 Description:
-  Delete a variable from /path/to/.overcast/variables.json.
+  Delete a variable from undefined.
 
 Examples:
-  $ overcast var delete MY_CUSTOM_VARIABLE_NAME
+  $ overcast vars delete MY_CUSTOM_VARIABLE_NAME
 ```
 
 ### overcast virtualbox boot

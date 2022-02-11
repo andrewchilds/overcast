@@ -37,7 +37,7 @@ export function createRequest(args, query, callback) {
       return utils.die(`Got an error from the DigitalOcean API: ${err}`);
     }
     if (body && body.droplet) {
-      utils.grey('Waiting for instance to be created...');
+      console.log(utils.grey('Waiting for instance to be created...'));
       waitForActionToComplete(body.links.actions[0].id, () => {
         getInstance(body.droplet.id, droplet => {
           const response = {
@@ -314,10 +314,10 @@ export function getOrCreateOvercastKeyID(pubKeyPath, callback) {
       return name === utils.createHashedKeyName(keyData);
     });
     if (key) {
-      utils.grey(`Using SSH key: ${pubKeyPath}`);
+      console.log(utils.grey(`Using SSH key: ${pubKeyPath}`));
       callback(key.id);
     } else {
-      utils.grey(`Uploading new SSH key: ${pubKeyPath}`);
+      console.log(utils.grey(`Uploading new SSH key: ${pubKeyPath}`));
       createKey(keyData, (key) => {
         callback(key.id);
       });

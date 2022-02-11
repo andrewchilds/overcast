@@ -31,7 +31,7 @@ commands.push = {
     { usage: '--user USERNAME' },
     { usage: '--password PASSWORD' }
   ],
-  run: function (args) {
+  run: (args) => {
     args.direction = 'push';
 
     if (utils.argIsTruthy(args.rsync)) {

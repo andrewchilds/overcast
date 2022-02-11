@@ -20,8 +20,8 @@ commands.aliases = {
     '  overcast aliases > $HOME/.overcast_aliases',
     '  source $HOME/.overcast_aliases'
   ],
-  run: (args) => {
-    utils.eachObject(utils.getClusters(), ({instances}) => {
+  run: () => {
+    utils.eachObject(utils.getClusters(), ({ instances }) => {
       utils.eachObject(instances, instance => {
         console.log(`alias ssh.${instance.name}="ssh -i ${utils.normalizeKeyPath(instance.ssh_key)} -p ${instance.ssh_port} ${instance.user}@${instance.ip}"`);
       });

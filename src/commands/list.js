@@ -9,16 +9,17 @@ commands.list = {
   run: (args) => {
     const clusters = utils.getClusters();
 
-    utils.grey(`Using ${utils.CONFIG_DIR}/clusters.json`);
+    console.log(utils.grey(`Using ${utils.CONFIG_DIR}/clusters.json`));
 
     if (!clusters) {
       console.log('');
-      utils.note('No clusters found.');
+      console.log(utils.note('No clusters found.'));
       return false;
     }
 
-    utils.eachObject(clusters, ({instances}, clusterName) => {
-      utils.grey(clusterName);
+    utils.eachObject(clusters, ({ instances }, clusterName) => {
+      console.log('');
+      console.log(utils.grey(clusterName));
       utils.eachObject(instances, (instance) => {
         const origin = `(${instance.user}@${instance.ip}:${instance.ssh_port || 22})`;
         const provider = getProviderName(instance);

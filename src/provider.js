@@ -10,7 +10,7 @@ export function handleCommandNotFound(fn) {
 export function create(api, args, callback) {
   handleCommandNotFound(api.create);
 
-  utils.grey(`Creating new instance "${args.name}" on ${api.name}...`);
+  console.log(utils.grey(`Creating new instance "${args.name}" on ${api.name}...`));
   api.create(args, instance => {
     utils.saveInstanceToCluster(args.cluster, instance);
     utils.success(`Instance "${args.name}" (${instance.ip}) saved.`);
@@ -39,7 +39,7 @@ export function destroy(api, args, callback) {
   rl.question(q, answer => {
     rl.close();
     if (answer !== '' && answer !== 'Y' && answer !== 'y') {
-      utils.grey('No action taken.');
+      console.log(utils.grey('No action taken.'));
     } else {
       api.destroy(args.instance, onDestroy);
     }
@@ -49,7 +49,7 @@ export function destroy(api, args, callback) {
 export function boot(api, args, callback) {
   handleCommandNotFound(api.boot);
 
-  utils.grey(`Booting "${args.instance.name}"...`);
+  console.log(utils.grey(`Booting "${args.instance.name}"...`));
   api.boot(args.instance, () => {
     utils.success(`Instance "${args.instance.name}" booted.`);
     utils.waitForBoot(args.instance, callback);
@@ -59,7 +59,7 @@ export function boot(api, args, callback) {
 export function shutdown(api, args, callback) {
   handleCommandNotFound(api.shutdown);
 
-  utils.grey(`Shutting down "${args.instance.name}"...`);
+  console.log(utils.grey(`Shutting down "${args.instance.name}"...`));
   api.shutdown(args.instance, () => {
     utils.success(`Instance "${args.instance.name}" has been shut down.`);
     if (utils.isFunction(callback)) {
@@ -71,7 +71,7 @@ export function shutdown(api, args, callback) {
 export function reboot(api, args, callback) {
   handleCommandNotFound(api.reboot);
 
-  utils.grey(`Rebooting "${args.instance.name}"...`);
+  console.log(utils.grey(`Rebooting "${args.instance.name}"...`));
   api.reboot(args.instance, () => {
     utils.success(`Instance "${args.instance.name}" rebooted.`);
     utils.waitForBoot(args.instance, callback);
@@ -81,7 +81,7 @@ export function reboot(api, args, callback) {
 export function rebuild(api, args, callback) {
   handleCommandNotFound(api.rebuild);
 
-  utils.grey(`Rebuilding "${args.instance.name}" using image "${args.image}"...`);
+  console.log(utils.grey(`Rebuilding "${args.instance.name}" using image "${args.image}"...`));
   api.rebuild(args.instance, args.image, () => {
     updateInstanceMetadata(api, args, () => {
       utils.success(`Instance "${args.instance.name}" rebuilt.`);
@@ -93,12 +93,12 @@ export function rebuild(api, args, callback) {
 export function resize(api, args, callback) {
   handleCommandNotFound(api.resize);
 
-  utils.grey(`Resizing "${args.instance.name}" to "${args.size}"...`);
+  console.log(utils.grey(`Resizing "${args.instance.name}" to "${args.size}"...`));
   api.resize(args.instance, args.size, () => {
     updateInstanceMetadata(api, args, () => {
       utils.success(`Instance "${args.instance.name}" resized.`);
       if (args.skipBoot || args['skip-boot']) {
-        utils.grey('Skipping boot since --skip-boot flag was used.');
+        console.log(utils.grey('Skipping boot since --skip-boot flag was used.'));
         if (utils.isFunction(callback)) {
           callback();
         }
@@ -112,7 +112,7 @@ export function resize(api, args, callback) {
 export function snapshot(api, args, callback) {
   handleCommandNotFound(api.snapshot);
 
-  utils.grey(`Saving snapshot "${args.snapshotName}" of "${args.instance.name}"...`);
+  console.log(utils.grey(`Saving snapshot "${args.snapshotName}" of "${args.instance.name}"...`));
   api.snapshot(args.instance, args.snapshotName, () => {
     utils.success(`Snapshot "${args.snapshotName}" of "${args.instance.name}" saved.`);
     utils.waitForBoot(args.instance, callback);
@@ -159,7 +159,7 @@ export function updateInstanceMetadata(api, args, callback) {
 export function sync(api, args, callback) {
   handleCommandNotFound(api.sync);
 
-  utils.grey(`Fetching metadata for "${args.instance.name}"...`);
+  console.log(utils.grey(`Fetching metadata for "${args.instance.name}"...`));
   api.sync(args.instance, () => {
     utils.success(`Metadata for "${args.instance.name}" updated.`);
     if (utils.isFunction(callback)) {

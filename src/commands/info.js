@@ -13,11 +13,11 @@ commands.info = {
   run: function({instances}) {
     const clusters = utils.getClusters();
 
-    utils.grey(`Using ${utils.CONFIG_DIR}/clusters.json`);
+    console.log(utils.grey(`Using ${utils.CONFIG_DIR}/clusters.json`));
 
     if (!clusters) {
       console.log('');
-      utils.grey('No clusters found.');
+      console.log(utils.grey('No clusters found.'));
       return false;
     }
 
