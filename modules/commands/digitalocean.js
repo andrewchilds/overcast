@@ -2,8 +2,7 @@ import * as filters from '../filters.js';
 import * as provider from '../provider.js';
 import * as api from '../providers/digitalocean.v2.js';
 
-const commands = {};
-export default commands;
+export const commands = {};
 
 commands.boot = {
   name: 'boot',

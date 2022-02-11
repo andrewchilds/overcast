@@ -3,8 +3,7 @@ import * as utils from '../utils.js';
 import * as ssh from '../ssh.js';
 import * as filters from '../filters.js';
 
-const commands = {};
-export default commands;
+export const commands = {};
 
 commands.port = {
   name: 'port',

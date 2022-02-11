@@ -1,8 +1,7 @@
 import SlackNotify from 'slack-notify';
 import * as utils from '../utils.js';
 
-const commands = {};
-export default commands;
+export const commands = {};
 
 commands.slack = {
   name: 'slack',
@@ -37,8 +36,7 @@ commands.slack = {
     };
 
     const custom_fields = Object.assign({}, args);
-    const keys = ['_', 'channel', 'command', 'message', 'icon-emoji', 'icon-url', 'message', 'user'];
-    utils.each(keys, key => {
+    ['_', 'channel', 'command', 'message', 'icon-emoji', 'icon-url', 'message', 'user'].forEach((key) => {
       delete custom_fields[key];
     });
 

@@ -1,5 +1,0 @@
-#!/usr/bin/env node
-
-import * as cli from '../modules/cli.js';
-
-cli.init();

@@ -4,10 +4,14 @@ import crypto from 'crypto';
 import cp from 'child_process';
 import _ from 'lodash';
 import chalk from 'chalk';
-import listCommand from './commands/list.js';
+import * as listCommand from './commands/list.js';
 
 export const VERSION = '1.0.8';
 export const SSH_COLORS = ['cyan', 'green', 'red', 'yellow', 'magenta', 'blue'];
+
+export let CONFIG_DIR;
+export let CLUSTERS_JSON;
+export let VARIABLES_JSON;
 
 export let clustersCache = null;
 export let variablesCache = null;
@@ -18,7 +22,7 @@ export function isArray(v) {
 }
 
 export function isObject(v) {
-  return typeof v === 'object' && v !== null;
+  return !isArray(v) && typeof v === 'object' && v !== null;
 }
 
 export function isNumber(v) {
@@ -72,7 +76,7 @@ export function mapObject(o, cb) {
 }
 
 export function times(maxIndex, cb) {
-  const index = 0;
+  let index = 0;
   while (index < maxIndex) {
     cb(index++);
   }
@@ -90,10 +94,6 @@ export function runSubcommand(args, subcommands, helpFn) {
   }
 
   return missingCommand(helpFn);
-}
-
-export function getCommands() {
-  return require('./commands');
 }
 
 export function findConfig(done) {
@@ -279,8 +279,8 @@ export function findMatchingInstances(name) {
   var instances = [];
 
   if (name === 'all') {
-    each(clusters, cluster => {
-      each(cluster.instances, instance => {
+    eachObject(clusters, cluster => {
+      eachObject(cluster.instances, instance => {
         instances.push(instance);
       });
     });
@@ -302,9 +302,9 @@ export function findMatchingInstancesByInstanceName(name) {
     name = convertWildcard(name);
   }
 
-  each(clusters, cluster => {
+  eachObject(clusters, cluster => {
     if (hasWildcard) {
-      each(cluster.instances, (instance, instanceName) => {
+      eachObject(cluster.instances, (instance, instanceName) => {
         if (name.test(instanceName)) {
           instances.push(instance);
         }
@@ -332,7 +332,7 @@ export function findClusterNameForInstance(instance) {
   var clusters = getClusters();
   var foundName;
 
-  each(clusters, (cluster, clusterName) => {
+  eachObject(clusters, (cluster, clusterName) => {
     if (!foundName && cluster.instances[instance.name]) {
       foundName = clusterName;
     }
@@ -351,7 +351,7 @@ export function saveInstanceToCluster(clusterName, instance, callback) {
 export function deleteInstance(instance, callback) {
   var clusters = getClusters();
 
-  each(clusters, (cluster) => {
+  eachObject(clusters, (cluster) => {
     if (cluster.instances[instance.name] &&
       cluster.instances[instance.name].ip === instance.ip) {
       delete cluster.instances[instance.name];
@@ -364,8 +364,8 @@ export function deleteInstance(instance, callback) {
 
 export function updateInstance(name, updates, callback) {
   var clusters = getClusters();
-  each(clusters, (cluster, clusterName) => {
-    each(cluster.instances, (instance) => {
+  eachObject(clusters, (cluster) => {
+    eachObject(cluster.instances, (instance) => {
       if (instance.name === name) {
         Object.assign(instance, updates);
       }
@@ -382,7 +382,7 @@ export function getVariables() {
 
   if (fs.existsSync(VARIABLES_JSON)) {
     try {
-      var data = require(VARIABLES_JSON);
+      const data = JSON.parse(fs.readFileSync(VARIABLES_JSON, { encoding: 'utf8' })),
       variablesCache = data;
       return data;
     } catch (e) {
@@ -412,7 +412,7 @@ export function getClusters() {
 
   if (fs.existsSync(CLUSTERS_JSON)) {
     try {
-      var data = require(CLUSTERS_JSON);
+      const data = JSON.parse(fs.readFileSync(CLUSTERS_JSON, { encoding: 'utf8' })),
       clustersCache = data;
       return data;
     } catch (e) {
@@ -444,9 +444,8 @@ export function tokenize(str) {
   var tokens = [];
   var isQuoted = false;
   var token = '';
-  var chunks = str.split(' ');
 
-  each(chunks, chunk => {
+  str.split(' ').forEach((chunk) => {
     if (!chunk) {
       return;
     }
@@ -591,7 +590,7 @@ export function missingCommand(helpFn) {
 export const alert = chalk.yellow;
 export const cyan = chalk.cyan;
 export const green = chalk.green;
-export const grey = chalk.grey;
+export const grey = chalk.blackBright;
 export const note = chalk.cyan;
 export const red = chalk.red;
 export const success = chalk.green;

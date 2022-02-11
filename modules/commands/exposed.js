@@ -1,7 +1,6 @@
 import * as ssh from '../ssh.js';
 
-const commands = {};
-export default commands;
+export const commands = {};
 
 commands.exposed = {
   name: 'exposed',

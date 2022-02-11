@@ -2,8 +2,7 @@ import * as filters from '../filters.js';
 import * as provider from '../provider.js';
 import * as api from '../providers/virtualbox.js';
 
-const commands = {};
-export default commands;
+export const commands = {};
 
 export const banner = [
   'These commands require VirtualBox and Vagrant to be installed on',

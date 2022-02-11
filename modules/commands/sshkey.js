@@ -4,8 +4,7 @@ import * as utils from '../utils.js';
 import * as filters from '../filters.js';
 import * as ssh from '../ssh.js';
 
-const commands = {};
-export default commands;
+export const commands = {};
 
 commands.create = {
   name: 'create',

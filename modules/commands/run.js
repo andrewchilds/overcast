@@ -3,8 +3,7 @@ import _ from 'lodash';
 import * as utils from '../utils.js';
 import * as ssh from '../ssh.js';
 
-const commands = {};
-export default commands;
+export const commands = {};
 
 commands.run = {
   name: 'run',

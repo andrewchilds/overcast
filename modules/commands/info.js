@@ -1,8 +1,7 @@
 import * as utils from '../utils.js';
 import * as filters from '../filters.js';
 
-const commands = {};
-export default commands;
+export const commands = {};
 
 commands.info = {
   name: 'info',
@@ -24,7 +23,7 @@ commands.info = {
 
     if (instances) {
       console.log('');
-      utils.each(instances, instance => {
+      utils.eachObject(instances, instance => {
         console.log(instance.name);
         utils.prettyPrint(instance, 2);
       });
@@ -32,10 +31,10 @@ commands.info = {
       return false;
     }
 
-    utils.each(clusters, ({instances}, clusterName) => {
+    utils.eachObject(clusters, ({instances}, clusterName) => {
       console.log('');
       utils.cyan(clusterName);
-      utils.each(instances, instance => {
+      utils.eachObject(instances, instance => {
         console.log('');
         console.log(`  ${instance.name}`);
         utils.prettyPrint(instance, 4);

@@ -3,8 +3,7 @@ import * as utils from '../utils.js';
 import * as scp from '../scp.js';
 import * as rsync from '../rsync.js';
 
-const commands = {};
-export default commands;
+export const commands = {};
 
 commands.pull = {
   name: 'pull',

@@ -1,7 +1,7 @@
 import * as utils from '../utils.js';
+import allCommands from './index.js';
 
-const commands = {};
-export default commands;
+export const commands = {};
 
 commands.completions = {
   name: 'completions',
@@ -35,7 +35,7 @@ function getCompletions() {
     });
   }
 
-  utils.each(utils.getCommands(), command => {
+  utils.eachObject(allCommands, (command) => {
     if (command.signatures) {
       utils.each(command.signatures(), signature => {
         pushWords(signature);
@@ -51,9 +51,9 @@ function getCompletions() {
   });
 
   const clusters = utils.getClusters();
-  utils.each(clusters, ({instances}, clusterName) => {
+  utils.eachObject(clusters, ({instances}, clusterName) => {
     list.push(clusterName);
-    utils.each(instances, (instance, instanceName) => {
+    utils.eachObject(instances, (instance, instanceName) => {
       list.push(instanceName);
     });
   });

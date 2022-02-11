@@ -1,10 +1,10 @@
 import minimist from 'minimist';
 import * as utils from './utils.js';
-import commands from './commands/index.js';
+import allCommands from './commands/index.js';
 
 export function init() {
   utils.findConfig(() => {
-    const args = process.argv.slice(2).join(' ');
+    const args = process.argv.slice(2).join(' ') || 'list';
 
     if (utils.keyExists('overcast')) {
       execute(args);
@@ -26,7 +26,7 @@ export function execute(argString) {
   const args = minimist(argArray);
   utils.argShift(args, 'command');
 
-  const command = commands[args.command] || commands.help;
+  const command = allCommands[args.command] || allCommands.help;
 
   if ((args._[0] === 'help' || args.help) && command.help) {
     command.help(args);
@@ -39,7 +39,7 @@ export function execute(argString) {
         missingCommand(command, args);
       }
     } else {
-      command.run(args);
+      utils.die(`${args.command} is missing commands array (cli.execute).`);
     }
   }
 }
@@ -62,7 +62,7 @@ export function run(command, args, next) {
     return compileHelp(command);
   }
 
-  utils.each(command.required, (required) => {
+  (command.required || []).forEach((required) => {
     if (utils.isString(required)) {
       required = { name: required };
     }
@@ -82,8 +82,7 @@ export function run(command, args, next) {
     }
 
     if (args[key]) {
-      required.filters = utils.forceArray(required.filters);
-      utils.each(required.filters, (filter) => {
+      utils.forceArray(required.filters).forEach((filter) => {
         if (utils.isFunction(filter)) {
           // Allow filters to short-circuit a command run without
           // needing process.exit.

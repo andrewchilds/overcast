@@ -1,7 +1,6 @@
 import fs from 'fs';
 import querystring from 'querystring';
 import cp from 'child_process';
-import _ from 'lodash';
 import * as utils from '../utils.js';
 
 const API_URL = 'https://api.digitalocean.com/';
@@ -281,8 +280,8 @@ export function getOrCreateOvercastKeyID(pubKeyPath, callback) {
   const keyData = `${fs.readFileSync(pubKeyPath, 'utf8')}`;
 
   getKeys((keys) => {
-    const key = _.find(keys, {
-      name: utils.createHashedKeyName(keyData)
+    const key = keys.find(({ name }) => {
+      return name === utils.createHashedKeyName(keyData);
     });
     if (key) {
       utils.grey(`Using SSH key: ${pubKeyPath}`);

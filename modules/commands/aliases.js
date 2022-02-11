@@ -1,7 +1,6 @@
 import * as utils from '../utils.js';
 
-const commands = {};
-export default commands;
+export const commands = {};
 
 commands.aliases = {
   name: 'aliases',
@@ -23,7 +22,7 @@ commands.aliases = {
   ],
   run: (args) => {
     utils.eachObject(utils.getClusters(), ({instances}) => {
-      utils.each(instances, instance => {
+      utils.eachObject(instances, instance => {
         console.log(`alias ssh.${instance.name}="ssh -i ${utils.normalizeKeyPath(instance.ssh_key)} -p ${instance.ssh_port} ${instance.user}@${instance.ip}"`);
       });
     });

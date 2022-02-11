@@ -1,8 +1,7 @@
 import _ from 'lodash';
 import * as utils from '../utils.js';
 
-const commands = {};
-export default commands;
+export const commands = {};
 
 commands.wait = {
   name: 'wait',

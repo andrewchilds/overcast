@@ -4,13 +4,14 @@
 
 import { compileHelp } from '../modules/cli.js';
 import * as utils from '../modules/utils.js';
+import allCommands from '../commands/index.js';
 
 utils.findConfig(() => {
   utils.CONFIG_DIR = '/path/to/.overcast';
   utils.CLUSTERS_JSON = utils.CONFIG_DIR + '/clusters.json';
   utils.VARIABLES_JSON = utils.CONFIG_DIR + '/variables.json';
 
-  utils.eachObject(utils.getCommands(), (command, name) => {
+  utils.eachObject(allCommands, (command, name) => {
     if (command.help) {
       // Old syntax <= 0.6.1
       console.log('### overcast ' + name);

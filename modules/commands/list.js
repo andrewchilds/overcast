@@ -1,7 +1,6 @@
 import * as utils from '../utils.js';
 
-const commands = {};
-export default commands;
+export const commands = {};
 
 commands.list = {
   name: 'list',
@@ -23,7 +22,7 @@ commands.list = {
       utils.eachObject(instances, (instance) => {
         const origin = `(${instance.user}@${instance.ip}:${instance.ssh_port || 22})`;
         const provider = getProviderName(instance);
-        const str = `  ${instance.name} ${origin} (${provider || 'Unknown Provider'})`;
+        const str = `  ${instance.name} ${origin} (${utils.green(provider || 'unknown provider')})`;
         console.log(str);
       });
     });
@@ -34,7 +33,7 @@ function getProviderName(instance) {
   let name = '';
   ['digitalocean', 'virtualbox'].forEach((provider) => {
     if (instance[provider]) {
-      name = `(${provider})`;
+      name = `${provider}`;
     }
   });
   return name;

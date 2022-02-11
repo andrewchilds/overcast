@@ -6,7 +6,7 @@ export function run(args) {
   utils.handleInstanceOrClusterNotFound(instances, args);
 
   if (args.parallel || args.p) {
-    utils.each(instances, instance => {
+    utils.eachObject(instances, instance => {
       runOnInstance(instance, _.cloneDeep(args));
     });
   } else {

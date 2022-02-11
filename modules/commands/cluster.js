@@ -1,8 +1,7 @@
 import * as utils from '../utils.js';
 import * as filters from '../filters.js';
 
-const commands = {};
-export default commands;
+export const commands = {};
 
 commands.count = {
   name: 'count',

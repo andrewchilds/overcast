@@ -2,8 +2,7 @@ import _ from 'lodash';
 import * as utils from '../utils.js';
 import * as filters from '../filters.js';
 
-const commands = {};
-export default commands;
+export const commands = {};
 
 commands.get = {
   name: 'get',
@@ -168,7 +167,7 @@ commands.update = {
     const instances = utils.findMatchingInstances(args.oldName || args.name);
     const messages = [];
 
-    utils.each(instances, (instance) => {
+    utils.eachObject(instances, (instance) => {
       return updateInstance(args, messages, clusters, instance);
     });
 

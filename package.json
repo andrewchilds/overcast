@@ -17,7 +17,7 @@
     "test": "rm -rf ./test/integration/.overcast && node ./node_modules/jasmine/bin/jasmine.js --coffee --color --verbose ./test"
   },
   "bin": {
-    "overcast": "bin/overcast"
+    "overcast": "overcast.js"
   },
   "dependencies": {
     "chalk": "5.0.0",
