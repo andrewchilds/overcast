@@ -1,41 +1,41 @@
-const readline = require('readline');
-const utils = require('./utils');
+import readline from 'readline';
+import utils from './utils';
 
-exports.handleCommandNotFound = fn => {
+export function handleCommandNotFound(fn) {
   if (!utils.isFunction(fn)) {
     utils.die('Command not supported by provider.');
   }
-};
+}
 
-exports.create = (api, args, callback) => {
+export function create(api, args, callback) {
   exports.handleCommandNotFound(api.create);
 
-  utils.grey('Creating new instance "' + args.name + '" on ' + api.name + '...');
+  utils.grey(`Creating new instance "${args.name}" on ${api.name}...`);
   api.create(args, instance => {
     utils.saveInstanceToCluster(args.cluster, instance);
-    utils.success('Instance "' + args.name + '" (' + instance.ip + ') saved.');
+    utils.success(`Instance "${args.name}" (${instance.ip}) saved.`);
     utils.waitForBoot(instance, callback);
   });
-};
+}
 
-exports.destroy = (api, args, callback) => {
+export function destroy(api, args, callback) {
   exports.handleCommandNotFound(api.destroy);
 
-  var onDestroy = () => {
+  const onDestroy = () => {
     utils.deleteInstance(args.instance, callback);
-    utils.success('Instance "' + args.instance.name + '" destroyed.');
+    utils.success(`Instance "${args.instance.name}" destroyed.`);
   };
 
   if (args.force) {
     return api.destroy(args.instance, onDestroy);
   }
 
-  var rl = readline.createInterface({
+  const rl = readline.createInterface({
     input: process.stdin,
     output: process.stdout
   });
 
-  var q = 'Do you really want to destroy "' + args.instance.name + '"? [Y/n]';
+  const q = `Do you really want to destroy "${args.instance.name}"? [Y/n]`;
   rl.question(q.yellow, answer => {
     rl.close();
     if (answer !== '' && answer !== 'Y' && answer !== 'y') {
@@ -44,59 +44,59 @@ exports.destroy = (api, args, callback) => {
       api.destroy(args.instance, onDestroy);
     }
   });
-};
+}
 
-exports.boot = (api, args, callback) => {
+export function boot(api, args, callback) {
   exports.handleCommandNotFound(api.boot);
 
-  utils.grey('Booting "' + args.instance.name + '"...');
+  utils.grey(`Booting "${args.instance.name}"...`);
   api.boot(args.instance, () => {
-    utils.success('Instance "' + args.instance.name + '" booted.');
+    utils.success(`Instance "${args.instance.name}" booted.`);
     utils.waitForBoot(args.instance, callback);
   });
-};
+}
 
-exports.shutdown = (api, args, callback) => {
+export function shutdown(api, args, callback) {
   exports.handleCommandNotFound(api.shutdown);
 
-  utils.grey('Shutting down "' + args.instance.name + '"...');
+  utils.grey(`Shutting down "${args.instance.name}"...`);
   api.shutdown(args.instance, () => {
-    utils.success('Instance "' + args.instance.name + '" has been shut down.');
+    utils.success(`Instance "${args.instance.name}" has been shut down.`);
     if (utils.isFunction(callback)) {
       callback();
     }
   });
-};
+}
 
-exports.reboot = (api, args, callback) => {
+export function reboot(api, args, callback) {
   exports.handleCommandNotFound(api.reboot);
 
-  utils.grey('Rebooting "' + args.instance.name + '"...');
+  utils.grey(`Rebooting "${args.instance.name}"...`);
   api.reboot(args.instance, () => {
-    utils.success('Instance "' + args.instance.name + '" rebooted.');
+    utils.success(`Instance "${args.instance.name}" rebooted.`);
     utils.waitForBoot(args.instance, callback);
   });
-};
+}
 
-exports.rebuild = (api, args, callback) => {
+export function rebuild(api, args, callback) {
   exports.handleCommandNotFound(api.rebuild);
 
-  utils.grey('Rebuilding "' + args.instance.name + '" using image "' + args.image + '"...');
+  utils.grey(`Rebuilding "${args.instance.name}" using image "${args.image}"...`);
   api.rebuild(args.instance, args.image, () => {
     exports.updateInstanceMetadata(api, args, () => {
-      utils.success('Instance "' + args.instance.name + '" rebuilt.');
+      utils.success(`Instance "${args.instance.name}" rebuilt.`);
       utils.waitForBoot(args.instance, callback);
     });
   });
-};
+}
 
-exports.resize = (api, args, callback) => {
+export function resize(api, args, callback) {
   exports.handleCommandNotFound(api.resize);
 
-  utils.grey('Resizing "' + args.instance.name + '" to "' + args.size + '"...');
+  utils.grey(`Resizing "${args.instance.name}" to "${args.size}"...`);
   api.resize(args.instance, args.size, () => {
     exports.updateInstanceMetadata(api, args, () => {
-      utils.success('Instance "' + args.instance.name + '" resized.');
+      utils.success(`Instance "${args.instance.name}" resized.`);
       if (args.skipBoot || args['skip-boot']) {
         utils.grey('Skipping boot since --skip-boot flag was used.');
         if (utils.isFunction(callback)) {
@@ -107,20 +107,20 @@ exports.resize = (api, args, callback) => {
       }
     });
   });
-};
+}
 
-exports.snapshot = (api, args, callback) => {
+export function snapshot(api, args, callback) {
   exports.handleCommandNotFound(api.snapshot);
 
-  utils.grey('Saving snapshot "' + args.snapshotName + '" of "' + args.instance.name + '"...');
+  utils.grey(`Saving snapshot "${args.snapshotName}" of "${args.instance.name}"...`);
   api.snapshot(args.instance, args.snapshotName, () => {
-    utils.success('Snapshot "' + args.snapshotName + '" of "' + args.instance.name + '" saved.');
+    utils.success(`Snapshot "${args.snapshotName}" of "${args.instance.name}" saved.`);
     utils.waitForBoot(args.instance, callback);
   });
-};
+}
 
 // AKA distributions (Linode).
-exports.images = (api, callback) => {
+export function images(api, callback) {
   exports.handleCommandNotFound(api.getImages);
 
   api.getImages(images => {
@@ -129,10 +129,10 @@ exports.images = (api, callback) => {
       callback();
     }
   });
-};
+}
 
 // AKA droplets (DO) or linodes (Linode).
-exports.instances = (api, args, callback) => {
+export function instances(api, args, callback) {
   exports.handleCommandNotFound(api.getInstances);
 
   // AWS needs args.region, DigitalOcean does not.
@@ -142,33 +142,33 @@ exports.instances = (api, args, callback) => {
       callback();
     }
   });
-};
+}
 
-exports.instance = (api, args, callback) => {
+export function instance(api, args, callback) {
   exports.handleCommandNotFound(api.getInstance);
 
   api.getInstance(args.instance, callback);
-};
+}
 
-exports.updateInstanceMetadata = (api, args, callback) => {
+export function updateInstanceMetadata(api, args, callback) {
   exports.handleCommandNotFound(api.updateInstanceMetadata);
 
   api.updateInstanceMetadata(args.instance, callback);
-};
+}
 
-exports.sync = (api, args, callback) => {
+export function sync(api, args, callback) {
   exports.handleCommandNotFound(api.sync);
 
-  utils.grey('Fetching metadata for "' + args.instance.name + '"...');
+  utils.grey(`Fetching metadata for "${args.instance.name}"...`);
   api.sync(args.instance, () => {
-    utils.success('Metadata for "' + args.instance.name + '" updated.');
+    utils.success(`Metadata for "${args.instance.name}" updated.`);
     if (utils.isFunction(callback)) {
       callback();
     }
   });
-};
+}
 
-exports.kernels = (api, callback) => {
+export function kernels(api, callback) {
   exports.handleCommandNotFound(api.getKernels);
 
   api.getKernels(kernels => {
@@ -177,10 +177,10 @@ exports.kernels = (api, callback) => {
       callback();
     }
   });
-};
+}
 
 // AKA datacenters (Linode).
-exports.regions = (api, callback) => {
+export function regions(api, callback) {
   exports.handleCommandNotFound(api.getRegions);
 
   api.getRegions(regions => {
@@ -189,10 +189,10 @@ exports.regions = (api, callback) => {
       callback();
     }
   });
-};
+}
 
 // AKA types (AWS) or plans (Linode).
-exports.sizes = (api, callback) => {
+export function sizes(api, callback) {
   exports.handleCommandNotFound(api.getSizes);
 
   api.getSizes(sizes => {
@@ -201,9 +201,9 @@ exports.sizes = (api, callback) => {
       callback();
     }
   });
-};
+}
 
-exports.snapshots = (api, callback) => {
+export function snapshots(api, callback) {
   exports.handleCommandNotFound(api.getSnapshots);
 
   api.getSnapshots(snapshots => {
@@ -212,4 +212,4 @@ exports.snapshots = (api, callback) => {
       callback();
     }
   });
-};
+}

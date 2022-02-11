@@ -1,9 +1,9 @@
-var fs = require('fs');
-var cp = require('child_process');
-var _ = require('lodash');
-var utils = require('./utils');
+import fs from 'fs';
+import cp from 'child_process';
+import _ from 'lodash';
+import utils from './utils';
 
-exports.run = args => {
+export function run(args) {
   var instances = utils.findMatchingInstances(args.name);
   utils.handleInstanceOrClusterNotFound(instances, args);
 
@@ -14,7 +14,7 @@ exports.run = args => {
   } else {
     runOnInstances(_.toArray(instances), args);
   }
-};
+}
 
 function runOnInstances(stack, args) {
   var instance = stack.shift();

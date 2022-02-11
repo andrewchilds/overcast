@@ -1,8 +1,8 @@
-var _ = require('lodash');
-var utils = require('../utils');
+import _ from 'lodash';
+import utils from '../utils';
 
-var commands = {};
-exports.commands = commands;
+const commands = {};
+export {commands};
 
 commands.slack = {
   name: 'slack',
@@ -28,7 +28,7 @@ commands.slack = {
     { usage: '--KEY VALUE' }
   ],
   run: function (args) {
-    var options = {
+    const options = {
       channel: args.channel || '#alerts',
       icon_emoji: args['icon-emoji'] || ':cloud:',
       icon_url: args['icon-url'] || null,
@@ -36,8 +36,8 @@ commands.slack = {
       username: args.user || 'Overcast'
     };
 
-    var custom_fields = Object.assign({}, args);
-    var keys = ['_', 'channel', 'command', 'message', 'icon-emoji', 'icon-url', 'message', 'user'];
+    const custom_fields = Object.assign({}, args);
+    const keys = ['_', 'channel', 'command', 'message', 'icon-emoji', 'icon-url', 'message', 'user'];
     utils.each(keys, key => {
       delete custom_fields[key];
     });
@@ -48,12 +48,12 @@ commands.slack = {
   }
 };
 
-exports.send = (options) => {
+export function send(options) {
   const vars = utils.getVariables();
 
   if (!vars.SLACK_WEBHOOK_URL) {
     utils.grey('No message sent.');
-    utils.grey('Please add SLACK_WEBHOOK_URL to ' + utils.VARIABLES_JSON + '.');
+    utils.grey(`Please add SLACK_WEBHOOK_URL to ${utils.VARIABLES_JSON}.`);
 
     return false;
   }
@@ -62,6 +62,6 @@ exports.send = (options) => {
   slack.send(options).then(() => {
     utils.success('Message sent to Slack.');
   }).catch((err) => {
-    utils.red('Unable to send message to Slack: ' + err);
+    utils.red(`Unable to send message to Slack: ${err}`);
   });
-};
+}

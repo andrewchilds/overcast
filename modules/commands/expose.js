@@ -1,9 +1,9 @@
-var _ = require('lodash');
-var utils = require('../utils');
-var ssh = require('../ssh');
+import _ from 'lodash';
+import utils from '../utils';
+import ssh from '../ssh';
 
-var commands = {};
-exports.commands = commands;
+const commands = {};
+export {commands};
 
 commands.expose = {
   name: 'expose',

@@ -1,9 +1,9 @@
-var _ = require('lodash');
-var utils = require('../utils');
-var ssh = require('../ssh');
+import _ from 'lodash';
+import utils from '../utils';
+import ssh from '../ssh';
 
-var commands = {};
-exports.commands = commands;
+const commands = {};
+export {commands};
 
 commands.health = {
   name: 'health',
@@ -53,19 +53,19 @@ commands.health = {
     args.continueOnError = true;
     args._ = ['health'];
 
-    var data = {};
-    var old = utils.prefixPrint;
+    const data = {};
+    const old = utils.prefixPrint;
     utils.prefixPrint = (name, color, line) => {
       data[name] = data[name] || '';
       data[name] += line;
     };
 
     ssh.run(args, () => {
-      var output = {};
+      const output = {};
       utils.prefixPrint = old;
       utils.each(data, (raw, name) => {
         raw = prepareJSONformat(raw);
-        var metrics;
+        let metrics;
         try {
           metrics = JSON.parse(raw);
           utils.each(metrics, (val, key) => {
@@ -76,7 +76,7 @@ commands.health = {
           metrics.processes = _.compact(metrics.processes);
           utils.each(metrics.processes, (process, key) => {
             process = process.split(' ');
-            var obj = {
+            const obj = {
               user: process.shift(),
               pid: parseInt(process.shift(), 10),
               'cpu%': parseFloat(process.shift()),
@@ -101,7 +101,7 @@ commands.health = {
 function prepareJSONformat(str) {
   str = str.split('{');
   str.shift();
-  str = '{' + str.join('{');
+  str = `{${str.join('{')}`;
   return sanitize(str);
 }
 

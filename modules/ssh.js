@@ -1,10 +1,10 @@
-var fs = require('fs');
-var path = require('path');
-var cp = require('child_process');
-var _ = require('lodash');
-var utils = require('./utils');
+import fs from 'fs';
+import path from 'path';
+import cp from 'child_process';
+import _ from 'lodash';
+import utils from './utils';
 
-exports.run = (args, callback) => {
+export function run(args, callback) {
   // Handle cases where minimist mistakenly parses ssh-args (e.g. "-tt" becomes { t: true }).
   if (args['ssh-args'] === true) {
     var rawArgs = process.argv.slice(2);
@@ -27,7 +27,7 @@ exports.run = (args, callback) => {
   } else {
     runOnInstances(_.toArray(instances), args, callback);
   }
-};
+}
 
 function runOnInstances(stack, args, callback) {
   var instance = stack.shift();

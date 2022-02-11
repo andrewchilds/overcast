@@ -1,9 +1,9 @@
-var _ = require('lodash');
-var utils = require('../utils');
-var filters = require('../filters');
+import _ from 'lodash';
+import utils from '../utils';
+import filters from '../filters';
 
-var commands = {};
-exports.commands = commands;
+const commands = {};
+export {commands};
 
 commands.tunnel = {
   name: 'tunnel',
@@ -42,12 +42,12 @@ commands.tunnel = {
 };
 
 function connect(instance, args) {
-  var password = (args.password || instance.password || '');
+  const password = (args.password || instance.password || '');
 
-  var sshArgs = [];
+  const sshArgs = [];
   if (password) {
     sshArgs.push('sshpass');
-    sshArgs.push('-p' + password);
+    sshArgs.push(`-p${password}`);
   }
   sshArgs.push('ssh');
   if (!password) {
@@ -63,20 +63,20 @@ function connect(instance, args) {
     sshArgs.push('PubkeyAuthentication=no');
   }
 
-  var ports = exports.normalizePorts(args._);
+  const ports = exports.normalizePorts(args._);
   utils.each(ports, port => {
-    sshArgs.push('-L ' + port.localPort + ':' + port.remoteHost + ':' + port.remotePort);
+    sshArgs.push(`-L ${port.localPort}:${port.remoteHost}:${port.remotePort}`);
   });
 
-  sshArgs.push((args.user || instance.user || 'root') + '@' + instance.ip);
+  sshArgs.push(`${args.user || instance.user || 'root'}@${instance.ip}`);
   sshArgs.push('-N'); // Don't run a command.
 
-  var ssh = utils.spawn(sshArgs);
+  const ssh = utils.spawn(sshArgs);
 
   utils.grey(sshArgs.join(' '));
 
   utils.each(ports, port => {
-    utils.cyan('Tunneling from ' + port.localPort + ' to ' + port.remoteHost + ':' + port.remotePort + '.');
+    utils.cyan(`Tunneling from ${port.localPort} to ${port.remoteHost}:${port.remotePort}.`);
   });
 
   ssh.stdout.on('data', data => {
@@ -89,17 +89,17 @@ function connect(instance, args) {
 
   ssh.on('exit', code => {
     if (code !== 0) {
-      utils.die('SSH connection exited with a non-zero code (' + code + '). Stopping execution...');
+      utils.die(`SSH connection exited with a non-zero code (${code}). Stopping execution...`);
     }
     console.log('');
   });
 }
 
-exports.normalizePorts = arr => {
-  var ports = [];
+export function normalizePorts(arr) {
+  const ports = [];
 
   utils.each(arr, str => {
-    str = (str + '').split(':');
+    str = (`${str}`).split(':');
     ports.push({
       localPort: str[0],
       remoteHost: str.length === 3 ? str[1] : '127.0.0.1',
@@ -108,4 +108,4 @@ exports.normalizePorts = arr => {
   });
 
   return ports;
-};
+}

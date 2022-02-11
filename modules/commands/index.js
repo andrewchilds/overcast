@@ -1,3 +1,2 @@
-var utils = require('../utils');
-
-module.exports = utils.requireDirectory(__dirname + '/');
+import utils from '../utils';
+export default utils.requireDirectory(`${__dirname}/`);

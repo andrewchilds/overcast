@@ -1,10 +1,10 @@
-var path = require('path');
-var _ = require('lodash');
-var utils = require('../utils');
-var ssh = require('../ssh');
+import path from 'path';
+import _ from 'lodash';
+import utils from '../utils';
+import ssh from '../ssh';
 
-var commands = {};
-exports.commands = commands;
+const commands = {};
+export {commands};
 
 commands.run = {
   name: 'run',

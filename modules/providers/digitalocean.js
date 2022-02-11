@@ -1,25 +1,25 @@
-var fs = require('fs');
-var querystring = require('querystring');
-var cp = require('child_process');
-var _ = require('lodash');
-var utils = require('../utils');
+import fs from 'fs';
+import querystring from 'querystring';
+import cp from 'child_process';
+import _ from 'lodash';
+import utils from '../utils';
 
-var API_URL = 'https://api.digitalocean.com/';
-var EVENT_TIMEOUT = 1000 * 60 * 10;
-var EVENT_TIMEOUT_NAME = 'ten minutes';
+const API_URL = 'https://api.digitalocean.com/';
+const EVENT_TIMEOUT = 1000 * 60 * 10;
+const EVENT_TIMEOUT_NAME = 'ten minutes';
 
-exports.DEBUG = false;
-exports.id = 'digitalocean';
-exports.name = 'DigitalOcean';
+export const DEBUG = false;
+export const id = 'digitalocean';
+export const name = 'DigitalOcean';
 
 // Provider interface
 
-exports.create = (args, callback) => {
+export function create(args, callback) {
   args['ssh-pub-key'] = utils.normalizeKeyPath(args['ssh-pub-key'], 'overcast.key.pub');
 
   exports.normalizeAndFindPropertiesForCreate(args, () => {
     exports.getOrCreateOvercastKeyID(args['ssh-pub-key'], keyID => {
-      var query = {
+      const query = {
         backups_enabled: utils.argIsTruthy(args['backups-enabled']),
         name: args.name,
         private_networking: utils.argIsTruthy(args['private-networking']),
@@ -32,9 +32,9 @@ exports.create = (args, callback) => {
       exports.createRequest(args, query, callback);
     });
   });
-};
+}
 
-exports.createRequest = (args, query, callback) => {
+export function createRequest(args, query, callback) {
   exports.request({
     endpoint: 'droplets/new',
     query,
@@ -42,7 +42,7 @@ exports.createRequest = (args, query, callback) => {
       if (result && result.droplet && result.droplet.event_id) {
         waitForEventToFinish(result.droplet.event_id, () => {
           exports.getInstance(result.droplet.id, droplet => {
-            var response = {
+            const response = {
               name: droplet.name,
               ip: droplet.ip_address,
               ssh_key: args['ssh-key'] || 'overcast.key',
@@ -59,80 +59,80 @@ exports.createRequest = (args, query, callback) => {
       }
     }
   });
-};
+}
 
-exports.destroy = (instance, callback) => {
+export function destroy(instance, callback) {
   exports.request({
-    endpoint: 'droplets/' + instance.digitalocean.id + '/destroy',
+    endpoint: `droplets/${instance.digitalocean.id}/destroy`,
     query: { scrub_data: 1 },
     callback
   });
-};
+}
 
-exports.boot = (instance, callback) => {
+export function boot(instance, callback) {
   exports.eventedRequest({
-    endpoint: 'droplets/' + instance.digitalocean.id + '/power_on',
+    endpoint: `droplets/${instance.digitalocean.id}/power_on`,
     callback
   });
-};
+}
 
-exports.shutdown = (instance, callback) => {
+export function shutdown(instance, callback) {
   exports.eventedRequest({
-    endpoint: 'droplets/' + instance.digitalocean.id + '/power_off',
+    endpoint: `droplets/${instance.digitalocean.id}/power_off`,
     callback
   });
-};
+}
 
-exports.snapshot = (instance, snapshotName, callback) => {
+export function snapshot(instance, snapshotName, callback) {
   exports.shutdown(instance, () => {
     exports.eventedRequest({
-      endpoint: 'droplets/' + instance.digitalocean.id + '/snapshot',
+      endpoint: `droplets/${instance.digitalocean.id}/snapshot`,
       query: { name: snapshotName },
       callback
     });
   });
-};
+}
 
-exports.reboot = (instance, callback) => {
+export function reboot(instance, callback) {
   exports.eventedRequest({
-    endpoint: 'droplets/' + instance.digitalocean.id + '/reboot',
+    endpoint: `droplets/${instance.digitalocean.id}/reboot`,
     callback
   });
-};
+}
 
-exports.rebuild = (instance, image, callback) => {
+export function rebuild(instance, image, callback) {
   exports.getImages(images => {
-    var match = getMatching(images, image);
+    const match = getMatching(images, image);
     if (!match) {
-      return utils.die('No image found that matches "' + image + '".');
+      return utils.die(`No image found that matches "${image}".`);
     }
 
     exports.eventedRequest({
-      endpoint: 'droplets/' + instance.digitalocean.id + '/rebuild',
+      endpoint: `droplets/${instance.digitalocean.id}/rebuild`,
       query: { image_id: match.id },
       callback
     });
   });
-};
+}
 
-exports.resize = (instance, size, callback) => {
+export function resize(instance, size, callback) {
   exports.getSizes(sizes => {
-    var match = getMatching(sizes, size);
+    const match = getMatching(sizes, size);
     if (!match) {
-      return utils.die('No size found that matches "' + size + '".');
+      return utils.die(`No size found that matches "${size}".`);
     }
 
     exports.shutdown(instance, () => {
       exports.eventedRequest({
-        endpoint: 'droplets/' + instance.digitalocean.id + '/resize',
+        endpoint: `droplets/${instance.digitalocean.id}/resize`,
         query: { size_id: match.id },
         callback
       });
     });
   });
-};
+}
 
-exports.getKeys = callback => {
+export function getKeys(callback) {
   exports.request({
     endpoint: 'ssh_keys',
     callback: function (result) {
@@ -141,14 +141,14 @@ exports.getKeys = callback => {
       }
     }
   });
-};
+}
 
-exports.createKey = (keyData, callback) => {
+export function createKey(keyData, callback) {
   exports.request({
     endpoint: 'ssh_keys/new',
     query: {
       name: utils.createHashedKeyName(keyData),
-      ssh_pub_key: keyData + ''
+      ssh_pub_key: `${keyData}`
     },
     callback: function (result) {
       if (result && result.ssh_key) {
@@ -156,9 +156,9 @@ exports.createKey = (keyData, callback) => {
       }
     }
   });
-};
+}
 
-exports.getImages = callback => {
+export function getImages(callback) {
   exports.request({
     endpoint: 'images',
     callback: function (result) {
@@ -167,9 +167,9 @@ exports.getImages = callback => {
       }
     }
   });
-};
+}
 
-exports.getSnapshots = callback => {
+export function getSnapshots(callback) {
   exports.request({
     endpoint: 'images',
     query: { filter: 'my_images' },
@@ -179,9 +179,9 @@ exports.getSnapshots = callback => {
       }
     }
   });
-};
+}
 
-exports.getInstances = (args, callback) => {
+export function getInstances(args, callback) {
   exports.request({
     endpoint: 'droplets',
     callback: function (result) {
@@ -190,24 +190,24 @@ exports.getInstances = (args, callback) => {
       }
     }
   });
-};
+}
 
-exports.getInstance = (instance, callback) => {
+export function getInstance(instance, callback) {
   // exports.create passes in an id, since instance doesn't exist yet.
-  var id = utils.isObject(instance) && instance.digitalocean && instance.digitalocean.id ?
+  const id = utils.isObject(instance) && instance.digitalocean && instance.digitalocean.id ?
     instance.digitalocean.id : instance;
 
   exports.request({
-    endpoint: 'droplets/' + id,
+    endpoint: `droplets/${id}`,
     callback: function (result) {
       if (result && result.droplet) {
         callback(result.droplet);
       }
     }
   });
-};
+}
 
-exports.updateInstanceMetadata = (instance, callback) => {
+export function updateInstanceMetadata(instance, callback) {
   exports.getInstance(instance, droplet => {
     utils.updateInstance(instance.name, {
       ip: droplet.ip_address,
@@ -218,9 +218,9 @@ exports.updateInstanceMetadata = (instance, callback) => {
       callback();
     }
   });
-};
+}
 
-exports.getRegions = callback => {
+export function getRegions(callback) {
   exports.request({
     endpoint: 'regions',
     callback: function (result) {
@@ -229,9 +229,9 @@ exports.getRegions = callback => {
       }
     }
   });
-};
+}
 
-exports.getSizes = callback => {
+export function getSizes(callback) {
   exports.request({
     endpoint: 'sizes',
     callback: function (result) {
@@ -240,11 +240,11 @@ exports.getSizes = callback => {
       }
     }
   });
-};
+}
 
-exports.sync = (instance, callback) => {
+export function sync(instance, callback) {
   exports.getInstances((instances) => {
-    var match = utils.findUsingMultipleKeys(instances, instance.name, ['name']);
+    let match = utils.findUsingMultipleKeys(instances, instance.name, ['name']);
 
     if (!match) {
       match = utils.findUsingMultipleKeys(instances, instance.ip, ['ip_address']);
@@ -263,7 +263,7 @@ exports.sync = (instance, callback) => {
       callback(match);
     }
   });
-};
+}
 
 // Internal functions
 
@@ -275,46 +275,46 @@ function returnOnlyIDNameSlug(collection) {
       slug: obj.slug
     };
   });
-};
+}
 
-exports.getOrCreateOvercastKeyID = (pubKeyPath, callback) => {
-  var keyData = fs.readFileSync(pubKeyPath, 'utf8') + '';
+export function getOrCreateOvercastKeyID(pubKeyPath, callback) {
+  const keyData = `${fs.readFileSync(pubKeyPath, 'utf8')}`;
 
   exports.getKeys((keys) => {
-    var key = _.find(keys, {
+    const key = _.find(keys, {
       name: utils.createHashedKeyName(keyData)
     });
     if (key) {
-      utils.grey('Using SSH key: ' + pubKeyPath);
+      utils.grey(`Using SSH key: ${pubKeyPath}`);
       callback(key.id);
     } else {
-      utils.grey('Uploading new SSH key: ' + pubKeyPath);
+      utils.grey(`Uploading new SSH key: ${pubKeyPath}`);
       exports.createKey(keyData, (key) => {
         callback(key.id);
       });
     }
   });
-};
+}
 
-exports.normalizeAndFindPropertiesForCreate = (args, callback) => {
+export function normalizeAndFindPropertiesForCreate(args, callback) {
   args.image = args.image || args['image-id'] || args['image-slug'] || args['image-name'] || 'ubuntu-14-04-x64';
   args.size = args.size || args['size-id'] || args['size-slug'] || args['size-name'] || '512mb';
   args.region = args.region || args['region-id'] || args['region-slug'] || args['region-name'] || 'nyc3';
 
   exports.getImages(images => {
-    var matchingImage = getMatching(images, args.image);
+    const matchingImage = getMatching(images, args.image);
     if (!matchingImage) {
-      return utils.die('No image found that matches "' + args.image + '".');
+      return utils.die(`No image found that matches "${args.image}".`);
     }
     exports.getSizes(sizes => {
-      var matchingSize = getMatching(sizes, args.size);
+      const matchingSize = getMatching(sizes, args.size);
       if (!matchingSize) {
-        return utils.die('No size found that matches "' + args.size + '".');
+        return utils.die(`No size found that matches "${args.size}".`);
       }
       exports.getRegions(regions => {
-        var matchingRegion = getMatching(regions, args.region);
+        const matchingRegion = getMatching(regions, args.region);
         if (!matchingRegion) {
-          return utils.die('No region found that matches "' + args.region + '".');
+          return utils.die(`No region found that matches "${args.region}".`);
         }
 
         ['image', 'image-id', 'image-slug', 'image-name', 'size', 'size-id',
@@ -332,18 +332,18 @@ exports.normalizeAndFindPropertiesForCreate = (args, callback) => {
       });
     });
   });
-};
+}
 
 function getMatching(collection, val) {
   return utils.findUsingMultipleKeys(collection, val, ['id', 'name', 'slug']);
 }
 
 function waitForEventToFinish(event_id, callback) {
-  var percentage = 0;
-  var response = {};
+  let percentage = 0;
+  let response = {};
 
-  var eventTimeout = setTimeout(() => {
-    utils.red('This event has not finished in ' + EVENT_TIMEOUT_NAME + ', assuming it finished successfully...');
+  const eventTimeout = setTimeout(() => {
+    utils.red(`This event has not finished in ${EVENT_TIMEOUT_NAME}, assuming it finished successfully...`);
     percentage = 100;
   }, EVENT_TIMEOUT);
 
@@ -356,9 +356,9 @@ function waitForEventToFinish(event_id, callback) {
     }
   });
 
-  var requestLoop = () => {
+  const requestLoop = () => {
     exports.request({
-      endpoint: 'events/' + event_id,
+      endpoint: `events/${event_id}`,
       callback: function (result) {
         if (result && result.event) {
           percentage = result.event.percentage;
@@ -375,7 +375,7 @@ function waitForEventToFinish(event_id, callback) {
   requestLoop();
 }
 
-exports.eventedRequest = options => {
+export function eventedRequest(options) {
   exports.request({
     endpoint: options.endpoint,
     query: options.query,
@@ -385,7 +385,7 @@ exports.eventedRequest = options => {
       }
     }
   });
-};
+}
 
 // request({
 //   endpoint: 'droplets/new',
@@ -394,8 +394,8 @@ exports.eventedRequest = options => {
 //   data: {},
 //   callback: function (stderr, stdout) {}
 // });
-exports.request = options => {
-  var variables = utils.getVariables();
+export function request(options) {
+  const variables = utils.getVariables();
   options.query = options.query || {};
   options.query.client_id = variables.DIGITALOCEAN_CLIENT_ID;
   options.query.api_key = variables.DIGITALOCEAN_API_KEY;
@@ -408,15 +408,15 @@ exports.request = options => {
     return utils.die('overcast var set DIGITALOCEAN_API_KEY [your_api_key]');
   }
 
-  var args = constructCurlArgs(options);
+  const args = constructCurlArgs(options);
 
   if (exports.DEBUG) {
-    console.log('curl ' + args.join(' '));
+    console.log(`curl ${args.join(' ')}`);
   }
 
-  var curl = cp.spawn('curl', args);
-  var stderr = null;
-  var stdout = '';
+  const curl = cp.spawn('curl', args);
+  let stderr = null;
+  let stdout = '';
 
   curl.stdout.on('data', data => {
     stdout += data;
@@ -428,13 +428,13 @@ exports.request = options => {
 
   curl.on('close', code => {
     if (code !== 0) {
-      return utils.die('Got a non-zero exit code from DigitalOcean API (' + code + ').');
+      return utils.die(`Got a non-zero exit code from DigitalOcean API (${code}).`);
     }
 
     try {
       stdout = JSON.parse(stdout);
     } catch (e) {
-      return utils.die('Exception thrown while parsing DigitalOcean API output: ' + stdout);
+      return utils.die(`Exception thrown while parsing DigitalOcean API output: ${stdout}`);
     }
 
     if (exports.DEBUG) {
@@ -445,20 +445,20 @@ exports.request = options => {
       if (utils.isFunction(options.onError)) {
         options.onError(stdout);
       }
-      utils.die('Error response from API: ' + stdout.error_message);
+      utils.die(`Error response from API: ${stdout.error_message}`);
     } else if (stdout && stdout.status && stdout.status === 'OK') {
       if (utils.isFunction(options.callback)) {
         options.callback(stdout);
       }
     } else {
-      utils.die('Error response from API: ' + stderr);
+      utils.die(`Error response from API: ${stderr}`);
     }
   });
-};
+}
 
 function constructCurlArgs(options) {
-  var url = API_URL + options.endpoint + '?' + querystring.stringify(options.query || {});
-  var args = ['-s', '-X', options.type || 'GET'];
+  const url = `${API_URL + options.endpoint}?${querystring.stringify(options.query || {})}`;
+  const args = ['-s', '-X', options.type || 'GET'];
 
   if (options.data) {
     args.push('-d', JSON.stringify(options.data));

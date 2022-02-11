@@ -1,7 +1,7 @@
-var instance = require('./instance');
+import instance from './instance';
 
-var commands = {};
-exports.commands = commands;
+const commands = {};
+export {commands};
 
 commands.import = {
   name: 'import',

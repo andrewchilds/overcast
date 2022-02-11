@@ -1,10 +1,10 @@
-var _ = require('lodash');
-var cp = require('child_process');
-var utils = require('../utils');
-var filters = require('../filters');
+import _ from 'lodash';
+import cp from 'child_process';
+import utils from '../utils';
+import filters from '../filters';
 
-var commands = {};
-exports.commands = commands;
+const commands = {};
+export {commands};
 
 commands.ping = {
   name: 'ping',
@@ -19,7 +19,7 @@ commands.ping = {
   ],
   options: [{ usage: '--count N, -c N', default: '3' }],
   run: function (args) {
-    var count = args.count || args.c || 3;
+    const count = args.count || args.c || 3;
     utils.each(args.instances, instance => {
       ping(instance, count);
     });
@@ -27,10 +27,10 @@ commands.ping = {
 };
 
 function ping(instance, count) {
-  cp.exec('ping -c ' + count + ' ' + instance.ip, (err, stdout) => {
-    var color = utils.SSH_COLORS[utils.SSH_COUNT++ % 5];
-    var averagePing = stdout.match(/ ([\d\.]+)\/([\d\.]+)\/([\d\.]+)\/([\d\.]+) ms/);
-    var prefix = instance.name + ': ';
-    console.log(prefix[color] + averagePing[2] + ' ms');
+  cp.exec(`ping -c ${count} ${instance.ip}`, (err, stdout) => {
+    const color = utils.SSH_COLORS[utils.SSH_COUNT++ % 5];
+    const averagePing = stdout.match(/ ([\d\.]+)\/([\d\.]+)\/([\d\.]+)\/([\d\.]+) ms/);
+    const prefix = `${instance.name}: `;
+    console.log(`${prefix[color] + averagePing[2]} ms`);
   });
 }

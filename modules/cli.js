@@ -1,9 +1,9 @@
-var fs = require('fs');
-var _ = require('lodash');
-var minimist = require('minimist');
-var utils = require('./utils');
+import fs from 'fs';
+import _ from 'lodash';
+import minimist from 'minimist';
+import utils from './utils';
 
-exports.init = () => {
+export function init() {
   utils.findConfig(() => {
     if (utils.keyExists('overcast')) {
       exports.execute();
@@ -13,19 +13,19 @@ exports.init = () => {
       });
     }
   });
-};
+}
 
-exports.execute = (argString) => {
-  var argArray = process.argv.slice(2);
+export function execute(argString) {
+  let argArray = process.argv.slice(2);
   if (argString && utils.isString(argString)) {
     argArray = utils.tokenize(argString);
   }
 
-  var args = minimist(argArray);
+  const args = minimist(argArray);
   utils.argShift(args, 'command');
 
-  var file = utils.escapeWindowsPath(__dirname + '/commands/' + args.command + '.js');
-  var command;
+  const file = utils.escapeWindowsPath(`${__dirname}/commands/${args.command}.js`);
+  let command;
   if (fs.existsSync(file)) {
     command = require(file);
   } else {
@@ -36,7 +36,7 @@ exports.execute = (argString) => {
     command.help(args);
   } else {
     if (command.commands) {
-      var matchingCommand = exports.findMatchingCommand(command, args);
+      const matchingCommand = exports.findMatchingCommand(command, args);
       if (matchingCommand) {
         exports.run(matchingCommand, args);
       } else {
@@ -46,20 +46,20 @@ exports.execute = (argString) => {
       command.run(args);
     }
   }
-};
+}
 
-exports.findMatchingCommand = (command, args) => {
-  var names = Object.keys(command.commands);
+export function findMatchingCommand(command, args) {
+  const names = Object.keys(command.commands);
   if (names.length === 1) {
     return command.commands[names[0]];
   } else {
     utils.argShift(args, 'subcommand');
     return command.commands[args.subcommand];
   }
-};
+}
 
-exports.run = (command, args, next) => {
-  var shortCircuit = false;
+export function run(command, args, next) {
+  let shortCircuit = false;
   args = args || { _: [] };
 
   if (args._[0] === 'help') {
@@ -71,7 +71,7 @@ exports.run = (command, args, next) => {
       required = { name: required };
     }
 
-    var key = required.varName || required.name;
+    const key = required.varName || required.name;
     if (required.greedy) {
       args[key] = args._.join(' ');
     } else if (required.raw) {
@@ -81,7 +81,7 @@ exports.run = (command, args, next) => {
     }
 
     if (!args[key] && !required.optional) {
-      exports.missingArgument('[' + required.name + ']', command);
+      exports.missingArgument(`[${required.name}]`, command);
       shortCircuit = true;
     }
 
@@ -108,16 +108,16 @@ exports.run = (command, args, next) => {
   if (!command.async && utils.isFunction(next)) {
     next();
   }
-};
+}
 
-exports.missingArgument = (name, command) => {
-  utils.red('Missing ' + name + ' argument.');
+export function missingArgument(name, command) {
+  utils.red(`Missing ${name} argument.`);
   exports.compileHelp(command);
   process.exit(1);
-};
+}
 
-exports.missingCommand = (command, args) => {
-  var exitCode = 0;
+export function missingCommand(command, args) {
+  let exitCode = 0;
   if (args.subcommand && args.subcommand !== 'help' && args.command !== 'help') {
     utils.red('Missing or unknown command.');
     exitCode = 1;
@@ -129,7 +129,7 @@ exports.missingCommand = (command, args) => {
 
   if (Object.keys(command.commands).length > 1) {
     console.log('');
-    console.log('overcast ' + args.command + ' [command] help');
+    console.log(`overcast ${args.command} [command] help`);
     exports.printLines('View extended help.', { color: 'grey', pad: 2 });
   }
 
@@ -144,9 +144,9 @@ exports.missingCommand = (command, args) => {
   });
 
   process.exit(exitCode);
-};
+}
 
-exports.compileHelp = (command, skipFirstLine) => {
+export function compileHelp(command, skipFirstLine) {
   ['usage', 'description', 'options', 'examples'].forEach((key) => {
     if (command[key]) {
       // Used by bin/docs:
@@ -157,37 +157,37 @@ exports.compileHelp = (command, skipFirstLine) => {
       if (key === 'options') {
         exports.printCommandOptions(command.options);
       } else {
-        utils.grey(utils.capitalize(key) + ':');
+        utils.grey(`${utils.capitalize(key)}:`);
         exports.printLines(command[key], { pad: 2 });
       }
     }
   });
-};
+}
 
-exports.printCommandOptions = (options) => {
-  var hasDefaults = false;
-  var maxLength = _.max(options, (option) => {
+export function printCommandOptions(options) {
+  let hasDefaults = false;
+  const maxLength = _.max(options, (option) => {
     if (option.default) {
       hasDefaults = true;
     }
     return option.usage.length;
   }).usage.length + 4;
-  var headline = 'Options:';
+  let headline = 'Options:';
   if (hasDefaults) {
-    headline = utils.padRight(headline, maxLength + 2) + 'Defaults:';
+    headline = `${utils.padRight(headline, maxLength + 2)}Defaults:`;
   }
   utils.grey(headline);
   options.forEach((option) => {
-    console.log('  ' + utils.padRight(option.usage, maxLength) + (option.default || ''));
+    console.log(`  ${utils.padRight(option.usage, maxLength)}${option.default || ''}`);
   });
-};
+}
 
-exports.printLines = (strOrArray, options) => {
+export function printLines(strOrArray, options) {
   options = options || {};
   utils.forceArray(strOrArray).forEach((str) => {
     if (options.pad) {
       utils.times(options.pad, () => {
-        str = ' ' + str;
+        str = ` ${str}`;
       });
     }
     if (options.color) {
@@ -196,4 +196,4 @@ exports.printLines = (strOrArray, options) => {
       console.log(str);
     }
   });
-};
+}

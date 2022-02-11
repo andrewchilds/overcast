@@ -1,10 +1,10 @@
-var _ = require('lodash');
-var utils = require('../utils');
-var scp = require('../scp');
-var rsync = require('../rsync');
+import _ from 'lodash';
+import utils from '../utils';
+import scp from '../scp';
+import rsync from '../rsync';
 
-var commands = {};
-exports.commands = commands;
+const commands = {};
+export {commands};
 
 commands.push = {
   name: 'push',

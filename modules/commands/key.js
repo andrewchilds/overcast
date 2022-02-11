@@ -1,11 +1,11 @@
-var fs = require('fs');
-var _ = require('lodash');
-var utils = require('../utils');
-var filters = require('../filters');
-var ssh = require('../ssh');
+import fs from 'fs';
+import _ from 'lodash';
+import utils from '../utils';
+import filters from '../filters';
+import ssh from '../ssh';
 
-var commands = {};
-exports.commands = commands;
+const commands = {};
+export {commands};
 
 commands.create = {
   name: 'create',
@@ -20,9 +20,9 @@ commands.create = {
   required: [{ name: 'name', filters: filters.shouldBeNewKey }],
   run: function (args) {
     utils.createKey(args.name, keyPath => {
-      utils.success('New SSH key "' + args.name + '" created.');
-      utils.grey(' - ' + keyPath);
-      utils.grey(' - ' + keyPath + '.pub');
+      utils.success(`New SSH key "${args.name}" created.`);
+      utils.grey(` - ${keyPath}`);
+      utils.grey(` - ${keyPath}.pub`);
     });
   }
 };
@@ -38,7 +38,7 @@ commands.delete = {
   required: [{ name: 'name', filters: filters.shouldBeExistingKey }],
   run: function (args) {
     utils.deleteKey(args.name, () => {
-      utils.success('SSH key "' + args.name + '" deleted.');
+      utils.success(`SSH key "${args.name}" deleted.`);
     });
   }
 };
@@ -64,8 +64,8 @@ commands.get = {
   ],
   required: [{ name: 'name', filters: filters.shouldBeExistingKey }],
   run: function (args) {
-    var keyFile = utils.getKeyFileFromName(args.name);
-    var publicKeyFile = keyFile + '.pub';
+    const keyFile = utils.getKeyFileFromName(args.name);
+    const publicKeyFile = `${keyFile}.pub`;
 
     if (args['private-data']) {
       printFile(keyFile);
@@ -128,7 +128,7 @@ commands.push = {
     { usage: '--append, -a', default: 'false' }
   ],
   run: function (args) {
-    var keyPath = exports.getKeyPath(args.path);
+    const keyPath = exports.getKeyPath(args.path);
     args.env = {
       PUBLIC_KEY: fs.readFileSync(keyPath, { encoding: 'utf8' }),
       SHOULD_APPEND: utils.argIsTruthy(args.append) || utils.argIsTruthy(args.a)
@@ -137,29 +137,29 @@ commands.push = {
     args._ = ['authorize_key'];
     args.mr = true; // machine readable
     ssh.run(args, () => {
-      utils.success('Key updated on ' + args.instances.length + ' instance(s).');
+      utils.success(`Key updated on ${args.instances.length} instance(s).`);
       utils.grey('If this is the default user you use to SSH in,');
       utils.grey('you need to update the instance configuration. For example:');
-      utils.grey('overcast instance update ' + args.name + ' --ssh-key myPrivateKey.key');
+      utils.grey(`overcast instance update ${args.name} --ssh-key myPrivateKey.key`);
     });
   }
 };
 
-exports.getKeyPath = path => {
-  var keyPath = utils.normalizeKeyPath(path);
+export function getKeyPath(path) {
+  let keyPath = utils.normalizeKeyPath(path);
   if (!fs.existsSync(keyPath)) {
-    if (fs.existsSync(keyPath + '.key.pub')) {
+    if (fs.existsSync(`${keyPath}.key.pub`)) {
       keyPath += '.key.pub';
-    } else if (fs.existsSync(keyPath + '.pub')) {
+    } else if (fs.existsSync(`${keyPath}.pub`)) {
       keyPath += '.pub';
     } else {
-      utils.die('Key "' + keyPath + '" not found.');
+      utils.die(`Key "${keyPath}" not found.`);
       return false;
     }
   }
 
   return keyPath;
-};
+}
 
 function printFile(file) {
   fs.readFile(file, (err, data) => {
@@ -171,7 +171,7 @@ function printFile(file) {
 }
 
 function listKeys() {
-  fs.readdir(utils.CONFIG_DIR + '/keys/', (err, data) => {
+  fs.readdir(`${utils.CONFIG_DIR}/keys/`, (err, data) => {
     data = data.map((name) => {
       return name.replace('.pub', '').replace('.key', '');
     });

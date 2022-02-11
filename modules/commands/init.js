@@ -1,9 +1,9 @@
-var fs = require('fs');
-var _ = require('lodash');
-var utils = require('../utils');
+import fs from 'fs';
+import _ from 'lodash';
+import utils from '../utils';
 
-var commands = {};
-exports.commands = commands;
+const commands = {};
+export {commands};
 
 commands.init = {
   name: 'init',
@@ -13,9 +13,9 @@ commands.init = {
     'No action taken if one already exists.'
   ],
   run: function (args) {
-    var cwd = process.cwd();
+    const cwd = process.cwd();
 
-    if (fs.existsSync(cwd + '/.overcast')) {
+    if (fs.existsSync(`${cwd}/.overcast`)) {
       utils.alert('.overcast directory already exists here.');
     } else {
       utils.initOvercastDir(cwd);

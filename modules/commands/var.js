@@ -1,25 +1,24 @@
-var _ = require('lodash');
-var colors = require('colors');
-var utils = require('../utils');
+import _ from 'lodash';
+import utils from '../utils';
 
-var commands = {};
-exports.commands = commands;
+const commands = {};
+export {commands};
 
 commands.list = {
   name: 'list',
   usage: 'overcast var list',
-  description: 'List variables in ' + utils.VARIABLES_JSON + '.',
+  description: `List variables in ${utils.VARIABLES_JSON}.`,
   run: function (args) {
-    var vars = utils.getVariables();
-    utils.grey('Using ' + utils.VARIABLES_JSON);
+    const vars = utils.getVariables();
+    utils.grey(`Using ${utils.VARIABLES_JSON}`);
     console.log('');
     utils.each(vars, (value, name) => {
       if (value === '') {
-        console.log(name + ' ' + ('empty string').red);
+        console.log(`${name} ${('empty string').red}`);
       } else if (value === null) {
-        console.log(name + ' ' + ('null').red);
+        console.log(`${name} ${('null').red}`);
       } else {
-        console.log(name + ' ' + value.green);
+        console.log(`${name} ${value.green}`);
       }
     });
   }
@@ -28,14 +27,14 @@ commands.list = {
 commands.set = {
   name: 'set',
   usage: 'overcast var set [name] [value]',
-  description: 'Set a variable in ' + utils.VARIABLES_JSON + '.',
+  description: `Set a variable in ${utils.VARIABLES_JSON}.`,
   examples: [
     '$ overcast var set AWS_KEY myawskey12345',
     '$ overcast var set MY_CUSTOM_VARIABLE_NAME foo'
   ],
   required: ['name', { name: 'value', raw: true }],
   run: function (args) {
-    var vars = utils.getVariables();
+    const vars = utils.getVariables();
     vars[args.name] = args.value;
     utils.saveVariables(vars);
   }
@@ -44,7 +43,7 @@ commands.set = {
 commands.get = {
   name: 'get',
   usage: 'overcast var get [name]',
-  description: 'Get a variable from ' + utils.VARIABLES_JSON + '.',
+  description: `Get a variable from ${utils.VARIABLES_JSON}.`,
   examples: [
     '$ overcast var get AWS_KEY',
     '> myawskey12345',
@@ -54,7 +53,7 @@ commands.get = {
   ],
   required: ['name'],
   run: function (args) {
-    var vars = utils.getVariables();
+    const vars = utils.getVariables();
     if (vars[args.name]) {
       console.log(vars[args.name]);
     } else {
@@ -66,13 +65,13 @@ commands.get = {
 commands.delete = {
   name: 'delete',
   usage: 'overcast var delete [name]',
-  description: 'Delete a variable from ' + utils.VARIABLES_JSON + '.',
+  description: `Delete a variable from ${utils.VARIABLES_JSON}.`,
   examples: [
     '$ overcast var delete MY_CUSTOM_VARIABLE_NAME'
   ],
   required: ['name'],
   run: function (args) {
-    var vars = utils.getVariables();
+    const vars = utils.getVariables();
     if (vars[args.name]) {
       vars[args.name] = '';
       utils.saveVariables(vars);

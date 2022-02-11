@@ -1,16 +1,15 @@
-var fs = require('fs');
-var AWS = require('aws-sdk');
-var cp = require('child_process');
-var Promise = require('bluebird');
-var _ = require('lodash');
-var rimraf = require('rimraf');
-var utils = require('../utils');
+import fs from 'fs';
+import AWS from 'aws-sdk';
+import cp from 'child_process';
+import _ from 'lodash';
+import rimraf from 'rimraf';
+import utils from '../utils';
 
 var FIRST_IP = '192.168.22.10';
 var OVERCAST_VAGRANT_DIR = utils.getUserHome() + '/.overcast-vagrant';
 
-exports.id = 'virtualbox';
-exports.name = 'VirtualBox';
+export var id = 'virtualbox';
+export var name = 'VirtualBox';
 
 var BUNDLED_IMAGE_URLS = {
   'trusty64': 'https://cloud-images.ubuntu.com/vagrant/trusty/current/trusty-server-cloudimg-amd64-vagrant-disk1.box',
@@ -19,7 +18,7 @@ var BUNDLED_IMAGE_URLS = {
 
 // Provider interface
 
-exports.boot = (instance, callback) => {
+export function boot(instance, callback) {
   exports.startInstance(instance)
     .catch(exports.catch)
     .then(() => {
@@ -27,9 +26,9 @@ exports.boot = (instance, callback) => {
         callback();
       }
     });
-};
+}
 
-exports.create = (args, callback) => {
+export function create(args, callback) {
   args = Object.assign({
     ssh_port: 22,
     user: 'root',
@@ -64,9 +63,9 @@ exports.create = (args, callback) => {
         callback(instance);
       }
     });
-};
+}
 
-exports.destroy = (instance, callback) => {
+export function destroy(instance, callback) {
   exports.destroyInstance(instance)
     .catch(exports.catch)
     .then(() => {
@@ -74,9 +73,9 @@ exports.destroy = (instance, callback) => {
         callback();
       }
     });
-};
+}
 
-exports.reboot = (instance, callback) => {
+export function reboot(instance, callback) {
   exports.stopInstance(instance)
     .then(exports.startInstance)
     .catch(exports.catch)
@@ -85,9 +84,9 @@ exports.reboot = (instance, callback) => {
         callback();
       }
     });
-};
+}
 
-exports.shutdown = (instance, callback) => {
+export function shutdown(instance, callback) {
   exports.stopInstance(instance)
     .catch(exports.catch)
     .then(() => {
@@ -95,11 +94,11 @@ exports.shutdown = (instance, callback) => {
         callback();
       }
     });
-};
+}
 
 // Internal functions
 
-exports.parseCSV = str => {
+export function parseCSV(str) {
   var arr = [];
   utils.each((str || '').split("\n"), row => {
     row = row.trim();
@@ -109,9 +108,9 @@ exports.parseCSV = str => {
     }
   });
   return arr;
-};
+}
 
-exports.getVagrantImages = args => {
+export function getVagrantImages(args) {
   return new Promise((resolve, reject) => {
     var vagrant = utils.spawn(['vagrant box list --machine-readable']);
     var stdout = '';
@@ -136,9 +135,9 @@ exports.getVagrantImages = args => {
       }
     });
   });
-};
+}
 
-exports.createVagrantBox = args => {
+export function createVagrantBox(args) {
   return new Promise((resolve, reject) => {
     if (args.vagrantImages && args.vagrantImages.indexOf(args.image) !== -1) {
       utils.grey('Image "' + args.image + '" found.');
@@ -167,18 +166,18 @@ exports.createVagrantBox = args => {
       utils.die('vagrant box add --name "' + args.image + '" [image-url]');
     }
   });
-};
+}
 
-exports.nextAvailableIP = ip => {
+export function nextAvailableIP(ip) {
   if (fs.existsSync(OVERCAST_VAGRANT_DIR + '/' + ip)) {
     var existing = fs.readdirSync(OVERCAST_VAGRANT_DIR);
     return exports.findNextAvailableIP(existing);
   } else {
     return ip;
   }
-};
+}
 
-exports.findNextAvailableIP = existing => {
+export function findNextAvailableIP(existing) {
   var ip = FIRST_IP;
 
   while (existing.indexOf(ip) !== -1) {
@@ -197,9 +196,9 @@ exports.findNextAvailableIP = existing => {
   }
 
   return ip;
-};
+}
 
-exports.createInstance = args => {
+export function createInstance(args) {
   return new Promise((resolve, reject) => {
     var ip = exports.nextAvailableIP(args.ip || FIRST_IP);
     utils.grey('Using IP address ' + ip + '.');
@@ -239,9 +238,9 @@ exports.createInstance = args => {
       }
     });
   });
-};
+}
 
-exports.stopInstance = instance => {
+export function stopInstance(instance) {
   return new Promise((resolve, reject) => {
     var color = utils.SSH_COLORS[utils.SSH_COUNT++ % 5];
     var vagrant = utils.spawn('vagrant halt', {
@@ -264,9 +263,9 @@ exports.stopInstance = instance => {
       }
     });
   });
-};
+}
 
-exports.startInstance = instance => {
+export function startInstance(instance) {
   return new Promise((resolve, reject) => {
     var color = utils.SSH_COLORS[utils.SSH_COUNT++ % 5];
     var vagrant = utils.spawn('vagrant up', {
@@ -289,9 +288,9 @@ exports.startInstance = instance => {
       }
     });
   });
-};
+}
 
-exports.destroyInstance = instance => {
+export function destroyInstance(instance) {
   return new Promise((resolve, reject) => {
     var color = utils.SSH_COLORS[utils.SSH_COUNT++ % 5];
     var vagrant = utils.spawn('vagrant destroy -f', {
@@ -317,12 +316,12 @@ exports.destroyInstance = instance => {
       }
     });
   });
-};
+}
 
-exports.catch = err => {
+export function catch(err) {
   utils.die(err && err.message ? err.message : err);
-};
+}
 
-exports.log = args => {
+export function log(args) {
   console.log(JSON.stringify(args, null, 2));
-};
+}

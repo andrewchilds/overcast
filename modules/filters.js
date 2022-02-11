@@ -1,44 +1,44 @@
-var utils = require('./utils');
+import utils from './utils';
 
-exports.findMatchingInstances = (name, args) => {
+export function findMatchingInstances(name, args) {
   args.instances = utils.findMatchingInstances(name);
 
   if (args.instances.length === 0) {
-    utils.dieWithList('No instances found matching "' + name + '".');
+    utils.dieWithList(`No instances found matching "${name}".`);
     return false;
   }
-};
+}
 
-exports.findFirstMatchingInstance = (name, args) => {
+export function findFirstMatchingInstance(name, args) {
   args.instance = utils.findFirstMatchingInstance(name);
 
   if (!args.instance) {
-    utils.dieWithList('No instance found matching "' + name + '".');
+    utils.dieWithList(`No instance found matching "${name}".`);
     return false;
   }
-};
+}
 
-exports.findMatchingCluster = (name, args) => {
-  var clusters = utils.getClusters();
+export function findMatchingCluster(name, args) {
+  const clusters = utils.getClusters();
   args.cluster = clusters[name];
 
   if (!args.cluster) {
-    utils.dieWithList('No clusters found matching "' + name + '".');
+    utils.dieWithList(`No clusters found matching "${name}".`);
     return false;
   }
-};
+}
 
-exports.shouldBeNewCluster = (name, args) => {
-  var clusters = utils.getClusters();
+export function shouldBeNewCluster(name, args) {
+  const clusters = utils.getClusters();
 
   if (clusters[name]) {
-    utils.grey('The cluster "' + name + '" already exists, no action taken.');
+    utils.grey(`The cluster "${name}" already exists, no action taken.`);
     return false;
   }
-};
+}
 
-exports.shouldBeNewInstance = (name, args) => {
-  var clusters = utils.getClusters();
+export function shouldBeNewInstance(name, args) {
+  const clusters = utils.getClusters();
 
   if (!args.cluster) {
     utils.grey('Using "default" cluster.');
@@ -46,7 +46,7 @@ exports.shouldBeNewInstance = (name, args) => {
   }
 
   if (clusters[name]) {
-    utils.die('"' + name + '" is already in use as a cluster name.');
+    utils.die(`"${name}" is already in use as a cluster name.`);
     return false;
   } else if (name === 'all') {
     utils.die('"all" is a special keyword that cannot be used for instance names.');
@@ -55,53 +55,53 @@ exports.shouldBeNewInstance = (name, args) => {
     utils.die('Instance names cannot include asterisk characters.');
     return false;
   } else if (utils.findMatchingInstancesByInstanceName(name).length > 0) {
-    utils.die('Instance "' + name + '" already exists.');
+    utils.die(`Instance "${name}" already exists.`);
     return false;
   }
-};
+}
 
-exports.shouldBeNewKey = (name, args) => {
+export function shouldBeNewKey(name, args) {
   if (utils.keyExists(name)) {
-    utils.grey('The key "' + name + '" already exists, no action taken.');
+    utils.grey(`The key "${name}" already exists, no action taken.`);
     return false;
   }
-};
+}
 
-exports.shouldBeExistingKey = (name, args) => {
+export function shouldBeExistingKey(name, args) {
   if (!utils.keyExists(name)) {
-    utils.grey('The key "' + name + '" was not found, no action taken.');
+    utils.grey(`The key "${name}" was not found, no action taken.`);
     return false;
   }
-};
+}
 
-exports.shouldBeAWS = (name, args) => {
+export function shouldBeAWS(name, args) {
   if (!args.instance || !args.instance.aws) {
     utils.die('This instance has no AWS metadata attached.');
     return false;
   }
-};
+}
 
-exports.shouldBeDigitalOcean = (name, args) => {
+export function shouldBeDigitalOcean(name, args) {
   if (!args.instance || !args.instance.digitalocean) {
     utils.red('This instance has no DigitalOcean metadata attached.');
     utils.red('Run this command and then try again:');
-    utils.die('overcast digitalocean sync "' + args.instance.name + '"');
+    utils.die(`overcast digitalocean sync "${args.instance.name}"`);
     return false;
   }
-};
+}
 
-exports.shouldBeVirtualbox = (name, args) => {
+export function shouldBeVirtualbox(name, args) {
   if (!args.instance || !args.instance.virtualbox) {
     utils.die('This instance has no Virtualbox metadata attached.');
     return false;
   }
-};
+}
 
-exports.shouldBeLinode = (name, args) => {
+export function shouldBeLinode(name, args) {
   if (!args.instance || !args.instance.linode) {
     utils.red('This instance has no Linode metadata attached.');
     utils.red('Run this command and then try again:');
-    utils.die('overcast linode sync "' + args.instance.name + '"');
+    utils.die(`overcast linode sync "${args.instance.name}"`);
     return false;
   }
-};
+}

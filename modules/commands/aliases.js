@@ -1,8 +1,8 @@
-var _ = require('lodash');
-var utils = require('../utils');
+import _ from 'lodash';
+import utils from '../utils';
 
-var commands = {};
-exports.commands = commands;
+const commands = {};
+export {commands};
 
 commands.aliases = {
   name: 'aliases',
@@ -25,9 +25,7 @@ commands.aliases = {
   run: function (args) {
     utils.each(utils.getClusters(), cluster => {
       utils.each(cluster.instances, instance => {
-        console.log('alias ssh.' + instance.name + '="ssh -i ' +
-          utils.normalizeKeyPath(instance.ssh_key) + ' -p ' + instance.ssh_port +
-          ' ' + instance.user + '@' + instance.ip + '"');
+        console.log(`alias ssh.${instance.name}="ssh -i ${utils.normalizeKeyPath(instance.ssh_key)} -p ${instance.ssh_port} ${instance.user}@${instance.ip}"`);
       });
     });
   }

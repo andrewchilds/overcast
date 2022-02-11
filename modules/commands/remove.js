@@ -1,8 +1,8 @@
-var utils = require('../utils');
-var instance = require('./instance');
+import utils from '../utils';
+import instance from './instance';
 
-var commands = {};
-exports.commands = commands;
+const commands = {};
+export {commands};
 
 commands.remove = {
   name: 'remove',

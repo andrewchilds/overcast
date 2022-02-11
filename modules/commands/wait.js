@@ -1,8 +1,8 @@
-var _ = require('lodash');
-var utils = require('../utils');
+import _ from 'lodash';
+import utils from '../utils';
 
-var commands = {};
-exports.commands = commands;
+const commands = {};
+export {commands};
 
 commands.wait = {
   name: 'wait',

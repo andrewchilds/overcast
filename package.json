@@ -11,12 +11,7 @@
   "engines": {
     "node": ">=13.2.x"
   },
-  "exports": {
-    ".": {
-      "require":  "./src/cjs/index.js",
-      "default": "./src/esm/index.mjs"
-    }
-  },
+  "type": "module",
   "main": "overcast.js",
   "scripts": {
     "test": "rm -rf ./test/integration/.overcast && node ./node_modules/jasmine/bin/jasmine.js --coffee --color --verbose ./test"

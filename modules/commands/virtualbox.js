@@ -1,13 +1,13 @@
-var _ = require('lodash');
-var utils = require('../utils');
-var filters = require('../filters');
-var provider = require('../provider');
-var api = require('../providers/virtualbox');
+import _ from 'lodash';
+import utils from '../utils';
+import filters from '../filters';
+import provider from '../provider';
+import api from '../providers/virtualbox';
 
-var commands = {};
-exports.commands = commands;
+const commands = {};
+export {commands};
 
-exports.banner = [
+export const banner = [
   'These commands require VirtualBox and Vagrant to be installed on',
   'your local machine. Vagrant files are stored in ~/.overcast-vagrant.'
 ];

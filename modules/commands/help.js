@@ -1,15 +1,14 @@
-var fs = require('fs');
-var colors = require('colors');
-var _ = require('lodash');
-var utils = require('../utils');
-var cli = require('../cli');
+import fs from 'fs';
+import _ from 'lodash';
+import utils from '../utils';
+import cli from '../cli';
 
-exports.run = args => {
+export function run(args) {
   if (!args.subcommand) {
     utils.argShift(args, 'subcommand');
   }
 
-  var moduleName;
+  let moduleName;
   if (args.command === 'help' && args.subcommand) {
     moduleName = args.subcommand;
   } else if (args.command !== 'help') {
@@ -17,8 +16,8 @@ exports.run = args => {
   }
 
   if (moduleName) {
-    if (fs.existsSync(__dirname + '/' + moduleName + '.js')) {
-      var module = require('./' + moduleName);
+    if (fs.existsSync(`${__dirname}/${moduleName}.js`)) {
+      const module = require(`./${moduleName}`);
       if (module && module.help) {
         return module.help();
       } else if (module && module.commands) {
@@ -30,24 +29,24 @@ exports.run = args => {
   }
 
   exports.help();
-};
+}
 
-exports.help = () => {
-  var signatures = [];
-  var row = ' ';
+export function help() {
+  const signatures = [];
+  let row = ' ';
   utils.each(utils.getCommands(), (command, name) => {
     if (name !== 'help' && (command.signatures || command.commands)) {
       if (row.length > 58) {
         signatures.push(row);
         row = ' ';
       }
-      row += ' ' + name;
+      row += ` ${name}`;
     }
   });
   signatures.push(row);
 
   utils.printArray([
-    ('Overcast v' + utils.VERSION).grey,
+    (`Overcast v${utils.VERSION}`).grey,
     '',
     'Source code, issues, pull requests:'.grey,
     '  https://github.com/andrewchilds/overcast',
@@ -66,6 +65,6 @@ exports.help = () => {
   utils.printArray([
     '',
     'Config directory:'.grey,
-    '  ' + utils.CONFIG_DIR.cyan
+    `  ${utils.CONFIG_DIR.cyan}`
   ]);
-};
+}

@@ -1,8 +1,8 @@
-var _ = require('lodash');
-var utils = require('../utils');
+import _ from 'lodash';
+import utils from '../utils';
 
-var commands = {};
-exports.commands = commands;
+const commands = {};
+export {commands};
 
 commands.completions = {
   name: 'completions',
@@ -26,7 +26,7 @@ commands.completions = {
 };
 
 function getCompletions() {
-  var list = [];
+  const list = [];
 
   function pushWords(signature) {
     signature.split(' ').forEach((word) => {
@@ -51,7 +51,7 @@ function getCompletions() {
     }
   });
 
-  var clusters = utils.getClusters();
+  const clusters = utils.getClusters();
   utils.each(clusters, (cluster, clusterName) => {
     list.push(clusterName);
     utils.each(cluster.instances, (instance, instanceName) => {

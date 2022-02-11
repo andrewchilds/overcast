@@ -1,10 +1,10 @@
-var _ = require('lodash');
-var utils = require('../utils');
-var ssh = require('../ssh');
-var filters = require('../filters');
+import _ from 'lodash';
+import utils from '../utils';
+import ssh from '../ssh';
+import filters from '../filters';
 
-var commands = {};
-exports.commands = commands;
+const commands = {};
+export {commands};
 
 commands.port = {
   name: 'port',
@@ -29,7 +29,7 @@ commands.port = {
     { name: 'port' }
   ],
   run: function (args) {
-    var new_ssh_port = args.port + '';
+    const new_ssh_port = `${args.port}`;
     args.env = {
       new_ssh_port
     };

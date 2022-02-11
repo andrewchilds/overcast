@@ -1,3 +1,5 @@
 #!/usr/bin/env node
 
-require('../overcast.js');
+import * as cli from '../modules/cli.js';
+
+cli.init();

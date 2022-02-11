@@ -1,10 +1,9 @@
-var colors = require('colors');
-var _ = require('lodash');
-var utils = require('../utils');
-var filters = require('../filters');
+import _ from 'lodash';
+import utils from '../utils';
+import filters from '../filters';
 
-var commands = {};
-exports.commands = commands;
+const commands = {};
+export {commands};
 
 commands.count = {
   name: 'count',
@@ -31,11 +30,11 @@ commands.create = {
   examples: '$ overcast cluster create db',
   required: [{ name: 'name', filters: filters.shouldBeNewCluster }],
   run: function (args) {
-    var clusters = utils.getClusters();
+    const clusters = utils.getClusters();
     clusters[args.name] = { instances: {} };
 
     utils.saveClusters(clusters, () => {
-      utils.success('Cluster "' + args.name + '" has been created.');
+      utils.success(`Cluster "${args.name}" has been created.`);
     });
   }
 };
@@ -50,13 +49,13 @@ commands.rename = {
     { name: 'new-name', varName: 'newName', filters: filters.shouldBeNewCluster }
   ],
   run: function (args) {
-    var clusters = utils.getClusters();
+    const clusters = utils.getClusters();
 
     clusters[args.newName] = clusters[args.name];
     delete clusters[args.name];
 
     utils.saveClusters(clusters, () => {
-      utils.success('Cluster "' + args.name + '" has been renamed to "' + args.newName + '".');
+      utils.success(`Cluster "${args.name}" has been renamed to "${args.newName}".`);
     });
   }
 };
@@ -73,9 +72,9 @@ commands.remove = {
     { name: 'name', filters: filters.findMatchingCluster }
   ],
   run: function (args) {
-    var clusters = utils.getClusters();
+    const clusters = utils.getClusters();
 
-    var orphaned = 0;
+    let orphaned = 0;
     if (clusters[args.name].instances) {
       orphaned = Object.keys(clusters[args.name].instances).length;
       clusters.orphaned = clusters.orphaned || { instances: {} };
@@ -85,12 +84,12 @@ commands.remove = {
     delete clusters[args.name];
 
     utils.saveClusters(clusters, () => {
-      utils.success('Cluster "' + args.name + '" has been removed.');
+      utils.success(`Cluster "${args.name}" has been removed.`);
       if (orphaned) {
         if (args.name === 'orphaned') {
-          utils.alert('The ' + orphaned + ' instance(s) in the "orphaned" cluster were removed.');
+          utils.alert(`The ${orphaned} instance(s) in the "orphaned" cluster were removed.`);
         } else {
-          utils.alert('The ' + orphaned + ' instance(s) from this cluster were moved to the "orphaned" cluster.');
+          utils.alert(`The ${orphaned} instance(s) from this cluster were moved to the "orphaned" cluster.`);
         }
       }
     });

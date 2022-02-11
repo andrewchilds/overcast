@@ -1,10 +1,10 @@
-var cp = require('child_process');
-var _ = require('lodash');
-var utils = require('../utils');
-var filters = require('../filters');
+import cp from 'child_process';
+import _ from 'lodash';
+import utils from '../utils';
+import filters from '../filters';
 
-var commands = {};
-exports.commands = commands;
+const commands = {};
+export {commands};
 
 commands.ssh = {
   name: 'ssh',
@@ -30,15 +30,15 @@ commands.ssh = {
 };
 
 function connect(instance, args) {
-  var privateKeyFile = utils.normalizeKeyPath(args['ssh-key'] || instance.ssh_key || utils.CONFIG_DIR + '/keys/overcast.key');
-  var sshPort = instance.ssh_port || '22';
-  var host = (args.user || instance.user || 'root') + '@' + instance.ip;
-  var password = (args.password || instance.password || '');
+  const privateKeyFile = utils.normalizeKeyPath(args['ssh-key'] || instance.ssh_key || `${utils.CONFIG_DIR}/keys/overcast.key`);
+  const sshPort = instance.ssh_port || '22';
+  const host = `${args.user || instance.user || 'root'}@${instance.ip}`;
+  const password = (args.password || instance.password || '');
 
-  var command = [];
+  const command = [];
   if (password) {
     command.push('sshpass');
-    command.push('-p' + password);
+    command.push(`-p${password}`);
   }
   command.push('ssh');
   command.push('-tt');
@@ -58,7 +58,7 @@ function connect(instance, args) {
 
   console.log(command.join(' '));
 
-  var ssh = cp.spawn(command.shift(), command, {
+  const ssh = cp.spawn(command.shift(), command, {
     stdio: 'inherit'
   });
 
@@ -74,7 +74,7 @@ function connect(instance, args) {
     process.stdin.pause();
 
     if (code !== 0) {
-      var str = 'SSH connection exited with a non-zero code (' + code + ').';
+      const str = `SSH connection exited with a non-zero code (${code}).`;
       utils.die(str);
     }
   });

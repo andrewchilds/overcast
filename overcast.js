@@ -1,12 +1,4 @@
-var cli = require('./modules/cli');
-var utils = require('./modules/utils');
+import * as cli from './modules/cli.js';
+import * as utils from './modules/utils.js';
 
-if (module.parent && module.parent.filename.indexOf('bin/overcast') !== -1) {
-  // Command line use:
-  cli.init();
-} else {
-  // Programmatic use:
-  exports.cli = cli;
-  exports.utils = utils;
-  exports.commands = utils.getCommands();
-}
+export { cli, utils };

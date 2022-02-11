@@ -1,17 +1,17 @@
-var utils = require('../utils');
-var cli = require('../cli');
+import utils from '../utils';
+import cli from '../cli';
 
-exports.run = args => {
+export function run(args) {
   utils.argShift(args, 'name');
 
   if (!args.name) {
     return utils.missingParameter('[instance]', exports.help);
   }
 
-  var instance = utils.findFirstMatchingInstance(args.name);
+  const instance = utils.findFirstMatchingInstance(args.name);
   utils.handleInstanceNotFound(instance, args);
 
-  var command;
+  let command;
   if (instance.digitalocean) {
     command = require('./digitalocean.js');
     args.command = 'digitalocean';
@@ -43,15 +43,15 @@ exports.run = args => {
   } else {
     return utils.die('This instance doesn\'t belong to a recognized provider.');
   }
-};
+}
 
-exports.signatures = () => {
+export function signatures() {
   return [
     '  overcast destroy [name]'
   ];
-};
+}
 
-exports.help = () => {
+export function help() {
   utils.printArray([
     'overcast destroy [instance]',
     '  Destroy an instance using the provider API.'.grey,
@@ -62,4 +62,4 @@ exports.help = () => {
     '  Example:'.grey,
     '  $ overcast destroy app-01'.grey
   ]);
-};
+}

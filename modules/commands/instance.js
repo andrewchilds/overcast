@@ -1,9 +1,9 @@
-var _ = require('lodash');
-var utils = require('../utils');
-var filters = require('../filters');
+import _ from 'lodash';
+import utils from '../utils';
+import filters from '../filters';
 
-var commands = {};
-exports.commands = commands;
+const commands = {};
+export {commands};
 
 commands.get = {
   name: 'get',
@@ -30,14 +30,14 @@ commands.get = {
     { name: 'attr...', varName: 'attr', greedy: true }
   ],
   run: (args) => {
-    var output = [];
+    const output = [];
     args.attr = args.attr.split(' ');
 
     utils.each(args.instances, (instance) => {
       utils.each(args.attr, (attr) => {
         attr = attr.replace(/-/g, '_');
         if (attr === 'origin') {
-          output.push(instance.user + '@' + instance.ip + ':' + instance.ssh_port);
+          output.push(`${instance.user}@${instance.ip}:${instance.ssh_port}`);
         } else if (instance[attr]) {
           output.push(instance[attr]);
         }
@@ -74,7 +74,7 @@ commands.import = {
     { usage: '--password PASSWORD' },
   ],
   run: (args) => {
-    var instance = {
+    const instance = {
       ip: args.ip,
       name: args.name,
       ssh_port: args['ssh-port'] || '22',
@@ -84,8 +84,7 @@ commands.import = {
     };
 
     utils.saveInstanceToCluster(args.cluster, instance, () => {
-      utils.success('Instance "' + args.name + '" (' + args.ip +
-        ') has been imported to the "' + args.cluster + '" cluster.');
+      utils.success(`Instance "${args.name}" (${args.ip}) has been imported to the "${args.cluster}" cluster.`);
     });
   }
 };
@@ -128,7 +127,7 @@ commands.remove = {
   required: [{ name: 'name', filters: filters.findFirstMatchingInstance }],
   run: (args) => {
     utils.deleteInstance(args.instance);
-    utils.success('Instance "' + args.instance.name + '" removed.');
+    utils.success(`Instance "${args.instance.name}" removed.`);
   }
 };
 
@@ -159,15 +158,15 @@ commands.update = {
     { usage: '--password PASSWORD' }
   ],
   run: (args) => {
-    var clusters = utils.getClusters();
+    const clusters = utils.getClusters();
 
     if (!args.name) {
       args.name = args.oldName;
       args.oldName = null;
     }
 
-    var instances = utils.findMatchingInstances(args.oldName || args.name);
-    var messages = [];
+    const instances = utils.findMatchingInstances(args.oldName || args.name);
+    const messages = [];
 
     utils.each(instances, (instance) => {
       return exports.updateInstance(args, messages, clusters, instance);
@@ -179,47 +178,46 @@ commands.update = {
   }
 };
 
-exports.updateInstance = (args, messages, clusters, instance) => {
-  var parentClusterName = utils.findClusterNameForInstance(instance);
+export function updateInstance(args, messages, clusters, instance) {
+  let parentClusterName = utils.findClusterNameForInstance(instance);
 
   if (args.cluster) {
     if (!clusters[args.cluster]) {
-      utils.die('No "' + args.cluster + '" cluster found. Known clusters are: ' +
-        Object.keys(clusters).join(', ') + '.');
+      utils.die(`No "${args.cluster}" cluster found. Known clusters are: ${Object.keys(clusters).join(', ')}.`);
       return false;
     }
     if (clusters[args.cluster].instances[instance.name]) {
-      utils.die('An instance named "' + instance.name + '" already exists in the "' + args.cluster + '" cluster.');
+      utils.die(`An instance named "${instance.name}" already exists in the "${args.cluster}" cluster.`);
       return false;
     }
 
     delete clusters[parentClusterName].instances[instance.name];
     clusters[args.cluster].instances[instance.name] = instance;
     parentClusterName = args.cluster;
-    messages.push('Instance "' + instance.name + '" has been moved to the "' + args.cluster + '" cluster.');
+    messages.push(`Instance "${instance.name}" has been moved to the "${args.cluster}" cluster.`);
   }
 
   if (args.oldName) {
     if (clusters[parentClusterName].instances[args.name]) {
-      utils.die('An instance named "' + args.name + '" already exists in the "' + parentClusterName + '" cluster.');
+      utils.die(`An instance named "${args.name}" already exists in the "${parentClusterName}" cluster.`);
       return false;
     }
 
     instance.name = args.name;
     delete clusters[parentClusterName].instances[args.oldName];
     clusters[parentClusterName].instances[args.name] = instance;
-    messages.push('Instance "' + args.oldName + '" has been renamed to "' + args.name + '".');
+    messages.push(`Instance "${args.oldName}" has been renamed to "${args.name}".`);
   }
 
   ['ip', 'ssh-key', 'ssh-port', 'user', 'password'].forEach((prop) => {
     if (prop in args) {
       if (args[prop]) {
         clusters[parentClusterName].instances[instance.name][prop.replace('-', '_')] = args[prop];
-        messages.push('Instance property "' + prop + '" has been updated to "' + args[prop] + '".');
+        messages.push(`Instance property "${prop}" has been updated to "${args[prop]}".`);
       } else {
         delete clusters[parentClusterName].instances[instance.name][prop.replace('-', '_')];
-        messages.push('Instance property "' + prop + '" has been unset.');
+        messages.push(`Instance property "${prop}" has been unset.`);
       }
     }
   });
-};
+}
