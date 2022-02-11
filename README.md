@@ -475,7 +475,7 @@ Usage:
 
 Description:
   Pretty-prints the complete clusters.json file, stored here:
-  /path/to/.overcast/clusters.json
+  undefined/clusters.json
   Optionally display only instances matching [name].
 ```
 

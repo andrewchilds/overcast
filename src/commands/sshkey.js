@@ -19,7 +19,7 @@ commands.create = {
   required: [{ name: 'name', filters: filters.shouldBeNewKey }],
   run: ({ name }) => {
     utils.createKey(name, keyPath => {
-      console.log(utils.success(`New SSH key "${name}" created.`));
+      utils.success(`New SSH key "${name}" created.`);
       console.log(utils.grey(` - ${keyPath}`));
       console.log(utils.grey(` - ${keyPath}.pub`));
     });
@@ -37,7 +37,7 @@ commands.delete = {
   required: [{ name: 'name', filters: filters.shouldBeExistingKey }],
   run: ({ name }) => {
     utils.deleteKey(name, () => {
-      console.log(utils.success(`SSH key "${name}" deleted.`));
+      utils.success(`SSH key "${name}" deleted.`);
     });
   }
 };
@@ -136,7 +136,7 @@ commands.push = {
     args._ = ['authorize_key'];
     args.mr = true; // machine readable
     ssh.run(args, () => {
-      console.log(utils.success(`Key updated on ${args.instances.length} instance(s).`));
+      utils.success(`Key updated on ${args.instances.length} instance(s).`);
       console.log(utils.grey('If this is the default user you use to SSH in,'));
       console.log(utils.grey('you need to update the instance configuration. For example:'));
       console.log(utils.grey(`overcast instance update ${args.name} --ssh-key myPrivateKey.key`));

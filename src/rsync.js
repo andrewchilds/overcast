@@ -109,7 +109,7 @@ function rsync(options, next) {
       utils.prefixPrint(options.name, color, str, 'red');
       process.exit(1);
     }
-    console.log(utils.success(options.source + ' transferred to ' + options.dest));
+    utils.success(options.source + ' transferred to ' + options.dest);
     console.log('');
     if (utils.isFunction(next)) {
       next();

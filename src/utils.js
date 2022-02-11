@@ -397,7 +397,7 @@ export function saveVariables(variables) {
 
   fs.writeFile(VARIABLES_JSON, JSON.stringify(variables, null, 2), (err) => {
     if (err) {
-      red('Error saving variables.json.');
+      failure('Error saving variables.json.');
     } else {
       success('Variables saved.');
     }
@@ -586,15 +586,28 @@ export function missingCommand(helpFn) {
   process.exit(1);
 }
 
-export const alert = chalk.yellow;
 export const cyan = chalk.cyan;
 export const green = chalk.green;
 export const grey = chalk.grey;
-export const note = chalk.cyan;
 export const red = chalk.red;
-export const success = chalk.green;
 export const white = chalk.white;
 export const yellow = chalk.yellow;
+
+export const success = (str) => {
+  console.log(chalk.green(str));
+};
+
+export const note = (str) => {
+  console.log(chalk.cyan(str));
+};
+
+export const alert = (str) => {
+  console.log(chalk.yellow(str));
+};
+
+export const failure = (str) => {
+  console.log(chalk.red(str));
+};
 
 export function prefixPrint(prefix, prefixColor, buffer, textColor) {
   prefix = (prefix + ': ')[prefixColor];
