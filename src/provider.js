@@ -1,5 +1,6 @@
 import readline from 'readline';
 import * as utils from './utils.js';
+import * as log from './log.js';
 
 export function handleCommandNotFound(fn) {
   if (!utils.isFunction(fn)) {
@@ -10,10 +11,10 @@ export function handleCommandNotFound(fn) {
 export function create(api, args, callback) {
   handleCommandNotFound(api.create);
 
-  console.log(utils.grey(`Creating new instance "${args.name}" on ${api.name}...`));
+  log.faded(`Creating new instance "${args.name}" on ${api.name}...`);
   api.create(args, instance => {
     utils.saveInstanceToCluster(args.cluster, instance);
-    utils.success(`Instance "${args.name}" (${instance.ip}) saved.`);
+    log.success(`Instance "${args.name}" (${instance.ip}) saved.`);
     utils.waitForBoot(instance, callback);
   });
 }
@@ -23,7 +24,7 @@ export function destroy(api, args, callback) {
 
   const onDestroy = () => {
     utils.deleteInstance(args.instance, callback);
-    utils.success(`Instance "${args.instance.name}" destroyed.`);
+    log.success(`Instance "${args.instance.name}" destroyed.`);
   };
 
   if (args.force) {
@@ -39,7 +40,7 @@ export function destroy(api, args, callback) {
   rl.question(q, answer => {
     rl.close();
     if (answer !== '' && answer !== 'Y' && answer !== 'y') {
-      console.log(utils.grey('No action taken.'));
+      log.faded('No action taken.');
     } else {
       api.destroy(args.instance, onDestroy);
     }
@@ -49,9 +50,9 @@ export function destroy(api, args, callback) {
 export function boot(api, args, callback) {
   handleCommandNotFound(api.boot);
 
-  console.log(utils.grey(`Booting "${args.instance.name}"...`));
+  log.faded(`Booting "${args.instance.name}"...`);
   api.boot(args.instance, () => {
-    utils.success(`Instance "${args.instance.name}" booted.`);
+    log.success(`Instance "${args.instance.name}" booted.`);
     utils.waitForBoot(args.instance, callback);
   });
 }
@@ -59,9 +60,9 @@ export function boot(api, args, callback) {
 export function shutdown(api, args, callback) {
   handleCommandNotFound(api.shutdown);
 
-  console.log(utils.grey(`Shutting down "${args.instance.name}"...`));
+  log.faded(`Shutting down "${args.instance.name}"...`);
   api.shutdown(args.instance, () => {
-    utils.success(`Instance "${args.instance.name}" has been shut down.`);
+    log.success(`Instance "${args.instance.name}" has been shut down.`);
     if (utils.isFunction(callback)) {
       callback();
     }
@@ -71,9 +72,9 @@ export function shutdown(api, args, callback) {
 export function reboot(api, args, callback) {
   handleCommandNotFound(api.reboot);
 
-  console.log(utils.grey(`Rebooting "${args.instance.name}"...`));
+  log.faded(`Rebooting "${args.instance.name}"...`);
   api.reboot(args.instance, () => {
-    utils.success(`Instance "${args.instance.name}" rebooted.`);
+    log.success(`Instance "${args.instance.name}" rebooted.`);
     utils.waitForBoot(args.instance, callback);
   });
 }
@@ -81,10 +82,10 @@ export function reboot(api, args, callback) {
 export function rebuild(api, args, callback) {
   handleCommandNotFound(api.rebuild);
 
-  console.log(utils.grey(`Rebuilding "${args.instance.name}" using image "${args.image}"...`));
+  log.faded(`Rebuilding "${args.instance.name}" using image "${args.image}"...`);
   api.rebuild(args.instance, args.image, () => {
     updateInstanceMetadata(api, args, () => {
-      utils.success(`Instance "${args.instance.name}" rebuilt.`);
+      log.success(`Instance "${args.instance.name}" rebuilt.`);
       utils.waitForBoot(args.instance, callback);
     });
   });
@@ -93,12 +94,12 @@ export function rebuild(api, args, callback) {
 export function resize(api, args, callback) {
   handleCommandNotFound(api.resize);
 
-  console.log(utils.grey(`Resizing "${args.instance.name}" to "${args.size}"...`));
+  log.faded(`Resizing "${args.instance.name}" to "${args.size}"...`);
   api.resize(args.instance, args.size, () => {
     updateInstanceMetadata(api, args, () => {
-      utils.success(`Instance "${args.instance.name}" resized.`);
+      log.success(`Instance "${args.instance.name}" resized.`);
       if (args.skipBoot || args['skip-boot']) {
-        console.log(utils.grey('Skipping boot since --skip-boot flag was used.'));
+        log.faded('Skipping boot since --skip-boot flag was used.');
         if (utils.isFunction(callback)) {
           callback();
         }
@@ -112,9 +113,9 @@ export function resize(api, args, callback) {
 export function snapshot(api, args, callback) {
   handleCommandNotFound(api.snapshot);
 
-  console.log(utils.grey(`Saving snapshot "${args.snapshotName}" of "${args.instance.name}"...`));
+  log.faded(`Saving snapshot "${args.snapshotName}" of "${args.instance.name}"...`);
   api.snapshot(args.instance, args.snapshotName, () => {
-    utils.success(`Snapshot "${args.snapshotName}" of "${args.instance.name}" saved.`);
+    log.success(`Snapshot "${args.snapshotName}" of "${args.instance.name}" saved.`);
     utils.waitForBoot(args.instance, callback);
   });
 }
@@ -159,9 +160,9 @@ export function updateInstanceMetadata(api, args, callback) {
 export function sync(api, args, callback) {
   handleCommandNotFound(api.sync);
 
-  console.log(utils.grey(`Fetching metadata for "${args.instance.name}"...`));
+  log.faded(`Fetching metadata for "${args.instance.name}"...`);
   api.sync(args.instance, () => {
-    utils.success(`Metadata for "${args.instance.name}" updated.`);
+    log.success(`Metadata for "${args.instance.name}" updated.`);
     if (utils.isFunction(callback)) {
       callback();
     }

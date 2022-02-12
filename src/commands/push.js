@@ -1,4 +1,3 @@
-import _ from 'lodash';
 import * as utils from '../utils.js';
 import * as scp from '../scp.js';
 import * as rsync from '../rsync.js';

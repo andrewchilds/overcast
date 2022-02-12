@@ -22,6 +22,7 @@ Product simplification:
 - Removed AWS and Linode as providers - may revisit adding them back in if there is enough demand
 - Renamed `var` command to the not-reserved `vars`
 - Renamed the overly-general `key` command to `sshkey`
+- Remove ability to store files and scripts in the `.overcast` directory, which is now focused on storing keys, variables, and cluster data
 
 **1.0.8** (Apr 4, 2018)
 

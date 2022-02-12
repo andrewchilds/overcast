@@ -1,8 +1,8 @@
 import fs from 'fs';
-import _ from 'lodash';
 import * as utils from '../utils.js';
 import * as filters from '../filters.js';
 import * as ssh from '../ssh.js';
+import * as log from '../log.js';
 
 export const commands = {};
 
@@ -19,9 +19,9 @@ commands.create = {
   required: [{ name: 'name', filters: filters.shouldBeNewKey }],
   run: ({ name }) => {
     utils.createKey(name, keyPath => {
-      utils.success(`New SSH key "${name}" created.`);
-      console.log(utils.grey(` - ${keyPath}`));
-      console.log(utils.grey(` - ${keyPath}.pub`));
+      log.success(`New SSH key "${name}" created.`);
+      log.faded(` - ${keyPath}`);
+      log.faded(` - ${keyPath}.pub`);
     });
   }
 };
@@ -37,7 +37,7 @@ commands.delete = {
   required: [{ name: 'name', filters: filters.shouldBeExistingKey }],
   run: ({ name }) => {
     utils.deleteKey(name, () => {
-      utils.success(`SSH key "${name}" deleted.`);
+      log.success(`SSH key "${name}" deleted.`);
     });
   }
 };
@@ -136,10 +136,10 @@ commands.push = {
     args._ = ['authorize_key'];
     args.mr = true; // machine readable
     ssh.run(args, () => {
-      utils.success(`Key updated on ${args.instances.length} instance(s).`);
-      console.log(utils.grey('If this is the default user you use to SSH in,'));
-      console.log(utils.grey('you need to update the instance configuration. For example:'));
-      console.log(utils.grey(`overcast instance update ${args.name} --ssh-key myPrivateKey.key`));
+      log.success(`Key updated on ${args.instances.length} instance(s).`);
+      log.faded('If this is the default user you use to SSH in,');
+      log.faded('you need to update the instance configuration. For example:');
+      log.faded(`overcast instance update ${args.name} --ssh-key myPrivateKey.key`);
     });
   }
 };

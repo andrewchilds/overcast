@@ -1,4 +1,5 @@
 import * as utils from './utils.js';
+import * as log from './log.js';
 
 export function findMatchingInstances(name, args) {
   args.instances = utils.findMatchingInstances(name);
@@ -32,7 +33,7 @@ export function shouldBeNewCluster(name, args) {
   const clusters = utils.getClusters();
 
   if (clusters[name]) {
-    console.log(utils.grey(`The cluster "${name}" already exists. No action taken.`));
+    log.alert(`The cluster "${name}" already exists. No action taken.`);
     return false;
   }
 }
@@ -41,7 +42,7 @@ export function shouldBeNewInstance(name, args) {
   const clusters = utils.getClusters();
 
   if (!args.cluster) {
-    console.log(utils.grey('Using "default" cluster.'));
+    log.faded('Using "default" cluster.');
     args.cluster = 'default';
   }
 
@@ -62,22 +63,22 @@ export function shouldBeNewInstance(name, args) {
 
 export function shouldBeNewKey(name, args) {
   if (utils.keyExists(name)) {
-    console.log(utils.grey(`The key "${name}" already exists. No action taken.`));
+    log.alert(`The key "${name}" already exists. No action taken.`);
     return false;
   }
 }
 
 export function shouldBeExistingKey(name, args) {
   if (!utils.keyExists(name)) {
-    console.log(utils.grey(`The key "${name}" was not found. No action taken.`));
+    log.alert(`The key "${name}" was not found. No action taken.`);
     return false;
   }
 }
 
 export function shouldBeDigitalOcean(name, {instance}) {
   if (!instance || !instance.digitalocean) {
-    utils.failure('This instance has no DigitalOcean metadata attached.');
-    utils.failure('Run this command and then try again:');
+    log.failure('This instance has no DigitalOcean metadata attached.');
+    log.failure('Run this command and then try again:');
     utils.die(`overcast digitalocean sync "${instance.name}"`);
     return false;
   }

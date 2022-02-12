@@ -37,7 +37,7 @@ export function createRequest(args, query, callback) {
       return utils.die(`Got an error from the DigitalOcean API: ${err}`);
     }
     if (body && body.droplet) {
-      console.log(utils.grey('Waiting for instance to be created...'));
+      log.faded('Waiting for instance to be created...');
       waitForActionToComplete(body.links.actions[0].id, () => {
         getInstance(body.droplet.id, droplet => {
           const response = {
@@ -245,9 +245,9 @@ export function getAPI() {
 
   const vars = utils.getVariables();
   if (!vars.DIGITALOCEAN_API_TOKEN) {
-    utils.failure('The variable DIGITALOCEAN_API_TOKEN is not set.');
-    utils.failure('Go to https://cloud.digitalocean.com/settings/applications');
-    utils.failure('to get this variable, then run the following command:');
+    log.failure('The variable DIGITALOCEAN_API_TOKEN is not set.');
+    log.failure('Go to https://cloud.digitalocean.com/settings/applications');
+    log.failure('to get this variable, then run the following command:');
     return utils.die('overcast var set DIGITALOCEAN_API_TOKEN [your_api_token]');
   }
 
@@ -314,10 +314,10 @@ export function getOrCreateOvercastKeyID(pubKeyPath, callback) {
       return name === utils.createHashedKeyName(keyData);
     });
     if (key) {
-      console.log(utils.grey(`Using SSH key: ${pubKeyPath}`));
+      log.faded(`Using SSH key: ${pubKeyPath}`);
       callback(key.id);
     } else {
-      console.log(utils.grey(`Uploading new SSH key: ${pubKeyPath}`));
+      log.faded(`Uploading new SSH key: ${pubKeyPath}`);
       createKey(keyData, (key) => {
         callback(key.id);
       });

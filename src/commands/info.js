@@ -1,5 +1,6 @@
 import * as utils from '../utils.js';
 import * as filters from '../filters.js';
+import * as log from '../log.js';
 
 export const commands = {};
 
@@ -13,16 +14,16 @@ commands.info = {
   run: function({instances}) {
     const clusters = utils.getClusters();
 
-    console.log(utils.grey(`Using ${utils.CONFIG_DIR}/clusters.json`));
+    log.faded(`Using ${utils.CONFIG_DIR}/clusters.json`);
 
     if (!clusters) {
-      console.log('');
-      console.log(utils.grey('No clusters found.'));
+      log.br();
+      log.faded('No clusters found.');
       return false;
     }
 
     if (instances) {
-      console.log('');
+      log.br();
       utils.eachObject(instances, instance => {
         console.log(instance.name);
         utils.prettyPrint(instance, 2);
@@ -32,10 +33,10 @@ commands.info = {
     }
 
     utils.eachObject(clusters, ({instances}, clusterName) => {
-      console.log('');
-      utils.note(clusterName);
+      log.br();
+      log.faded(clusterName);
       utils.eachObject(instances, instance => {
-        console.log('');
+        log.br();
         console.log(`  ${instance.name}`);
         utils.prettyPrint(instance, 4);
       });

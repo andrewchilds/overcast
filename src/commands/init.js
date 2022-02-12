@@ -1,6 +1,6 @@
 import fs from 'fs';
-import _ from 'lodash';
 import * as utils from '../utils.js';
+import * as log from '../log.js';
 
 export const commands = {};
 
@@ -15,7 +15,7 @@ commands.init = {
     const cwd = process.cwd();
 
     if (fs.existsSync(`${cwd}/.overcast`)) {
-      utils.alert('.overcast directory already exists here.');
+      log.alert('.overcast directory already exists here.');
     } else {
       utils.initOvercastDir(cwd);
     }

@@ -1,7 +1,7 @@
 import cp from 'child_process';
-import _ from 'lodash';
 import * as utils from '../utils.js';
 import * as filters from '../filters.js';
+import * as log from '../log.js';
 
 export const commands = {};
 
@@ -62,10 +62,10 @@ function connect(instance, args) {
   });
 
   ssh.on('error', err => {
-    utils.failure('There was an error running this command.');
+    log.failure('There was an error running this command.');
     if (password) {
-      utils.failure('You need the "sshpass" program installed to use password-based');
-      utils.failure('SSH authentication. Do you have that installed?');
+      log.failure('You need the "sshpass" program installed to use password-based');
+      log.failure('SSH authentication. Do you have that installed?');
     }
   });
 

@@ -1,5 +1,5 @@
-import _ from 'lodash';
 import * as utils from '../utils.js';
+import * as log from '../log.js';
 
 export const commands = {};
 
@@ -9,8 +9,8 @@ commands.list = {
   description: `List variables in ${utils.VARIABLES_JSON}.`,
   run: (args) => {
     const vars = utils.getVariables();
-    console.log(utils.grey(`Using ${utils.VARIABLES_JSON}`));
-    console.log('');
+    log.faded(`Using ${utils.VARIABLES_JSON}`);
+    log.br();
     utils.each(vars, (value, name) => {
       if (value === '') {
         console.log(`${name} ${('empty string')}`);
@@ -75,7 +75,7 @@ commands.delete = {
       vars[name] = '';
       utils.saveVariables(vars);
     } else {
-      console.log(utils.grey('Variable not found, no action taken.'));
+      log.alert('Variable not found. No action taken.');
     }
   }
 };

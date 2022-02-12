@@ -1,5 +1,6 @@
 import SlackNotify from 'slack-notify';
 import * as utils from '../utils.js';
+import * as log from '../log.js';
 
 export const commands = {};
 
@@ -50,16 +51,16 @@ export function send(options) {
   const vars = utils.getVariables();
 
   if (!vars.SLACK_WEBHOOK_URL) {
-    console.log(utils.grey('No message sent.'));
-    console.log(utils.grey(`Please add SLACK_WEBHOOK_URL to ${utils.VARIABLES_JSON}.`));
+    log.faded('No message sent.');
+    log.faded(`Please add SLACK_WEBHOOK_URL to ${utils.VARIABLES_JSON}.`);
 
     return false;
   }
 
   const slack = SlackNotify(vars.SLACK_WEBHOOK_URL);
   slack.send(options).then(() => {
-    utils.success('Message sent to Slack.');
+    log.success('Message sent to Slack.');
   }).catch((err) => {
-    utils.failure(`Unable to send message to Slack: ${err}`);
+    log.failure(`Unable to send message to Slack: ${err}`);
   });
 }

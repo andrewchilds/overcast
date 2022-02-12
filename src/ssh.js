@@ -3,6 +3,7 @@ import path from 'path';
 import cp from 'child_process';
 import _ from 'lodash';
 import * as utils from './utils.js';
+import * as log from './log.js';
 
 export function run(args, callback) {
   // Handle cases where minimist mistakenly parses ssh-args (e.g. "-tt" becomes { t: true }).
@@ -18,14 +19,14 @@ export function run(args, callback) {
   utils.handleInstanceOrClusterNotFound(instances, args);
 
   if (args.parallel || args.p) {
-    utils.eachObject(instances, instance => {
+    instances.forEach((instance) => {
       runOnInstance(instance, _.cloneDeep(args));
     });
     if (utils.isFunction(callback)) {
       callback();
     }
   } else {
-    runOnInstances(_.toArray(instances), args, callback);
+    runOnInstances(instances, args, callback);
   }
 }
 
@@ -108,13 +109,10 @@ function sshExec(options, next) {
   }
 
   var cwdScriptFile = commandAsScriptFile(options.command, process.cwd());
-  var scriptFile = commandAsScriptFile(options.command, utils.CONFIG_DIR + '/scripts');
   var bundledScriptFile = commandAsScriptFile(options.command, __dirname + '/../scripts');
 
   if (fs.existsSync(cwdScriptFile)) {
     sshEnv.OVERCAST_SCRIPT_FILE = utils.escapeWindowsPath(cwdScriptFile);
-  } else if (fs.existsSync(scriptFile)) {
-    sshEnv.OVERCAST_SCRIPT_FILE = utils.escapeWindowsPath(scriptFile);
   } else if (fs.existsSync(bundledScriptFile)) {
     sshEnv.OVERCAST_SCRIPT_FILE = utils.escapeWindowsPath(bundledScriptFile);
   } else {
@@ -141,9 +139,9 @@ function sshExec(options, next) {
   });
 
   ssh.stderr.on('data', data => {
-    if (_.contains(data.toString(), 'Operation timed out') ||
-      _.contains(data.toString(), 'No route to host') ||
-      _.contains(data.toString(), 'Host is down')) {
+    if (data.toString().includes( 'Operation timed out') ||
+      data.toString().includes('No route to host') ||
+      data.toString().includes('Host is down')) {
       connectionProblem = true;
     }
 
@@ -162,7 +160,7 @@ function sshExec(options, next) {
       if (options.retries <= options.maxRetries) {
         utils.prefixPrint(options.name, color, 'Retrying (' +
           options.retries + ' of ' + options.maxRetries + ' attempts)...', 'red');
-        console.log('');
+        log.br();
         utils.SSH_COUNT--;
         sshExec(options, next);
         return false;
@@ -178,7 +176,7 @@ function sshExec(options, next) {
       process.exit(1);
     }
     if (!options.machineReadable) {
-      console.log('');
+      log.br();
     }
     if (utils.isFunction(next)) {
       next();

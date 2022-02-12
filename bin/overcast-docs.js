@@ -15,11 +15,11 @@ utils.findConfig(() => {
       var subcommandName = subcommand.name && name !== subcommand.name ?
         ' ' + subcommand.name : '';
       console.log('### overcast ' + name + subcommandName);
-      console.log('');
+      log.br();
       console.log('```');
       compileHelp(subcommand, true);
       console.log('```');
-      console.log('');
+      log.br();
     });
   });
 });

@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import chalk from 'chalk';
 import cp from 'child_process';
 import * as utils from '../utils.js';
 import * as filters from '../filters.js';
@@ -30,6 +30,6 @@ function ping({ip, name}, count) {
     const color = utils.SSH_COLORS[utils.SSH_COUNT++ % 5];
     const averagePing = stdout.match(/ ([\d\.]+)\/([\d\.]+)\/([\d\.]+)\/([\d\.]+) ms/);
     const prefix = `${name}: `;
-    console.log(`${prefix[color] + averagePing[2]} ms`);
+    console.log(`${chalk[color](prefix) + averagePing[2]} ms`);
   });
 }

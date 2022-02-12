@@ -1,6 +1,6 @@
-import _ from 'lodash';
 import * as utils from '../utils.js';
 import * as filters from '../filters.js';
+import * as log from '../log.js';
 
 export const commands = {};
 
@@ -83,7 +83,7 @@ commands.import = {
     };
 
     utils.saveInstanceToCluster(args.cluster, instance, () => {
-      utils.success(`Instance "${args.name}" (${args.ip}) has been imported to the "${args.cluster}" cluster.`);
+      log.success(`Instance "${args.name}" (${args.ip}) has been imported to the "${args.cluster}" cluster.`);
     });
   }
 };
@@ -126,7 +126,7 @@ commands.remove = {
   required: [{ name: 'name', filters: filters.findFirstMatchingInstance }],
   run: ({instance}) => {
     utils.deleteInstance(instance);
-    utils.success(`Instance "${instance.name}" removed.`);
+    log.success(`Instance "${instance.name}" removed.`);
   }
 };
 

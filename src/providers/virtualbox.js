@@ -2,6 +2,7 @@ import fs from 'fs';
 import cp from 'child_process';
 import rimraf from 'rimraf';
 import * as utils from '../utils.js';
+import * as log from '../log.js';
 
 var FIRST_IP = '192.168.22.10';
 var OVERCAST_VAGRANT_DIR = utils.getUserHome() + '/.overcast-vagrant';
@@ -138,7 +139,7 @@ export function getVagrantImages(args) {
 export function createVagrantBox(args) {
   return new Promise((resolve, reject) => {
     if (args.vagrantImages && args.vagrantImages.indexOf(args.image) !== -1) {
-      console.log(utils.grey('Image "' + args.image + '" found.'));
+      log.faded('Image "' + args.image + '" found.');
       resolve(args);
     } else if (BUNDLED_IMAGE_URLS[args.image]) {
       var color = utils.SSH_COLORS[utils.SSH_COUNT++ % 5];
@@ -160,7 +161,7 @@ export function createVagrantBox(args) {
         }
       });
     } else {
-      utils.failure('Image "' + args.image + '" not found. Please add this using Vagrant:');
+      log.failure('Image "' + args.image + '" not found. Please add this using Vagrant:');
       utils.die('vagrant box add --name "' + args.image + '" [image-url]');
     }
   });
@@ -182,7 +183,7 @@ export function findNextAvailableIP(existing) {
     ip = ip.split('.');
     if (ip[3] === '255') {
       if (ip[2] === '255') {
-        utils.failure('Congratulations! You seem to have used all available IP addresses in the 192.168 block.');
+        log.failure('Congratulations! You seem to have used all available IP addresses in the 192.168 block.');
         utils.die('Please destroy some of these instances before making a new one.');
       }
       ip[2] = parseInt(ip[2], 10) + 1;
@@ -199,7 +200,7 @@ export function findNextAvailableIP(existing) {
 export function createInstance(args) {
   return new Promise((resolve, reject) => {
     var ip = nextAvailableIP(args.ip || FIRST_IP);
-    console.log(utils.grey('Using IP address ' + ip + '.'));
+    log.faded('Using IP address ' + ip + '.');
 
     args.ip = ip;
     args.dir = OVERCAST_VAGRANT_DIR + '/' + ip;
@@ -318,8 +319,4 @@ export function destroyInstance(instance) {
 
 export function genericCatch(err) {
   utils.die(err && err.message ? err.message : err);
-}
-
-export function log(args) {
-  console.log(JSON.stringify(args, null, 2));
 }

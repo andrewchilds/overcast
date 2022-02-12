@@ -1,16 +1,17 @@
 import _ from 'lodash';
 import * as utils from './utils.js';
+import * as log from './log.js';
 
 export function run(args) {
   var instances = utils.findMatchingInstances(args.name);
   utils.handleInstanceOrClusterNotFound(instances, args);
 
   if (args.parallel || args.p) {
-    utils.eachObject(instances, instance => {
+    instances.forEach((instance) => {
       runOnInstance(instance, _.cloneDeep(args));
     });
   } else {
-    runOnInstances(_.toArray(instances), args);
+    runOnInstances(instances, args);
   }
 }
 
@@ -88,7 +89,7 @@ function scpExec(options, next) {
     return utils.die('No direction specified.');
   }
 
-  console.log(utils.grey(args.join(' ')));
+  log.faded(args.join(' '));
   var scp = utils.spawn(args);
 
   scp.stdout.on('data', data => {
@@ -105,8 +106,8 @@ function scpExec(options, next) {
       utils.prefixPrint(options.name, color, str, 'red');
       process.exit(1);
     }
-    utils.success(options.source + ' transferred to ' + options.dest);
-    console.log('');
+    log.success(options.source + ' transferred to ' + options.dest);
+    log.br();
     if (utils.isFunction(next)) {
       next();
     }

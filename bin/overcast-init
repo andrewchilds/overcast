@@ -6,9 +6,7 @@ if [ -z "$OVERCAST_FIXTURE_DIR" ] || [ -z "$OVERCAST_DEST_DIR" ]; then
   exit 1
 fi
 
-mkdir -p "$OVERCAST_DEST_DIR/files"
 mkdir -p "$OVERCAST_DEST_DIR/keys"
-mkdir -p "$OVERCAST_DEST_DIR/scripts"
 
 if [ ! -f "$OVERCAST_DEST_DIR/clusters.json" ]; then
   echo "{}" > "$OVERCAST_DEST_DIR/clusters.json"

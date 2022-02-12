@@ -1,6 +1,6 @@
-import _ from 'lodash';
 import * as utils from '../utils.js';
 import * as filters from '../filters.js';
+import * as log from '../log.js';
 
 export const commands = {};
 
@@ -72,25 +72,25 @@ function connect(instance, args) {
 
   const ssh = utils.spawn(sshArgs);
 
-  console.log(utils.grey(sshArgs.join(' ')));
+  log.faded(sshArgs.join(' '));
 
   utils.each(ports, ({localPort, remoteHost, remotePort}) => {
-    utils.note(`Tunneling from ${localPort} to ${remoteHost}:${remotePort}.`);
+    log.faded(`Tunneling from ${localPort} to ${remoteHost}:${remotePort}.`);
   });
 
   ssh.stdout.on('data', data => {
-    console.log(utils.grey(data.toString()));
+    log.faded(data.toString());
   });
 
   ssh.stderr.on('data', data => {
-    console.log(utils.grey(data.toString()));
+    log.faded(data.toString());
   });
 
   ssh.on('exit', code => {
     if (code !== 0) {
       utils.die(`SSH connection exited with a non-zero code (${code}). Stopping execution...`);
     }
-    console.log('');
+    log.br();
   });
 }
 
@@ -102,7 +102,7 @@ export function normalizePorts(arr) {
     ports.push({
       localPort: str[0],
       remoteHost: str.length === 3 ? str[1] : '127.0.0.1',
-      remotePort: str.length >= 2 ? _.last(str) : str[0]
+      remotePort: str.length >= 2 ? str.charAt(str.length - 1) : str[0]
     });
   });
 

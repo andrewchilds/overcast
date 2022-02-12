@@ -1,4 +1,3 @@
-import _ from 'lodash';
 import * as utils from '../utils.js';
 
 export const commands = {};

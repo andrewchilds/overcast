@@ -1,16 +1,19 @@
 import minimist from 'minimist';
 import * as utils from './utils.js';
+import * as log from './log.js';
 import allCommands from './commands/index.js';
+
+const DEFAULT_COMMAND = 'aliases';
 
 export function init() {
   utils.findConfig(() => {
-    const args = process.argv.slice(2).join(' ') || 'list';
+    const argString = process.argv.slice(2).join(' ') || DEFAULT_COMMAND;
 
     if (utils.keyExists('overcast')) {
-      execute(args);
+      execute(argString);
     } else {
       utils.createKey('overcast', () => {
-        execute(args);
+        execute(argString);
       });
     }
   });
@@ -106,7 +109,7 @@ export function run(command, args, next) {
 }
 
 export function missingArgument(name, command) {
-  utils.failure(`Missing ${name} argument.`);
+  log.failure(`Missing ${name} argument.`);
   compileHelp(command);
   process.exit(1);
 }
@@ -114,7 +117,7 @@ export function missingArgument(name, command) {
 export function missingCommand({banner, commands}, args) {
   let exitCode = 0;
   if (args.subcommand && args.subcommand !== 'help' && args.command !== 'help') {
-    utils.failure('Missing or unknown command.');
+    log.failure('Missing or unknown command.');
     exitCode = 1;
   }
 
@@ -123,7 +126,7 @@ export function missingCommand({banner, commands}, args) {
   }
 
   if (Object.keys(commands).length > 1) {
-    console.log('');
+    log.br();
     console.log(`overcast ${args.command} [command] help`);
     printLines('View extended help.', { color: 'grey', pad: 2 });
   }
@@ -133,7 +136,7 @@ export function missingCommand({banner, commands}, args) {
       return;
     }
 
-    console.log('');
+    log.br();
     printLines(usage);
     printLines(description, { color: 'grey', pad: 2 });
   });
@@ -146,13 +149,13 @@ export function compileHelp(command, skipFirstLine) {
     if (command[key]) {
       // Used by bin/docs:
       if (skipFirstLine !== true) {
-        console.log('');
+        log.br();
       }
       skipFirstLine = false;
       if (key === 'options') {
         printCommandOptions(command.options);
       } else {
-        console.log(utils.grey(`${utils.capitalize(key)}:`));
+        log.faded(`${utils.capitalize(key)}:`);
         printLines(command[key], { pad: 2 });
       }
     }
@@ -171,7 +174,7 @@ export function printCommandOptions(options) {
   if (hasDefaults) {
     headline = `${utils.padRight(headline, maxLength + 2)}Defaults:`;
   }
-  console.log(utils.grey(headline));
+  log.faded(headline);
   options.forEach((option) => {
     console.log(`  ${utils.padRight(option.usage, maxLength)}${option.default || ''}`);
   });

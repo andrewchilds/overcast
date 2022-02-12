@@ -2,9 +2,9 @@ import fs from 'fs';
 import path from 'path';
 import crypto from 'crypto';
 import cp from 'child_process';
-import _ from 'lodash';
 import chalk from 'chalk';
 import * as listCommand from './commands/list.js';
+import * as log from './log.js';
 
 export const VERSION = '2.0.0-alpha';
 export const SSH_COLORS = ['cyan', 'green', 'red', 'yellow', 'magenta', 'blue'];
@@ -16,6 +16,10 @@ export let VARIABLES_JSON;
 export let clustersCache = null;
 export let variablesCache = null;
 export let SSH_COUNT = 0;
+
+export function now() {
+  return new Date().getTime();
+}
 
 export function isArray(v) {
   return Array.isArray(v);
@@ -85,7 +89,7 @@ export function runSubcommand(args, subcommands, helpFn) {
   if (args.subcommand && subcommands[args.subcommand]) {
     var command = subcommands[args.subcommand];
     if (args.name === 'help' || args._[0] === 'help') {
-      console.log('');
+      log.br();
       return command.help();
     }
 
@@ -127,7 +131,7 @@ export function createKey(keyName, callback) {
   var keygen = spawn('ssh-keygen -t rsa -N "" -f ' + keyFile);
   keygen.on('exit', code => {
     if (code !== 0) {
-      failure('Error generating SSH key.');
+      log.failure('Error generating SSH key.');
       die(err);
     } else {
       if (isFunction(callback)) {
@@ -143,7 +147,7 @@ export function deleteKey(keyName, callback) {
 
   function handleError(e, name) {
     if (e) {
-      grey('Unable to delete ' + name + ' - perhaps it wasn\'t found.');
+      log.faded('Unable to delete ' + name + ' - perhaps it wasn\'t found.');
     }
   }
 
@@ -161,7 +165,7 @@ export function deleteKey(keyName, callback) {
 export function deleteFromKnownHosts(instance, callback) {
   var ssh = spawn('ssh-keygen -R ' + instance.ip);
   ssh.on('exit', code => {
-    grey(instance.ip + ' removed from ' + getUserHome() + '/.ssh/known_hosts.');
+    log.faded(instance.ip + ' removed from ' + getUserHome() + '/.ssh/known_hosts.');
     if (isFunction(callback)) {
       callback(instance);
     }
@@ -240,8 +244,8 @@ export function initOvercastDir(dest_dir, callback) {
   }, (err, stdout, stderr) => {
     if (err) {
       die('Unable to create .overcast directory.');
-    } else {
-      (callback || _.noop)(dest_dir);
+    } else if (isFunction(callback)) {
+      callback(dest_dir);
     }
   });
 }
@@ -274,17 +278,17 @@ export function argIsTruthy(arg) {
 }
 
 export function findMatchingInstances(name) {
-  var clusters = getClusters();
-  var instances = [];
+  const clusters = getClusters();
+  let instances = [];
 
   if (name === 'all') {
-    eachObject(clusters, cluster => {
+    eachObject(clusters, (cluster) => {
       eachObject(cluster.instances, instance => {
         instances.push(instance);
       });
     });
   } else if (clusters[name]) {
-    instances = _.toArray(clusters[name].instances);
+    instances = clusters[name].instances.values();
   } else {
     instances = findMatchingInstancesByInstanceName(name);
   }
@@ -397,9 +401,9 @@ export function saveVariables(variables) {
 
   fs.writeFile(VARIABLES_JSON, JSON.stringify(variables, null, 2), (err) => {
     if (err) {
-      failure('Error saving variables.json.');
+      die('Error saving variables.json.');
     } else {
-      success('Variables saved.');
+      log.success('Variables saved.');
     }
   });
 }
@@ -426,7 +430,7 @@ export function saveClusters(clusters, done) {
   clustersCache = clusters;
   fs.writeFile(CLUSTERS_JSON, JSON.stringify(clusters, null, 2), (err) => {
     if (err) {
-      failure('Error saving clusters.json.');
+      die('Error saving clusters.json.');
     } else {
       if (isFunction(done)) {
         done();
@@ -436,7 +440,7 @@ export function saveClusters(clusters, done) {
 }
 
 export function unknownCommand() {
-  failure('Unknown command.');
+  log.failure('Unknown command.');
 }
 
 export function tokenize(str) {
@@ -449,12 +453,14 @@ export function tokenize(str) {
       return;
     }
 
-    var first = _.first(chunk);
-    var last = _.last(chunk);
+    var first = chunk.charAt(0);
+    var last = chunk.charAt(chunk.length - 1);
     if (isQuoted) {
       if (last === '"' || last === '\'') {
         token += ' ' + (chunk.slice(0, -1));
-        tokens.push(token);
+        if (token) {
+          tokens.push(token);
+        }
         isQuoted = false;
       } else {
         token += ' ' + chunk;
@@ -465,12 +471,16 @@ export function tokenize(str) {
         isQuoted = true;
         if (last === '"' || last === '\'') {
           token = token.slice(0, -1);
-          tokens.push(token);
+          if (token) {
+            tokens.push(token);
+          }
           isQuoted = false;
         }
       } else {
         token = '';
-        tokens.push(chunk);
+        if (chunk) {
+          tokens.push(chunk);
+        }
       }
     }
   });
@@ -479,7 +489,7 @@ export function tokenize(str) {
     tokens.push(token);
   }
 
-  return _.compact(tokens);
+  return tokens;
 }
 
 export function sanitize(str) {
@@ -543,21 +553,21 @@ export function findUsingMultipleKeys(collection, val, keys) {
 }
 
 export function die(str) {
-  failure(str);
+  log.failure(str);
   process.exit(1);
 }
 
 export function dieWithList(str) {
-  failure(str);
-  console.log('');
+  log.failure(str);
+  log.br();
   listCommand.run();
   process.exit(1);
 }
 
 export function handleInstanceOrClusterNotFound(instances, args) {
   if (!instances || instances.length === 0) {
-    failure('No instance or cluster found matching "' + args.name + '".');
-    console.log('');
+    log.failure('No instance or cluster found matching "' + args.name + '".');
+    log.br();
     listCommand.run();
     process.exit(1);
   }
@@ -565,48 +575,30 @@ export function handleInstanceOrClusterNotFound(instances, args) {
 
 export function handleInstanceNotFound(instance, args) {
   if (!instance) {
-    failure('No instance found matching "' + args.name + '".');
-    console.log('');
+    log.failure('No instance found matching "' + args.name + '".');
+    log.br();
     listCommand.run();
     process.exit(1);
   }
 }
 
 export function missingParameter(name, helpFn) {
-  failure('Missing ' + name + ' parameter.');
-  console.log('');
+  log.failure('Missing ' + name + ' parameter.');
+  log.br();
   helpFn();
   process.exit(1);
 }
 
 export function missingCommand(helpFn) {
-  failure('Missing or unknown command.');
-  console.log('');
+  log.failure('Missing or unknown command.');
+  log.br();
   helpFn();
   process.exit(1);
 }
 
-export const grey = chalk.grey;
-
-export const success = (str) => {
-  console.log(chalk.green(str));
-};
-
-export const note = (str) => {
-  console.log(chalk.cyan(str));
-};
-
-export const alert = (str) => {
-  console.log(chalk.yellow(str));
-};
-
-export const failure = (str) => {
-  console.log(chalk.red(str));
-};
-
 export function prefixPrint(prefix, prefixColor, buffer, textColor) {
-  prefix = (prefix + ': ')[prefixColor];
-  var str = textColor ? buffer.toString()[textColor] : buffer.toString();
+  prefix = chalk[prefixColor](prefix + ': ');
+  var str = textColor ? chalk[textColor](buffer.toString()) : buffer.toString();
   str = str.replace(/\r/g, "\r" + prefix).replace(/\n/g, "\n" + prefix);
   process.stdout.write(str);
 }
@@ -625,7 +617,7 @@ export function progress(percentage, elapsed) {
 
   var width = Math.max(1, Math.ceil(percentage / 2));
   var hashes = times(width, (i) => {
-    i += Math.round(_.now() / 250);
+    i += Math.round(now() / 250);
     return i % 3 ? ' ' : '/';
   });
   var spaces = times(50 - width, () => {
@@ -647,15 +639,17 @@ export function clearLine() {
 export var progressComplete = clearLine;
 
 export function progressBar(testFn, callback) {
-  var startTime = _.now();
+  var startTime = now();
   var interval = setInterval(() => {
     var percentage = testFn();
     if (percentage < 100) {
-      progress(percentage, _.now() - startTime);
+      progress(percentage, now() - startTime);
     } else {
       clearInterval(interval);
       progressComplete();
-      (callback || _.noop)();
+      if (isFunction(callback)) {
+        callback();
+      }
     }
   }, 250);
 
@@ -663,24 +657,24 @@ export function progressBar(testFn, callback) {
 }
 
 export function waitForProgress(seconds, callback) {
-  var startTime = _.now();
+  var startTime = now();
   progressBar(() => {
-    return ((_.now() - startTime) / (seconds * 1000)) * 100;
+    return ((now() - startTime) / (seconds * 1000)) * 100;
   }, callback);
 }
 
 export function waitForBoot(instance, callback, startTime) {
   if (!startTime) {
-    startTime = _.now();
-    grey('Waiting until we can connect to ' + instance.name + '...');
+    startTime = now();
+    log.faded('Waiting until we can connect to ' + instance.name + '...');
   }
 
   testConnection(instance, canConnect => {
     var delayBetweenPolls = 2000;
 
     if (canConnect) {
-      var duration = (_.now() - startTime) / 1000;
-      success('Connection established after ' + Math.ceil(duration) + ' seconds.');
+      var duration = (now() - startTime) / 1000;
+      log.success('Connection established after ' + Math.ceil(duration) + ' seconds.');
       if (isFunction(callback)) {
         callback();
       }
@@ -694,9 +688,9 @@ export function waitForBoot(instance, callback, startTime) {
 
 export function fixedWait(seconds, callback) {
   seconds = seconds || 60;
-  grey('Waiting ' + seconds + ' seconds...');
+  log.faded('Waiting ' + seconds + ' seconds...');
   waitForProgress(seconds, () => {
-    success('OK.');
+    log.success('OK.');
     if (isFunction(callback)) {
       callback();
     }
@@ -705,12 +699,12 @@ export function fixedWait(seconds, callback) {
 
 export function printCollection(type, collection) {
   if (collection.length === 0) {
-    return failure('No ' + type + ' found.');
+    return log.failure('No ' + type + ' found.');
   }
 
   collection.forEach((obj) => {
     var name = obj.name || obj.Name || obj._name || obj.slug;
-    console.log('');
+    log.br();
     console.log(name);
     prettyPrint(obj, 2);
   });
@@ -729,7 +723,7 @@ export function prettyPrint(obj, indent, stepBy) {
     }
 
     if (isArray(val) || isObject(val)) {
-      grey(prefix + key + ':');
+      log.faded(prefix + key + ':');
       prettyPrint(val, indent + stepBy, stepBy);
     } else {
       var valStr = val;
@@ -738,7 +732,7 @@ export function prettyPrint(obj, indent, stepBy) {
       } else if (val === '') {
         valStr = '""';
       }
-      grey(prefix + key + ': ' + valStr);
+      log.faded(prefix + key + ': ' + valStr);
     }
   });
 }
@@ -756,7 +750,7 @@ export function printCommandHelp(commands) {
       if (first) {
         first = false;
       } else {
-        console.log('');
+        log.br();
       }
       command.help();
     }

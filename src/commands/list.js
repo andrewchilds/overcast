@@ -1,5 +1,6 @@
 import chalk from 'chalk';
 import * as utils from '../utils.js';
+import * as log from '../log.js';
 
 export const commands = {};
 
@@ -10,17 +11,17 @@ commands.list = {
   run: (args) => {
     const clusters = utils.getClusters();
 
-    console.log(utils.grey(`Using ${utils.CONFIG_DIR}/clusters.json`));
+    log.faded(`Using ${utils.CONFIG_DIR}/clusters.json`);
 
     if (!clusters) {
-      console.log('');
-      console.log(utils.note('No clusters found.'));
+      log.br();
+      log.faded('No clusters found.');
       return false;
     }
 
     utils.eachObject(clusters, ({ instances }, clusterName) => {
-      console.log('');
-      console.log(utils.grey(clusterName));
+      log.br();
+      log.faded(clusterName);
       utils.eachObject(instances, (instance) => {
         const origin = `(${instance.user}@${instance.ip}:${instance.ssh_port || 22})`;
         const provider = getProviderName(instance);

@@ -1,5 +1,6 @@
 import * as utils from '../utils.js';
 import * as filters from '../filters.js';
+import * as log from '../log.js';
 
 export const commands = {};
 
@@ -32,7 +33,7 @@ commands.create = {
     clusters[name] = { instances: {} };
 
     utils.saveClusters(clusters, () => {
-      utils.success(`Cluster "${name}" has been created.`);
+      log.success(`Cluster "${name}" has been created.`);
     });
   }
 };
@@ -53,7 +54,7 @@ commands.rename = {
     delete clusters[name];
 
     utils.saveClusters(clusters, () => {
-      utils.success(`Cluster "${name}" has been renamed to "${newName}".`);
+      log.success(`Cluster "${name}" has been renamed to "${newName}".`);
     });
   }
 };
@@ -82,12 +83,12 @@ commands.remove = {
     delete clusters[name];
 
     utils.saveClusters(clusters, () => {
-      utils.success(`Cluster "${name}" has been removed.`);
+      log.success(`Cluster "${name}" has been removed.`);
       if (orphaned) {
         if (name === 'orphaned') {
-          utils.alert(`The ${orphaned} instance(s) in the "orphaned" cluster were removed.`);
+          log.alert(`The ${orphaned} instance(s) in the "orphaned" cluster were removed.`);
         } else {
-          utils.alert(`The ${orphaned} instance(s) from this cluster were moved to the "orphaned" cluster.`);
+          log.alert(`The ${orphaned} instance(s) from this cluster were moved to the "orphaned" cluster.`);
         }
       }
     });

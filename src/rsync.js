@@ -1,24 +1,25 @@
 import _ from 'lodash';
 import * as utils from './utils.js';
+import * as log from './log.js';
 
 export function run(args) {
   var instances = utils.findMatchingInstances(args.name);
   utils.handleInstanceOrClusterNotFound(instances, args);
 
   if (args.parallel || args.p) {
-    utils.eachObject(instances, instance => {
+    instances.forEach((instance) => {
       runOnInstance(instance, _.cloneDeep(args));
     });
   } else {
-    runOnInstances(_.toArray(instances), args);
+    runOnInstances(instances, args);
   }
 }
 
-function runOnInstances(stack, args) {
-  var instance = stack.shift();
+function runOnInstances(instances, args) {
+  var instance = instances.shift();
   runOnInstance(instance, _.cloneDeep(args), () => {
-    if (stack.length > 0) {
-      runOnInstances(stack, args);
+    if (instances.length > 0) {
+      runOnInstances(instances, args);
     }
   });
 }
@@ -92,7 +93,7 @@ function rsync(options, next) {
     return utils.die('No direction specified.');
   }
 
-  console.log(utils.grey(args.join(' ')));
+  log.faded(args.join(' '));
   var rsyncProcess = utils.spawn(args);
 
   rsyncProcess.stdout.on('data', data => {
@@ -109,8 +110,8 @@ function rsync(options, next) {
       utils.prefixPrint(options.name, color, str, 'red');
       process.exit(1);
     }
-    utils.success(options.source + ' transferred to ' + options.dest);
-    console.log('');
+    log.success(options.source + ' transferred to ' + options.dest);
+    log.br();
     if (utils.isFunction(next)) {
       next();
     }
