@@ -31,7 +31,7 @@ describe('instance', () => {
   });
 
   describe('list', () => {
-    it('should list all instances with overcast instance list', (done) => {
+    it('should list all instances', (done) => {
       overcast('instance list', ({ stdout }) => {
         expect(stdout).toContain('instance.01');
         done();

@@ -12,6 +12,13 @@ describe('cluster', () => {
   });
 
   describe('add', () => {
+    it('should fail if there was no name added', (done) => {
+      overcast(`cluster add`, ({ stdout }) => {
+        expect(stdout).toContain('Missing [name] argument.');
+        done();
+      });
+    });
+
     it('should allow me to add a new cluster', (done) => {
       overcast(`cluster add ${name}`, ({ stdout }) => {
         expect(stdout).toContain(`Cluster "${name}" has been added`);

@@ -1,7 +1,6 @@
 import { overcast, tearDown } from './utils.js';
 
 describe('init', () => {
-
   beforeAll((done) => {
     tearDown(done);
   });
