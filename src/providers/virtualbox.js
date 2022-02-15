@@ -1,4 +1,5 @@
 import fs from 'fs';
+import path from 'path';
 import cp from 'child_process';
 import rimraf from 'rimraf';
 import * as utils from '../utils.js';
@@ -208,7 +209,7 @@ export function createInstance(args) {
     var color = utils.SSH_COLORS[utils.SSH_COUNT++ % 5];
 
     var bashArgs = [
-      utils.escapeWindowsPath(__dirname + '/../../bin/overcast-vagrant')
+      utils.escapeWindowsPath(utils.getFileDirname() + '/../../bin/overcast-vagrant')
     ];
 
     var bashEnv = Object.assign({}, process.env, {

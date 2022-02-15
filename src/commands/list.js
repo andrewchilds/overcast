@@ -11,21 +11,21 @@ commands.list = {
   run: (args) => {
     const clusters = utils.getClusters();
 
-    log.faded(`Using ${utils.CONFIG_DIR}/clusters.json`);
+    log.faded(`Using ${utils.getConfigDirs().CONFIG_DIR}/clusters.json`);
 
-    if (!clusters) {
+    if (Object.keys(clusters).length === 0) {
       log.br();
-      log.faded('No clusters found.');
+      log.alert('No clusters found.');
       return false;
     }
 
     utils.eachObject(clusters, ({ instances }, clusterName) => {
       log.br();
-      log.faded(clusterName);
+      console.log(clusterName);
       utils.eachObject(instances, (instance) => {
         const origin = `(${instance.user}@${instance.ip}:${instance.ssh_port || 22})`;
         const provider = getProviderName(instance);
-        const str = `  ${instance.name} ${origin} (${chalk.green(provider || 'unknown provider')})`;
+        const str = `  ${chalk.cyan(instance.name)} ${origin} (${chalk.green(provider || 'unknown provider')})`;
         console.log(str);
       });
     });

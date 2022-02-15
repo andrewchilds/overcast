@@ -1,25 +1,27 @@
 import minimist from 'minimist';
+import chalk from 'chalk';
+
 import * as utils from './utils.js';
 import * as log from './log.js';
 import allCommands from './commands/index.js';
 
-const DEFAULT_COMMAND = 'aliases';
+const DEFAULT_COMMAND = 'info';
 
 export function init() {
   utils.findConfig(() => {
     const argString = process.argv.slice(2).join(' ') || DEFAULT_COMMAND;
 
-    if (utils.keyExists('overcast')) {
+    utils.createKeyIfMissing(() => {
       execute(argString);
-    } else {
-      utils.createKey('overcast', () => {
-        execute(argString);
-      });
-    }
+    });
   });
 }
 
 export function execute(argString) {
+  if (utils.isTestRun()) {
+    log.info('This is a test run, some things are mocked.');
+  }
+
   if (!argString) {
     return utils.die('Nothing to execute (cli.execute).');
   }
@@ -103,6 +105,7 @@ export function run(command, args, next) {
   }
 
   command.run(args, next);
+  // TODO: seems like this shouldn't be necessary:
   if (!command.async && utils.isFunction(next)) {
     next();
   }
@@ -128,7 +131,7 @@ export function missingCommand({banner, commands}, args) {
   if (Object.keys(commands).length > 1) {
     log.br();
     console.log(`overcast ${args.command} [command] help`);
-    printLines('View extended help.', { color: 'grey', pad: 2 });
+    printLines('View extended help.', { color: 'cyan', pad: 2 });
   }
 
   utils.eachObject(commands, ({ alias, usage, description }) => {
@@ -138,7 +141,7 @@ export function missingCommand({banner, commands}, args) {
 
     log.br();
     printLines(usage);
-    printLines(description, { color: 'grey', pad: 2 });
+    printLines(description, { color: 'cyan', pad: 2 });
   });
 
   process.exit(exitCode);
@@ -155,8 +158,8 @@ export function compileHelp(command, skipFirstLine) {
       if (key === 'options') {
         printCommandOptions(command.options);
       } else {
-        log.faded(`${utils.capitalize(key)}:`);
-        printLines(command[key], { pad: 2 });
+        console.log(`${utils.capitalize(key)}:`);
+        printLines(command[key], { color: 'cyan', pad: 2 });
       }
     }
   });
@@ -174,7 +177,7 @@ export function printCommandOptions(options) {
   if (hasDefaults) {
     headline = `${utils.padRight(headline, maxLength + 2)}Defaults:`;
   }
-  log.faded(headline);
+  console.log(headline);
   options.forEach((option) => {
     console.log(`  ${utils.padRight(option.usage, maxLength)}${option.default || ''}`);
   });
@@ -189,7 +192,7 @@ export function printLines(strOrArray, options) {
       });
     }
     if (options.color) {
-      utils[options.color](str);
+      console.log(chalk[options.color](str));
     } else {
       console.log(str);
     }

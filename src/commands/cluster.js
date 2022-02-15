@@ -17,23 +17,23 @@ commands.count = {
     '> 1'
   ],
   required: [{ name: 'name', filters: filters.findMatchingCluster }],
-  run: function({cluster}) {
+  run: ({ cluster }) => {
     console.log(Object.keys(cluster.instances).length);
   }
 };
 
-commands.create = {
-  name: 'create',
-  usage: 'overcast cluster create [name]',
-  description: 'Creates a new cluster.',
-  examples: '$ overcast cluster create db',
+commands.add = {
+  name: 'add',
+  usage: 'overcast cluster add [name]',
+  description: 'Adds a new cluster.',
+  examples: '$ overcast cluster add db',
   required: [{ name: 'name', filters: filters.shouldBeNewCluster }],
-  run: function({name}) {
+  run: ({ name }) => {
     const clusters = utils.getClusters();
     clusters[name] = { instances: {} };
 
     utils.saveClusters(clusters, () => {
-      log.success(`Cluster "${name}" has been created.`);
+      log.success(`Cluster "${name}" has been added.`);
     });
   }
 };
@@ -47,7 +47,7 @@ commands.rename = {
     { name: 'name', filters: filters.findMatchingCluster },
     { name: 'new-name', varName: 'newName', filters: filters.shouldBeNewCluster }
   ],
-  run: function({newName, name}) {
+  run: ({ newName, name }) => {
     const clusters = utils.getClusters();
 
     clusters[newName] = clusters[name];
@@ -70,11 +70,11 @@ commands.remove = {
   required: [
     { name: 'name', filters: filters.findMatchingCluster }
   ],
-  run: function({name}) {
+  run: ({ name }) => {
     const clusters = utils.getClusters();
 
     let orphaned = 0;
-    if (clusters[name].instances) {
+    if (clusters[name].instances && Object.keys(clusters[name].instances) > 0) {
       orphaned = Object.keys(clusters[name].instances).length;
       clusters.orphaned = clusters.orphaned || { instances: {} };
       Object.assign(clusters.orphaned.instances, clusters[name].instances);

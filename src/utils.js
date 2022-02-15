@@ -1,21 +1,25 @@
+import chalk from 'chalk';
+import cp from 'child_process';
+import crypto from 'crypto';
 import fs from 'fs';
 import path from 'path';
-import crypto from 'crypto';
-import cp from 'child_process';
-import chalk from 'chalk';
+import url from 'url';
+
 import * as listCommand from './commands/list.js';
 import * as log from './log.js';
 
 export const VERSION = '2.0.0-alpha';
 export const SSH_COLORS = ['cyan', 'green', 'red', 'yellow', 'magenta', 'blue'];
 
-export let CONFIG_DIR;
-export let CLUSTERS_JSON;
-export let VARIABLES_JSON;
+export let CONFIG_DIR = '/path/to/.overcast';
+export let CLUSTERS_JSON = '.overcast/clusters.json';
+export let VARIABLES_JSON = '.overcast/variables.json';
 
-export let clustersCache = null;
-export let variablesCache = null;
 export let SSH_COUNT = 0;
+
+export function isTestRun() {
+  return process.env.TEST_RUN === 'true';
+}
 
 export function now() {
   return new Date().getTime();
@@ -100,10 +104,28 @@ export function runSubcommand(args, subcommands, helpFn) {
 }
 
 export function findConfig(done) {
-  walkDir(process.cwd(), dir => {
+  walkDir(process.cwd(), (dir) => {
     setConfigDir(dir);
     done();
   });
+}
+
+export function walkDir(dir, callback) {
+  if (!dir || dir === '/') {
+    // No config directory found!
+    // Falling back to config directory in $HOME.
+    return initOvercastDir(getUserHome(), () => {
+      callback(getUserHome() + '/.overcast');
+    });
+  }
+
+  if (fs.existsSync(dir + '/.overcast')) {
+    callback(dir + '/.overcast');
+  } else {
+    dir = dir.split('/');
+    dir.pop();
+    walkDir(dir.join('/'), callback);
+  }
 }
 
 export function setConfigDir(dir) {
@@ -112,8 +134,25 @@ export function setConfigDir(dir) {
   VARIABLES_JSON = dir + '/variables.json';
 }
 
+export function getConfigDirs() {
+  return {
+    CONFIG_DIR,
+    CLUSTERS_JSON,
+    VARIABLES_JSON
+  };
+}
+
 export function getKeyFileFromName(keyName) {
   return CONFIG_DIR + '/keys/' + keyName + '.key';
+}
+
+export function createKeyIfMissing(callback = () => {}, keyName = 'overcast') {
+  if (keyExists(keyName)) {
+    callback();
+  } else {
+    log.info('Overcast SSH key not found, creating one...')
+    createKey(keyName, callback);
+  }
 }
 
 export function keyExists(keyName) {
@@ -128,17 +167,25 @@ export function createKey(keyName, callback) {
     fs.mkdirSync(keysDir);
   }
 
-  var keygen = spawn('ssh-keygen -t rsa -N "" -f ' + keyFile);
-  keygen.on('exit', code => {
-    if (code !== 0) {
-      log.failure('Error generating SSH key.');
-      die(err);
-    } else {
-      if (isFunction(callback)) {
-        callback(keyFile);
+  if (isTestRun()) {
+    cp.exec(`touch "${keyFile}" && touch "${keyFile}".pub`, (err) => {
+      if (err) {
+        log.failure(err);
       }
-    }
-  });
+      callback();
+    });
+  } else {
+    var keygen = spawn('ssh-keygen -t rsa -N "" -f ' + keyFile);
+    keygen.on('exit', code => {
+      if (code !== 0) {
+        log.failure('Error generating SSH key!');
+        die(err);
+      } else {
+        log.success(`Created new SSH key at ${keyFile}.`);
+        callback();
+      }
+    });
+  }
 }
 
 export function deleteKey(keyName, callback) {
@@ -233,39 +280,27 @@ export function escapeWindowsPath(p) {
   return p.replace(/\\/g, '\\\\');
 }
 
-export function initOvercastDir(dest_dir, callback) {
-  dest_dir += '/.overcast';
+export function getFileDirname() {
+  return url.fileURLToPath(new URL('.', import.meta.url));
+}
 
-  return cp.exec('bash ' + escapeWindowsPath(__dirname + '/../bin/overcast-init'), {
+export function initOvercastDir(destDir, callback) {
+  destDir += '/.overcast';
+  const initFile = escapeWindowsPath(getFileDirname() + '/../bin/overcast-init');
+  const fixtureDir = escapeWindowsPath(getFileDirname() + '/../fixtures');
+
+  return cp.exec('bash ' + initFile, {
     env: Object.assign({}, process.env, {
-      OVERCAST_FIXTURE_DIR: escapeWindowsPath(__dirname + '/../fixtures'),
-      OVERCAST_DEST_DIR: escapeWindowsPath(dest_dir)
+      OVERCAST_FIXTURE_DIR: fixtureDir,
+      OVERCAST_DEST_DIR: escapeWindowsPath(destDir)
     })
   }, (err, stdout, stderr) => {
     if (err) {
-      die('Unable to create .overcast directory.');
-    } else if (isFunction(callback)) {
-      callback(dest_dir);
+      return die('Unable to create .overcast directory.');
     }
-  });
-}
 
-export function walkDir(dir, callback) {
-  if (!dir || dir === '/') {
-    // No config directory found!
-    // Fallback to config directory in $HOME.
-    return initOvercastDir(getUserHome(), () => {
-      callback(getUserHome() + '/.overcast');
-    });
-  }
-  fs.exists(dir + '/.overcast', exists => {
-    if (exists) {
-      callback(dir + '/.overcast');
-    } else {
-      dir = dir.split('/');
-      dir.pop();
-      walkDir(dir.join('/'), callback);
-    }
+    log.success(`Created an .overcast directory at ${destDir}`);
+    callback();
   });
 }
 
@@ -287,8 +322,8 @@ export function findMatchingInstances(name) {
         instances.push(instance);
       });
     });
-  } else if (clusters[name]) {
-    instances = clusters[name].instances.values();
+  } else if (clusters[name] && clusters[name].instances) {
+    instances = Object.values(clusters[name].instances);
   } else {
     instances = findMatchingInstancesByInstanceName(name);
   }
@@ -379,14 +414,9 @@ export function updateInstance(name, updates, callback) {
 }
 
 export function getVariables() {
-  if (variablesCache) {
-    return variablesCache;
-  }
-
   if (fs.existsSync(VARIABLES_JSON)) {
     try {
-      const data = JSON.parse(fs.readFileSync(VARIABLES_JSON, { encoding: 'utf8' })),
-      variablesCache = data;
+      const data = JSON.parse(fs.readFileSync(VARIABLES_JSON, { encoding: 'utf8' }));
       return data;
     } catch (e) {
       die('Unable to parse the variables.json file. Please correct the parsing error.');
@@ -396,27 +426,22 @@ export function getVariables() {
   }
 }
 
-export function saveVariables(variables) {
-  variablesCache = variables;
-
+export function saveVariables(variables, done) {
   fs.writeFile(VARIABLES_JSON, JSON.stringify(variables, null, 2), (err) => {
     if (err) {
       die('Error saving variables.json.');
     } else {
-      log.success('Variables saved.');
+      if (isFunction(done)) {
+        done();
+      }
     }
   });
 }
 
 export function getClusters() {
-  if (clustersCache) {
-    return clustersCache;
-  }
-
   if (fs.existsSync(CLUSTERS_JSON)) {
     try {
-      const data = JSON.parse(fs.readFileSync(CLUSTERS_JSON, { encoding: 'utf8' })),
-      clustersCache = data;
+      const data = JSON.parse(fs.readFileSync(CLUSTERS_JSON, { encoding: 'utf8' }));
       return data;
     } catch (e) {
       die('Unable to parse the clusters.json file. Please correct the parsing error.');
@@ -427,7 +452,6 @@ export function getClusters() {
 }
 
 export function saveClusters(clusters, done) {
-  clustersCache = clusters;
   fs.writeFile(CLUSTERS_JSON, JSON.stringify(clusters, null, 2), (err) => {
     if (err) {
       die('Error saving clusters.json.');
@@ -527,8 +551,9 @@ export function padLeft(str, length, padChar) {
   return str;
 }
 
-export function printArray(arr) {
-  console.log('  ' + arr.join("\n  "));
+export function printArray(arr, color = null) {
+  let str = '  ' + arr.join('\n  ');
+  console.log(color ? chalk[color](str) : str);
 }
 
 export function forceArray(strOrArray) {
@@ -560,7 +585,7 @@ export function die(str) {
 export function dieWithList(str) {
   log.failure(str);
   log.br();
-  listCommand.run();
+  listCommand.commands.list.run();
   process.exit(1);
 }
 
@@ -568,7 +593,7 @@ export function handleInstanceOrClusterNotFound(instances, args) {
   if (!instances || instances.length === 0) {
     log.failure('No instance or cluster found matching "' + args.name + '".');
     log.br();
-    listCommand.run();
+    listCommand.commands.list.run();
     process.exit(1);
   }
 }
@@ -577,7 +602,7 @@ export function handleInstanceNotFound(instance, args) {
   if (!instance) {
     log.failure('No instance found matching "' + args.name + '".');
     log.br();
-    listCommand.run();
+    listCommand.commands.list.run();
     process.exit(1);
   }
 }
@@ -723,7 +748,7 @@ export function prettyPrint(obj, indent, stepBy) {
     }
 
     if (isArray(val) || isObject(val)) {
-      log.faded(prefix + key + ':');
+      console.log(prefix + key + ':');
       prettyPrint(val, indent + stepBy, stepBy);
     } else {
       var valStr = val;
@@ -732,7 +757,7 @@ export function prettyPrint(obj, indent, stepBy) {
       } else if (val === '') {
         valStr = '""';
       }
-      log.faded(prefix + key + ': ' + valStr);
+      console.log(prefix + key + ': ' + valStr);
     }
   });
 }

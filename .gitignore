@@ -4,3 +4,4 @@ test/integration/.overcast
 node_modules
 npm-debug.log
 libpeerconnection.log
+.overcast

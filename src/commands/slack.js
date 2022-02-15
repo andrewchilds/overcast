@@ -52,7 +52,7 @@ export function send(options) {
 
   if (!vars.SLACK_WEBHOOK_URL) {
     log.faded('No message sent.');
-    log.faded(`Please add SLACK_WEBHOOK_URL to ${utils.VARIABLES_JSON}.`);
+    log.faded(`Please add SLACK_WEBHOOK_URL to ${utils.getConfigDirs().VARIABLES_JSON}.`);
 
     return false;
   }

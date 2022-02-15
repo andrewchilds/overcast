@@ -27,24 +27,23 @@ commands.help = {
     utils.printArray([
       (`This is Overcast v${utils.VERSION}.`),
       '',
-      chalk.grey('Source code, issues, pull requests:'),
+      'Source code, issues, pull requests:',
       chalk.cyan('  https://github.com/andrewchilds/overcast'),
       '',
-      chalk.grey('Usage:'),
-      '  overcast [command] [options...]',
+      'Usage:',
+      chalk.cyan('  overcast [command] [options...]'),
       '',
-      chalk.grey('Help:'),
-      '  overcast help',
-      '  overcast help [command]',
-      '  overcast [command] help',
+      'Help:',
+      chalk.cyan('  overcast help'),
+      chalk.cyan('  overcast [command] help'),
       '',
-      chalk.grey('Commands:')
+      'Commands:'
     ]);
-    utils.printArray(signatures);
+    utils.printArray(signatures, 'cyan');
     utils.printArray([
       '',
       'Config directory:',
-      chalk.cyan(`  ${utils.CONFIG_DIR}`)
+      chalk.cyan(`  ${utils.getConfigDirs().CONFIG_DIR}`)
     ]);
   }
 };

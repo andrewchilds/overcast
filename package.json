@@ -14,7 +14,9 @@
   "type": "module",
   "main": "overcast.js",
   "scripts": {
-    "test": "rm -rf ./test/integration/.overcast && node ./node_modules/jasmine/bin/jasmine.js --coffee --color --verbose ./test"
+    "test:unit": "cd test && npx jasmine unit/*.spec.js",
+    "test:integration": "cd test && npx jasmine --random=false integration/*.spec.js",
+    "test": "yarn test:unit && yarn test:integration"
   },
   "bin": {
     "overcast": "overcast.js"

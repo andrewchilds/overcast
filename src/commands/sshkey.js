@@ -170,7 +170,7 @@ function printFile(file) {
 }
 
 function listKeys() {
-  fs.readdir(`${utils.CONFIG_DIR}/keys/`, (err, data) => {
+  fs.readdir(`${utils.getConfigDirs().CONFIG_DIR}/keys/`, (err, data) => {
     data = data.map((name) => {
       return name.replace('.pub', '').replace('.key', '');
     });

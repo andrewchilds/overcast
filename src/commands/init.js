@@ -15,9 +15,13 @@ commands.init = {
     const cwd = process.cwd();
 
     if (fs.existsSync(`${cwd}/.overcast`)) {
-      log.alert('.overcast directory already exists here.');
+      log.alert(`An .overcast directory already exists here (${cwd}).`);
     } else {
-      utils.initOvercastDir(cwd);
+      utils.initOvercastDir(cwd, () => {
+        // Override, in case we already have an existing dir elsewhere:
+        utils.setConfigDir(cwd + '/.overcast');
+        utils.createKeyIfMissing();
+      });
     }
   }
 };

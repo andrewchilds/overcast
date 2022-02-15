@@ -53,12 +53,12 @@ commands.get = {
   }
 };
 
-commands.import = {
-  name: 'import',
-  usage: 'overcast instance import [name] [ip] [options...]',
-  description: 'Imports an existing instance to a cluster.',
+commands.add = {
+  name: 'add',
+  usage: 'overcast instance add [name] [ip] [options...]',
+  description: 'Adds an existing instance to a cluster.',
   examples: [
-    '$ overcast instance import app.01 127.0.0.1 --cluster app \\',
+    '$ overcast instance add app.01 127.0.0.1 --cluster app \\',
     '    --ssh-port 22222 --ssh-key $HOME/.ssh/id_rsa'
   ],
   required: [
@@ -83,7 +83,7 @@ commands.import = {
     };
 
     utils.saveInstanceToCluster(args.cluster, instance, () => {
-      log.success(`Instance "${args.name}" (${args.ip}) has been imported to the "${args.cluster}" cluster.`);
+      log.success(`Instance "${args.name}" (${args.ip}) has been added to the "${args.cluster}" cluster.`);
     });
   }
 };

@@ -1,5 +1,8 @@
 #!/bin/bash
 
+set -e
+set -x
+
 if [ -z "$OVERCAST_FIXTURE_DIR" ] || [ -z "$OVERCAST_DEST_DIR" ]; then
   echo "Don't use this script directly. Run 'overcast init' from the directory"
   echo "you want to install an overcast configuration in."

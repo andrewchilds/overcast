@@ -8,23 +8,23 @@ commands.info = {
   name: 'info',
   usage: ['overcast info', 'overcast info [name]'],
   description: ['Pretty-prints the complete clusters.json file, stored here:',
-    `${utils.CONFIG_DIR}/clusters.json`,
+    `${utils.getConfigDirs().CONFIG_DIR}/clusters.json`,
     'Optionally display only instances matching [name].'],
   required: [{ name: 'name', optional: true, filters: filters.findMatchingInstances }],
-  run: function({instances}) {
+  run: function({ instances }) {
     const clusters = utils.getClusters();
 
-    log.faded(`Using ${utils.CONFIG_DIR}/clusters.json`);
+    log.faded(`Using ${utils.getConfigDirs().CONFIG_DIR}/clusters.json`);
 
-    if (!clusters) {
+    if (Object.keys(clusters).length === 0) {
       log.br();
-      log.faded('No clusters found.');
+      log.alert('No clusters found.');
       return false;
     }
 
-    if (instances) {
+    if (instances && instances.length > 0) {
       log.br();
-      utils.eachObject(instances, instance => {
+      instances.forEach((instance) => {
         console.log(instance.name);
         utils.prettyPrint(instance, 2);
       });
@@ -32,9 +32,9 @@ commands.info = {
       return false;
     }
 
-    utils.eachObject(clusters, ({instances}, clusterName) => {
+    utils.eachObject(clusters, ({ instances }, clusterName) => {
       log.br();
-      log.faded(clusterName);
+      console.log(clusterName);
       utils.eachObject(instances, instance => {
         log.br();
         console.log(`  ${instance.name}`);

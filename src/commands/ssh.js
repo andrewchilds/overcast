@@ -29,7 +29,7 @@ commands.ssh = {
 };
 
 function connect(instance, args) {
-  const privateKeyFile = utils.normalizeKeyPath(args['ssh-key'] || instance.ssh_key || `${utils.CONFIG_DIR}/keys/overcast.key`);
+  const privateKeyFile = utils.normalizeKeyPath(args['ssh-key'] || instance.ssh_key || `${utils.getConfigDirs().CONFIG_DIR}/keys/overcast.key`);
   const sshPort = instance.ssh_port || '22';
   const host = `${args.user || instance.user || 'root'}@${instance.ip}`;
   const password = (args.password || instance.password || '');

@@ -81,7 +81,7 @@ function sshExec(options, next) {
   options.name = options.name || 'Unknown';
 
   var args = [
-    utils.escapeWindowsPath(__dirname + '/../bin/overcast-ssh')
+    utils.escapeWindowsPath(utils.getFileDirname() + '/../bin/overcast-ssh')
   ];
 
   var sshEnv = Object.assign({}, process.env, {
@@ -109,7 +109,7 @@ function sshExec(options, next) {
   }
 
   var cwdScriptFile = commandAsScriptFile(options.command, process.cwd());
-  var bundledScriptFile = commandAsScriptFile(options.command, __dirname + '/../scripts');
+  var bundledScriptFile = commandAsScriptFile(options.command, utils.getFileDirname() + '/../scripts');
 
   if (fs.existsSync(cwdScriptFile)) {
     sshEnv.OVERCAST_SCRIPT_FILE = utils.escapeWindowsPath(cwdScriptFile);
