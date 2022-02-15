@@ -58,7 +58,7 @@ describe 'virtualbox', ->
       spyOn(api, 'boot').andCallFake (instance, callback) ->
         callback()
       cli.execute('virtualbox boot vm01')
-      expect(utils.success).toHaveBeenCalledWith('Instance "vm01" booted.')
+      expect(log.success).toHaveBeenCalledWith('Instance "vm01" booted.')
 
   describe 'create', ->
     it 'should fail if instance is missing', ->
@@ -92,7 +92,7 @@ describe 'virtualbox', ->
       it 'should handle defaults', ->
         cli.execute('virtualbox create vm02')
         expect(utils.grey).toHaveBeenCalledWith('Creating new instance "vm02" on VirtualBox...')
-        expect(utils.success).toHaveBeenCalledWith('Instance "vm02" (192.168.22.11) saved.')
+        expect(log.success).toHaveBeenCalledWith('Instance "vm02" (192.168.22.11) saved.')
 
   describe 'destroy', ->
     it 'should fail if instance is missing', ->
@@ -112,7 +112,7 @@ describe 'virtualbox', ->
         callback()
       spyOn(utils, 'deleteInstance')
       cli.execute('virtualbox destroy vm01 --force')
-      expect(utils.success).toHaveBeenCalledWith('Instance "vm01" destroyed.')
+      expect(log.success).toHaveBeenCalledWith('Instance "vm01" destroyed.')
 
   describe 'reboot', ->
     it 'should fail if instance is missing', ->
@@ -131,7 +131,7 @@ describe 'virtualbox', ->
       spyOn(api, 'reboot').andCallFake (instance, callback) ->
         callback()
       cli.execute('virtualbox reboot vm01')
-      expect(utils.success).toHaveBeenCalledWith('Instance "vm01" rebooted.')
+      expect(log.success).toHaveBeenCalledWith('Instance "vm01" rebooted.')
 
   describe 'shutdown', ->
     it 'should fail if instance is missing', ->
@@ -150,4 +150,4 @@ describe 'virtualbox', ->
       spyOn(api, 'shutdown').andCallFake (instance, callback) ->
         callback()
       cli.execute('virtualbox shutdown vm01')
-      expect(utils.success).toHaveBeenCalledWith('Instance "vm01" has been shut down.')
+      expect(log.success).toHaveBeenCalledWith('Instance "vm01" has been shut down.')

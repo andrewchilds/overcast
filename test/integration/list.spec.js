@@ -17,7 +17,7 @@ describe('list', () => {
   });
 
   it('should display info when clusters are defined', (done) => {
-    overcast('cluster create list-test', () => {
+    overcast('cluster add list-test', () => {
       overcast('list', ({ stdout }) => {
         expect(stdout).toContain('list-test');
         done();

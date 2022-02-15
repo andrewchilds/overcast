@@ -66,7 +66,7 @@ describe 'digitalocean', ->
       spyOn(api, 'dropletAction').andCallFake (instance, data, callback) ->
         callback()
       cli.execute('digitalocean boot dummy01')
-      expect(utils.success).toHaveBeenCalledWith('Instance "dummy01" booted.')
+      expect(log.success).toHaveBeenCalledWith('Instance "dummy01" booted.')
 
   describe 'create', ->
     it 'should fail if instance is missing', ->
@@ -105,7 +105,7 @@ describe 'digitalocean', ->
       it 'should handle defaults', ->
         cli.execute('digitalocean create dummy02')
         expect(utils.grey).toHaveBeenCalledWith('Creating new instance "dummy02" on DigitalOcean...')
-        expect(utils.success).toHaveBeenCalledWith('Instance "dummy02" (2.3.4.5) saved.')
+        expect(log.success).toHaveBeenCalledWith('Instance "dummy02" (2.3.4.5) saved.')
 
   describe 'destroy', ->
     it 'should fail if instance is missing', ->
@@ -125,7 +125,7 @@ describe 'digitalocean', ->
         callback()
       spyOn(utils, 'deleteInstance')
       cli.execute('digitalocean destroy dummy01 --force')
-      expect(utils.success).toHaveBeenCalledWith('Instance "dummy01" destroyed.')
+      expect(log.success).toHaveBeenCalledWith('Instance "dummy01" destroyed.')
 
   describe 'images', ->
 
@@ -148,7 +148,7 @@ describe 'digitalocean', ->
       spyOn(api, 'dropletAction').andCallFake (instance, data, callback) ->
         callback()
       cli.execute('digitalocean reboot dummy01')
-      expect(utils.success).toHaveBeenCalledWith('Instance "dummy01" rebooted.')
+      expect(log.success).toHaveBeenCalledWith('Instance "dummy01" rebooted.')
 
   describe 'rebuild', ->
     beforeEach ->
@@ -177,7 +177,7 @@ describe 'digitalocean', ->
       spyOn(api, 'dropletAction').andCallFake (instance, data, callback) ->
         callback()
       cli.execute('digitalocean rebuild dummy01 ubuntu-12-04-x64')
-      expect(utils.success).toHaveBeenCalledWith('Instance "dummy01" rebuilt.')
+      expect(log.success).toHaveBeenCalledWith('Instance "dummy01" rebuilt.')
 
   describe 'regions', ->
 
@@ -208,7 +208,7 @@ describe 'digitalocean', ->
       spyOn(api, 'dropletAction').andCallFake (instance, data, callback) ->
         callback()
       cli.execute('digitalocean resize dummy01 4gb --skip-boot')
-      expect(utils.success).toHaveBeenCalledWith('Instance "dummy01" resized.')
+      expect(log.success).toHaveBeenCalledWith('Instance "dummy01" resized.')
 
   describe 'sizes', ->
 
@@ -229,7 +229,7 @@ describe 'digitalocean', ->
       spyOn(api, 'dropletAction').andCallFake (instance, data, callback) ->
         callback()
       cli.execute('digitalocean shutdown dummy01')
-      expect(utils.success).toHaveBeenCalledWith('Instance "dummy01" has been shut down.')
+      expect(log.success).toHaveBeenCalledWith('Instance "dummy01" has been shut down.')
 
   describe 'snapshot', ->
     it 'should fail if instance is missing', ->
@@ -254,7 +254,7 @@ describe 'digitalocean', ->
       spyOn(api, 'dropletAction').andCallFake (instance, data, callback) ->
         callback()
       cli.execute('digitalocean snapshot dummy01 snap01')
-      expect(utils.success).toHaveBeenCalledWith('Snapshot "snap01" of "dummy01" saved.')
+      expect(log.success).toHaveBeenCalledWith('Snapshot "snap01" of "dummy01" saved.')
 
   describe 'snapshots', ->
 

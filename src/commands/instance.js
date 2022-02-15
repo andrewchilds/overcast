@@ -32,8 +32,8 @@ commands.get = {
     const output = [];
     args.attr = args.attr.split(' ');
 
-    utils.each(args.instances, (instance) => {
-      utils.each(args.attr, (attr) => {
+    args.instances.forEach((instance) => {
+      args.attr.forEach((attr) => {
         attr = attr.replace(/-/g, '_');
         if (attr === 'origin') {
           output.push(`${instance.user}@${instance.ip}:${instance.ssh_port}`);
@@ -46,7 +46,7 @@ commands.get = {
     if (args.s || args['single-line']) {
       console.log(output.join(' '));
     } else {
-      utils.each(output, (line) => {
+      output.forEach((line) => {
         console.log(line);
       });
     }
@@ -172,7 +172,7 @@ commands.update = {
     });
 
     utils.saveClusters(clusters, () => {
-      utils.each(messages, utils.success);
+      messages.forEach(log.success);
     });
   }
 };
