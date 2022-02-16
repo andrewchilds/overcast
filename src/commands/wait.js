@@ -1,4 +1,5 @@
 import * as utils from '../utils.js';
+import * as log from '../log.js';
 
 export const commands = {};
 
@@ -12,7 +13,9 @@ commands.wait = {
     '$ overcast wait 30'
   ],
   required: ['seconds'],
-  run: function({seconds}) {
-    utils.fixedWait(seconds);
+  run: ({ seconds }) => {
+    utils.fixedWait(seconds, () => {
+      log.success('Done!');
+    });
   }
 };

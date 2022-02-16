@@ -83,10 +83,13 @@ export function mapObject(o, cb) {
 }
 
 export function times(maxIndex, cb) {
-  let index = 0;
-  while (index < maxIndex) {
-    cb(index++);
+  const results = [];
+  let index = 1;
+  while (index <= maxIndex) {
+    results.push(cb(index++));
   }
+
+  return results;
 }
 
 export function runSubcommand(args, subcommands, helpFn) {
@@ -170,9 +173,12 @@ export function createKey(keyName, callback) {
   if (isTestRun()) {
     cp.exec(`touch "${keyFile}" && touch "${keyFile}".pub`, (err) => {
       if (err) {
-        log.failure(err);
+        log.failure('Error generating SSH key!');
+        die(err);
+      } else {
+        log.success(`Created new SSH key at ${keyFile}.`);
+        callback();
       }
-      callback();
     });
   } else {
     var keygen = spawn('ssh-keygen -t rsa -N "" -f ' + keyFile);
@@ -629,24 +635,25 @@ export function prefixPrint(prefix, prefixColor, buffer, textColor) {
 }
 
 export function progress(percentage, elapsed) {
+  const maxWidth = 34;
   percentage = percentage || 0;
   percentage = parseFloat(percentage);
 
   var remaining = '???';
   if (percentage > 2) {
-    remaining = (((elapsed / (percentage / 100)) - elapsed) / 1000).toPrecision(2);
+    remaining = (((elapsed / (percentage / 100)) - elapsed) / 1000).toPrecision(3);
   }
   if (remaining > 99) {
     remaining = '???';
   }
 
-  var width = Math.max(1, Math.ceil(percentage / 2));
+  var width = Math.max(1, Math.ceil(percentage / 3));
   var hashes = times(width, (i) => {
-    i += Math.round(now() / 250);
-    return i % 3 ? ' ' : '/';
+    i += Math.round(now() / maxWidth);
+    return chalk.bgGreen(' ');
   });
-  var spaces = times(50 - width, () => {
-    return '-';
+  var spaces = times(maxWidth - width, () => {
+    return chalk.bgGrey(' ');
   });
   var str = ' ' + hashes.join('') + spaces.join('') + (' ' + remaining + ' seconds left');
 
@@ -661,9 +668,10 @@ export function clearLine() {
   process.stdout.write(str.join('') + "\r");
 }
 
-export var progressComplete = clearLine;
+export let progressComplete = clearLine;
 
 export function progressBar(testFn, callback) {
+  const intervalSpeed = 60;
   var startTime = now();
   var interval = setInterval(() => {
     var percentage = testFn();
@@ -676,7 +684,7 @@ export function progressBar(testFn, callback) {
         callback();
       }
     }
-  }, 250);
+  }, intervalSpeed);
 
   return interval;
 }
@@ -715,7 +723,6 @@ export function fixedWait(seconds, callback) {
   seconds = seconds || 60;
   log.faded('Waiting ' + seconds + ' seconds...');
   waitForProgress(seconds, () => {
-    log.success('OK.');
     if (isFunction(callback)) {
       callback();
     }

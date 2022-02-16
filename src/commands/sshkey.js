@@ -18,11 +18,7 @@ commands.create = {
   ],
   required: [{ name: 'name', filters: filters.shouldBeNewKey }],
   run: ({ name }) => {
-    utils.createKey(name, keyPath => {
-      log.success(`New SSH key "${name}" created.`);
-      log.faded(` - ${keyPath}`);
-      log.faded(` - ${keyPath}.pub`);
-    });
+    utils.createKey(name);
   }
 };
 
@@ -137,9 +133,9 @@ commands.push = {
     args.mr = true; // machine readable
     ssh.run(args, () => {
       log.success(`Key updated on ${args.instances.length} instance(s).`);
-      log.faded('If this is the default user you use to SSH in,');
-      log.faded('you need to update the instance configuration. For example:');
-      log.faded(`overcast instance update ${args.name} --ssh-key myPrivateKey.key`);
+      log.cyan('If this is the default user you use to SSH in,');
+      log.cyan('you need to update the instance configuration. For example:');
+      log.cyan(`overcast instance update ${args.name} --ssh-key myPrivateKey.key`);
     });
   }
 };

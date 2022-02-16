@@ -57,10 +57,14 @@ export function send(options) {
     return false;
   }
 
-  const slack = SlackNotify(vars.SLACK_WEBHOOK_URL);
-  slack.send(options).then(() => {
-    log.success('Message sent to Slack.');
-  }).catch((err) => {
-    log.failure(`Unable to send message to Slack: ${err}`);
-  });
+  if (utils.isTestRun()) {
+    log.success('Message sent to Slack. (Pretending because this is a test run. Options = ' + JSON.stringify(options));
+  } else {
+    const slack = SlackNotify(vars.SLACK_WEBHOOK_URL);
+    slack.send(options).then(() => {
+      log.success('Message sent to Slack.');
+    }).catch((err) => {
+      log.failure(`Unable to send message to Slack. ${err}`);
+    });
+  }
 }
