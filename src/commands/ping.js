@@ -1,7 +1,10 @@
 import chalk from 'chalk';
 import cp from 'child_process';
+
+import * as log from '../log.js';
 import * as utils from '../utils.js';
 import * as filters from '../filters.js';
+import { fsync } from 'fs';
 
 export const commands = {};
 
@@ -17,19 +20,26 @@ commands.ping = {
     { name: 'name', filters: filters.findMatchingInstances }
   ],
   options: [{ usage: '--count N, -c N', default: '3' }],
-  run: (args) => {
+  run: (args, nextFn) => {
     const count = args.count || args.c || 3;
+    const fns = [];
+
     args.instances.forEach((instance) => {
-      ping(instance, count);
+      fns.push((nextFn) => {
+        ping(instance, count, nextFn);
+      });
     });
+
+    utils.allInParallelThen(fns, nextFn);
   }
 };
 
-function ping({ip, name}, count) {
+function ping({ ip, name }, count, nextFn) {
   cp.exec(`ping -c ${count} ${ip}`, (err, stdout) => {
-    const color = utils.SSH_COLORS[utils.SSH_COUNT++ % 5];
+    const color = utils.getNextColor();
     const averagePing = stdout.match(/ ([\d\.]+)\/([\d\.]+)\/([\d\.]+)\/([\d\.]+) ms/);
     const prefix = `${name}: `;
-    console.log(`${chalk[color](prefix) + averagePing[2]} ms`);
+    log.log(`${chalk[color](prefix) + averagePing[2]} ms`);
+    nextFn();
   });
 }

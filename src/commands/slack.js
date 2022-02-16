@@ -1,6 +1,7 @@
 import SlackNotify from 'slack-notify';
 import * as utils from '../utils.js';
 import * as log from '../log.js';
+import { getVariablesJSON } from '../store.js';
 
 export const commands = {};
 
@@ -27,7 +28,7 @@ commands.slack = {
     { usage: '--user NAME', default: 'Overcast' },
     { usage: '--KEY VALUE' }
   ],
-  run: (args) => {
+  run: (args, nextFn) => {
     const options = {
       channel: args.channel || '#alerts',
       icon_emoji: args['icon-emoji'] || ':cloud:',
@@ -43,16 +44,16 @@ commands.slack = {
 
     options.fields = custom_fields;
 
-    send(options);
+    send(options, nextFn);
   }
 };
 
-export function send(options) {
+export function send(options, nextFn = () => {}) {
   const vars = utils.getVariables();
 
   if (!vars.SLACK_WEBHOOK_URL) {
     log.faded('No message sent.');
-    log.faded(`Please add SLACK_WEBHOOK_URL to ${utils.getConfigDirs().VARIABLES_JSON}.`);
+    log.faded(`Please add SLACK_WEBHOOK_URL to ${getVariablesJSON()}.`);
 
     return false;
   }
@@ -63,8 +64,10 @@ export function send(options) {
     const slack = SlackNotify(vars.SLACK_WEBHOOK_URL);
     slack.send(options).then(() => {
       log.success('Message sent to Slack.');
+      nextFn();
     }).catch((err) => {
       log.failure(`Unable to send message to Slack. ${err}`);
+      nextFn();
     });
   }
 }

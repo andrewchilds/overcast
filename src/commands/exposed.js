@@ -15,8 +15,8 @@ commands.exposed = {
     { usage: '--machine-readable, --mr' }
   ],
   required: [{ name: 'instance|cluster|all', varName: 'name' }],
-  run: (args) => {
+  run: (args, nextFn) => {
     args._ = ['list_exposed_ports'];
-    ssh.run(args);
+    ssh.run(args, nextFn);
   }
 };

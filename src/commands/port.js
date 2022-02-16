@@ -26,7 +26,7 @@ commands.port = {
     { name: 'instance|cluster|all', varName: 'name', filters: filters.findMatchingInstances },
     { name: 'port' }
   ],
-  run: (args) => {
+  run: (args, nextFn) => {
     const new_ssh_port = `${args.port}`;
     args.env = {
       new_ssh_port
@@ -34,11 +34,16 @@ commands.port = {
 
     args._ = ['change_ssh_port'];
     ssh.run(args, () => {
+      const fns = [];
       args.instances.forEach((instance) => {
-        utils.updateInstance(instance.name, {
-          ssh_port: new_ssh_port
+        fns.push((nextFn) => {
+          utils.updateInstance(instance.name, {
+            ssh_port: new_ssh_port
+          }, nextFn);
         });
       });
+
+      utils.allInParallelThen(fns, nextFn);
     });
   }
 };

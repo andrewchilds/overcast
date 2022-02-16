@@ -94,19 +94,19 @@ describe 'utils', ->
     subject = utils.normalizeKeyPath
 
     it 'should use the default path if none specified', ->
-      expect(subject()).toBe path.resolve(utils.getConfigDirs().CONFIG_DIR, 'keys', 'overcast.key')
+      expect(subject()).toBe path.resolve(store.getConfigDir(), 'keys', 'overcast.key')
 
     it 'should handle absolute paths', ->
       expect(subject('/path/to/overcast.key')).toBe '/path/to/overcast.key'
 
     it 'should handle relative paths', ->
-      expect(subject('foo.key')).toBe path.resolve(utils.getConfigDirs().CONFIG_DIR, 'keys', 'foo.key')
+      expect(subject('foo.key')).toBe path.resolve(store.getConfigDir(), 'keys', 'foo.key')
 
   describe 'convertToAbsoluteFilePath', ->
     subject = utils.convertToAbsoluteFilePath
 
     it 'should resolve and normalize relative paths', ->
-      expect(subject('file')).toBe path.resolve(utils.getConfigDirs().CONFIG_DIR, 'files', 'file')
+      expect(subject('file')).toBe path.resolve(store.getConfigDir(), 'files', 'file')
 
     it 'should normalize absolute paths', ->
       expect(subject('/path/to/file')).toBe '/path/to/file'

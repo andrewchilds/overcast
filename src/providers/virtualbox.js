@@ -142,7 +142,7 @@ export function createVagrantBox(args) {
       log.faded('Image "' + args.image + '" found.');
       resolve(args);
     } else if (BUNDLED_IMAGE_URLS[args.image]) {
-      var color = utils.SSH_COLORS[utils.SSH_COUNT++ % 5];
+      var color = utils.getNextColor();
       var vagrant = utils.spawn(['vagrant box add --name ' + args.image + ' ' + BUNDLED_IMAGE_URLS[args.image]]);
 
       vagrant.stdout.on('data', data => {
@@ -162,7 +162,7 @@ export function createVagrantBox(args) {
       });
     } else {
       log.failure('Image "' + args.image + '" not found. Please add this using Vagrant:');
-      utils.die('vagrant box add --name "' + args.image + '" [image-url]');
+      return utils.die('vagrant box add --name "' + args.image + '" [image-url]');
     }
   });
 }
@@ -184,7 +184,7 @@ export function findNextAvailableIP(existing) {
     if (ip[3] === '255') {
       if (ip[2] === '255') {
         log.failure('Congratulations! You seem to have used all available IP addresses in the 192.168 block.');
-        utils.die('Please destroy some of these instances before making a new one.');
+        return utils.die('Please destroy some of these instances before making a new one.');
       }
       ip[2] = parseInt(ip[2], 10) + 1;
       ip[3] = '10';
@@ -205,7 +205,7 @@ export function createInstance(args) {
     args.ip = ip;
     args.dir = OVERCAST_VAGRANT_DIR + '/' + ip;
 
-    var color = utils.SSH_COLORS[utils.SSH_COUNT++ % 5];
+    var color = utils.getNextColor();
 
     var bashArgs = [
       utils.escapeWindowsPath(utils.getFileDirname() + '/../../bin/overcast-vagrant')
@@ -241,7 +241,7 @@ export function createInstance(args) {
 
 export function stopInstance(instance) {
   return new Promise((resolve, reject) => {
-    var color = utils.SSH_COLORS[utils.SSH_COUNT++ % 5];
+    var color = utils.getNextColor();
     var vagrant = utils.spawn('vagrant halt', {
       cwd: instance.virtualbox.dir
     });
@@ -266,7 +266,7 @@ export function stopInstance(instance) {
 
 export function startInstance(instance) {
   return new Promise((resolve, reject) => {
-    var color = utils.SSH_COLORS[utils.SSH_COUNT++ % 5];
+    var color = utils.getNextColor();
     var vagrant = utils.spawn('vagrant up', {
       cwd: instance.virtualbox.dir
     });
@@ -291,7 +291,7 @@ export function startInstance(instance) {
 
 export function destroyInstance(instance) {
   return new Promise((resolve, reject) => {
-    var color = utils.SSH_COLORS[utils.SSH_COUNT++ % 5];
+    var color = utils.getNextColor();
     var vagrant = utils.spawn('vagrant destroy -f', {
       cwd: instance.virtualbox.dir
     });
@@ -318,5 +318,5 @@ export function destroyInstance(instance) {
 }
 
 export function genericCatch(err) {
-  utils.die(err && err.message ? err.message : err);
+  return utils.die(err && err.message ? err.message : err);
 }

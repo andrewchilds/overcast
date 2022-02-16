@@ -4,26 +4,26 @@ import * as log from './log.js';
 
 export function handleCommandNotFound(fn) {
   if (!utils.isFunction(fn)) {
-    utils.die('Command not supported by provider.');
+    return utils.die('Command not supported by provider.');
   }
 }
 
-export function create(api, args, callback) {
+export function create(api, args, nextFn) {
   handleCommandNotFound(api.create);
 
   log.faded(`Creating new instance "${args.name}" on ${api.name}...`);
   api.create(args, instance => {
     utils.saveInstanceToCluster(args.cluster, instance);
     log.success(`Instance "${args.name}" (${instance.ip}) saved.`);
-    utils.waitForBoot(instance, callback);
+    utils.waitForBoot(instance, nextFn);
   });
 }
 
-export function destroy(api, args, callback) {
+export function destroy(api, args, nextFn) {
   handleCommandNotFound(api.destroy);
 
   const onDestroy = () => {
-    utils.deleteInstance(args.instance, callback);
+    utils.deleteInstance(args.instance, nextFn);
     log.success(`Instance "${args.instance.name}" destroyed.`);
   };
 
@@ -47,51 +47,51 @@ export function destroy(api, args, callback) {
   });
 }
 
-export function boot(api, args, callback) {
+export function boot(api, args, nextFn) {
   handleCommandNotFound(api.boot);
 
   log.faded(`Booting "${args.instance.name}"...`);
   api.boot(args.instance, () => {
     log.success(`Instance "${args.instance.name}" booted.`);
-    utils.waitForBoot(args.instance, callback);
+    utils.waitForBoot(args.instance, nextFn);
   });
 }
 
-export function shutdown(api, args, callback) {
+export function shutdown(api, args, nextFn) {
   handleCommandNotFound(api.shutdown);
 
   log.faded(`Shutting down "${args.instance.name}"...`);
   api.shutdown(args.instance, () => {
     log.success(`Instance "${args.instance.name}" has been shut down.`);
-    if (utils.isFunction(callback)) {
-      callback();
+    if (utils.isFunction(nextFn)) {
+      nextFn();
     }
   });
 }
 
-export function reboot(api, args, callback) {
+export function reboot(api, args, nextFn) {
   handleCommandNotFound(api.reboot);
 
   log.faded(`Rebooting "${args.instance.name}"...`);
   api.reboot(args.instance, () => {
     log.success(`Instance "${args.instance.name}" rebooted.`);
-    utils.waitForBoot(args.instance, callback);
+    utils.waitForBoot(args.instance, nextFn);
   });
 }
 
-export function rebuild(api, args, callback) {
+export function rebuild(api, args, nextFn) {
   handleCommandNotFound(api.rebuild);
 
   log.faded(`Rebuilding "${args.instance.name}" using image "${args.image}"...`);
   api.rebuild(args.instance, args.image, () => {
     updateInstanceMetadata(api, args, () => {
       log.success(`Instance "${args.instance.name}" rebuilt.`);
-      utils.waitForBoot(args.instance, callback);
+      utils.waitForBoot(args.instance, nextFn);
     });
   });
 }
 
-export function resize(api, args, callback) {
+export function resize(api, args, nextFn) {
   handleCommandNotFound(api.resize);
 
   log.faded(`Resizing "${args.instance.name}" to "${args.size}"...`);
@@ -100,117 +100,117 @@ export function resize(api, args, callback) {
       log.success(`Instance "${args.instance.name}" resized.`);
       if (args.skipBoot || args['skip-boot']) {
         log.faded('Skipping boot since --skip-boot flag was used.');
-        if (utils.isFunction(callback)) {
-          callback();
+        if (utils.isFunction(nextFn)) {
+          nextFn();
         }
       } else {
-        boot(api, args, callback);
+        boot(api, args, nextFn);
       }
     });
   });
 }
 
-export function snapshot(api, args, callback) {
+export function snapshot(api, args, nextFn) {
   handleCommandNotFound(api.snapshot);
 
   log.faded(`Saving snapshot "${args.snapshotName}" of "${args.instance.name}"...`);
   api.snapshot(args.instance, args.snapshotName, () => {
     log.success(`Snapshot "${args.snapshotName}" of "${args.instance.name}" saved.`);
-    utils.waitForBoot(args.instance, callback);
+    utils.waitForBoot(args.instance, nextFn);
   });
 }
 
 // AKA distributions (Linode).
-export function images(api, callback) {
+export function images(api, nextFn) {
   handleCommandNotFound(api.getImages);
 
   api.getImages(images => {
     utils.printCollection('images', images);
-    if (utils.isFunction(callback)) {
-      callback();
+    if (utils.isFunction(nextFn)) {
+      nextFn();
     }
   });
 }
 
 // AKA droplets (DO) or linodes (Linode).
-export function instances(api, args, callback) {
+export function instances(api, args, nextFn) {
   handleCommandNotFound(api.getInstances);
 
   // AWS needs args.region, DigitalOcean does not.
   api.getInstances(args, instances => {
     utils.printCollection('instances', instances);
-    if (utils.isFunction(callback)) {
-      callback();
+    if (utils.isFunction(nextFn)) {
+      nextFn();
     }
   });
 }
 
-export function instance(api, args, callback) {
+export function instance(api, args, nextFn) {
   handleCommandNotFound(api.getInstance);
 
-  api.getInstance(args.instance, callback);
+  api.getInstance(args.instance, nextFn);
 }
 
-export function updateInstanceMetadata(api, args, callback) {
+export function updateInstanceMetadata(api, args, nextFn) {
   handleCommandNotFound(api.updateInstanceMetadata);
 
-  api.updateInstanceMetadata(args.instance, callback);
+  api.updateInstanceMetadata(args.instance, nextFn);
 }
 
-export function sync(api, args, callback) {
+export function sync(api, args, nextFn) {
   handleCommandNotFound(api.sync);
 
   log.faded(`Fetching metadata for "${args.instance.name}"...`);
   api.sync(args.instance, () => {
     log.success(`Metadata for "${args.instance.name}" updated.`);
-    if (utils.isFunction(callback)) {
-      callback();
+    if (utils.isFunction(nextFn)) {
+      nextFn();
     }
   });
 }
 
-export function kernels(api, callback) {
+export function kernels(api, nextFn) {
   handleCommandNotFound(api.getKernels);
 
   api.getKernels(kernels => {
     utils.printCollection('kernels', kernels);
-    if (utils.isFunction(callback)) {
-      callback();
+    if (utils.isFunction(nextFn)) {
+      nextFn();
     }
   });
 }
 
 // AKA datacenters (Linode).
-export function regions(api, callback) {
+export function regions(api, nextFn) {
   handleCommandNotFound(api.getRegions);
 
   api.getRegions(regions => {
     utils.printCollection('regions', regions);
-    if (utils.isFunction(callback)) {
-      callback();
+    if (utils.isFunction(nextFn)) {
+      nextFn();
     }
   });
 }
 
 // AKA types (AWS) or plans (Linode).
-export function sizes(api, callback) {
+export function sizes(api, nextFn) {
   handleCommandNotFound(api.getSizes);
 
   api.getSizes(sizes => {
     utils.printCollection('sizes', sizes);
-    if (utils.isFunction(callback)) {
-      callback();
+    if (utils.isFunction(nextFn)) {
+      nextFn();
     }
   });
 }
 
-export function snapshots(api, callback) {
+export function snapshots(api, nextFn) {
   handleCommandNotFound(api.getSnapshots);
 
   api.getSnapshots(snapshots => {
     utils.printCollection('snapshots', snapshots);
-    if (utils.isFunction(callback)) {
-      callback();
+    if (utils.isFunction(nextFn)) {
+      nextFn();
     }
   });
 }

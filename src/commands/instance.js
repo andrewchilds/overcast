@@ -28,7 +28,7 @@ commands.get = {
     { name: 'instance|cluster|all', varName: 'name', filters: filters.findMatchingInstances },
     { name: 'attr...', varName: 'attr', greedy: true }
   ],
-  run: (args) => {
+  run: (args, nextFn) => {
     const output = [];
     args.attr = args.attr.split(' ');
 
@@ -44,12 +44,14 @@ commands.get = {
     });
 
     if (args.s || args['single-line']) {
-      console.log(output.join(' '));
+      log.log(output.join(' '));
     } else {
       output.forEach((line) => {
-        console.log(line);
+        log.log(line);
       });
     }
+
+    nextFn();
   }
 };
 
@@ -72,7 +74,7 @@ commands.add = {
     { usage: '--user USERNAME', default: 'root' },
     { usage: '--password PASSWORD' },
   ],
-  run: (args) => {
+  run: (args, nextFn) => {
     const instance = {
       ip: args.ip,
       name: args.name,
@@ -84,6 +86,7 @@ commands.add = {
 
     utils.saveInstanceToCluster(args.cluster, instance, () => {
       log.success(`Instance "${args.name}" (${args.ip}) has been added to the "${args.cluster}" cluster.`);
+      nextFn();
     });
   }
 };
@@ -99,17 +102,19 @@ commands.list = {
     '$ overcast instance list',
     '$ overcast instance list app-cluster db-cluster'
   ],
-  run: (args) => {
+  run: (args, nextFn) => {
     const clusters = utils.getClusters();
     const scope = (args._ && args._.length > 0) ? args._ : Object.keys(clusters);
 
     utils.eachObject(clusters, ({instances}, clusterName) => {
       if (scope.findIndex(s => s === clusterName) !== -1) {
         utils.eachObject(instances, ({name}) => {
-          console.log(name);
+          log.log(name);
         });
       }
     });
+
+    nextFn();
   }
 };
 
@@ -124,7 +129,7 @@ commands.remove = {
     '$ overcast instance remove app-01'
   ],
   required: [{ name: 'name', filters: filters.findFirstMatchingInstance }],
-  run: ({instance}) => {
+  run: ({ instance }, nextFn) => {
     utils.deleteInstance(instance);
     log.success(`Instance "${instance.name}" removed.`);
   }
@@ -156,7 +161,7 @@ commands.update = {
     { usage: '--user USERNAME' },
     { usage: '--password PASSWORD' }
   ],
-  run: (args) => {
+  run: (args, nextFn) => {
     const clusters = utils.getClusters();
 
     if (!args.name) {
@@ -173,6 +178,7 @@ commands.update = {
 
     utils.saveClusters(clusters, () => {
       messages.forEach(log.success);
+      nextFn();
     });
   }
 };
@@ -182,12 +188,10 @@ export function updateInstance(args, messages, clusters, instance) {
 
   if (args.cluster) {
     if (!clusters[args.cluster]) {
-      utils.die(`No "${args.cluster}" cluster found. Known clusters are: ${Object.keys(clusters).join(', ')}.`);
-      return false;
+      return utils.die(`No "${args.cluster}" cluster found. Known clusters are: ${Object.keys(clusters).join(', ')}.`);
     }
     if (clusters[args.cluster].instances[instance.name]) {
-      utils.die(`An instance named "${instance.name}" already exists in the "${args.cluster}" cluster.`);
-      return false;
+      return utils.die(`An instance named "${instance.name}" already exists in the "${args.cluster}" cluster.`);
     }
 
     delete clusters[parentClusterName].instances[instance.name];
@@ -198,8 +202,7 @@ export function updateInstance(args, messages, clusters, instance) {
 
   if (args.oldName) {
     if (clusters[parentClusterName].instances[args.name]) {
-      utils.die(`An instance named "${args.name}" already exists in the "${parentClusterName}" cluster.`);
-      return false;
+      return utils.die(`An instance named "${args.name}" already exists in the "${parentClusterName}" cluster.`);
     }
 
     instance.name = args.name;

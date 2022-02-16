@@ -1,5 +1,8 @@
 import chalk from 'chalk';
+
+import * as constants from '../constants.js';
 import * as utils from '../utils.js';
+import { getConfigDir } from '../store.js';
 import allCommands from './index.js';
 
 export const commands = {};
@@ -10,7 +13,7 @@ commands.help = {
   description: [
     'Provides help about Overcast and specific commands.'
   ],
-  run: (args) => {
+  run: (arg, nextFn) => {
     const signatures = [];
     let row = ' ';
     utils.eachObject(allCommands, (command, name) => {
@@ -25,7 +28,7 @@ commands.help = {
     signatures.push(row);
 
     utils.printArray([
-      (`This is Overcast v${utils.VERSION}.`),
+      (`This is Overcast v${constants.VERSION}.`),
       '',
       'Source code, issues, pull requests:',
       chalk.cyan('  https://github.com/andrewchilds/overcast'),
@@ -43,7 +46,9 @@ commands.help = {
     utils.printArray([
       '',
       'Config directory:',
-      chalk.cyan(`  ${utils.getConfigDirs().CONFIG_DIR}`)
+      chalk.cyan(`  ${getConfigDir()}`)
     ]);
+
+    nextFn();
   }
 };

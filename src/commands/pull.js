@@ -30,13 +30,13 @@ commands.pull = {
     { usage: '--user USERNAME' },
     { usage: '--password PASSWORD' }
   ],
-  run: (args) => {
+  run: (args, nextFn) => {
     args.direction = 'pull';
 
     if (utils.argIsTruthy(args.rsync)) {
-      rsync.run(args);
+      rsync.run(args, nextFn);
     } else {
-      scp.run(args);
+      scp.run(args, nextFn);
     }
   }
 };

@@ -11,8 +11,8 @@ describe('sshkey', () => {
 
   describe('without a name set', () => {
     it('should complain and fail', (done) => {
-      overcast('sshkey create', ({ stdout }) => {
-        expect(stdout).toContain('Missing [name] argument.');
+      overcast('sshkey create', (logs) => {
+        expect(logs).toContain('Missing [name] argument.');
         done();
       });
     });
@@ -20,8 +20,8 @@ describe('sshkey', () => {
 
   describe('with an existing name provided', () => {
     it('should complain and fail', (done) => {
-      overcast('sshkey create overcast', ({ stdout }) => {
-        expect(stdout).toContain('The key "overcast" already exists.');
+      overcast('sshkey create overcast', (logs) => {
+        expect(logs).toContain('The key "overcast" already exists.');
         done();
       });
     });
@@ -29,8 +29,8 @@ describe('sshkey', () => {
 
   describe('with a correct new name set', () => {
     it('should create the new key', (done) => {
-      overcast('sshkey create myNewKey', ({ stdout }) => {
-        expect(stdout).toContain('Created new SSH key at');
+      overcast('sshkey create myNewKey', (logs) => {
+        expect(logs).toContain('Created new SSH key at');
         done();
       });
     });

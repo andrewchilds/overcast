@@ -1,4 +1,4 @@
-import { overcast, tearDown } from './utils.js';
+import { overcast, tearDown, expectInLog, expectNotInLog } from './utils.js';
 
 describe('aliases', () => {
   beforeAll((done) => {
@@ -11,8 +11,8 @@ describe('aliases', () => {
 
   describe('when there are no instances', () => {
     it('should print nothing', (done) => {
-      overcast('aliases', ({ stdout }) => {
-        expect(stdout).not.toContain('ssh');
+      overcast('aliases', (logs) => {
+        expectNotInLog(expect, logs, 'ssh');
         done();
       });
     });
@@ -21,8 +21,9 @@ describe('aliases', () => {
   describe('when there are instances', () => {
     it('should print the ssh bash aliases for each', (done) => {
       overcast('instance add instance.01 127.0.0.1', () => {
-        overcast('aliases', ({ stdout }) => {
-          expect(stdout).toContain('alias ssh.instance.01="ssh -i');
+        overcast('aliases', (logs) => {
+          const str = 'alias ssh.instance.01="ssh -i';
+          expectInLog(expect, logs, str);
           done();
         });
       });

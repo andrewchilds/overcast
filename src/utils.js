@@ -7,18 +7,18 @@ import url from 'url';
 
 import * as listCommand from './commands/list.js';
 import * as log from './log.js';
+import { SSH_COLORS } from './constants.js';
+import { getClustersJSON, getConfigDir, getSSHCount, getVariablesJSON, increaseSSHCount } from './store.js';
 
-export const VERSION = '2.0.0-alpha';
-export const SSH_COLORS = ['cyan', 'green', 'red', 'yellow', 'magenta', 'blue'];
+export function getNextColor() {
+  const count = getSSHCount();
+  increaseSSHCount();
 
-export let CONFIG_DIR = '/path/to/.overcast';
-export let CLUSTERS_JSON = '.overcast/clusters.json';
-export let VARIABLES_JSON = '.overcast/variables.json';
-
-export let SSH_COUNT = 0;
+  return SSH_COLORS[count % SSH_COLORS.length];
+}
 
 export function isTestRun() {
-  return process.env.TEST_RUN === 'true';
+  return getArgString().includes('--is-test-run');
 }
 
 export function now() {
@@ -84,6 +84,18 @@ export function times(maxIndex, cb) {
   return results;
 }
 
+export function allInParallelThen(parallelFns, nextFn) {
+  const results = 0;
+  parallelFns.forEach((fn) => {
+    fn(() => {
+      results += 1;
+      if (results >= parallelFns.length) {
+        nextFn();
+      }
+    });
+  });
+}
+
 export function runSubcommand(args, subcommands, helpFn) {
   if (args.subcommand && subcommands[args.subcommand]) {
     var command = subcommands[args.subcommand];
@@ -98,55 +110,41 @@ export function runSubcommand(args, subcommands, helpFn) {
   return missingCommand(helpFn);
 }
 
-export function findConfig(done) {
+export function findConfig(nextFn) {
   walkDir(process.cwd(), (dir) => {
-    setConfigDir(dir);
-    done();
+    store.setConfigDirs(dir);
+    nextFn();
   });
 }
 
-export function walkDir(dir, callback) {
+export function walkDir(dir, nextFn) {
   if (!dir || dir === '/') {
     // No config directory found!
     // Falling back to config directory in $HOME.
     return initOvercastDir(getUserHome(), () => {
-      callback(getUserHome() + '/.overcast');
+      nextFn(getUserHome() + '/.overcast');
     });
   }
 
   if (fs.existsSync(dir + '/.overcast')) {
-    callback(dir + '/.overcast');
+    nextFn(dir + '/.overcast');
   } else {
     dir = dir.split('/');
     dir.pop();
-    walkDir(dir.join('/'), callback);
+    walkDir(dir.join('/'), nextFn);
   }
 }
 
-export function setConfigDir(dir) {
-  CONFIG_DIR = dir;
-  CLUSTERS_JSON = dir + '/clusters.json';
-  VARIABLES_JSON = dir + '/variables.json';
-}
-
-export function getConfigDirs() {
-  return {
-    CONFIG_DIR,
-    CLUSTERS_JSON,
-    VARIABLES_JSON
-  };
-}
-
 export function getKeyFileFromName(keyName) {
-  return CONFIG_DIR + '/keys/' + keyName + '.key';
+  return getConfigDir() + '/keys/' + keyName + '.key';
 }
 
-export function createKeyIfMissing(callback = () => {}, keyName = 'overcast') {
+export function createKeyIfMissing(nextFn = () => {}, keyName = 'overcast') {
   if (keyExists(keyName)) {
-    callback();
+    nextFn();
   } else {
     log.info('Overcast SSH key not found, creating one...')
-    createKey(keyName, callback);
+    createKey(keyName, nextFn);
   }
 }
 
@@ -154,9 +152,9 @@ export function keyExists(keyName) {
   return fs.existsSync(getKeyFileFromName(keyName));
 }
 
-export function createKey(keyName, callback) {
+export function createKey(keyName, nextFn) {
   var keyFile = getKeyFileFromName(keyName);
-  var keysDir = CONFIG_DIR + '/keys';
+  var keysDir = getConfigDir() + '/keys';
 
   if (!fs.existsSync(keysDir)) {
     fs.mkdirSync(keysDir);
@@ -169,7 +167,7 @@ export function createKey(keyName, callback) {
         die(err);
       } else {
         log.success(`Created new SSH key at ${keyFile}.`);
-        callback();
+        nextFn();
       }
     });
   } else {
@@ -180,13 +178,13 @@ export function createKey(keyName, callback) {
         die(err);
       } else {
         log.success(`Created new SSH key at ${keyFile}.`);
-        callback();
+        nextFn();
       }
     });
   }
 }
 
-export function deleteKey(keyName, callback) {
+export function deleteKey(keyName, nextFn) {
   var keyFile = getKeyFileFromName(keyName);
   var pubKeyFile = keyFile + '.pub';
 
@@ -200,20 +198,18 @@ export function deleteKey(keyName, callback) {
     handleError(e, keyFile);
     fs.unlink(pubKeyFile, e => {
       handleError(e, pubKeyFile);
-      if (isFunction(callback)) {
-        callback();
+      if (isFunction(nextFn)) {
+        nextFn();
       }
     });
   });
 }
 
-export function deleteFromKnownHosts(instance, callback) {
+export function deleteFromKnownHosts(instance, nextFn = () => {}) {
   var ssh = spawn('ssh-keygen -R ' + instance.ip);
   ssh.on('exit', code => {
     log.faded(instance.ip + ' removed from ' + getUserHome() + '/.ssh/known_hosts.');
-    if (isFunction(callback)) {
-      callback(instance);
-    }
+    nextFn(instance);
   });
 }
 
@@ -221,7 +217,7 @@ export function normalizeKeyPath(keyPath, keyName) {
   keyName = keyName || 'overcast.key';
 
   if (!keyPath) {
-    return path.resolve(CONFIG_DIR, 'keys', keyName);
+    return path.resolve(getConfigDir(), 'keys', keyName);
   }
 
   if (isAbsolute(keyPath)) {
@@ -231,7 +227,7 @@ export function normalizeKeyPath(keyPath, keyName) {
   } else if (keyPath.indexOf('$HOME') === 0) {
     return keyPath.replace('$HOME', getUserHome());
   } else {
-    return path.resolve(CONFIG_DIR, 'keys', keyPath);
+    return path.resolve(getConfigDir(), 'keys', keyPath);
   }
 }
 
@@ -258,7 +254,7 @@ export function convertToAbsoluteFilePath(p) {
     if (fs.existsSync(cwdFile)) {
       p = cwdFile;
     } else {
-      p = path.resolve(CONFIG_DIR, 'files', p);
+      p = path.resolve(getConfigDir(), 'files', p);
     }
   }
   return normalizeWindowsPath(p);
@@ -282,7 +278,7 @@ export function getFileDirname() {
   return url.fileURLToPath(new URL('.', import.meta.url));
 }
 
-export function initOvercastDir(destDir, callback) {
+export function initOvercastDir(destDir, nextFn) {
   destDir += '/.overcast';
   const initFile = escapeWindowsPath(getFileDirname() + '/../bin/overcast-init');
   const fixtureDir = escapeWindowsPath(getFileDirname() + '/../fixtures');
@@ -298,7 +294,7 @@ export function initOvercastDir(destDir, callback) {
     }
 
     log.success(`Created an .overcast directory at ${destDir}`);
-    callback();
+    nextFn();
   });
 }
 
@@ -377,14 +373,14 @@ export function findClusterNameForInstance(instance) {
   return foundName;
 }
 
-export function saveInstanceToCluster(clusterName, instance, callback) {
+export function saveInstanceToCluster(clusterName, instance, nextFn) {
   var clusters = getClusters();
   clusters[clusterName] = clusters[clusterName] || { instances: {} };
   clusters[clusterName].instances[instance.name] = instance;
-  saveClusters(clusters, callback);
+  saveClusters(clusters, nextFn);
 }
 
-export function deleteInstance(instance, callback) {
+export function deleteInstance(instance, nextFn) {
   var clusters = getClusters();
 
   eachObject(clusters, (cluster) => {
@@ -394,11 +390,12 @@ export function deleteInstance(instance, callback) {
     }
   });
 
-  saveClusters(clusters);
-  deleteFromKnownHosts(instance, callback);
+  saveClusters(clusters, () => {
+    deleteFromKnownHosts(instance, nextFn);
+  });
 }
 
-export function updateInstance(name, updates, callback) {
+export function updateInstance(name, updates, nextFn) {
   var clusters = getClusters();
   eachObject(clusters, (cluster) => {
     eachObject(cluster.instances, (instance) => {
@@ -408,55 +405,55 @@ export function updateInstance(name, updates, callback) {
     });
   });
 
-  saveClusters(clusters, callback);
+  saveClusters(clusters, nextFn);
 }
 
 export function getVariables() {
-  if (fs.existsSync(VARIABLES_JSON)) {
+  const file = getVariablesJSON();
+  if (fs.existsSync(file)) {
     try {
-      const data = JSON.parse(fs.readFileSync(VARIABLES_JSON, { encoding: 'utf8' }));
+      const data = JSON.parse(fs.readFileSync(file, { encoding: 'utf8' }));
       return data;
     } catch (e) {
-      die('Unable to parse the variables.json file. Please correct the parsing error.');
+      die(`Unable to parse the variables file (${file}). Please correct the parsing error.`);
     }
   } else {
-    die('Unable to find the variables.json file.');
+    die(`Unable to find the variables file (${file}).`);
   }
 }
 
-export function saveVariables(variables, done) {
-  fs.writeFile(VARIABLES_JSON, JSON.stringify(variables, null, 2), (err) => {
+export function saveVariables(variables, nextFn = () => {}) {
+  const file = getVariablesJSON();
+  fs.writeFile(file, JSON.stringify(variables, null, 2), (err) => {
     if (err) {
-      die('Error saving variables.json.');
+      die(`Error saving to the variables file (${file}).`);
     } else {
-      if (isFunction(done)) {
-        done();
-      }
+      nextFn();
     }
   });
 }
 
 export function getClusters() {
-  if (fs.existsSync(CLUSTERS_JSON)) {
+  const file = getClustersJSON();
+  if (fs.existsSync(file)) {
     try {
-      const data = JSON.parse(fs.readFileSync(CLUSTERS_JSON, { encoding: 'utf8' }));
+      const data = JSON.parse(fs.readFileSync(file, { encoding: 'utf8' }));
       return data;
     } catch (e) {
-      die('Unable to parse the clusters.json file. Please correct the parsing error.');
+      die(`Unable to parse the clusters file (${file}). Please correct the parsing error.`);
     }
   } else {
-    die('Unable to find the clusters.json file.');
+    die(`Unable to find the clusters file (${file}).`);
   }
 }
 
-export function saveClusters(clusters, done) {
-  fs.writeFile(CLUSTERS_JSON, JSON.stringify(clusters, null, 2), (err) => {
+export function saveClusters(clusters, nextFn = () => {}) {
+  const file = getClustersJSON();
+  fs.writeFile(file, JSON.stringify(clusters, null, 2), (err) => {
     if (err) {
-      die('Error saving clusters.json.');
+      die(`Error saving to the clusters file (${file}).`);
     } else {
-      if (isFunction(done)) {
-        done();
-      }
+      nextFn();
     }
   });
 }
@@ -551,7 +548,7 @@ export function padLeft(str, length, padChar) {
 
 export function printArray(arr, color = null) {
   let str = '  ' + arr.join('\n  ');
-  console.log(color ? chalk[color](str) : str);
+  log.log(color ? chalk[color](str) : str);
 }
 
 export function forceArray(strOrArray) {
@@ -577,14 +574,22 @@ export function findUsingMultipleKeys(collection, val, keys) {
 
 export function die(str) {
   log.failure(str);
-  process.exit(1);
+  if (isTestRun()) {
+    return false;
+  } else {
+    process.exit(1);
+  }
 }
 
 export function dieWithList(str) {
   log.failure(str);
   log.br();
   listCommand.commands.list.run();
-  process.exit(1);
+  if (isTestRun()) {
+    return false;
+  } else {
+    process.exit(1);
+  }
 }
 
 export function handleInstanceOrClusterNotFound(instances, args) {
@@ -592,7 +597,11 @@ export function handleInstanceOrClusterNotFound(instances, args) {
     log.failure('No instance or cluster found matching "' + args.name + '".');
     log.br();
     listCommand.commands.list.run();
-    process.exit(1);
+    if (isTestRun()) {
+      return false;
+    } else {
+      process.exit(1);
+    }
   }
 }
 
@@ -601,7 +610,11 @@ export function handleInstanceNotFound(instance, args) {
     log.failure('No instance found matching "' + args.name + '".');
     log.br();
     listCommand.commands.list.run();
-    process.exit(1);
+    if (isTestRun()) {
+      return false;
+    } else {
+      process.exit(1);
+    }
   }
 }
 
@@ -609,14 +622,22 @@ export function missingParameter(name, helpFn) {
   log.failure('Missing ' + name + ' parameter.');
   log.br();
   helpFn();
-  process.exit(1);
+  if (isTestRun()) {
+    return false;
+  } else {
+    process.exit(1);
+  }
 }
 
 export function missingCommand(helpFn) {
   log.failure('Missing or unknown command.');
   log.br();
   helpFn();
-  process.exit(1);
+  if (isTestRun()) {
+    return false;
+  } else {
+    process.exit(1);
+  }
 }
 
 export function prefixPrint(prefix, prefixColor, buffer, textColor) {
@@ -662,7 +683,7 @@ export function clearLine() {
 
 export let progressComplete = clearLine;
 
-export function progressBar(testFn, callback) {
+export function progressBar(testFn, nextFn = () => {}) {
   const intervalSpeed = 60;
   var startTime = now();
   var interval = setInterval(() => {
@@ -672,23 +693,21 @@ export function progressBar(testFn, callback) {
     } else {
       clearInterval(interval);
       progressComplete();
-      if (isFunction(callback)) {
-        callback();
-      }
+      nextFn();
     }
   }, intervalSpeed);
 
   return interval;
 }
 
-export function waitForProgress(seconds, callback) {
+export function waitForProgress(seconds, nextFn) {
   var startTime = now();
   progressBar(() => {
     return ((now() - startTime) / (seconds * 1000)) * 100;
-  }, callback);
+  }, nextFn);
 }
 
-export function waitForBoot(instance, callback, startTime) {
+export function waitForBoot(instance, nextFn, startTime) {
   if (!startTime) {
     startTime = now();
     log.faded('Waiting until we can connect to ' + instance.name + '...');
@@ -700,25 +719,21 @@ export function waitForBoot(instance, callback, startTime) {
     if (canConnect) {
       var duration = (now() - startTime) / 1000;
       log.success('Connection established after ' + Math.ceil(duration) + ' seconds.');
-      if (isFunction(callback)) {
-        callback();
+      if (isFunction(nextFn)) {
+        nextFn();
       }
     } else {
       setTimeout(() => {
-        waitForBoot(instance, callback, startTime);
+        waitForBoot(instance, nextFn, startTime);
       }, delayBetweenPolls);
     }
   });
 }
 
-export function fixedWait(seconds, callback) {
+export function fixedWait(seconds, nextFn = () => {}) {
   seconds = seconds || 60;
   log.faded('Waiting ' + seconds + ' seconds...');
-  waitForProgress(seconds, () => {
-    if (isFunction(callback)) {
-      callback();
-    }
-  });
+  waitForProgress(seconds, nextFn);
 }
 
 export function printCollection(type, collection) {
@@ -729,7 +744,7 @@ export function printCollection(type, collection) {
   collection.forEach((obj) => {
     var name = obj.name || obj.Name || obj._name || obj.slug;
     log.br();
-    console.log(name);
+    log.log(name);
     prettyPrint(obj, 2);
   });
 }
@@ -747,7 +762,7 @@ export function prettyPrint(obj, indent, stepBy) {
     }
 
     if (isArray(val) || isObject(val)) {
-      console.log(prefix + key + ':');
+      log.log(prefix + key + ':');
       prettyPrint(val, indent + stepBy, stepBy);
     } else {
       var valStr = val;
@@ -756,7 +771,7 @@ export function prettyPrint(obj, indent, stepBy) {
       } else if (val === '') {
         valStr = '""';
       }
-      console.log(prefix + key + ': ' + valStr);
+      log.log(prefix + key + ': ' + valStr);
     }
   });
 }
@@ -781,26 +796,25 @@ export function printCommandHelp(commands) {
   });
 }
 
-export function testConnection(instance, callback) {
-  var key = normalizeKeyPath(escapeWindowsPath(instance.ssh_key));
-  var port = instance.ssh_port || 22;
-  var host = instance.user + '@' + instance.ip;
-  var command = 'ssh -i ' + key + ' -p ' + port + ' ' + host +
+export function testConnection(instance, nextFn = () => {}) {
+  const key = normalizeKeyPath(escapeWindowsPath(instance.ssh_key));
+  const port = instance.ssh_port || 22;
+  const host = instance.user + '@' + instance.ip;
+  const command = 'ssh -i ' + key + ' -p ' + port + ' ' + host +
     ' -o StrictHostKeyChecking=no "echo hi"';
 
-  var ssh = spawn(command);
-
-  var timeout = setTimeout(() => {
+  const ssh = spawn(command);
+  const timeout = setTimeout(() => {
     callbackOnce(false);
     ssh.kill();
   }, 8000);
 
-  var alreadyCalled = false;
-  var callbackOnce = (result) => {
+  let alreadyCalled = false;
+  const callbackOnce = (result) => {
     if (!alreadyCalled) {
       clearTimeout(timeout);
       alreadyCalled = true;
-      callback(result);
+      nextFn(result);
     }
   };
 
@@ -820,7 +834,7 @@ export function spawn(command, overrides) {
     command = command.join(' ');
   }
 
-  var options = { stdio: 'pipe' };
+  const options = { stdio: 'pipe' };
   options.env = isObject(overrides.env) ? Object.assign({}, process.env, overrides.env) : process.env;
 
   if (overrides.cwd) {

@@ -5,7 +5,7 @@ import * as utils from '../src/utils.js';
 import allCommands from '../src/commands/index.js';
 
 utils.findConfig(() => {
-  utils.setConfigDir('/path/to/.overcast');
+  store.setConfigDirs('/path/to/.overcast');
 
   utils.eachObject(allCommands, ({ commands }, name) => {
     utils.eachObject(commands, (subcommand) => {

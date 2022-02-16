@@ -11,7 +11,7 @@ const PRIVATE_CACHE = {
 
 // Provider interface
 
-export function create(args, callback) {
+export function create(args, nextFn) {
   args['ssh-pub-key'] = utils.normalizeKeyPath(args['ssh-pub-key'], 'overcast.key.pub');
 
   normalizeAndFindPropertiesForCreate(args, () => {
@@ -26,12 +26,12 @@ export function create(args, callback) {
         region: args['region-slug']
       };
 
-      createRequest(args, query, callback);
+      createRequest(args, query, nextFn);
     });
   });
 }
 
-export function createRequest(args, query, callback) {
+export function createRequest(args, query, nextFn) {
   getAPI().dropletsCreate(query, (err, res, body) => {
     if (err) {
       return utils.die(`Got an error from the DigitalOcean API: ${err}`);
@@ -49,8 +49,8 @@ export function createRequest(args, query, callback) {
             digitalocean: droplet
           };
 
-          if (utils.isFunction(callback)) {
-            callback(response);
+          if (utils.isFunction(nextFn)) {
+            nextFn(response);
           }
         });
       });
@@ -58,72 +58,72 @@ export function createRequest(args, query, callback) {
   });
 }
 
-export function destroy({digitalocean}, callback) {
+export function destroy({digitalocean}, nextFn) {
   getAPI().dropletsDelete(digitalocean.id, (err, res, body) => {
     if (err) {
       return utils.die(`Got an error from the DigitalOcean API: ${err}`);
     }
-    if (utils.isFunction(callback)) {
-      callback();
+    if (utils.isFunction(nextFn)) {
+      nextFn();
     }
   });
 }
 
-export function boot(instance, callback) {
-  dropletAction(instance, { type: 'power_on' }, callback);
+export function boot(instance, nextFn) {
+  dropletAction(instance, { type: 'power_on' }, nextFn);
 }
 
-export function shutdown(instance, callback) {
-  dropletAction(instance, { type: 'shutdown' }, callback);
+export function shutdown(instance, nextFn) {
+  dropletAction(instance, { type: 'shutdown' }, nextFn);
 }
 
-export function reboot(instance, callback) {
-  dropletAction(instance, { type: 'reboot' }, callback);
+export function reboot(instance, nextFn) {
+  dropletAction(instance, { type: 'reboot' }, nextFn);
 }
 
-export function rebuild(instance, image, callback) {
+export function rebuild(instance, image, nextFn) {
   ensureDropletIsShutDown(instance, () => {
-    dropletAction(instance, { type: 'rebuild', image }, callback);
+    dropletAction(instance, { type: 'rebuild', image }, nextFn);
   });
 }
 
-export function resize(instance, size, callback) {
+export function resize(instance, size, nextFn) {
   const isDiskIncrease = isDiskIncrease(instance.digitalocean.size.slug, size);
   if (!isDiskIncrease) {
-    utils.die(`You can only increase the size of the disk image (${instance.digitalocean.size.slug}).`);
+    return utils.die(`You can only increase the size of the disk image (${instance.digitalocean.size.slug}).`);
   }
 
   ensureDropletIsShutDown(instance, () => {
-    dropletAction(instance, { type: 'resize', disk: true, size }, callback);
+    dropletAction(instance, { type: 'resize', disk: true, size }, nextFn);
   });
 }
 
-export function snapshot(instance, snapshotName, callback) {
+export function snapshot(instance, snapshotName, nextFn) {
   ensureDropletIsShutDown(instance, () => {
-    dropletAction(instance, { type: 'snapshot', name: snapshotName }, callback);
+    dropletAction(instance, { type: 'snapshot', name: snapshotName }, nextFn);
   });
 }
 
-function _handlePaginatedResponse(err, body, callback) {
+function _handlePaginatedResponse(err, body, nextFn) {
   if (err) {
     return utils.die(`Got an error from the DigitalOcean API: ${err}`);
   }
-  callback(body);
+  nextFn(body);
 }
 
-export function getImages(callback) {
+export function getImages(nextFn) {
   getAPI().imagesGetAll({ includeAll: true, per_page: 50 }, (err, res, body) => {
-    _handlePaginatedResponse(err, body, callback);
+    _handlePaginatedResponse(err, body, nextFn);
   });
 }
 
-export function getInstances(args, callback) {
+export function getInstances(args, nextFn) {
   getAPI().dropletsGetAll({ includeAll: true, per_page: 50 }, (err, res, body) => {
-    _handlePaginatedResponse(err, body, callback);
+    _handlePaginatedResponse(err, body, nextFn);
   });
 }
 
-export function getInstance(instance, callback) {
+export function getInstance(instance, nextFn) {
   // create passes in an id, since instance doesn't exist yet.
   const id = utils.isObject(instance) && instance.digitalocean ?
     instance.digitalocean.id : instance;
@@ -133,57 +133,57 @@ export function getInstance(instance, callback) {
       return utils.die(`Got an error from the DigitalOcean API: ${err}`);
     }
     if (body && body.droplet) {
-      callback(body.droplet);
+      nextFn(body.droplet);
     }
   });
 }
 
-export function sync(instance, callback) {
-  updateInstanceMetadata(instance, callback);
+export function sync(instance, nextFn) {
+  updateInstanceMetadata(instance, nextFn);
 }
 
-export function updateInstanceMetadata(instance, callback) {
+export function updateInstanceMetadata(instance, nextFn) {
   getInstance(instance, droplet => {
     utils.updateInstance(instance.name, {
       ip: droplet.networks.v4[0].ip_address,
       digitalocean: droplet
     });
 
-    if (utils.isFunction(callback)) {
-      callback();
+    if (utils.isFunction(nextFn)) {
+      nextFn();
     }
   });
 }
 
 /*
-export function getKernels = (callback) => {};
+export function getKernels = (nextFn) => {};
 */
 
-export function getRegions(callback) {
+export function getRegions(nextFn) {
   getAPI().regionsGetAll({ includeAll: true, per_page: 50 }, (err, res, body) => {
-    _handlePaginatedResponse(err, body, callback);
+    _handlePaginatedResponse(err, body, nextFn);
   });
 }
 
-export function getSizes(callback) {
+export function getSizes(nextFn) {
   getAPI().sizesGetAll({ includeAll: true, per_page: 50 }, (err, res, body) => {
-    _handlePaginatedResponse(err, body, callback);
+    _handlePaginatedResponse(err, body, nextFn);
   });
 }
 
-export function getSnapshots(callback) {
+export function getSnapshots(nextFn) {
   getAPI().imagesGetAll({ includeAll: true, per_page: 50, private: true }, (err, res, body) => {
-    _handlePaginatedResponse(err, body, callback);
+    _handlePaginatedResponse(err, body, nextFn);
   });
 }
 
-export function getKeys(callback) {
+export function getKeys(nextFn) {
   getAPI().accountGetKeys({ includeAll: true, per_page: 50 }, (err, res, body) => {
-    _handlePaginatedResponse(err, body, callback);
+    _handlePaginatedResponse(err, body, nextFn);
   });
 }
 
-export function createKey(keyData, callback) {
+export function createKey(keyData, nextFn) {
   getAPI().accountAddKey({
     name: utils.createHashedKeyName(keyData),
     public_key: `${keyData}`
@@ -192,47 +192,47 @@ export function createKey(keyData, callback) {
       return utils.die(`Got an error from the DigitalOcean API: ${err}`);
     }
     if (body && body.ssh_key) {
-      callback(body.ssh_key);
+      nextFn(body.ssh_key);
     }
   });
 }
 
 // Internal functions
 
-export function ensureDropletIsShutDown(instance, callback) {
+export function ensureDropletIsShutDown(instance, nextFn) {
   getInstance(instance, ({status}) => {
     if (status === 'off') {
-      callback();
+      nextFn();
     } else {
       shutdown(instance, () => {
-        waitForShutdown(instance, callback);
+        waitForShutdown(instance, nextFn);
       });
     }
   });
 }
 
-export function waitForShutdown(instance, callback) {
+export function waitForShutdown(instance, nextFn) {
   getInstance(instance, ({status}) => {
     if (status === 'off') {
-      callback();
+      nextFn();
     } else {
       setTimeout(() => {
-        waitForShutdown(instance, callback);
+        waitForShutdown(instance, nextFn);
       }, 3000);
     }
   });
 }
 
-export function waitForActionToComplete(id, callback) {
+export function waitForActionToComplete(id, nextFn) {
   getAPI().accountGetAction(id, (err, res, body) => {
     if (err) {
       return utils.die(`Got an error from the DigitalOcean API: ${err}`);
     }
     if (body && body.action && body.action.status === 'completed') {
-      callback();
+      nextFn();
     } else {
       setTimeout(() => {
-        waitForActionToComplete(id, callback);
+        waitForActionToComplete(id, nextFn);
       }, 5000);
     }
   });
@@ -256,18 +256,18 @@ export function getAPI() {
   return PRIVATE_CACHE.API;
 }
 
-export function dropletAction(instance, data, callback) {
+export function dropletAction(instance, data, nextFn) {
   getAPI().dropletsRequestAction(instance.digitalocean.id, data, (err, res, {message, action}) => {
     if (err || message) {
       return utils.die(`Got an error from the DigitalOcean API: ${err || message}`);
     }
     waitForActionToComplete(action.id, () => {
-      updateInstanceMetadata(instance, callback);
+      updateInstanceMetadata(instance, nextFn);
     });
   });
 }
 
-export function normalizeAndFindPropertiesForCreate(args, callback) {
+export function normalizeAndFindPropertiesForCreate(args, nextFn) {
   args.image = args.image || args['image-id'] || args['image-slug'] || args['image-name'] || 'ubuntu-14-04-x64';
   args.size = args.size || args['size-slug'] || args['size-name'] || '512mb';
   args.region = args.region || args['region-slug'] || args['region-name'] || 'nyc3';
@@ -298,15 +298,15 @@ export function normalizeAndFindPropertiesForCreate(args, callback) {
         args['size-slug'] = matchingSize.slug;
         args['region-slug'] = matchingRegion.slug;
 
-        if (utils.isFunction(callback)) {
-          callback();
+        if (utils.isFunction(nextFn)) {
+          nextFn();
         }
       });
     });
   });
 }
 
-export function getOrCreateOvercastKeyID(pubKeyPath, callback) {
+export function getOrCreateOvercastKeyID(pubKeyPath, nextFn) {
   const keyData = `${fs.readFileSync(pubKeyPath, 'utf8')}`;
 
   getKeys((keys) => {
@@ -315,11 +315,11 @@ export function getOrCreateOvercastKeyID(pubKeyPath, callback) {
     });
     if (key) {
       log.faded(`Using SSH key: ${pubKeyPath}`);
-      callback(key.id);
+      nextFn(key.id);
     } else {
       log.faded(`Uploading new SSH key: ${pubKeyPath}`);
       createKey(keyData, (key) => {
-        callback(key.id);
+        nextFn(key.id);
       });
     }
   });

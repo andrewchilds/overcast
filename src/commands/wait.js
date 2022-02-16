@@ -13,9 +13,10 @@ commands.wait = {
     '$ overcast wait 30'
   ],
   required: ['seconds'],
-  run: ({ seconds }) => {
+  run: ({ seconds }, nextFn) => {
     utils.fixedWait(seconds, () => {
       log.success('Done!');
+      nextFn();
     });
   }
 };

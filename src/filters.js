@@ -47,17 +47,13 @@ export function shouldBeNewInstance(name, args) {
   }
 
   if (clusters[name]) {
-    utils.die(`"${name}" is already in use as a cluster name.`);
-    return false;
+    return utils.die(`"${name}" is already in use as a cluster name.`);
   } else if (name === 'all') {
-    utils.die('"all" is a special keyword that cannot be used for instance names.');
-    return false;
+    return utils.die('"all" is a special keyword that cannot be used for instance names.');
   } else if (name.includes('*')) {
-    utils.die('Instance names cannot include asterisk characters.');
-    return false;
+    return utils.die('Instance names cannot include asterisk characters.');
   } else if (utils.findMatchingInstancesByInstanceName(name).length > 0) {
-    utils.die(`Instance "${name}" already exists.`);
-    return false;
+    return utils.die(`Instance "${name}" already exists.`);
   }
 }
 
@@ -79,14 +75,12 @@ export function shouldBeDigitalOcean(name, {instance}) {
   if (!instance || !instance.digitalocean) {
     log.failure('This instance has no DigitalOcean metadata attached.');
     log.failure('Run this command and then try again:');
-    utils.die(`overcast digitalocean sync "${instance.name}"`);
-    return false;
+    return utils.die(`overcast digitalocean sync "${instance.name}"`);
   }
 }
 
 export function shouldBeVirtualbox(name, {instance}) {
   if (!instance || !instance.virtualbox) {
-    utils.die('This instance has no Virtualbox metadata attached.');
-    return false;
+    return utils.die('This instance has no Virtualbox metadata attached.');
   }
 }

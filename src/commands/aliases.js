@@ -1,4 +1,5 @@
 import * as utils from '../utils.js';
+import { log } from '../log.js';
 
 export const commands = {};
 
@@ -20,11 +21,12 @@ commands.aliases = {
     '  overcast aliases > $HOME/.overcast_aliases',
     '  source $HOME/.overcast_aliases'
   ],
-  run: () => {
+  run: (args, nextFn) => {
     utils.eachObject(utils.getClusters(), ({ instances }) => {
       utils.eachObject(instances, instance => {
-        console.log(`alias ssh.${instance.name}="ssh -i ${utils.normalizeKeyPath(instance.ssh_key)} -p ${instance.ssh_port} ${instance.user}@${instance.ip}"`);
+        log(`alias ssh.${instance.name}="ssh -i ${utils.normalizeKeyPath(instance.ssh_key)} -p ${instance.ssh_port} ${instance.user}@${instance.ip}"`);
       });
     });
+    nextFn();
   }
 };

@@ -1,3 +1,4 @@
+import * as log from '../log.js';
 import * as utils from '../utils.js';
 import allCommands from './index.js';
 
@@ -19,8 +20,9 @@ commands.completions = {
     '}',
     'complete -F _overcast_completions overcast'
   ],
-  run: (args) => {
-    console.log(getCompletions().join(' '));
+  run: (args, nextFn) => {
+    log.log(getCompletions().join(' '));
+    nextFn();
   }
 };
 

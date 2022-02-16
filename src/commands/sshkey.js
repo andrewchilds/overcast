@@ -3,6 +3,7 @@ import * as utils from '../utils.js';
 import * as filters from '../filters.js';
 import * as ssh from '../ssh.js';
 import * as log from '../log.js';
+import { getConfigDir } from '../store.js';
 
 export const commands = {};
 
@@ -17,8 +18,8 @@ commands.create = {
     ' - /path/to/.overcast/keys/myKeyName.key.pub'
   ],
   required: [{ name: 'name', filters: filters.shouldBeNewKey }],
-  run: ({ name }) => {
-    utils.createKey(name);
+  run: ({ name }, nextFn) => {
+    utils.createKey(name, nextFn);
   }
 };
 
@@ -31,9 +32,10 @@ commands.delete = {
     'SSH key "myKeyName" deleted.'
   ],
   required: [{ name: 'name', filters: filters.shouldBeExistingKey }],
-  run: ({ name }) => {
+  run: ({ name }, nextFn) => {
     utils.deleteKey(name, () => {
       log.success(`SSH key "${name}" deleted.`);
+      nextFn();
     });
   }
 };
@@ -58,19 +60,21 @@ commands.get = {
     '[private key data]'
   ],
   required: [{ name: 'name', filters: filters.shouldBeExistingKey }],
-  run: (args) => {
+  run: (args, nextFn) => {
     const keyFile = utils.getKeyFileFromName(args.name);
     const publicKeyFile = `${keyFile}.pub`;
 
     if (args['private-data']) {
       printFile(keyFile);
     } else if (args['private-path']) {
-      console.log(keyFile);
+      log.log(keyFile);
     } else if (args['public-path']) {
-      console.log(publicKeyFile);
+      log.log(publicKeyFile);
     } else {
       printFile(publicKeyFile);
     }
+
+    nextFn();
   }
 };
 
@@ -83,8 +87,8 @@ commands.list = {
     'myKeyName',
     'overcast'
   ],
-  run: (args) => {
-    listKeys();
+  run: (args, nextFn) => {
+    listKeys(nextFn);
   }
 };
 
@@ -122,7 +126,7 @@ commands.push = {
     { usage: '--user USERNAME' },
     { usage: '--append, -a', default: 'false' }
   ],
-  run: (args) => {
+  run: (args, nextFn) => {
     const keyPath = getKeyPath(args.path);
     args.env = {
       PUBLIC_KEY: fs.readFileSync(keyPath, { encoding: 'utf8' }),
@@ -136,6 +140,8 @@ commands.push = {
       log.cyan('If this is the default user you use to SSH in,');
       log.cyan('you need to update the instance configuration. For example:');
       log.cyan(`overcast instance update ${args.name} --ssh-key myPrivateKey.key`);
+
+      nextFn();
     });
   }
 };
@@ -148,8 +154,7 @@ export function getKeyPath(path) {
     } else if (fs.existsSync(`${keyPath}.pub`)) {
       keyPath += '.pub';
     } else {
-      utils.die(`Key "${keyPath}" not found.`);
-      return false;
+      return utils.die(`Key "${keyPath}" not found.`);
     }
   }
 
@@ -157,21 +162,17 @@ export function getKeyPath(path) {
 }
 
 function printFile(file) {
-  fs.readFile(file, (err, data) => {
-    if (err) {
-      return utils.die(err);
-    }
-    console.log(data.toString());
-  });
+  const data = fs.readFileSync(file, { encoding: 'utf8' });
+  log.log(data.toString());
 }
 
-function listKeys() {
-  fs.readdir(`${utils.getConfigDirs().CONFIG_DIR}/keys/`, (err, data) => {
+function listKeys(nextFn) {
+  fs.readdir(`${getConfigDir()}/keys/`, (err, data) => {
     data = data.map((name) => {
       return name.replace('.pub', '').replace('.key', '');
     });
-    data.map((name) => {
-      console.log(name);
-    });
+    data.map(log.log);
+
+    nextFn();
   });
 }

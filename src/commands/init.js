@@ -1,6 +1,7 @@
 import fs from 'fs';
 import * as utils from '../utils.js';
 import * as log from '../log.js';
+import * as store from '../store.js';
 
 export const commands = {};
 
@@ -11,7 +12,7 @@ commands.init = {
     'Create an .overcast config directory in the current working directory.',
     'No action taken if one already exists.'
   ],
-  run: (args) => {
+  run: (args, nextFn) => {
     const cwd = process.cwd();
 
     if (fs.existsSync(`${cwd}/.overcast`)) {
@@ -19,8 +20,8 @@ commands.init = {
     } else {
       utils.initOvercastDir(cwd, () => {
         // Override, in case we already have an existing dir elsewhere:
-        utils.setConfigDir(cwd + '/.overcast');
-        utils.createKeyIfMissing();
+        store.setConfigDirs(cwd + '/.overcast');
+        utils.createKeyIfMissing(nextFn);
       });
     }
   }

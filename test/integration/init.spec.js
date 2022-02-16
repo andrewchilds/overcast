@@ -6,15 +6,15 @@ describe('init', () => {
   });
 
   it('should allow me to init in the cwd', (done) => {
-    overcast('init', ({ stdout }) => {
-      expect(stdout).toContain('Created an .overcast directory');
+    overcast('init', (logs) => {
+      expect(logs).toContain('Created an .overcast directory');
       done();
     });
   });
 
   it('should tell me if a config directory already exists', (done) => {
-    overcast('init', ({ stdout }) => {
-      expect(stdout).toContain('An .overcast directory already exists');
+    overcast('init', (logs) => {
+      expect(logs).toContain('An .overcast directory already exists');
       done();
     });
   });

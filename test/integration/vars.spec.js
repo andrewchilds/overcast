@@ -11,8 +11,8 @@ describe('vars', () => {
 
   describe('set', () => {
     it('should set vars', (done) => {
-      overcast('vars set TEST_NAME test_value', ({ stdout }) => {
-        expect(stdout).toContain('Variable "TEST_NAME" saved');
+      overcast('vars set TEST_NAME test_value', (logs) => {
+        expect(logs).toContain('Variable "TEST_NAME" saved');
         done();
       });
     });
@@ -20,15 +20,15 @@ describe('vars', () => {
 
   describe('get', () => {
     it('should get vars', (done) => {
-      overcast('vars get TEST_NAME', ({ stdout }) => {
-        expect(stdout).toContain('test_value');
+      overcast('vars get TEST_NAME', (logs) => {
+        expect(logs).toContain('test_value');
         done();
       });
     });
 
     it('should handle missing vars', (done) => {
-      overcast('vars get BOGUS', ({ stdout }) => {
-        expect(stdout).toContain('Variable "BOGUS" not found');
+      overcast('vars get BOGUS', (logs) => {
+        expect(logs).toContain('Variable "BOGUS" not found');
         done();
       });
     });
@@ -37,16 +37,16 @@ describe('vars', () => {
   describe('delete', () => {
     it('should delete vars', (done) => {
       overcast('vars delete TEST_NAME', () => {
-        overcast('vars get TEST_NAME', ({ stdout }) => {
-          expect(stdout).toContain('Variable "TEST_NAME" not found');
+        overcast('vars get TEST_NAME', (logs) => {
+          expect(logs).toContain('Variable "TEST_NAME" not found');
           done();
         });
       });
     });
 
     it('should handle missing vars', (done) => {
-      overcast('vars delete TEST_NAME', ({ stdout }) => {
-        expect(stdout).toContain('Variable "TEST_NAME" not found');
+      overcast('vars delete TEST_NAME', (logs) => {
+        expect(logs).toContain('Variable "TEST_NAME" not found');
         done();
       });
     });

@@ -4,8 +4,9 @@ import cp from 'child_process';
 import _ from 'lodash';
 import * as utils from './utils.js';
 import * as log from './log.js';
+import { decreaseSSHCount } from './store.js';
 
-export function run(args, callback) {
+export function run(args, nextFn) {
   // Handle cases where minimist mistakenly parses ssh-args (e.g. "-tt" becomes { t: true }).
   if (args['ssh-args'] === true) {
     var rawArgs = process.argv.slice(2);
@@ -19,31 +20,34 @@ export function run(args, callback) {
   utils.handleInstanceOrClusterNotFound(instances, args);
 
   if (args.parallel || args.p) {
-    instances.forEach((instance) => {
-      runOnInstance(instance, _.cloneDeep(args));
-    });
-    if (utils.isFunction(callback)) {
-      callback();
-    }
+    runOnInstancesInParallel(instances, args, nextFn);
   } else {
-    runOnInstances(instances, args, callback);
+    runOnInstances(instances, args, nextFn);
   }
 }
 
-function runOnInstances(stack, args, callback) {
-  var instance = stack.shift();
+function runOnInstancesInParallel(instances, args, nextFn) {
+  const fns = instances.map((instance) => {
+    return (nextFn) => {
+      runOnInstance(instance, _.cloneDeep(args), nextFn);
+    };
+  });
+
+  utils.allInParallelThen(fns, nextFn);
+}
+
+function runOnInstances(instances, args, nextFn = () => {}) {
+  var instance = instances.shift();
   runOnInstance(instance, _.cloneDeep(args), () => {
-    if (stack.length > 0) {
-      runOnInstances(stack, args, callback);
+    if (instances.length > 0) {
+      runOnInstances(instances, args, nextFn);
     } else {
-      if (utils.isFunction(callback)) {
-        callback();
-      }
+      nextFn();
     }
   });
 }
 
-function runOnInstance(instance, args, next) {
+function runOnInstance(instance, args, nextFn) {
   var command = args._.shift();
   sshExec({
     ip: instance.ip,
@@ -60,19 +64,19 @@ function runOnInstance(instance, args, next) {
     shell_command: args['shell-command']
   }, () => {
     if (args._.length > 0) {
-      runOnInstance(instance, args, next);
-    } else if (utils.isFunction(next)) {
-      next();
+      runOnInstance(instance, args, nextFn);
+    } else if (utils.isFunction(nextFn)) {
+      nextFn();
     }
   });
 }
 
-function sshExec(options, next) {
+function sshExec(options, nextFn) {
   if (!options.ip) {
     return utils.die('IP missing.');
   }
 
-  var color = utils.SSH_COLORS[utils.SSH_COUNT++ % 5];
+  var color = utils.getNextColor();
 
   options.ssh_key = utils.normalizeKeyPath(options.ssh_key);
   options.ssh_port = options.ssh_port || '22';
@@ -161,8 +165,9 @@ function sshExec(options, next) {
         utils.prefixPrint(options.name, color, 'Retrying (' +
           options.retries + ' of ' + options.maxRetries + ' attempts)...', 'red');
         log.br();
-        utils.SSH_COUNT--;
-        sshExec(options, next);
+        // Do this to keep the same color for this session.
+        decreaseSSHCount();
+        sshExec(options, nextFn);
         return false;
       } else {
         // TODO: implement events
@@ -178,8 +183,8 @@ function sshExec(options, next) {
     if (!options.machineReadable) {
       log.br();
     }
-    if (utils.isFunction(next)) {
-      next();
+    if (utils.isFunction(nextFn)) {
+      nextFn();
     }
   });
 }

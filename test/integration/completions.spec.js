@@ -10,19 +10,19 @@ describe('completions', () => {
   });
 
   it('should print a list of keywords', (done) => {
-    overcast('completions', ({ stdout }) => {
-      expect(stdout).toContain('overcast');
-      expect(stdout).toContain('cluster');
-      expect(stdout).toContain('instance');
+    overcast('completions', (logs) => {
+      expect(logs).toContain('overcast');
+      expect(logs).toContain('cluster');
+      expect(logs).toContain('instance');
       done();
     });
   });
 
   it('should also print a list of clusters and instances', (done) => {
     overcast('instance add myInstanceName 1.2.3.4 --cluster helloCluster', () => {
-      overcast('completions', ({ stdout }) => {
-        expect(stdout).toContain('myInstanceName');
-        expect(stdout).toContain('helloCluster');
+      overcast('completions', (logs) => {
+        expect(logs).toContain('myInstanceName');
+        expect(logs).toContain('helloCluster');
         done();
       });
     });

@@ -17,8 +17,9 @@ commands.count = {
     '> 1'
   ],
   required: [{ name: 'name', filters: filters.findMatchingCluster }],
-  run: ({ cluster }) => {
-    console.log(Object.keys(cluster.instances).length);
+  run: ({ cluster }, nextFn) => {
+    log.log(Object.keys(cluster.instances).length);
+    nextFn();
   }
 };
 
@@ -28,7 +29,7 @@ commands.add = {
   description: 'Adds a new cluster.',
   examples: '$ overcast cluster add db',
   required: [{ name: 'name', filters: filters.shouldBeNewCluster }],
-  run: ({ name }) => {
+  run: ({ name }, nextFn) => {
     const clusters = utils.getClusters();
     // We shouldn't have to guard against an existing cluster here,
     // because of the shouldBeNewCluster filter above.
@@ -36,6 +37,7 @@ commands.add = {
 
     utils.saveClusters(clusters, () => {
       log.success(`Cluster "${name}" has been added.`);
+      nextFn();
     });
   }
 };
@@ -49,7 +51,7 @@ commands.rename = {
     { name: 'name', filters: filters.findMatchingCluster },
     { name: 'new-name', varName: 'newName', filters: filters.shouldBeNewCluster }
   ],
-  run: ({ newName, name }) => {
+  run: ({ newName, name }, nextFn) => {
     const clusters = utils.getClusters();
 
     clusters[newName] = clusters[name];
@@ -57,6 +59,7 @@ commands.rename = {
 
     utils.saveClusters(clusters, () => {
       log.success(`Cluster "${name}" has been renamed to "${newName}".`);
+      nextFn();
     });
   }
 };
@@ -72,7 +75,7 @@ commands.remove = {
   required: [
     { name: 'name', filters: filters.findMatchingCluster }
   ],
-  run: ({ name }) => {
+  run: ({ name }, nextFn) => {
     const clusters = utils.getClusters();
 
     let orphaned = 0;
@@ -93,6 +96,7 @@ commands.remove = {
           log.alert(`The ${orphaned} instance(s) from this cluster were moved to the "orphaned" cluster.`);
         }
       }
+      nextFn();
     });
   }
 };

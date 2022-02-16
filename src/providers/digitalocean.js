@@ -13,7 +13,7 @@ export const name = 'DigitalOcean';
 
 // Provider interface
 
-export function create(args, callback) {
+export function create(args, nextFn) {
   args['ssh-pub-key'] = utils.normalizeKeyPath(args['ssh-pub-key'], 'overcast.key.pub');
 
   normalizeAndFindPropertiesForCreate(args, () => {
@@ -28,16 +28,16 @@ export function create(args, callback) {
         region_id: args['region-id']
       };
 
-      createRequest(args, query, callback);
+      createRequest(args, query, nextFn);
     });
   });
 }
 
-export function createRequest(args, query, callback) {
+export function createRequest(args, query, nextFn = () => {}) {
   request({
     endpoint: 'droplets/new',
     query,
-    callback: function (result) {
+    nextFn: (result) => {
       if (result && result.droplet && result.droplet.event_id) {
         waitForEventToFinish(result.droplet.event_id, () => {
           getInstance(result.droplet.id, droplet => {
@@ -50,9 +50,7 @@ export function createRequest(args, query, callback) {
               digitalocean: droplet
             };
 
-            if (utils.isFunction(callback)) {
-              callback(response);
-            }
+            nextFn(response);
           });
         });
       }
@@ -60,46 +58,46 @@ export function createRequest(args, query, callback) {
   });
 }
 
-export function destroy({digitalocean}, callback) {
+export function destroy({digitalocean}, nextFn) {
   request({
     endpoint: `droplets/${digitalocean.id}/destroy`,
     query: { scrub_data: 1 },
-    callback
+    nextFn
   });
 }
 
-export function boot({digitalocean}, callback) {
+export function boot({digitalocean}, nextFn) {
   eventedRequest({
     endpoint: `droplets/${digitalocean.id}/power_on`,
-    callback
+    nextFn
   });
 }
 
-export function shutdown({digitalocean}, callback) {
+export function shutdown({digitalocean}, nextFn) {
   eventedRequest({
     endpoint: `droplets/${digitalocean.id}/power_off`,
-    callback
+    nextFn
   });
 }
 
-export function snapshot(instance, snapshotName, callback) {
+export function snapshot(instance, snapshotName, nextFn) {
   shutdown(instance, () => {
     eventedRequest({
       endpoint: `droplets/${instance.digitalocean.id}/snapshot`,
       query: { name: snapshotName },
-      callback
+      nextFn
     });
   });
 }
 
-export function reboot({digitalocean}, callback) {
+export function reboot({digitalocean}, nextFn) {
   eventedRequest({
     endpoint: `droplets/${digitalocean.id}/reboot`,
-    callback
+    nextFn
   });
 }
 
-export function rebuild({digitalocean}, image, callback) {
+export function rebuild({digitalocean}, image, nextFn) {
   getImages(images => {
     const match = getMatching(images, image);
     if (!match) {
@@ -109,12 +107,12 @@ export function rebuild({digitalocean}, image, callback) {
     eventedRequest({
       endpoint: `droplets/${digitalocean.id}/rebuild`,
       query: { image_id: match.id },
-      callback
+      nextFn
     });
   });
 }
 
-export function resize(instance, size, callback) {
+export function resize(instance, size, nextFn) {
   getSizes(sizes => {
     const match = getMatching(sizes, size);
     if (!match) {
@@ -125,123 +123,121 @@ export function resize(instance, size, callback) {
       eventedRequest({
         endpoint: `droplets/${instance.digitalocean.id}/resize`,
         query: { size_id: match.id },
-        callback
+        nextFn
       });
     });
   });
 }
 
-export function getKeys(callback) {
+export function getKeys(nextFn) {
   request({
     endpoint: 'ssh_keys',
-    callback: function (result) {
+    nextFn: (result) => {
       if (result && result.ssh_keys) {
-        callback(result.ssh_keys);
+        nextFn(result.ssh_keys);
       }
     }
   });
 }
 
-export function createKey(keyData, callback) {
+export function createKey(keyData, nextFn) {
   request({
     endpoint: 'ssh_keys/new',
     query: {
       name: utils.createHashedKeyName(keyData),
       ssh_pub_key: `${keyData}`
     },
-    callback: function (result) {
+    nextFn: (result) => {
       if (result && result.ssh_key) {
-        callback(result.ssh_key);
+        nextFn(result.ssh_key);
       }
     }
   });
 }
 
-export function getImages(callback) {
+export function getImages(nextFn) {
   request({
     endpoint: 'images',
-    callback: function (result) {
+    nextFn: (result) => {
       if (result && result.images) {
-        callback(returnOnlyIDNameSlug(result.images));
+        nextFn(returnOnlyIDNameSlug(result.images));
       }
     }
   });
 }
 
-export function getSnapshots(callback) {
+export function getSnapshots(nextFn) {
   request({
     endpoint: 'images',
     query: { filter: 'my_images' },
-    callback: function (result) {
+    nextFn: (result) => {
       if (result && result.images) {
-        callback(returnOnlyIDNameSlug(result.images));
+        nextFn(returnOnlyIDNameSlug(result.images));
       }
     }
   });
 }
 
-export function getInstances(args, callback) {
+export function getInstances(args, nextFn) {
   request({
     endpoint: 'droplets',
-    callback: function (result) {
+    nextFn: (result) => {
       if (result && result.droplets) {
-        callback(result.droplets);
+        nextFn(result.droplets);
       }
     }
   });
 }
 
-export function getInstance(instance, callback) {
+export function getInstance(instance, nextFn) {
   // create passes in an id, since instance doesn't exist yet.
   const id = utils.isObject(instance) && instance.digitalocean && instance.digitalocean.id ?
     instance.digitalocean.id : instance;
 
   request({
     endpoint: `droplets/${id}`,
-    callback: function (result) {
+    nextFn: (result) => {
       if (result && result.droplet) {
-        callback(result.droplet);
+        nextFn(result.droplet);
       }
     }
   });
 }
 
-export function updateInstanceMetadata(instance, callback) {
+export function updateInstanceMetadata(instance, nextFn = () => {}) {
   getInstance(instance, droplet => {
     utils.updateInstance(instance.name, {
       ip: droplet.ip_address,
       digitalocean: droplet
     });
 
-    if (utils.isFunction(callback)) {
-      callback();
-    }
+    nextFn();
   });
 }
 
-export function getRegions(callback) {
+export function getRegions(nextFn = () => {}) {
   request({
     endpoint: 'regions',
-    callback: function (result) {
+    nextFn: (result) => {
       if (result && result.regions) {
-        callback(result.regions);
+        nextFn(result.regions);
       }
     }
   });
 }
 
-export function getSizes(callback) {
+export function getSizes(nextFn = () => {}) {
   request({
     endpoint: 'sizes',
-    callback: function (result) {
+    nextFn: (result) => {
       if (result && result.sizes) {
-        callback(result.sizes);
+        nextFn(result.sizes);
       }
     }
   });
 }
 
-export function sync(instance, callback) {
+export function sync(instance, nextFn = () => {}) {
   getInstances((instances) => {
     let match = utils.findUsingMultipleKeys(instances, instance.name, ['name']);
 
@@ -258,9 +254,7 @@ export function sync(instance, callback) {
       digitalocean: match
     });
 
-    if (utils.isFunction(callback)) {
-      callback(match);
-    }
+    nextFn(match);
   });
 }
 
@@ -276,7 +270,7 @@ function returnOnlyIDNameSlug(collection) {
   });
 }
 
-export function getOrCreateOvercastKeyID(pubKeyPath, callback) {
+export function getOrCreateOvercastKeyID(pubKeyPath, nextFn = () => {}) {
   const keyData = `${fs.readFileSync(pubKeyPath, 'utf8')}`;
 
   getKeys((keys) => {
@@ -285,17 +279,17 @@ export function getOrCreateOvercastKeyID(pubKeyPath, callback) {
     });
     if (key) {
       log.faded(`Using SSH key: ${pubKeyPath}`);
-      callback(key.id);
+      nextFn(key.id);
     } else {
       log.faded(`Uploading new SSH key: ${pubKeyPath}`);
       createKey(keyData, (key) => {
-        callback(key.id);
+        nextFn(key.id);
       });
     }
   });
 }
 
-export function normalizeAndFindPropertiesForCreate(args, callback) {
+export function normalizeAndFindPropertiesForCreate(args, nextFn = () => {}) {
   args.image = args.image || args['image-id'] || args['image-slug'] || args['image-name'] || 'ubuntu-14-04-x64';
   args.size = args.size || args['size-id'] || args['size-slug'] || args['size-name'] || '512mb';
   args.region = args.region || args['region-id'] || args['region-slug'] || args['region-name'] || 'nyc3';
@@ -325,9 +319,7 @@ export function normalizeAndFindPropertiesForCreate(args, callback) {
         args['size-id'] = matchingSize.id;
         args['region-id'] = matchingRegion.id;
 
-        if (utils.isFunction(callback)) {
-          callback();
-        }
+        nextFn();
       });
     });
   });
@@ -337,7 +329,7 @@ function getMatching(collection, val) {
   return utils.findUsingMultipleKeys(collection, val, ['id', 'name', 'slug']);
 }
 
-function waitForEventToFinish(event_id, callback) {
+function waitForEventToFinish(event_id, nextFn = () => {}) {
   let percentage = 0;
   let response = {};
 
@@ -350,15 +342,13 @@ function waitForEventToFinish(event_id, callback) {
     return percentage;
   }, () => {
     clearTimeout(eventTimeout);
-    if (utils.isFunction(callback)) {
-      callback(response);
-    }
+    nextFn(response);
   });
 
   const requestLoop = () => {
     request({
       endpoint: `events/${event_id}`,
-      callback: function (result) {
+      nextFn: (result) => {
         if (result && result.event) {
           percentage = result.event.percentage;
           response = result.event;
@@ -374,13 +364,13 @@ function waitForEventToFinish(event_id, callback) {
   requestLoop();
 }
 
-export function eventedRequest({endpoint, query, callback}) {
+export function eventedRequest({ endpoint, query, nextFn }) {
   request({
     endpoint: endpoint,
     query: query,
-    callback: function (result) {
+    nextFn: (result) => {
       if (result && result.event_id) {
-        waitForEventToFinish(result.event_id, callback);
+        waitForEventToFinish(result.event_id, nextFn);
       }
     }
   });
@@ -391,7 +381,7 @@ export function eventedRequest({endpoint, query, callback}) {
 //   type: 'GET',
 //   query: { client_id: 'abc123', api_key: 'abc123', ... },
 //   data: {},
-//   callback: function (stderr, stdout) {}
+//   nextFn: function (stderr, stdout) {}
 // });
 export function request(options) {
   const variables = utils.getVariables();
@@ -410,7 +400,7 @@ export function request(options) {
   const args = constructCurlArgs(options);
 
   if (DEBUG) {
-    console.log(`curl ${args.join(' ')}`);
+    log.log(`curl ${args.join(' ')}`);
   }
 
   const curl = cp.spawn('curl', args);
@@ -437,25 +427,25 @@ export function request(options) {
     }
 
     if (DEBUG) {
-      console.log(JSON.stringify(stdout, null, 4));
+      log.log(JSON.stringify(stdout, null, 4));
     }
 
     if (stdout && stdout.status && stdout.status === 'ERROR') {
       if (utils.isFunction(options.onError)) {
         options.onError(stdout);
       }
-      utils.die(`Error response from API: ${stdout.error_message}`);
+      return utils.die(`Error response from API: ${stdout.error_message}`);
     } else if (stdout && stdout.status && stdout.status === 'OK') {
-      if (utils.isFunction(options.callback)) {
-        options.callback(stdout);
+      if (utils.isFunction(options.nextFn)) {
+        options.nextFn(stdout);
       }
     } else {
-      utils.die(`Error response from API: ${stderr}`);
+      return utils.die(`Error response from API: ${stderr}`);
     }
   });
 }
 
-function constructCurlArgs({endpoint, query, type, data}) {
+function constructCurlArgs({ endpoint, query, type, data }) {
   const url = `${API_URL + endpoint}?${querystring.stringify(query || {})}`;
   const args = ['-s', '-X', type || 'GET'];
 

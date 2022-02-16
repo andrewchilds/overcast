@@ -11,9 +11,8 @@ commands.boot = {
   required: [
     { name: 'name', filters: [filters.findFirstMatchingInstance, filters.shouldBeDigitalOcean] }
   ],
-  async: true,
-  run: function (args, next) {
-    provider.boot(api, args, next);
+  run: (args, nextFn) => {
+    provider.boot(api, args, nextFn);
   }
 };
 
@@ -44,9 +43,8 @@ commands.create = {
     { usage: '--backups-enabled', default: 'false' },
     { usage: '--private-networking', default: 'false' }
   ],
-  async: true,
-  run: function (args, next) {
-    provider.create(api, args, next);
+  run: (args, nextFn) => {
+    provider.create(api, args, nextFn);
   }
 };
 
@@ -66,9 +64,8 @@ commands.destroy = {
   options: [
     { usage: '--force', default: 'false' }
   ],
-  async: true,
-  run: function (args, next) {
-    provider.destroy(api, args, next);
+  run: (args, nextFn) => {
+    provider.destroy(api, args, nextFn);
   }
 };
 
@@ -76,9 +73,8 @@ commands.images = {
   name: 'images',
   usage: ['overcast digitalocean images'],
   description: 'List all images, including snapshots.',
-  async: true,
-  run: function (args, next) {
-    provider.images(api, next);
+  run: (args, nextFn) => {
+    provider.images(api, nextFn);
   }
 };
 
@@ -86,9 +82,8 @@ commands.instances = {
   name: 'instances',
   usage: ['overcast digitalocean instances'],
   description: 'List all instances in your account.',
-  async: true,
-  run: function (args, next) {
-    provider.instances(api, args, next);
+  run: (args, nextFn) => {
+    provider.instances(api, args, nextFn);
   }
 };
 
@@ -101,9 +96,8 @@ commands.reboot = {
   required: [
     { name: 'name', filters: [filters.findFirstMatchingInstance, filters.shouldBeDigitalOcean] }
   ],
-  async: true,
-  run: function (args, next) {
-    provider.reboot(api, args, next);
+  run: (args, nextFn) => {
+    provider.reboot(api, args, nextFn);
   }
 };
 
@@ -111,9 +105,8 @@ commands.regions = {
   name: 'regions',
   usage: ['overcast digitalocean regions'],
   description: 'List all available regions.',
-  async: true,
-  run: function (args, next) {
-    provider.regions(api, next);
+  run: (args, nextFn) => {
+    provider.regions(api, nextFn);
   }
 };
 
@@ -135,9 +128,8 @@ commands.rebuild = {
     { name: 'name', filters: [filters.findFirstMatchingInstance, filters.shouldBeDigitalOcean] },
     { name: 'image' }
   ],
-  async: true,
-  run: function (args, next) {
-    provider.rebuild(api, args, next);
+  run: (args, nextFn) => {
+    provider.rebuild(api, args, nextFn);
   }
 };
 
@@ -160,9 +152,8 @@ commands.resize = {
   options: [
     { usage: '--skip-boot', default: 'false' }
   ],
-  async: true,
-  run: function (args, next) {
-    provider.resize(api, args, next);
+  run: (args, nextFn) => {
+    provider.resize(api, args, nextFn);
   }
 };
 
@@ -175,9 +166,8 @@ commands.snapshot = {
     { name: 'name', filters: [filters.findFirstMatchingInstance, filters.shouldBeDigitalOcean] },
     { name: 'snapshot-name', varName: 'snapshotName' }
   ],
-  async: true,
-  run: function (args, next) {
-    provider.snapshot(api, args, next);
+  run: (args, nextFn) => {
+    provider.snapshot(api, args, nextFn);
   }
 };
 
@@ -185,9 +175,8 @@ commands.snapshots = {
   name: 'snapshots',
   usage: ['overcast digitalocean snapshots'],
   description: 'List all available snapshots in your account.',
-  async: true,
-  run: function (args, next) {
-    provider.snapshots(api, next);
+  run: (args, nextFn) => {
+    provider.snapshots(api, nextFn);
   }
 };
 
@@ -198,9 +187,8 @@ commands.shutdown = {
   required: [
     { name: 'name', filters: [filters.findFirstMatchingInstance, filters.shouldBeDigitalOcean] }
   ],
-  async: true,
-  run: function (args, next) {
-    provider.shutdown(api, args, next);
+  run: (args, nextFn) => {
+    provider.shutdown(api, args, nextFn);
   }
 };
 
@@ -208,9 +196,8 @@ commands.sizes = {
   name: 'sizes',
   usage: ['overcast digitalocean sizes'],
   description: 'List all available instance sizes.',
-  async: true,
-  run: function (args, next) {
-    provider.sizes(api, next);
+  run: (args, nextFn) => {
+    provider.sizes(api, nextFn);
   }
 };
 
@@ -223,8 +210,7 @@ commands.sync = {
   required: [
     { name: 'name', filters: filters.findFirstMatchingInstance }
   ],
-  async: true,
-  run: function (args, next) {
-    provider.sync(api, args, next);
+  run: (args, nextFn) => {
+    provider.sync(api, args, nextFn);
   }
 };

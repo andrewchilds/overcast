@@ -42,10 +42,10 @@ commands.run = {
     { usage: '--parallel, -p', default: 'false' },
     { usage: '--shell-command "COMMAND"', default: 'bash -s' },
   ],
-  run: (args) => {
+  run: (args, nextFn) => {
     args._.unshift(args.firstCommandOrFile);
     delete args.firstCommandOrFile;
 
-    ssh.run(args);
+    ssh.run(args, nextFn);
   }
 };

@@ -2,6 +2,7 @@ import cp from 'child_process';
 import * as utils from '../utils.js';
 import * as filters from '../filters.js';
 import * as log from '../log.js';
+import { getConfigDir } from '../store.js';
 
 export const commands = {};
 
@@ -19,17 +20,17 @@ commands.ssh = {
     { usage: '--password PASSWORD' },
     { usage: '--ssh-key PATH' }
   ],
-  run: (args) => {
-    // Fix "possible EventEmitter memory leak detected" errors.
+  run: (args, nextFn) => {
+    // This fixes a "possible EventEmitter memory leak detected" error.
     // Ref: https://github.com/andrewchilds/overcast/issues/14
     process.stdin.setMaxListeners(0);
 
-    connect(args.instance, args);
+    connect(args.instance, args, nextFn);
   }
 };
 
-function connect(instance, args) {
-  const privateKeyFile = utils.normalizeKeyPath(args['ssh-key'] || instance.ssh_key || `${utils.getConfigDirs().CONFIG_DIR}/keys/overcast.key`);
+function connect(instance, args, nextFn = () => {}) {
+  const privateKeyFile = utils.normalizeKeyPath(args['ssh-key'] || instance.ssh_key || `${getConfigDir()}/keys/overcast.key`);
   const sshPort = instance.ssh_port || '22';
   const host = `${args.user || instance.user || 'root'}@${instance.ip}`;
   const password = (args.password || instance.password || '');
@@ -55,14 +56,14 @@ function connect(instance, args) {
   }
   command.push(host);
 
-  console.log(command.join(' '));
+  log.log(command.join(' '));
 
   const ssh = cp.spawn(command.shift(), command, {
     stdio: 'inherit'
   });
 
-  ssh.on('error', err => {
-    log.failure('There was an error running this command.');
+  ssh.on('error', (err) => {
+    log.failure('There was an error running this command. ' + err);
     if (password) {
       log.failure('You need the "sshpass" program installed to use password-based');
       log.failure('SSH authentication. Do you have that installed?');
@@ -76,5 +77,7 @@ function connect(instance, args) {
       const str = `SSH connection exited with a non-zero code (${code}).`;
       utils.die(str);
     }
+
+    nextFn();
   });
 }

@@ -16,9 +16,8 @@ commands.boot = {
   required: [
     { name: 'name', filters: [filters.findFirstMatchingInstance, filters.shouldBeVirtualbox] }
   ],
-  async: true,
-  run: function (args, next) {
-    provider.boot(api, args, next);
+  run: (args, nextFn) => {
+    provider.boot(api, args, nextFn);
   }
 };
 
@@ -46,9 +45,8 @@ commands.create = {
     { usage: '--ssh-key PATH', default: 'overcast.key' },
     { usage: '--ssh-pub-key PATH', default: 'overcast.key.pub' }
   ],
-  async: true,
-  run: function (args, next) {
-    provider.create(api, args, next);
+  run: (args, nextFn) => {
+    provider.create(api, args, nextFn);
   }
 };
 
@@ -68,9 +66,8 @@ commands.destroy = {
   options: [
     { usage: '--force', default: 'false' }
   ],
-  async: true,
-  run: function (args, next) {
-    provider.destroy(api, args, next);
+  run: (args, nextFn) => {
+    provider.destroy(api, args, nextFn);
   }
 };
 
@@ -81,9 +78,8 @@ commands.reboot = {
   required: [
     { name: 'name', filters: [filters.findFirstMatchingInstance, filters.shouldBeVirtualbox] }
   ],
-  async: true,
-  run: function (args, next) {
-    provider.reboot(api, args, next);
+  run: (args, nextFn) => {
+    provider.reboot(api, args, nextFn);
   }
 };
 
@@ -94,9 +90,8 @@ commands.shutdown = {
   required: [
     { name: 'name', filters: [filters.findFirstMatchingInstance, filters.shouldBeVirtualbox] }
   ],
-  async: true,
-  run: function (args, next) {
-    provider.shutdown(api, args, next);
+  run: (args, nextFn) => {
+    provider.shutdown(api, args, nextFn);
   }
 };
 

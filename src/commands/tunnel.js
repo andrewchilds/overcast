@@ -32,15 +32,15 @@ commands.tunnel = {
     { usage: '--password PASSWORD' },
     { usage: '--ssh-key PATH' }
   ],
-  run: (args) => {
+  run: (args, nextFn) => {
     args._.unshift(args.firstPort);
     delete args.firstPort;
 
-    connect(args.instance, args);
+    connect(args.instance, args, nextFn);
   }
 };
 
-function connect(instance, args) {
+function connect(instance, args, nextFn) {
   const password = (args.password || instance.password || '');
 
   const sshArgs = [];
@@ -91,6 +91,8 @@ function connect(instance, args) {
       utils.die(`SSH connection exited with a non-zero code (${code}). Stopping execution...`);
     }
     log.br();
+
+    nextFn();
   });
 }
 

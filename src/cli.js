@@ -2,22 +2,24 @@ import minimist from 'minimist';
 import chalk from 'chalk';
 
 import * as utils from './utils.js';
+import * as store from './store.js';
 import * as log from './log.js';
 import allCommands from './commands/index.js';
 
 const DEFAULT_COMMAND = 'info';
 
-export function init(argString = '') {
+export function init(argString = '', nextFn = () => {}) {
+  store.setArgString(argString || process.argv.slice(2).join(' ') || DEFAULT_COMMAND);
   utils.findConfig(() => {
     utils.createKeyIfMissing(() => {
-      execute(process.argv.slice(2).join(' ') || argString || DEFAULT_COMMAND);
+      execute(store.getArgString(), nextFn);
     });
   });
 }
 
-export function execute(argString) {
+export function execute(argString, nextFn = () => {}) {
   if (utils.isTestRun()) {
-    log.faded('This is a test run, so be aware some things are mocked.');
+    log.alert(chalk.bgRed('TEST RUN: Be aware that some things are mocked for testing.'));
   }
 
   if (!argString) {
@@ -37,12 +39,12 @@ export function execute(argString) {
     if (command.commands) {
       const matchingCommand = findMatchingCommand(command.commands, args);
       if (matchingCommand) {
-        run(matchingCommand, args);
+        run(matchingCommand, args, nextFn);
       } else {
-        missingCommand(command, args);
+        missingCommand(command, args, nextFn);
       }
     } else {
-      utils.die(`${args.command} is missing commands array (cli.execute).`);
+      return utils.die(`${args.command} is missing commands array (cli.execute).`);
     }
   }
 }
@@ -57,7 +59,7 @@ export function findMatchingCommand(commands, args) {
   }
 }
 
-export function run(command, args, next) {
+export function run(command, args, nextFn) {
   let shortCircuit = false;
   args = args || { _: [] };
 
@@ -99,23 +101,23 @@ export function run(command, args, next) {
   });
 
   if (shortCircuit) {
-    return false;
+    return nextFn();
   }
 
-  command.run(args, next);
-  // TODO: seems like this shouldn't be necessary:
-  if (!command.async && utils.isFunction(next)) {
-    next();
-  }
+  command.run(args, nextFn);
 }
 
 export function missingArgument(name, command) {
   log.failure(`Missing ${name} argument.`);
   compileHelp(command);
-  process.exit(1);
+  if (utils.isTestRun()) {
+    return false;
+  } else {
+    process.exit(1);
+  }
 }
 
-export function missingCommand({banner, commands}, args) {
+export function missingCommand({banner, commands}, args, nextFn = () => {}) {
   let exitCode = 0;
   if (args.subcommand && args.subcommand !== 'help' && args.command !== 'help') {
     log.failure('Missing or unknown command.');
@@ -128,7 +130,7 @@ export function missingCommand({banner, commands}, args) {
 
   if (Object.keys(commands).length > 1) {
     log.br();
-    console.log(`overcast ${args.command} [command] help`);
+    log.log(`overcast ${args.command} [command] help`);
     printLines('View extended help.', { color: 'cyan', pad: 2 });
   }
 
@@ -142,7 +144,11 @@ export function missingCommand({banner, commands}, args) {
     printLines(description, { color: 'cyan', pad: 2 });
   });
 
-  process.exit(exitCode);
+  if (utils.isTestRun()) {
+    nextFn();
+  } else {
+    process.exit(exitCode);
+  }
 }
 
 export function compileHelp(command, skipFirstLine) {
@@ -156,7 +162,7 @@ export function compileHelp(command, skipFirstLine) {
       if (key === 'options') {
         printCommandOptions(command.options);
       } else {
-        console.log(`${utils.capitalize(key)}:`);
+        log.log(`${utils.capitalize(key)}:`);
         printLines(command[key], { color: 'cyan', pad: 2 });
       }
     }
@@ -175,9 +181,9 @@ export function printCommandOptions(options) {
   if (hasDefaults) {
     headline = `${utils.padRight(headline, maxLength + 2)}Defaults:`;
   }
-  console.log(headline);
+  log.log(headline);
   options.forEach((option) => {
-    console.log(`  ${utils.padRight(option.usage, maxLength)}${option.default || ''}`);
+    log.log(`  ${utils.padRight(option.usage, maxLength)}${option.default || ''}`);
   });
 }
 
@@ -190,9 +196,9 @@ export function printLines(strOrArray, options) {
       });
     }
     if (options.color) {
-      console.log(chalk[options.color](str));
+      log.log(chalk[options.color](str));
     } else {
-      console.log(str);
+      log.log(str);
     }
   });
 }

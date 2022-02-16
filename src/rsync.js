@@ -2,29 +2,31 @@ import _ from 'lodash';
 import * as utils from './utils.js';
 import * as log from './log.js';
 
-export function run(args) {
-  var instances = utils.findMatchingInstances(args.name);
+export function run(args, nextFn) {
+  const instances = utils.findMatchingInstances(args.name);
   utils.handleInstanceOrClusterNotFound(instances, args);
 
   if (args.parallel || args.p) {
     instances.forEach((instance) => {
-      runOnInstance(instance, _.cloneDeep(args));
+      runOnInstance(instance, _.cloneDeep(args), nextFn);
     });
   } else {
-    runOnInstances(instances, args);
+    runOnInstances(instances, args, nextFn);
   }
 }
 
-function runOnInstances(instances, args) {
-  var instance = instances.shift();
+function runOnInstances(instances, args, nextFn) {
+  const instance = instances.shift();
   runOnInstance(instance, _.cloneDeep(args), () => {
     if (instances.length > 0) {
       runOnInstances(instances, args);
+    } else {
+      nextFn();
     }
   });
 }
 
-function runOnInstance(instance, args, next) {
+function runOnInstance(instance, args, nextFn = () => {}) {
   rsync({
     ip: instance.ip,
     user: args.user || instance.user,
@@ -36,26 +38,22 @@ function runOnInstance(instance, args, next) {
     direction: args.direction,
     source: args.source,
     dest: args.dest
-  }, () => {
-    if (utils.isFunction(next)) {
-      next();
-    }
-  });
+  }, nextFn);
 }
 
-function rsync(options, next) {
+function rsync(options, nextFn = () => {}) {
   if (!options.ip) {
     return utils.die('IP missing.');
   }
 
-  var color = utils.SSH_COLORS[utils.SSH_COUNT++ % 5];
+  const color = utils.getNextColor();
 
   options.ssh_key = utils.normalizeKeyPath(options.ssh_key);
   options.ssh_port = options.ssh_port || '22';
   options.user = options.user || 'root';
   options.name = options.name || 'Unknown';
 
-  var ssh = [];
+  const ssh = [];
   if (options.password) {
     ssh.push('sshpass');
     ssh.push('-p' + options.password);
@@ -71,7 +69,7 @@ function rsync(options, next) {
     ssh.push(options.ssh_key);
   }
 
-  var args = [
+  const args = [
     'rsync',
     '-e "' + ssh.join(' ') + '"',
     '-varuzP',
@@ -94,7 +92,7 @@ function rsync(options, next) {
   }
 
   log.faded(args.join(' '));
-  var rsyncProcess = utils.spawn(args);
+  const rsyncProcess = utils.spawn(args);
 
   rsyncProcess.stdout.on('data', data => {
     utils.prefixPrint(options.name, color, data);
@@ -106,14 +104,13 @@ function rsync(options, next) {
 
   rsyncProcess.on('exit', code => {
     if (code !== 0) {
-      var str = 'rsync exited with a non-zero code (' + code + '). Stopping execution...';
+      const str = 'rsync exited with a non-zero code (' + code + '). Stopping execution...';
       utils.prefixPrint(options.name, color, str, 'red');
       process.exit(1);
     }
     log.success(options.source + ' transferred to ' + options.dest);
     log.br();
-    if (utils.isFunction(next)) {
-      next();
-    }
+
+    nextFn();
   });
 }

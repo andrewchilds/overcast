@@ -25,7 +25,7 @@ commands.scriptvar = {
     { usage: '--machine-readable, --mr', default: 'false' },
     { usage: '--parallel, -p', default: 'false' }
   ],
-  run: (args) => {
+  run: (args, nextFn) => {
     args._ = ['set_script_var'];
     args.env = {
       VAR_FILENAME: args.var_filename,
@@ -33,6 +33,6 @@ commands.scriptvar = {
       VAR_VALUE: args.var_value
     };
 
-    ssh.run(args);
+    ssh.run(args, nextFn);
   }
 };
