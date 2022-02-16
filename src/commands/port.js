@@ -34,8 +34,8 @@ commands.port = {
 
     args._ = ['change_ssh_port'];
     ssh.run(args, () => {
-      utils.each(args.instances, ({name}) => {
-        utils.updateInstance(name, {
+      args.instances.forEach((instance) => {
+        utils.updateInstance(instance.name, {
           ssh_port: new_ssh_port
         });
       });

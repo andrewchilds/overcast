@@ -45,14 +45,6 @@ export function isFunction(v) {
   return typeof v === 'function';
 }
 
-export function each(o, cb) {
-  if (isObject(o)) {
-    throw new Error('This is an Object, replace with eachObject.');
-  } else if (isArray(o)) {
-    throw new Error('This is an Array, replace with forEach.');
-  }
-}
-
 export function eachObject(o, cb) {
   Object.keys(o).forEach((k) => {
     cb(o[k], k);

@@ -100,7 +100,7 @@ export function shutdown(instance, callback) {
 
 export function parseCSV(str) {
   var arr = [];
-  utils.each((str || '').split("\n"), row => {
+  (str || '').split("\n").forEach((row) => {
     row = row.trim();
     if (row) {
       // TODO: This doesn't handle double quotes or escaped commas. Fix me.
@@ -112,8 +112,8 @@ export function parseCSV(str) {
 
 export function getVagrantImages(args) {
   return new Promise((resolve, reject) => {
-    var vagrant = utils.spawn(['vagrant box list --machine-readable']);
-    var stdout = '';
+    const vagrant = utils.spawn(['vagrant box list --machine-readable']);
+    let stdout = '';
 
     vagrant.stdout.on('data', data => {
       stdout += data + '';
@@ -123,9 +123,8 @@ export function getVagrantImages(args) {
       if (code !== 0) {
         reject();
       } else {
-        stdout = parseCSV(stdout);
-        var images = [];
-        utils.each(stdout, row => {
+        const images = [];
+        parseCSV(stdout).forEach((row) => {
           if (row[2] === 'box-name') {
             images.push(row[3]);
           }

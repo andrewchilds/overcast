@@ -63,7 +63,7 @@ function connect(instance, args) {
   }
 
   const ports = normalizePorts(args._);
-  utils.each(ports, ({localPort, remoteHost, remotePort}) => {
+  ports.forEach(({ localPort, remoteHost, remotePort }) => {
     sshArgs.push(`-L ${localPort}:${remoteHost}:${remotePort}`);
   });
 
@@ -74,7 +74,7 @@ function connect(instance, args) {
 
   log.faded(sshArgs.join(' '));
 
-  utils.each(ports, ({localPort, remoteHost, remotePort}) => {
+  ports.forEach(({ localPort, remoteHost, remotePort }) => {
     log.faded(`Tunneling from ${localPort} to ${remoteHost}:${remotePort}.`);
   });
 
@@ -97,7 +97,7 @@ function connect(instance, args) {
 export function normalizePorts(arr) {
   const ports = [];
 
-  utils.each(arr, str => {
+  arr.forEach((str) => {
     str = (`${str}`).split(':');
     ports.push({
       localPort: str[0],
