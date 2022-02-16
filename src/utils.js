@@ -8,7 +8,7 @@ import url from 'url';
 import * as listCommand from './commands/list.js';
 import * as log from './log.js';
 import { SSH_COLORS } from './constants.js';
-import { getClustersJSON, getConfigDir, getSSHCount, getVariablesJSON, increaseSSHCount } from './store.js';
+import { getArgString, getClustersJSON, getConfigDir, getSSHCount, getVariablesJSON, increaseSSHCount } from './store.js';
 
 export function getNextColor() {
   const count = getSSHCount();

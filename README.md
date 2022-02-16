@@ -6,7 +6,7 @@ Overcast is a command line program designed to make it easy to spin up, configur
 
 ## Avoid Vendor Lock-in.
 
-Create, reboot and destroy instances on DigitalOcean, or locally using Virtualbox.
+Create, reboot and destroy instances on DigitalOcean or locally using Virtualbox. Other providers are on the roadmap.
 
 ```sh
 # Spin up a new Ubuntu 20.04 instance on DigitalOcean:
@@ -124,6 +124,7 @@ I wanted something that had little to no learning curve, that did only what you 
   - [Overcast Charts](https://github.com/andrewchilds/overcast-charts)
 
 ## Command Reference
+
 ### overcast aliases
 
 ```
@@ -164,17 +165,17 @@ Examples:
   > 1
 ```
 
-### overcast cluster create
+### overcast cluster add
 
 ```
 Usage:
-  overcast cluster create [name]
+  overcast cluster add [name]
 
 Description:
-  Creates a new cluster.
+  Adds a new cluster.
 
 Examples:
-  $ overcast cluster create db
+  $ overcast cluster add db
 ```
 
 ### overcast cluster rename
@@ -198,7 +199,7 @@ Usage:
 
 Description:
   Removes a cluster from the index. If the cluster has any instances
-  attached to it, they will be moved to the "orphaned" cluster.
+  attached to it, they will be moved to an "orphaned" cluster.
 
 Examples:
   $ overcast cluster remove db
@@ -475,7 +476,7 @@ Usage:
 
 Description:
   Pretty-prints the complete clusters.json file, stored here:
-  undefined/clusters.json
+  undefined
   Optionally display only instances matching [name].
 ```
 
@@ -514,14 +515,14 @@ Examples:
   127.0.0.3
 ```
 
-### overcast instance import
+### overcast instance add
 
 ```
 Usage:
-  overcast instance import [name] [ip] [options...]
+  overcast instance add [name] [ip] [options...]
 
 Description:
-  Imports an existing instance to a cluster.
+  Adds an existing instance to a cluster.
 
 Options:                 Defaults:
   --cluster CLUSTER      default
@@ -531,7 +532,7 @@ Options:                 Defaults:
   --password PASSWORD
 
 Examples:
-  $ overcast instance import app.01 127.0.0.1 --cluster app \
+  $ overcast instance add app.01 127.0.0.1 --cluster app \
       --ssh-port 22222 --ssh-key $HOME/.ssh/id_rsa
 ```
 

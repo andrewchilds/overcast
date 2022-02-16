@@ -24,7 +24,7 @@ export function setArgString(str) {
 }
 
 export function getArgString() {
-  return STORE.ARG_STRING;
+  return STORE.ARG_STRING || '';
 }
 
 export function setConfigDirs(path) {
