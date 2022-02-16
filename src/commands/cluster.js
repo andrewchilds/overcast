@@ -30,6 +30,8 @@ commands.add = {
   required: [{ name: 'name', filters: filters.shouldBeNewCluster }],
   run: ({ name }) => {
     const clusters = utils.getClusters();
+    // We shouldn't have to guard against an existing cluster here,
+    // because of the shouldBeNewCluster filter above.
     clusters[name] = { instances: {} };
 
     utils.saveClusters(clusters, () => {
@@ -64,7 +66,7 @@ commands.remove = {
   usage: ['overcast cluster remove [name]'],
   description: [
     'Removes a cluster from the index. If the cluster has any instances',
-    'attached to it, they will be moved to the "orphaned" cluster.'
+    'attached to it, they will be moved to an "orphaned" cluster.'
   ],
   examples: '$ overcast cluster remove db',
   required: [
@@ -74,7 +76,7 @@ commands.remove = {
     const clusters = utils.getClusters();
 
     let orphaned = 0;
-    if (clusters[name].instances && Object.keys(clusters[name].instances) > 0) {
+    if (clusters[name].instances && Object.keys(clusters[name].instances).length > 0) {
       orphaned = Object.keys(clusters[name].instances).length;
       clusters.orphaned = clusters.orphaned || { instances: {} };
       Object.assign(clusters.orphaned.instances, clusters[name].instances);

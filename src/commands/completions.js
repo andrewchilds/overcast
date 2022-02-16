@@ -46,7 +46,7 @@ function getCompletions() {
   });
 
   const clusters = utils.getClusters();
-  utils.eachObject(clusters, ({instances}, clusterName) => {
+  utils.eachObject(clusters, ({ instances }, clusterName) => {
     if (!list.includes(clusterName)) {
       list.push(clusterName);
     }

@@ -7,19 +7,17 @@ import allCommands from './commands/index.js';
 
 const DEFAULT_COMMAND = 'info';
 
-export function init() {
+export function init(argString = '') {
   utils.findConfig(() => {
-    const argString = process.argv.slice(2).join(' ') || DEFAULT_COMMAND;
-
     utils.createKeyIfMissing(() => {
-      execute(argString);
+      execute(process.argv.slice(2).join(' ') || argString || DEFAULT_COMMAND);
     });
   });
 }
 
 export function execute(argString) {
   if (utils.isTestRun()) {
-    log.info('This is a test run, some things are mocked.');
+    log.faded('This is a test run, so be aware some things are mocked.');
   }
 
   if (!argString) {
