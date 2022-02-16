@@ -6,7 +6,7 @@ export const commands = {};
 
 commands.pull = {
   name: 'pull',
-  usage: 'overcast pull [instance|cluster|all] [source] [dest] [options...]',
+  usage: ['overcast pull [instance|cluster|all] [source] [dest] [options...]'],
   description: [
     'Pull a file or directory from an instance or cluster using scp by default,',
     'or using rsync if the --rsync flag is used. Source is absolute or relative',

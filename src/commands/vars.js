@@ -5,7 +5,7 @@ export const commands = {};
 
 commands.list = {
   name: 'list',
-  usage: 'overcast vars list',
+  usage: ['overcast vars list'],
   description: `List variables in ${utils.getConfigDirs().VARIABLES_JSON}.`,
   run: (args) => {
     const vars = utils.getVariables();
@@ -25,7 +25,7 @@ commands.list = {
 
 commands.set = {
   name: 'set',
-  usage: 'overcast vars set [name] [value]',
+  usage: ['overcast vars set [name] [value]'],
   description: `Set a variable in ${utils.getConfigDirs().VARIABLES_JSON}.`,
   examples: [
     '$ overcast vars set AWS_KEY myawskey12345',
@@ -43,7 +43,7 @@ commands.set = {
 
 commands.get = {
   name: 'get',
-  usage: 'overcast vars get [name]',
+  usage: ['overcast vars get [name]'],
   description: `Get a variable from ${utils.getConfigDirs().VARIABLES_JSON}.`,
   examples: [
     '$ overcast vars get AWS_KEY',
@@ -65,7 +65,7 @@ commands.get = {
 
 commands.delete = {
   name: 'delete',
-  usage: 'overcast vars delete [name]',
+  usage: ['overcast vars delete [name]'],
   description: `Delete a variable from ${utils.getConfigDirs().VARIABLES_JSON}.`,
   examples: [
     '$ overcast vars delete MY_CUSTOM_VARIABLE_NAME'

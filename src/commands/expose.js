@@ -5,7 +5,7 @@ export const commands = {};
 
 commands.expose = {
   name: 'expose',
-  usage: 'overcast expose [instance|cluster|all] [port...] [options]',
+  usage: ['overcast expose [instance|cluster|all] [port...] [options]'],
   description: [
     'Reset the exposed ports on the instance or cluster using iptables.',
     'This will fail if you don\'t include the current SSH port.',

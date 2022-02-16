@@ -6,7 +6,7 @@ export const commands = {};
 
 commands.push = {
   name: 'push',
-  usage: 'overcast push [instance|cluster|all] [source] [dest] [options...]',
+  usage: ['overcast push [instance|cluster|all] [source] [dest] [options...]'],
   description: [
     'Push a file or directory to an instance or cluster using scp by default,',
     'or rsync if the --rsync flag is used. Source can be absolute or relative',

@@ -5,7 +5,7 @@ export const commands = {};
 
 commands.completions = {
   name: 'completions',
-  usage: 'overcast completions',
+  usage: ['overcast completions'],
   description: [
     'Return an array of commands, cluster names, and instance names for use',
     'in bash tab completion.',
@@ -20,7 +20,7 @@ commands.completions = {
     'complete -F _overcast_completions overcast'
   ],
   run: (args) => {
-    console.log(getCompletions().join(" "));
+    console.log(getCompletions().join(' '));
   }
 };
 
@@ -29,21 +29,16 @@ function getCompletions() {
 
   function pushWords(signature) {
     signature.split(' ').forEach((word) => {
-      if (word && word.length > 3 && word.charAt(0) !== '[') {
+      if (word && word.length > 3 && word.charAt(0) !== '[' && !list.includes(word)) {
         list.push(word);
       }
     });
   }
 
   utils.eachObject(allCommands, (command) => {
-    if (command.signatures) {
-      utils.each(command.signatures(), signature => {
-        pushWords(signature);
-      });
-    } else if (command.commands) {
-      utils.each(command.commands, command => {
-        command.usage = utils.forceArray(command.usage);
-        utils.each(command.usage, usage => {
+    if (command.commands) {
+      utils.eachObject(command.commands, command => {
+        command.usage.forEach((usage) => {
           pushWords(usage);
         });
       });
@@ -52,9 +47,13 @@ function getCompletions() {
 
   const clusters = utils.getClusters();
   utils.eachObject(clusters, ({instances}, clusterName) => {
-    list.push(clusterName);
-    utils.eachObject(instances, (instance, instanceName) => {
-      list.push(instanceName);
+    if (!list.includes(clusterName)) {
+      list.push(clusterName);
+    }
+    Object.keys(instances).forEach((instanceName) => {
+      if (!list.includes(instanceName)) {
+        list.push(instanceName);
+      }
     });
   });
 

@@ -7,7 +7,7 @@ export const commands = {};
 
 commands.ssh = {
   name: 'ssh',
-  usage: 'overcast ssh [instance] [options...]',
+  usage: ['overcast ssh [instance] [options...]'],
   description: [
     'Opens an interactive SSH connection to an instance.'
   ],

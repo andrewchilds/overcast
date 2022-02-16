@@ -6,7 +6,7 @@ export const commands = {};
 
 commands.get = {
   name: 'get',
-  usage: 'overcast instance get [instance|cluster|all] [attr...] [options...]',
+  usage: ['overcast instance get [instance|cluster|all] [attr...] [options...]'],
   description: [
     'Returns the attribute(s) for the instance or cluster, one per line,',
     'or space-delimited using the --single-line option.',
@@ -55,7 +55,7 @@ commands.get = {
 
 commands.add = {
   name: 'add',
-  usage: 'overcast instance add [name] [ip] [options...]',
+  usage: ['overcast instance add [name] [ip] [options...]'],
   description: 'Adds an existing instance to a cluster.',
   examples: [
     '$ overcast instance add app.01 127.0.0.1 --cluster app \\',
@@ -90,7 +90,7 @@ commands.add = {
 
 commands.list = {
   name: 'list',
-  usage: 'overcast instance list [cluster...]',
+  usage: ['overcast instance list [cluster...]'],
   description: [
     'Returns all instance names, one per line.',
     'Optionally limit to one or more clusters.'
@@ -115,7 +115,7 @@ commands.list = {
 
 commands.remove = {
   name: 'remove',
-  usage: 'overcast instance remove [name]',
+  usage: ['overcast instance remove [name]'],
   description: [
     'Removes an instance from the index.',
     'The server itself is not affected by this action.'
@@ -132,7 +132,7 @@ commands.remove = {
 
 commands.update = {
   name: 'update',
-  usage: 'overcast instance update [instance|cluster|all] [options...]',
+  usage: ['overcast instance update [instance|cluster|all] [options...]'],
   description: [
     'Update any instance property. Specifying --cluster will move the instance',
     'to that cluster. Specifying --name will rename the instance.'

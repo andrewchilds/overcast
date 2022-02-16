@@ -6,7 +6,7 @@ export const commands = {};
 
 commands.help = {
   name: 'help',
-  usage: 'overcast help',
+  usage: ['overcast help'],
   description: [
     'Provides help about Overcast and specific commands.'
   ],

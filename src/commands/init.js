@@ -6,7 +6,7 @@ export const commands = {};
 
 commands.init = {
   name: 'init',
-  usage: 'overcast init',
+  usage: ['overcast init'],
   description: [
     'Create an .overcast config directory in the current working directory.',
     'No action taken if one already exists.'

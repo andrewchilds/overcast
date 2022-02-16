@@ -6,7 +6,7 @@ export const commands = {};
 
 commands.slack = {
   name: 'slack',
-  usage: 'overcast slack [message] [options...]',
+  usage: ['overcast slack [message] [options...]'],
   description: [
     'Sends a message to a Slack channel.',
     'Requires a SLACK_WEBHOOK_URL property to be set in variables.json.',

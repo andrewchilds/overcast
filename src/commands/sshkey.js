@@ -8,7 +8,7 @@ export const commands = {};
 
 commands.create = {
   name: 'create',
-  usage: 'overcast sshkey create [name]',
+  usage: ['overcast sshkey create [name]'],
   description: 'Creates a new SSH key in the current .overcast config.',
   examples: [
     '$ overcast sshkey create myKeyName',
@@ -28,7 +28,7 @@ commands.create = {
 
 commands.delete = {
   name: 'delete',
-  usage: 'overcast sshkey delete [name]',
+  usage: ['overcast sshkey delete [name]'],
   description: 'Deletes SSH public/private key files from the current .overcast config.',
   examples: [
     '$ overcast sshkey delete myKeyName',
@@ -44,7 +44,7 @@ commands.delete = {
 
 commands.get = {
   name: 'get',
-  usage: 'overcast sshkey get [name] [option]',
+  usage: ['overcast sshkey get [name] [option]'],
   description: [
     'Display the requested SSH key data or path from the current .overcast config.',
     'Defaults to displaying the public key data if no option found.'
@@ -80,7 +80,7 @@ commands.get = {
 
 commands.list = {
   name: 'list',
-  usage: 'overcast sshkey list',
+  usage: ['overcast sshkey list'],
   description: 'List the found SSH key names in the current .overcast config.',
   examples: [
     '$ overcast sshkey list',
@@ -94,7 +94,7 @@ commands.list = {
 
 commands.push = {
   name: 'push',
-  usage: 'overcast sshkey push [instance|cluster|all] [name|path] [options...]',
+  usage: ['overcast sshkey push [instance|cluster|all] [name|path] [options...]'],
   description: [
     'Push a public SSH key to an instance or cluster. Accepts a key name,',
     'filename, or full path. This will overwrite the existing authorized_keys',

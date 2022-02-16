@@ -4,7 +4,7 @@ export const commands = {};
 
 commands.exposed = {
   name: 'exposed',
-  usage: 'overcast exposed [instance|cluster|all]',
+  usage: ['overcast exposed [instance|cluster|all]'],
   description: [
     'List the exposed ports on the instance or cluster.',
     'Expects an Ubuntu server, untested on other distributions.'

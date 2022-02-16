@@ -4,7 +4,7 @@ export const commands = {};
 
 commands.run = {
   name: 'run',
-  usage: 'overcast run [instance|cluster|all] [command|file...]',
+  usage: ['overcast run [instance|cluster|all] [command|file...]'],
   description: [
     'Execute commands or script files on an instance or cluster over SSH.',
     'Commands will execute sequentially unless the --parallel flag is used.',

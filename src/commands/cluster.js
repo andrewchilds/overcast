@@ -6,7 +6,7 @@ export const commands = {};
 
 commands.count = {
   name: 'count',
-  usage: 'overcast cluster count [name]',
+  usage: ['overcast cluster count [name]'],
   description: 'Return the number of instances in a cluster.',
   examples: [
     '$ overcast cluster count db',
@@ -24,7 +24,7 @@ commands.count = {
 
 commands.add = {
   name: 'add',
-  usage: 'overcast cluster add [name]',
+  usage: ['overcast cluster add [name]'],
   description: 'Adds a new cluster.',
   examples: '$ overcast cluster add db',
   required: [{ name: 'name', filters: filters.shouldBeNewCluster }],
@@ -40,7 +40,7 @@ commands.add = {
 
 commands.rename = {
   name: 'rename',
-  usage: 'overcast cluster rename [name] [new-name]',
+  usage: ['overcast cluster rename [name] [new-name]'],
   description: 'Renames a cluster.',
   examples: '$ overcast cluster rename app-cluster app-cluster-renamed',
   required: [
@@ -61,7 +61,7 @@ commands.rename = {
 
 commands.remove = {
   name: 'remove',
-  usage: 'overcast cluster remove [name]',
+  usage: ['overcast cluster remove [name]'],
   description: [
     'Removes a cluster from the index. If the cluster has any instances',
     'attached to it, they will be moved to the "orphaned" cluster.'

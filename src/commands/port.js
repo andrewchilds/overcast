@@ -6,7 +6,7 @@ export const commands = {};
 
 commands.port = {
   name: 'port',
-  usage: 'overcast port [instance|cluster|all] [port]',
+  usage: ['overcast port [instance|cluster|all] [port]'],
   description: [
     'Change the SSH port for an instance or a cluster. This command fails',
     'if the new port has not been previously opened by iptables.',

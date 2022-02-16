@@ -7,7 +7,7 @@ export const commands = {};
 
 commands.ping = {
   name: 'ping',
-  usage: 'overcast ping [instance|cluster|all] [options]',
+  usage: ['overcast ping [instance|cluster|all] [options]'],
   description: 'Display the average ping time for an instance or cluster.',
   examples: [
     '$ overcast ping app-01',

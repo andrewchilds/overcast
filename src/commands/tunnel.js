@@ -6,7 +6,7 @@ export const commands = {};
 
 commands.tunnel = {
   name: 'tunnel',
-  usage: 'overcast tunnel [instance] [local-port((:hostname):remote-port)...]',
+  usage: ['overcast tunnel [instance] [local-port((:hostname):remote-port)...]'],
   description: [
     'Opens an SSH tunnel to the port(s) specified.',
     'If only one port is specified, assume the same port for local/remote.',

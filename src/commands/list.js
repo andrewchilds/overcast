@@ -6,7 +6,7 @@ export const commands = {};
 
 commands.list = {
   name: 'list',
-  usage: 'overcast list',
+  usage: ['overcast list'],
   description: 'List your cluster and instance definitions.',
   run: (args) => {
     const clusters = utils.getClusters();

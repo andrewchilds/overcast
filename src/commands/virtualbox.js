@@ -11,7 +11,7 @@ export const banner = [
 
 commands.boot = {
   name: 'boot',
-  usage: 'overcast virtualbox boot [name]',
+  usage: ['overcast virtualbox boot [name]'],
   description: 'Boot up a Virtualbox instance.',
   required: [
     { name: 'name', filters: [filters.findFirstMatchingInstance, filters.shouldBeVirtualbox] }
@@ -26,7 +26,7 @@ commands.start = Object.assign({ alias: true }, commands.boot);
 
 commands.create = {
   name: 'create',
-  usage: 'overcast virtualbox create [name] [options...]',
+  usage: ['overcast virtualbox create [name] [options...]'],
   description: [
     'Creates a new Virtualbox instance.'
   ],
@@ -54,7 +54,7 @@ commands.create = {
 
 commands.destroy = {
   name: 'destroy',
-  usage: 'overcast virtualbox destroy [name] [options...]',
+  usage: ['overcast virtualbox destroy [name] [options...]'],
   description: [
     'Destroys a Virtualbox instance.',
     'Using --force overrides the confirm dialog.'
@@ -76,7 +76,7 @@ commands.destroy = {
 
 commands.reboot = {
   name: 'reboot',
-  usage: 'overcast virtualbox reboot [name]',
+  usage: ['overcast virtualbox reboot [name]'],
   description: 'Reboots a Virtualbox instance.',
   required: [
     { name: 'name', filters: [filters.findFirstMatchingInstance, filters.shouldBeVirtualbox] }
@@ -89,7 +89,7 @@ commands.reboot = {
 
 commands.shutdown = {
   name: 'shutdown',
-  usage: 'overcast virtualbox shutdown [name]',
+  usage: ['overcast virtualbox shutdown [name]'],
   description: 'Shut down a Virtualbox instance.',
   required: [
     { name: 'name', filters: [filters.findFirstMatchingInstance, filters.shouldBeVirtualbox] }

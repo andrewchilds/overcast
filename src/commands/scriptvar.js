@@ -4,7 +4,7 @@ export const commands = {};
 
 commands.scriptvar = {
   name: 'scriptvar',
-  usage: 'overcast scriptvar [instance|cluster|all] [filename] [key] [value]',
+  usage: ['overcast scriptvar [instance|cluster|all] [filename] [key] [value]'],
   description: [
     'Set a named variable in a remote file on an instance or cluster.',
     'Expects a shell variable format, for example MY_VAR_NAME="my_value"'
