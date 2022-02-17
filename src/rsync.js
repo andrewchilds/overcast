@@ -92,6 +92,13 @@ function rsync(options, nextFn = () => {}) {
   }
 
   log.faded(args.join(' '));
+
+  if (utils.isTestRun()) {
+    log.log('mocked call of rsync command');
+
+    return nextFn();
+  }
+
   const rsyncProcess = utils.spawn(args);
 
   rsyncProcess.stdout.on('data', data => {

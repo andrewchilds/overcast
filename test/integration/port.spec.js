@@ -32,8 +32,9 @@ describe('port', () => {
     overcast('instance get vm-01 ssh_port', (logs) => {
       expectInLogExact(expect, logs, '22');
       overcast('port vm-01 22222', (logs) => {
-        expectInLog(expect, logs, 'test run of SSH command');
-        expectInLog(expect, logs, '"OVERCAST_ENV":"new_ssh_port=\\"22222\\"');
+        expectInLog(expect, logs, 'mocked call of SSH command');
+        expectInLog(expect, logs, { OVERCAST_PORT: '22' });
+        expectInLog(expect, logs, { OVERCAST_ENV: 'new_ssh_port="22222" ' });
         overcast('instance get vm-01 ssh_port', (logs) => {
           expectInLogExact(expect, logs, '22222');
           nextFn();

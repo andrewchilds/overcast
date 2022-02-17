@@ -89,14 +89,14 @@ function sshExec(options, nextFn) {
     utils.escapeWindowsPath(utils.getFileDirname() + '/../bin/overcast-ssh')
   ];
 
-  var sshEnv = Object.assign({}, process.env, {
+  var sshEnv = {
     OVERCAST_KEY: utils.escapeWindowsPath(options.ssh_key),
     OVERCAST_PORT: options.ssh_port,
     OVERCAST_USER: options.user,
     OVERCAST_PASSWORD: options.password,
     OVERCAST_IP: options.ip,
     OVERCAST_SSH_ARGS: options.ssh_args
-  });
+  };
 
   if (options.env) {
     if (utils.isObject(options.env)) {
@@ -133,14 +133,14 @@ function sshExec(options, nextFn) {
   }
 
   if (utils.isTestRun()) {
-    log.log('test run of SSH command');
-    log.log('args = ' + JSON.stringify(args));
-    log.log('sshEnv = ' + JSON.stringify(onlyOvercastKeys(sshEnv)));
+    log.log('mocked call of SSH command');
+    log.log(args);
+    log.log(sshEnv);
 
     return nextFn();
   }
 
-  var ssh = cp.spawn('bash', args, { env: sshEnv });
+  var ssh = cp.spawn('bash', args, { env: Object.assign({}, process.env, sshEnv) });
   var connectionProblem = false;
 
   ssh.stdout.on('data', data => {
@@ -200,17 +200,4 @@ function sshExec(options, nextFn) {
 
 function commandAsScriptFile(str, scriptDir) {
   return str.charAt(0) === '/' ? str : path.normalize(scriptDir + '/' + str);
-}
-
-// used only by the test env code path:
-function onlyOvercastKeys(envObj) {
-  const obj = {};
-
-  Object.keys(envObj).forEach((k) => {
-    if (k.indexOf('OVERCAST_') === 0) {
-      obj[k] = envObj[k];
-    }
-  });
-
-  return obj;
 }
