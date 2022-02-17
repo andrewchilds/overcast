@@ -5,7 +5,7 @@ describe('store', () => {
     store.clearStore();
   });
 
-  describe('.increaseSSHCount', () => {
+  describe('increaseSSHCount', () => {
     it('should increase the SSH count', () => {
       expect(store.increaseSSHCount()).toEqual(1);
       expect(store.increaseSSHCount()).toEqual(2);
@@ -13,7 +13,7 @@ describe('store', () => {
     });
   });
 
-  describe('.decreaseSSHCount', () => {
+  describe('decreaseSSHCount', () => {
     it('should decrease the SSH count to zero', () => {
       expect(store.increaseSSHCount()).toEqual(1);
       expect(store.increaseSSHCount()).toEqual(2);

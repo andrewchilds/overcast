@@ -320,8 +320,7 @@ export function argIsTruthy(arg) {
   return !!(arg && arg !== 'false');
 }
 
-export function findMatchingInstances(name) {
-  const clusters = getClusters();
+export function findMatchingInstances(name, clusters = getClusters()) {
   let instances = [];
 
   if (name === 'all') {
@@ -333,17 +332,16 @@ export function findMatchingInstances(name) {
   } else if (clusters[name] && clusters[name].instances) {
     instances = Object.values(clusters[name].instances);
   } else {
-    instances = findMatchingInstancesByInstanceName(name);
+    instances = findMatchingInstancesByInstanceName(name, clusters);
   }
 
   return instances;
 }
 
-export function findMatchingInstancesByInstanceName(name) {
-  var clusters = getClusters();
-  var instances = [];
+export function findMatchingInstancesByInstanceName(name, clusters = getClusters()) {
+  const instances = [];
+  const hasWildcard = name.indexOf('*') !== -1;
 
-  var hasWildcard = name.indexOf('*') !== -1;
   if (hasWildcard) {
     name = convertWildcard(name);
   }
@@ -374,9 +372,8 @@ export function convertWildcard(name) {
   return new RegExp(name.replace(/-/g, '\\-').replace(/\./g, '\\.').replace(/\*/g, '.*'));
 }
 
-export function findClusterNameForInstance(instance) {
-  var clusters = getClusters();
-  var foundName;
+export function findClusterNameForInstance(instance, clusters = getClusters()) {
+  let foundName;
 
   eachObject(clusters, (cluster, clusterName) => {
     if (!foundName && cluster.instances[instance.name]) {

@@ -94,4 +94,114 @@ describe('utils', () => {
       expect(clone).toEqual(original);
     });
   });
+
+  describe('findMatchingInstances', () => {
+    const subject = utils.findMatchingInstances;
+    const clusters = {
+      dummy: {
+        instances: {
+          'dummy.01': { name: 'dummy.01' },
+          'dummy.02': { name: 'dummy.02' }
+        }
+      },
+      test: {
+        instances: {
+          'test-01': { name: 'test-01' },
+          'test-02': { name: 'test-02' },
+          'test-03': { name: 'test-03' }
+        }
+      }
+    };
+
+    describe('name is "all"', () => {
+      it('should return all instances', () => {
+        expect(subject('all', clusters)).toEqual([
+          { name: 'dummy.01' },
+          { name: 'dummy.02' },
+          { name: 'test-01' },
+          { name: 'test-02' },
+          { name: 'test-03' }
+        ]);
+      });
+    });
+
+    describe('name matches a cluster', () => {
+      it('should return all instances from that cluster', () => {
+        expect(subject('dummy', clusters)).toEqual([
+          { name: 'dummy.01' },
+          { name: 'dummy.02' }
+        ]);
+      });
+    });
+
+    describe('name matches an instance', () => {
+      it('should return the matching instance', () => {
+        expect(subject('test-03', clusters)).toEqual([
+          { name: 'test-03' }
+        ]);
+      });
+    });
+
+    describe('name includes a wildcard', () => {
+      it('should return the matching instances', () => {
+        expect(subject('test-0*', clusters)).toEqual([
+          { name: 'test-01' },
+          { name: 'test-02' },
+          { name: 'test-03' }
+        ]);
+        expect(subject('*01', clusters)).toEqual([
+          { name: 'dummy.01' },
+          { name: 'test-01' }
+        ]);
+        expect(subject('*.*', clusters)).toEqual([
+          { name: 'dummy.01' },
+          { name: 'dummy.02' }
+        ]);
+      });
+    });
+
+  });
+
+  describe('tokenize', () => {
+    const subject = utils.tokenize;
+
+    it('should handle double-quoted tokens', () => {
+      expect(subject('"my first token" second, third'))
+        .toEqual(['my first token', 'second,', 'third']);
+    });
+
+    it('should handle single-quotes in double-quoted tokens and vice-versa', () => {
+      return expect(subject('"first token\'s value" \'second "token quote"\' third'))
+        .toEqual(['first token\'s value', 'second "token quote"', 'third']);
+    });
+
+    it('should handle single-quoted tokens', () => {
+      return expect(subject('"my first token" \'my second token\' third'))
+        .toEqual(['my first token', 'my second token', 'third']);
+    });
+
+    it('should handle simple tokens with irregular spacing', () => {
+      expect(subject(' first  second --third'))
+        .toEqual(['first', 'second', '--third']);
+    });
+
+  });
+
+  describe('sanitize', () => {
+    const subject = utils.sanitize;
+
+    it('should sanitize the input string', () => {
+      expect(subject('foo ~`!@#$%^&*()-=_+[]\\{}|;:\'",./<>?bar'))
+        .toBe('foo *-_.bar');
+    });
+
+    it('should handle numbers', () => {
+      expect(subject(12345)).toBe('12345');
+    });
+
+    it('should return empty strings for null and undefined', () => {
+      expect(subject(null)).toBe('');
+      expect(subject()).toBe('');
+    });
+  });
 });

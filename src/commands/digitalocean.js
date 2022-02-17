@@ -1,6 +1,6 @@
 import * as filters from '../filters.js';
 import * as provider from '../provider.js';
-import * as api from '../providers/digitalocean.v2.js';
+import * as api from '../providers/digitalocean.js';
 
 export const commands = {};
 
