@@ -1,3 +1,4 @@
+import { findMatchingInstances } from '../filters.js';
 import * as ssh from '../ssh.js';
 
 export const commands = {};
@@ -28,7 +29,7 @@ commands.run = {
     '$ overcast run all /my/install/script --ssh-args "-tt"'
   ],
   required: [
-    { name: 'instance|cluster|all', varName: 'name' },
+    { name: 'instance|cluster|all', varName: 'name', filters: findMatchingInstances },
     { name: 'command|file', varName: 'firstCommandOrFile', raw: true }
   ],
   options: [

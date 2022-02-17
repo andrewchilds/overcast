@@ -152,7 +152,7 @@ commands.update = {
     '$ overcast instance update app-cluster --ssh-port 22222'
   ],
   required: [
-    { name: 'instance|cluster|all', varName: 'oldName' }
+    { name: 'instance|cluster|all', varName: 'oldName', filters: filters.findMatchingInstances }
   ],
   options: [
     { usage: '--name NAME' },

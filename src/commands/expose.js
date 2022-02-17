@@ -1,5 +1,6 @@
 import * as utils from '../utils.js';
 import * as ssh from '../ssh.js';
+import { findMatchingInstances } from '../filters.js';
 
 export const commands = {};
 
@@ -15,7 +16,7 @@ commands.expose = {
     'Expects an Ubuntu server, untested on other distributions.'
   ],
   required: [
-    { name: 'instance|cluster|all', varName: 'name' },
+    { name: 'instance|cluster|all', varName: 'name', filters: findMatchingInstances },
     { name: 'port...', varName: 'ports', greedy: true }
   ],
   options: [

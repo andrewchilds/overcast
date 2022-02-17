@@ -14,7 +14,7 @@ describe('utils', () => {
       expect(utils.getNextColor()).toBe('yellow');
       expect(utils.getNextColor()).toBe('magenta');
       expect(utils.getNextColor()).toBe('blue');
-      expect(utils.getNextColor()).toBe('gray');
+      expect(utils.getNextColor()).toBe('white');
       expect(utils.getNextColor()).toBe('cyan');
     })
   });
