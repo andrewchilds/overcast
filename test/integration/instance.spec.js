@@ -91,6 +91,29 @@ describe('instance', () => {
   });
 
   describe('update', () => {
+    it('should complain if no instance name is provided', (nextFn) => {
+      overcast('instance update', (logs) => {
+        expectInLog(expect, logs, 'Missing [instance|cluster|all] argument');
+        nextFn();
+      });
+    });
+
+    it('should complain if an incorrect cluster name is provided', (nextFn) => {
+      overcast('instance update instance.01 --cluster NEW_CLUSTER', (logs) => {
+        expectInLog(expect, logs, 'No "NEW_CLUSTER" cluster found.');
+        nextFn();
+      });
+    });
+
+    it('should allow me to move an instance to a different cluster', (nextFn) => {
+      overcast('cluster add NEW_CLUSTER', () => {
+        overcast('instance update instance.01 --cluster NEW_CLUSTER', (logs) => {
+          expectInLog(expect, logs, 'Instance "instance.01" has been moved to the "NEW_CLUSTER" cluster.');
+          nextFn();
+        });
+      });
+    });
+
     it('should allow me to rename an instance', (nextFn) => {
       overcast('instance update instance.01 --name instance.01.renamed', (logs) => {
         expectInLog(expect, logs, 'Instance "instance.01" has been renamed to "instance.01.renamed"');
@@ -100,6 +123,20 @@ describe('instance', () => {
   });
 
   describe('remove', () => {
+    it('should complain if no instance name is provided', (nextFn) => {
+      overcast('instance remove', (logs) => {
+        expectInLog(expect, logs, 'Missing [name] argument');
+        nextFn();
+      });
+    });
+
+    it('should complain if an incorrect instance name is provided', (nextFn) => {
+      overcast('instance remove MISSING_NAME', (logs) => {
+        expectInLog(expect, logs, 'No instance found matching "MISSING_NAME".');
+        nextFn();
+      });
+    });
+
     it('should allow me to remove an instance', (nextFn) => {
       overcast('instance remove instance.01.renamed', (logs) => {
         expectInLog(expect, logs, 'Instance "instance.01.renamed" removed');

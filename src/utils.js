@@ -85,7 +85,7 @@ export function times(maxIndex, cb) {
 }
 
 export function allInParallelThen(parallelFns, nextFn) {
-  const results = 0;
+  let results = 0;
   parallelFns.forEach((fn) => {
     fn(() => {
       results += 1;

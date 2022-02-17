@@ -73,7 +73,8 @@ function runOnInstance(instance, args, nextFn) {
 
 function sshExec(options, nextFn) {
   if (!options.ip) {
-    return utils.die('IP missing.');
+    utils.die('IP missing.');
+    return nextFn();
   }
 
   var color = utils.getNextColor();
@@ -129,6 +130,14 @@ function sshExec(options, nextFn) {
 
   if (options.machineReadable) {
     sshEnv.OVERCAST_HIDE_COMMAND = 1;
+  }
+
+  if (utils.isTestRun()) {
+    log.log('test run of SSH command');
+    log.log('args = ' + JSON.stringify(args));
+    log.log('sshEnv = ' + JSON.stringify(onlyOvercastKeys(sshEnv)));
+
+    return nextFn();
   }
 
   var ssh = cp.spawn('bash', args, { env: sshEnv });
@@ -191,4 +200,17 @@ function sshExec(options, nextFn) {
 
 function commandAsScriptFile(str, scriptDir) {
   return str.charAt(0) === '/' ? str : path.normalize(scriptDir + '/' + str);
+}
+
+// used only by the test env code path:
+function onlyOvercastKeys(envObj) {
+  const obj = {};
+
+  Object.keys(envObj).forEach((k) => {
+    if (k.indexOf('OVERCAST_') === 0) {
+      obj[k] = envObj[k];
+    }
+  });
+
+  return obj;
 }
