@@ -1,6 +1,7 @@
 import * as utils from '../utils.js';
 import * as scp from '../scp.js';
 import * as rsync from '../rsync.js';
+import { findMatchingInstances } from '../filters.js';
 
 export const commands = {};
 
@@ -21,7 +22,7 @@ commands.push = {
     '$ overcast push app {instance}.bashrc .bashrc'
   ],
   required: [
-    { name: 'instance|cluster|all', varName: 'name' },
+    { name: 'instance|cluster|all', varName: 'name', filters: findMatchingInstances },
     { name: 'source', raw: true },
     { name: 'dest', raw: true }
   ],

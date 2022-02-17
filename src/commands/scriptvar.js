@@ -1,3 +1,4 @@
+import { findMatchingInstances } from '../filters.js';
 import * as ssh from '../ssh.js';
 
 export const commands = {};
@@ -13,7 +14,7 @@ commands.scriptvar = {
     '$ overcast scriptvar app-01 /path/to/file.sh MY_API_TOKEN abc123'
   ],
   required: [
-    { name: 'instance|cluster|all', varName: 'name' },
+    { name: 'instance|cluster|all', varName: 'name', filters: findMatchingInstances },
     { name: 'filename', varName: 'var_filename', raw: true },
     { name: 'key', varName: 'var_name', raw: true },
     { name: 'value', varName: 'var_value', raw: true }

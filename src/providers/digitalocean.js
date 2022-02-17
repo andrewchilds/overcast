@@ -3,6 +3,12 @@ import DigitalOcean from 'do-wrapper';
 
 import * as utils from '../utils.js';
 
+const FIRST_PAGE = 1;
+const PAGE_SIZE = 50;
+const DEFAULT_IMAGE = 'ubuntu-20-04-x64';
+const DEFAULT_SIZE = 's-1vcpu-2gb-amd';
+const DEFAULT_REGION = 'nyc3';
+
 const PRIVATE_CACHE = {
   API: null
 };
@@ -11,6 +17,30 @@ const PRIVATE_CACHE = {
 // export const name = 'DigitalOcean';
 
 // Provider interface
+
+export function getAPI() {
+  if (PRIVATE_CACHE.API) {
+    return PRIVATE_CACHE.API;
+  }
+
+  const vars = utils.getVariables();
+  if (!vars.DIGITALOCEAN_API_TOKEN) {
+    log.failure('The variable DIGITALOCEAN_API_TOKEN is not set.');
+    log.failure('Go to https://cloud.digitalocean.com/settings/applications');
+    log.failure('to get your API token, then run the following command:');
+    return utils.die('overcast var set DIGITALOCEAN_API_TOKEN [your_api_token]');
+  }
+
+  PRIVATE_CACHE.API = new DigitalOcean.default(vars.DIGITALOCEAN_API_TOKEN);
+
+  return PRIVATE_CACHE.API;
+}
+
+function genericErrorHandler(err) {
+  if (err) {
+    return utils.die(`Got an error from the DigitalOcean API: ${err}`);
+  }
+}
 
 export function create(args, nextFn) {
   args['ssh-pub-key'] = utils.normalizeKeyPath(args['ssh-pub-key'], 'overcast.key.pub');
@@ -33,10 +63,7 @@ export function create(args, nextFn) {
 }
 
 export function createRequest(args, query, nextFn) {
-  getAPI().dropletsCreate(query, (err, res, body) => {
-    if (err) {
-      return utils.die(`Got an error from the DigitalOcean API: ${err}`);
-    }
+  getAPI().droplets.create(query).then(body => {
     if (body && body.droplet) {
       log.faded('Waiting for instance to be created...');
       waitForActionToComplete(body.links.actions[0].id, () => {
@@ -56,7 +83,7 @@ export function createRequest(args, query, nextFn) {
         });
       });
     }
-  });
+  }).catch(genericErrorHandler);
 }
 
 export function destroy({digitalocean}, nextFn) {
@@ -106,22 +133,19 @@ export function snapshot(instance, snapshotName, nextFn) {
 }
 
 function _handlePaginatedResponse(err, body, nextFn) {
-  if (err) {
-    return utils.die(`Got an error from the DigitalOcean API: ${err}`);
-  }
   nextFn(body);
 }
 
 export function getImages(nextFn) {
-  getAPI().imagesGetAll({ includeAll: true, per_page: 50 }, (err, res, body) => {
-    _handlePaginatedResponse(err, body, nextFn);
-  });
+  getAPI().images.getAll('', true, FIRST_PAGE, PAGE_SIZE).then(body => {
+    nextFn(body);
+  }).catch(genericErrorHandler);
 }
 
-export function getInstances(args, nextFn) {
-  getAPI().dropletsGetAll({ includeAll: true, per_page: 50 }, (err, res, body) => {
-    _handlePaginatedResponse(err, body, nextFn);
-  });
+export function getInstances(nextFn) {
+  getAPI().droplets.getAll({ includeAll: true, pageSize: 50 }).then(body => {
+    nextFn(body);
+  }).catch(genericErrorHandler);
 }
 
 export function getInstance(instance, nextFn) {
@@ -129,73 +153,64 @@ export function getInstance(instance, nextFn) {
   const id = utils.isObject(instance) && instance.digitalocean ?
     instance.digitalocean.id : instance;
 
-  getAPI().dropletsGetById(id, (err, res, body) => {
-    if (err) {
-      return utils.die(`Got an error from the DigitalOcean API: ${err}`);
-    }
+  getAPI().droplets.getById(id).then(body => {
     if (body && body.droplet) {
       nextFn(body.droplet);
+    } else {
+      utils.die('Unable to find droplet.');
     }
-  });
+  }).catch(genericErrorHandler);
 }
 
 export function sync(instance, nextFn) {
   updateInstanceMetadata(instance, nextFn);
 }
 
-export function updateInstanceMetadata(instance, nextFn) {
+export function updateInstanceMetadata(instance, nextFn = () => {}) {
   getInstance(instance, droplet => {
     utils.updateInstance(instance.name, {
       ip: droplet.networks.v4[0].ip_address,
       digitalocean: droplet
     });
-
-    if (utils.isFunction(nextFn)) {
-      nextFn();
-    }
+    nextFn();
   });
 }
 
-/*
-export function getKernels = (nextFn) => {};
-*/
-
 export function getRegions(nextFn) {
-  getAPI().regionsGetAll({ includeAll: true, per_page: 50 }, (err, res, body) => {
-    _handlePaginatedResponse(err, body, nextFn);
-  });
+  getAPI().regions.getAll('', true, FIRST_PAGE, PAGE_SIZE).then(body => {
+    nextFn(body);
+  }).catch(genericErrorHandler);
 }
 
 export function getSizes(nextFn) {
-  getAPI().sizesGetAll({ includeAll: true, per_page: 50 }, (err, res, body) => {
-    _handlePaginatedResponse(err, body, nextFn);
-  });
+  getAPI().sizes.get('', true, FIRST_PAGE, PAGE_SIZE).then(body => {
+    nextFn(body);
+  }).catch(genericErrorHandler);
 }
 
 export function getSnapshots(nextFn) {
-  getAPI().imagesGetAll({ includeAll: true, per_page: 50, private: true }, (err, res, body) => {
-    _handlePaginatedResponse(err, body, nextFn);
-  });
+  getAPI().snapshots.getAll('', true, FIRST_PAGE, PAGE_SIZE).then(body => {
+    nextFn(body);
+  }).catch(genericErrorHandler);
 }
 
 export function getKeys(nextFn) {
-  getAPI().accountGetKeys({ includeAll: true, per_page: 50 }, (err, res, body) => {
-    _handlePaginatedResponse(err, body, nextFn);
-  });
+  getAPI().keys.getAll('', true, FIRST_PAGE, PAGE_SIZE).then(body => {
+    nextFn(body);
+  }).catch(genericErrorHandler);
 }
 
 export function createKey(keyData, nextFn) {
-  getAPI().accountAddKey({
+  getAPI().keys.add({
     name: utils.createHashedKeyName(keyData),
     public_key: `${keyData}`
-  }, (err, res, body) => {
-    if (err) {
-      return utils.die(`Got an error from the DigitalOcean API: ${err}`);
-    }
+  }).then(body => {
     if (body && body.ssh_key) {
       nextFn(body.ssh_key);
+    } else {
+      utils.die('Unable to add SSH key.');
     }
-  });
+  }).catch(genericErrorHandler);
 }
 
 // Internal functions
@@ -225,10 +240,7 @@ export function waitForShutdown(instance, nextFn) {
 }
 
 export function waitForActionToComplete(id, nextFn) {
-  getAPI().accountGetAction(id, (err, res, body) => {
-    if (err) {
-      return utils.die(`Got an error from the DigitalOcean API: ${err}`);
-    }
+  getAPI().actions.getById(id).then(body => {
     if (body && body.action && body.action.status === 'completed') {
       nextFn();
     } else {
@@ -236,29 +248,11 @@ export function waitForActionToComplete(id, nextFn) {
         waitForActionToComplete(id, nextFn);
       }, 5000);
     }
-  });
-}
-
-export function getAPI() {
-  if (PRIVATE_CACHE.API) {
-    return PRIVATE_CACHE.API;
-  }
-
-  const vars = utils.getVariables();
-  if (!vars.DIGITALOCEAN_API_TOKEN) {
-    log.failure('The variable DIGITALOCEAN_API_TOKEN is not set.');
-    log.failure('Go to https://cloud.digitalocean.com/settings/applications');
-    log.failure('to get this variable, then run the following command:');
-    return utils.die('overcast var set DIGITALOCEAN_API_TOKEN [your_api_token]');
-  }
-
-  PRIVATE_CACHE.API = new DigitalOcean(vars.DIGITALOCEAN_API_TOKEN);
-
-  return PRIVATE_CACHE.API;
+  }).catch(genericErrorHandler);
 }
 
 export function dropletAction(instance, data, nextFn) {
-  getAPI().dropletsRequestAction(instance.digitalocean.id, data, (err, res, {message, action}) => {
+  getAPI().dropletsRequestAction(instance.digitalocean.id, data, (err, res, { message, action }) => {
     if (err || message) {
       return utils.die(`Got an error from the DigitalOcean API: ${err || message}`);
     }
@@ -268,10 +262,10 @@ export function dropletAction(instance, data, nextFn) {
   });
 }
 
-export function normalizeAndFindPropertiesForCreate(args, nextFn) {
-  args.image = args.image || args['image-id'] || args['image-slug'] || args['image-name'] || 'ubuntu-14-04-x64';
-  args.size = args.size || args['size-slug'] || args['size-name'] || '512mb';
-  args.region = args.region || args['region-slug'] || args['region-name'] || 'nyc3';
+export function normalizeAndFindPropertiesForCreate(args, nextFn = () => {}) {
+  args.image = args.image || args['image-id'] || args['image-slug'] || args['image-name'] || DEFAULT_IMAGE;
+  args.size = args.size || args['size-slug'] || args['size-name'] || DEFAULT_SIZE;
+  args.region = args.region || args['region-slug'] || args['region-name'] || DEFAULT_REGION;
 
   getImages((images) => {
     const matchingImage = getMatching(images, args.image);
@@ -299,15 +293,13 @@ export function normalizeAndFindPropertiesForCreate(args, nextFn) {
         args['size-slug'] = matchingSize.slug;
         args['region-slug'] = matchingRegion.slug;
 
-        if (utils.isFunction(nextFn)) {
-          nextFn();
-        }
+        nextFn();
       });
     });
   });
 }
 
-export function getOrCreateOvercastKeyID(pubKeyPath, nextFn) {
+export function getOrCreateOvercastKeyID(pubKeyPath, nextFn = () => {}) {
   const keyData = `${fs.readFileSync(pubKeyPath, 'utf8')}`;
 
   getKeys((keys) => {
@@ -326,11 +318,11 @@ export function getOrCreateOvercastKeyID(pubKeyPath, nextFn) {
   });
 }
 
-export function isDiskIncrease(oldSize, newSize) {
-  function normalizeSize(s) {
-    return s.includes('mb') ? parseInt(s, 10) : parseInt(s, 10) * 1000;
-  }
+function normalizeSize(s) {
+  return s.includes('mb') ? parseInt(s, 10) : parseInt(s, 10) * 1000;
+}
 
+export function isDiskIncrease(oldSize, newSize) {
   return normalizeSize(newSize) > normalizeSize(oldSize);
 }
 
