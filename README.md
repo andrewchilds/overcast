@@ -419,7 +419,7 @@ Usage:
 Description:
   Reset the exposed ports on the instance or cluster using iptables.
   This will fail if you don't include the current SSH port.
-  Specifying --whitelist will restrict all ports to the specified address(es).
+  Specifying --allowlist will restrict all ports to the specified address(es).
   These can be individual IPs or CIDR ranges, such as "192.168.0.0/24".
 
   Expects an Ubuntu server, untested on other distributions.
@@ -427,18 +427,18 @@ Description:
 Options:
   --user USERNAME
   --password PASSWORD
-  --whitelist "IP|RANGE"
-  --whitelist-PORT "IP|RANGE"
+  --allowlist "IP|RANGE"
+  --allowlist-PORT "IP|RANGE"
 
 Examples:
   Allow SSH, HTTP and HTTPS connections from anywhere:
   $ overcast expose app 22 80 443
 
   Allow SSH from anywhere, only allow Redis connections from 1.2.3.4:
-  $ overcast expose redis 22 6379 --whitelist-6379 "1.2.3.4"
+  $ overcast expose redis 22 6379 --allowlist-6379 "1.2.3.4"
 
   Only allow SSH and MySQL connections from 1.2.3.4 or from 5.6.7.xxx:
-  $ overcast expose mysql 22 3306 --whitelist "1.2.3.4 5.6.7.0/24"
+  $ overcast expose mysql 22 3306 --allowlist "1.2.3.4 5.6.7.0/24"
 ```
 
 ### overcast exposed
