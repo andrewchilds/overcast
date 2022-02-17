@@ -1,4 +1,3 @@
-import _ from 'lodash';
 import * as utils from './utils.js';
 import * as log from './log.js';
 
@@ -8,7 +7,7 @@ export function run(args, nextFn) {
 
   if (args.parallel || args.p) {
     instances.forEach((instance) => {
-      runOnInstance(instance, _.cloneDeep(args), nextFn);
+      runOnInstance(instance, utils.deepClone(args), nextFn);
     });
   } else {
     runOnInstances(instances, args, nextFn);
@@ -17,7 +16,7 @@ export function run(args, nextFn) {
 
 function runOnInstances(instances, args, nextFn) {
   const instance = instances.shift();
-  runOnInstance(instance, _.cloneDeep(args), () => {
+  runOnInstance(instance, utils.deepClone(args), () => {
     if (instances.length > 0) {
       runOnInstances(instances, args);
     } else {

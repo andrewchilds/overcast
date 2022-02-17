@@ -1,7 +1,5 @@
 import fs from 'fs';
-import path from 'path';
 import cp from 'child_process';
-import rimraf from 'rimraf';
 import * as utils from '../utils.js';
 import * as log from '../log.js';
 
@@ -309,7 +307,7 @@ export function destroyInstance(instance) {
         reject();
       } else {
         // cross-platform rm -rf
-        rimraf(instance.virtualbox.dir, () => {
+        utils.rmDir(instance.virtualbox.dir, () => {
           resolve(instance);
         });
       }

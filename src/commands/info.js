@@ -8,8 +8,7 @@ export const commands = {};
 commands.info = {
   name: 'info',
   usage: ['overcast info', 'overcast info [name]'],
-  description: ['Pretty-prints the complete clusters.json file, stored here:',
-    getClustersJSON(),
+  description: ['Prints the complete .overcast/clusters.json file.',
     'Optionally display only instances matching [name].'],
   required: [{ name: 'name', optional: true, filters: filters.findMatchingInstances }],
   run: ({ instances }, nextFn) => {

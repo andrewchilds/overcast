@@ -6,7 +6,7 @@ import * as store from './store.js';
 import * as log from './log.js';
 import allCommands from './commands/index.js';
 
-const DEFAULT_COMMAND = 'info';
+const DEFAULT_COMMAND = 'help';
 
 export function init(argString = '', nextFn = () => {}) {
   store.setArgString(argString || process.argv.slice(2).join(' ') || DEFAULT_COMMAND);

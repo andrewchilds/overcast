@@ -1,7 +1,6 @@
 import fs from 'fs';
 import path from 'path';
 import cp from 'child_process';
-import _ from 'lodash';
 import * as utils from './utils.js';
 import * as log from './log.js';
 import { decreaseSSHCount } from './store.js';
@@ -29,7 +28,7 @@ export function run(args, nextFn) {
 function runOnInstancesInParallel(instances, args, nextFn) {
   const fns = instances.map((instance) => {
     return (nextFn) => {
-      runOnInstance(instance, _.cloneDeep(args), nextFn);
+      runOnInstance(instance, utils.deepClone(args), nextFn);
     };
   });
 
@@ -38,7 +37,7 @@ function runOnInstancesInParallel(instances, args, nextFn) {
 
 function runOnInstances(instances, args, nextFn = () => {}) {
   var instance = instances.shift();
-  runOnInstance(instance, _.cloneDeep(args), () => {
+  runOnInstance(instance, utils.deepClone(args), () => {
     if (instances.length > 0) {
       runOnInstances(instances, args, nextFn);
     } else {

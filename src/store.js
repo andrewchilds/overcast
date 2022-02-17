@@ -6,9 +6,13 @@ export function clearStore() {
   STORE = {};
 }
 
+export function dump() {
+  return STORE;
+}
+
 export function setStore(key, val) {
   STORE[key] = val;
-};
+}
 
 export function getStore(key) {
   return STORE[key];
@@ -57,14 +61,18 @@ export function getVariablesJSON() {
   return STORE.VARIABLES_JSON;
 }
 
-export function increaseSSHCount() {
-  STORE.SSH_COUNT += 1;
-}
-
 export function getSSHCount() {
   return STORE.SSH_COUNT || 0;
 }
 
+export function setSSHCount(c) {
+  return STORE.SSH_COUNT = c;
+}
+
+export function increaseSSHCount() {
+  return setSSHCount(getSSHCount() + 1);
+}
+
 export function decreaseSSHCount() {
-  STORE.SSH_COUNT -= 1;
+  return setSSHCount(Math.max(0, getSSHCount() - 1));
 }

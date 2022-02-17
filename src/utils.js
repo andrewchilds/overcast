@@ -862,3 +862,32 @@ export function spawn(command, overrides) {
 
   return cp.spawn('/bin/sh', ['-c', command], options);
 }
+
+// This replaces the rimraf library:
+export function rmDir(dir, nextFn) {
+  fs.rm(dir, { force: true, recursive: true }, (err) => {
+    if (err) {
+      return die(`Unable to delete directory "${dir}": ${err}`);
+    }
+    nextFn();
+  });
+}
+
+// Simple version of lodash.cloneDeep:
+// Does not clone functions or handle recursive references.
+export function deepClone(original) {
+  if (original instanceof RegExp) {
+    return new RegExp(original);
+  } else if (original instanceof Date) {
+    return new Date(original.getTime());
+  } else if (Array.isArray(original)) {
+    return original.map(deepClone);
+  } else if (typeof original === 'object' && original !== null) {
+    const clone = {};
+    Object.keys(original).forEach(k => {
+      clone[k] = deepClone(original[k]);
+    });
+    return clone;
+  }
+  return original;
+}

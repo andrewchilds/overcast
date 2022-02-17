@@ -1,5 +1,5 @@
 import chalk from 'chalk';
-import _ from 'lodash';
+
 import { isTestRun } from './utils.js';
 import { appendToStore, getStore } from './store.js';
 

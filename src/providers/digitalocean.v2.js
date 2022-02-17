@@ -1,6 +1,6 @@
 import fs from 'fs';
 import * as utils from '../utils.js';
-import DigitalOcean from 'overcast-do-wrapper';
+import DigitalOcean from 'do-wrapper';
 
 const PRIVATE_CACHE = {
   API: null

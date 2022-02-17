@@ -475,8 +475,7 @@ Usage:
   overcast info [name]
 
 Description:
-  Pretty-prints the complete clusters.json file, stored here:
-  undefined
+  Prints the complete .overcast/clusters.json file.
   Optionally display only instances matching [name].
 ```
 
@@ -928,7 +927,7 @@ Usage:
   overcast vars list
 
 Description:
-  List variables in undefined.
+  List all variables in your current config.
 ```
 
 ### overcast vars set
@@ -938,7 +937,7 @@ Usage:
   overcast vars set [name] [value]
 
 Description:
-  Set a variable in undefined.
+  Set a variable in your current config.
 
 Examples:
   $ overcast vars set AWS_KEY myawskey12345
@@ -952,7 +951,7 @@ Usage:
   overcast vars get [name]
 
 Description:
-  Get a variable from undefined.
+  Get a variable from your current config.
 
 Examples:
   $ overcast vars get AWS_KEY
@@ -969,7 +968,7 @@ Usage:
   overcast vars delete [name]
 
 Description:
-  Delete a variable from undefined.
+  Delete a variable from your current config.
 
 Examples:
   $ overcast vars delete MY_CUSTOM_VARIABLE_NAME

@@ -1,4 +1,3 @@
-_ = require('lodash')
 cli = require('../../src/cli')
 utils = require('../../src/utils')
 tunnel = require('../../src/commands/tunnel')

@@ -11,7 +11,7 @@ npm -g update overcast
 Codebase refactor:
 
 - Refactor codebase to use modern ES6 + ESM syntax
-- Remove `lodash`, `bluebird` dependencies
+- Remove `lodash`, `bluebird`, `rimraf` dependencies
 - Replace `colors` dependency with `chalk`
 - Upgrade all remaining dependencies to latest
 
