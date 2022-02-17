@@ -28,9 +28,10 @@ commands.help = {
     signatures.push(row);
 
     utils.printArray([
-      (`This is Overcast v${constants.VERSION}.`),
       '',
-      'Source code, issues, pull requests:',
+      `This is Overcast v${constants.VERSION}`,
+      '',
+      'Documentation, source code, feedback:',
       chalk.cyan('  https://github.com/andrewchilds/overcast'),
       '',
       'Usage:',

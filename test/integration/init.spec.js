@@ -1,21 +1,21 @@
-import { overcast, tearDown } from './utils.js';
+import { overcast, tearDown, expectInLog } from './utils.js';
 
 describe('init', () => {
-  beforeAll((done) => {
-    tearDown(done);
+  beforeAll((nextFn) => {
+    tearDown(nextFn);
   });
 
-  it('should allow me to init in the cwd', (done) => {
+  it('should allow me to init in the cwd', (nextFn) => {
     overcast('init', (logs) => {
-      expect(logs).toContain('Created an .overcast directory');
-      done();
+      expectInLog(expect, logs, 'Created an .overcast directory');
+      nextFn();
     });
   });
 
-  it('should tell me if a config directory already exists', (done) => {
+  it('should tell me if a config directory already exists', (nextFn) => {
     overcast('init', (logs) => {
-      expect(logs).toContain('An .overcast directory already exists');
-      done();
+      expectInLog(expect, logs, 'An .overcast directory already exists');
+      nextFn();
     });
   });
 

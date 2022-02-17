@@ -9,7 +9,7 @@ commands.list = {
   name: 'list',
   usage: ['overcast list'],
   description: 'List your cluster and instance definitions.',
-  run: (args, nextFn) => {
+  run: (args, nextFn = () => {}) => {
     const clusters = utils.getClusters();
 
     log.faded(`Using ${getClustersJSON()}`);
@@ -17,7 +17,7 @@ commands.list = {
     if (Object.keys(clusters).length === 0) {
       log.br();
       log.alert('No clusters found.');
-      return false;
+      return nextFn();
     }
 
     utils.eachObject(clusters, ({ instances }, clusterName) => {

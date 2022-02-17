@@ -17,6 +17,7 @@ commands.init = {
 
     if (fs.existsSync(`${cwd}/.overcast`)) {
       log.alert(`An .overcast directory already exists here (${cwd}).`);
+      nextFn();
     } else {
       utils.initOvercastDir(cwd, () => {
         // Override, in case we already have an existing dir elsewhere:

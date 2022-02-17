@@ -1,29 +1,25 @@
-import { overcast, tearDown } from './utils.js';
+import { overcast, tearDown, expectInLog } from './utils.js';
 
 describe('completions', () => {
-  beforeAll((done) => {
-    tearDown(() => {
-      overcast('init', () => {
-        done();
-      });
-    });
+  beforeAll((nextFn) => {
+    tearDown(nextFn);
   });
 
-  it('should print a list of keywords', (done) => {
+  it('should print a list of keywords', (nextFn) => {
     overcast('completions', (logs) => {
-      expect(logs).toContain('overcast');
-      expect(logs).toContain('cluster');
-      expect(logs).toContain('instance');
-      done();
+      expectInLog(expect, logs, 'overcast');
+      expectInLog(expect, logs, 'cluster');
+      expectInLog(expect, logs, 'instance');
+      nextFn();
     });
   });
 
-  it('should also print a list of clusters and instances', (done) => {
+  it('should also print a list of clusters and instances', (nextFn) => {
     overcast('instance add myInstanceName 1.2.3.4 --cluster helloCluster', () => {
       overcast('completions', (logs) => {
-        expect(logs).toContain('myInstanceName');
-        expect(logs).toContain('helloCluster');
-        done();
+        expectInLog(expect, logs, 'myInstanceName');
+        expectInLog(expect, logs, 'helloCluster');
+        nextFn();
       });
     });
   });

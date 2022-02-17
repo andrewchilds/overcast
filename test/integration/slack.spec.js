@@ -1,41 +1,37 @@
-import { overcast, tearDown } from './utils.js';
+import { overcast, tearDown, expectInLog } from './utils.js';
 
 describe('slack', () => {
-  beforeAll((done) => {
-    tearDown(() => {
-      overcast('init', () => {
-        done();
-      });
-    });
+  beforeAll((nextFn) => {
+    tearDown(nextFn);
   });
 
   describe('without a message set', () => {
-    it('should complain', (done) => {
+    it('should complain', (nextFn) => {
       overcast('slack', (logs) => {
-        expect(logs).toContain('Missing [message] argument.');
-        done();
+        expectInLog(expect, logs, 'Missing [message] argument');
+        nextFn();
       });
     });
   });
 
   describe('without a token set', () => {
-    it('should complain', (done) => {
+    it('should complain', (nextFn) => {
       overcast('slack "Hello!"', (logs) => {
-        expect(logs).toContain('Please add SLACK_WEBHOOK_URL to');
-        done();
+        expectInLog(expect, logs, 'Please add SLACK_WEBHOOK_URL');
+        nextFn();
       });
     });
   });
 
   describe('with a valid message and token set', () => {
-    it('should try to send the slack message', (done) => {
+    it('should try to send the slack message', (nextFn) => {
       overcast('vars set SLACK_WEBHOOK_URL https://example.slack.com', () => {
         overcast('slack "Hello!" --channel "#random" --ram "256mb"', (logs) => {
-          expect(logs).toContain('Message sent to Slack.');
-          expect(logs).toContain('"text":"Hello!"');
-          expect(logs).toContain('"channel":"#random"');
-          expect(logs).toContain('"fields":{"ram":"256mb"}');
-          done();
+          expectInLog(expect, logs, 'Message sent to Slack');
+          expectInLog(expect, logs, '"text":"Hello!"');
+          expectInLog(expect, logs, '"channel":"#random"');
+          expectInLog(expect, logs, '"fields":{"ram":"256mb"');
+          nextFn();
         });
       });
     });

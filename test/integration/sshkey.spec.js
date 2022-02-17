@@ -1,37 +1,33 @@
-import { overcast, tearDown } from './utils.js';
+import { overcast, tearDown, expectInLog } from './utils.js';
 
 describe('sshkey', () => {
-  beforeAll((done) => {
-    tearDown(() => {
-      overcast('init', () => {
-        done();
-      });
-    });
+  beforeAll((nextFn) => {
+    tearDown(nextFn);
   });
 
   describe('without a name set', () => {
-    it('should complain and fail', (done) => {
+    it('should complain and fail', (nextFn) => {
       overcast('sshkey create', (logs) => {
-        expect(logs).toContain('Missing [name] argument.');
-        done();
+        expectInLog(expect, logs, 'Missing [name] argument');
+        nextFn();
       });
     });
   });
 
   describe('with an existing name provided', () => {
-    it('should complain and fail', (done) => {
+    it('should complain and fail', (nextFn) => {
       overcast('sshkey create overcast', (logs) => {
-        expect(logs).toContain('The key "overcast" already exists.');
-        done();
+        expectInLog(expect, logs, 'The key "overcast" already exists');
+        nextFn();
       });
     });
   });
 
   describe('with a correct new name set', () => {
-    it('should create the new key', (done) => {
+    it('should create the new key', (nextFn) => {
       overcast('sshkey create myNewKey', (logs) => {
-        expect(logs).toContain('Created new SSH key at');
-        done();
+        expectInLog(expect, logs, 'Created new SSH key at');
+        nextFn();
       });
     });
   });

@@ -14,9 +14,7 @@
   "type": "module",
   "main": "overcast.js",
   "scripts": {
-    "test:unit": "cd test && npx jasmine unit/*.spec.js",
-    "test:integration": "cd test && npx jasmine --random=false integration/*.spec.js",
-    "test": "yarn test:unit && yarn test:integration"
+    "test": "cd test && npx jasmine --random=false integration/*.spec.js"
   },
   "bin": {
     "overcast": "overcast.js"

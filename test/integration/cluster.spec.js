@@ -1,40 +1,36 @@
-import { overcast, tearDown } from './utils.js';
+import { overcast, tearDown, expectInLog, expectInLogExact } from './utils.js';
 
 const name = 'testCluster';
 
 describe('cluster', () => {
-  beforeAll((done) => {
-    tearDown(() => {
-      overcast('init', () => {
-        done();
-      });
-    });
+  beforeAll((nextFn) => {
+    tearDown(nextFn);
   });
 
   describe('add', () => {
-    it('should fail if there was no name added', (done) => {
+    it('should fail if there was no name added', (nextFn) => {
       overcast(`cluster add`, (logs) => {
-        expect(logs).toContain('Missing [name] argument.');
-        done();
+        expectInLog(expect, logs, 'Missing [name] argument.');
+        nextFn();
       });
     });
 
-    it('should allow me to add a new cluster', (done) => {
+    it('should allow me to add a new cluster', (nextFn) => {
       overcast(`cluster add ${name}`, (logs) => {
-        expect(logs).toContain(`Cluster "${name}" has been added`);
-        done();
+        expectInLog(expect, logs, `Cluster "${name}" has been added`);
+        nextFn();
       });
     });
   });
 
   describe('count', () => {
-    it('should return the instance count for an existing cluster', (done) => {
+    it('should return the instance count for an existing cluster', (nextFn) => {
       overcast(`cluster count ${name}`, (logs) => {
-        expect(logs).toContain('0');
+        expectInLogExact(expect, logs, 0);
         overcast(`instance add myName 1.2.3.4 --cluster ${name}`, () => {
           overcast(`cluster count ${name}`, (logs) => {
-            expect(logs).toContain('1');
-            done();
+            expectInLogExact(expect, logs, 1);
+            nextFn();
           });
         });
       });
@@ -42,38 +38,38 @@ describe('cluster', () => {
   });
 
   describe('rename', () => {
-    it('should not allow me to rename a missing cluster', (done) => {
+    it('should not allow me to rename a missing cluster', (nextFn) => {
       overcast(`cluster rename foo bar`, (logs) => {
-        expect(logs).toContain(`No clusters found matching "foo"`);
-        done();
+        expectInLog(expect, logs, 'No clusters found matching "foo"');
+        nextFn();
       });
     });
 
-    it('should allow me to rename an existing cluster', (done) => {
+    it('should allow me to rename an existing cluster', (nextFn) => {
       overcast(`cluster rename ${name} foo`, (logs) => {
-        expect(logs).toContain(`Cluster "${name}" has been renamed to "foo"`);
+        expectInLog(expect, logs, `Cluster "${name}" has been renamed to "foo"`);
         overcast('cluster count foo', (logs) => {
-          expect(logs).toContain('1');
-          done();
+          expectInLogExact(expect, logs, 1);
+          nextFn();
         });
       });
     });
   });
 
   describe('remove', () => {
-    it('should not allow me to remove a missing cluster', (done) => {
+    it('should not allow me to remove a missing cluster', (nextFn) => {
       overcast(`cluster remove bar`, (logs) => {
-        expect(logs).toContain('No clusters found matching "bar"');
-        done();
+        expectInLog(expect, logs, 'No clusters found matching "bar"');
+        nextFn();
       });
     });
 
-    it('should allow me to remove an existing cluster, and move instances to an orphaned cluster', (done) => {
+    it('should allow me to remove an existing cluster, and move instances to an orphaned cluster', (nextFn) => {
       overcast(`cluster remove foo`, (logs) => {
-        expect(logs).toContain('Cluster "foo" has been removed');
+        expectInLog(expect, logs, 'Cluster "foo" has been removed');
         overcast(`cluster count orphaned`, (logs) => {
-          expect(logs).toContain('1');
-          done();
+          expectInLogExact(expect, logs, 1);
+          nextFn();
         });
       });
     });

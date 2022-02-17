@@ -130,8 +130,10 @@ commands.remove = {
   ],
   required: [{ name: 'name', filters: filters.findFirstMatchingInstance }],
   run: ({ instance }, nextFn) => {
-    utils.deleteInstance(instance);
-    log.success(`Instance "${instance.name}" removed.`);
+    utils.deleteInstance(instance, () => {
+      log.success(`Instance "${instance.name}" removed.`);
+      nextFn();
+    });
   }
 };
 

@@ -1,5 +1,5 @@
 import * as utils from '../utils.js';
-import { log } from '../log.js';
+import { log, alert } from '../log.js';
 
 export const commands = {};
 
@@ -22,11 +22,18 @@ commands.aliases = {
     '  source $HOME/.overcast_aliases'
   ],
   run: (args, nextFn) => {
-    utils.eachObject(utils.getClusters(), ({ instances }) => {
-      utils.eachObject(instances, instance => {
-        log(`alias ssh.${instance.name}="ssh -i ${utils.normalizeKeyPath(instance.ssh_key)} -p ${instance.ssh_port} ${instance.user}@${instance.ip}"`);
+    const clusters = utils.getClusters();
+
+    if (Object.keys(clusters).length > 0) {
+      utils.eachObject(clusters, ({ instances }) => {
+        utils.eachObject(instances, instance => {
+          log(`alias ssh.${instance.name}="ssh -i ${utils.normalizeKeyPath(instance.ssh_key)} -p ${instance.ssh_port} ${instance.user}@${instance.ip}"`);
+        });
       });
-    });
+    } else {
+      log('# No overcast clusters defined');
+    }
+
     nextFn();
   }
 };

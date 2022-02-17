@@ -3,37 +3,37 @@ import _ from 'lodash';
 import { isTestRun } from './utils.js';
 import { appendToStore, getStore } from './store.js';
 
-const STORE_KEY = 'log.logs';
+const STORE_KEY = 'LOGS';
 
 export const faded = (str) => {
-  log(chalk.blackBright(str));
+  log(str, chalk.blackBright);
 }
 
 export const success = (str) => {
-  log(chalk.greenBright(str));
+  log(str, chalk.green);
 };
 
 export const info = (str) => {
-  log(chalk.cyanBright(str));
+  log(str, chalk.cyan);
 };
 
 export const alert = (str) => {
-  log(chalk.yellowBright(str));
+  log(str, chalk.yellow);
 };
 
 export const failure = (str) => {
-  log(chalk.red(str));
+  log(str, chalk.red);
 };
 
 export const br = () => {
   log('');
 };
 
-export const log = (str) => {
+export const log = (str, colorFn = null) => {
   if (isTestRun()) {
-    appendToStore(STORE_KEY)
+    appendToStore(STORE_KEY, str);
   } else {
-    console.log(str);
+    console.log(colorFn ? colorFn(str) : str);
   }
 };
 

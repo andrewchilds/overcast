@@ -82,7 +82,7 @@ export function run(command, args, nextFn) {
     }
 
     if (!args[key] && !required.optional) {
-      missingArgument(`[${required.name}]`, command);
+      log.failure(`Missing [${required.name}] argument.`);
       shortCircuit = true;
     }
 
@@ -101,14 +101,14 @@ export function run(command, args, nextFn) {
   });
 
   if (shortCircuit) {
+    missingArguments(command);
     return nextFn();
   }
 
   command.run(args, nextFn);
 }
 
-export function missingArgument(name, command) {
-  log.failure(`Missing ${name} argument.`);
+export function missingArguments(command) {
   compileHelp(command);
   if (utils.isTestRun()) {
     return false;

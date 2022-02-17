@@ -1,6 +1,6 @@
 // A module to contain all in-memory application state.
 
-const STORE = {};
+let STORE = {};
 
 export function clearStore() {
   STORE = {};

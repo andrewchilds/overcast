@@ -55,11 +55,12 @@ export function send(options, nextFn = () => {}) {
     log.faded('No message sent.');
     log.faded(`Please add SLACK_WEBHOOK_URL to ${getVariablesJSON()}.`);
 
-    return false;
+    return nextFn();
   }
 
   if (utils.isTestRun()) {
     log.success('Message sent to Slack. (Pretending because this is a test run. Options = ' + JSON.stringify(options));
+    nextFn();
   } else {
     const slack = SlackNotify(vars.SLACK_WEBHOOK_URL);
     slack.send(options).then(() => {

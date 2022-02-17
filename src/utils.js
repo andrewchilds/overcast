@@ -7,18 +7,18 @@ import url from 'url';
 
 import * as listCommand from './commands/list.js';
 import * as log from './log.js';
+import * as store from './store.js';
 import { SSH_COLORS } from './constants.js';
-import { getArgString, getClustersJSON, getConfigDir, getSSHCount, getVariablesJSON, increaseSSHCount } from './store.js';
 
 export function getNextColor() {
-  const count = getSSHCount();
-  increaseSSHCount();
+  const count = store.getSSHCount();
+  store.increaseSSHCount();
 
   return SSH_COLORS[count % SSH_COLORS.length];
 }
 
 export function isTestRun() {
-  return getArgString().includes('--is-test-run');
+  return store.getArgString().includes('--is-test-run');
 }
 
 export function now() {
@@ -111,7 +111,16 @@ export function runSubcommand(args, subcommands, helpFn) {
 }
 
 export function findConfig(nextFn) {
-  walkDir(process.cwd(), (dir) => {
+  const cwd = process.cwd();
+
+  if (isTestRun()) {
+    return initOvercastDir(cwd, () => {
+      store.setConfigDirs(cwd + '/.overcast');
+      return nextFn();
+    });
+  }
+
+  walkDir(cwd, (dir) => {
     store.setConfigDirs(dir);
     nextFn();
   });
@@ -121,6 +130,7 @@ export function walkDir(dir, nextFn) {
   if (!dir || dir === '/') {
     // No config directory found!
     // Falling back to config directory in $HOME.
+    log.alert(`No config directory found. Creating one in ${getUserHome()}`);
     return initOvercastDir(getUserHome(), () => {
       nextFn(getUserHome() + '/.overcast');
     });
@@ -136,7 +146,7 @@ export function walkDir(dir, nextFn) {
 }
 
 export function getKeyFileFromName(keyName) {
-  return getConfigDir() + '/keys/' + keyName + '.key';
+  return store.getConfigDir() + '/keys/' + keyName + '.key';
 }
 
 export function createKeyIfMissing(nextFn = () => {}, keyName = 'overcast') {
@@ -154,7 +164,7 @@ export function keyExists(keyName) {
 
 export function createKey(keyName, nextFn) {
   var keyFile = getKeyFileFromName(keyName);
-  var keysDir = getConfigDir() + '/keys';
+  var keysDir = store.getConfigDir() + '/keys';
 
   if (!fs.existsSync(keysDir)) {
     fs.mkdirSync(keysDir);
@@ -217,7 +227,7 @@ export function normalizeKeyPath(keyPath, keyName) {
   keyName = keyName || 'overcast.key';
 
   if (!keyPath) {
-    return path.resolve(getConfigDir(), 'keys', keyName);
+    return path.resolve(store.getConfigDir(), 'keys', keyName);
   }
 
   if (isAbsolute(keyPath)) {
@@ -227,7 +237,7 @@ export function normalizeKeyPath(keyPath, keyName) {
   } else if (keyPath.indexOf('$HOME') === 0) {
     return keyPath.replace('$HOME', getUserHome());
   } else {
-    return path.resolve(getConfigDir(), 'keys', keyPath);
+    return path.resolve(store.getConfigDir(), 'keys', keyPath);
   }
 }
 
@@ -254,7 +264,7 @@ export function convertToAbsoluteFilePath(p) {
     if (fs.existsSync(cwdFile)) {
       p = cwdFile;
     } else {
-      p = path.resolve(getConfigDir(), 'files', p);
+      p = path.resolve(store.getConfigDir(), 'files', p);
     }
   }
   return normalizeWindowsPath(p);
@@ -279,6 +289,10 @@ export function getFileDirname() {
 }
 
 export function initOvercastDir(destDir, nextFn) {
+  if (fs.existsSync(destDir + '/.overcast')) {
+    return nextFn();
+  }
+
   destDir += '/.overcast';
   const initFile = escapeWindowsPath(getFileDirname() + '/../bin/overcast-init');
   const fixtureDir = escapeWindowsPath(getFileDirname() + '/../fixtures');
@@ -409,7 +423,7 @@ export function updateInstance(name, updates, nextFn) {
 }
 
 export function getVariables() {
-  const file = getVariablesJSON();
+  const file = store.getVariablesJSON();
   if (fs.existsSync(file)) {
     try {
       const data = JSON.parse(fs.readFileSync(file, { encoding: 'utf8' }));
@@ -423,7 +437,7 @@ export function getVariables() {
 }
 
 export function saveVariables(variables, nextFn = () => {}) {
-  const file = getVariablesJSON();
+  const file = store.getVariablesJSON();
   fs.writeFile(file, JSON.stringify(variables, null, 2), (err) => {
     if (err) {
       die(`Error saving to the variables file (${file}).`);
@@ -434,7 +448,7 @@ export function saveVariables(variables, nextFn = () => {}) {
 }
 
 export function getClusters() {
-  const file = getClustersJSON();
+  const file = store.getClustersJSON();
   if (fs.existsSync(file)) {
     try {
       const data = JSON.parse(fs.readFileSync(file, { encoding: 'utf8' }));
@@ -448,7 +462,7 @@ export function getClusters() {
 }
 
 export function saveClusters(clusters, nextFn = () => {}) {
-  const file = getClustersJSON();
+  const file = store.getClustersJSON();
   fs.writeFile(file, JSON.stringify(clusters, null, 2), (err) => {
     if (err) {
       die(`Error saving to the clusters file (${file}).`);
