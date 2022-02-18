@@ -70,12 +70,18 @@ function connect(instance, args, nextFn) {
   sshArgs.push(`${args.user || instance.user || 'root'}@${instance.ip}`);
   sshArgs.push('-N'); // Don't run a command.
 
-  const ssh = utils.spawn(sshArgs);
-
   log.faded(sshArgs.join(' '));
 
+  if (utils.isTestRun()) {
+    log.log('mocked call of SSH command');
+
+    return nextFn();
+  }
+
+  const ssh = utils.spawn(sshArgs);
+
   ports.forEach(({ localPort, remoteHost, remotePort }) => {
-    log.faded(`Tunneling from ${localPort} to ${remoteHost}:${remotePort}.`);
+    log.info(`Tunneling from ${localPort} to ${remoteHost}:${remotePort}.`);
   });
 
   ssh.stdout.on('data', data => {
@@ -83,7 +89,7 @@ function connect(instance, args, nextFn) {
   });
 
   ssh.stderr.on('data', data => {
-    log.faded(data.toString());
+    log.alert(data.toString());
   });
 
   ssh.on('exit', code => {
@@ -99,12 +105,14 @@ function connect(instance, args, nextFn) {
 export function normalizePorts(arr) {
   const ports = [];
 
-  arr.forEach((str) => {
+  arr.forEach(str => {
     str = (`${str}`).split(':');
+    const hasHostDefined = str.length === 3; // e.g. 3000:otherhost.com:4000
+    const hasRemotePortDefined = str.length >= 2; // e.g. 80:8080
     ports.push({
       localPort: str[0],
-      remoteHost: str.length === 3 ? str[1] : '127.0.0.1',
-      remotePort: str.length >= 2 ? str.charAt(str.length - 1) : str[0]
+      remoteHost: hasHostDefined ? str[1] : '127.0.0.1',
+      remotePort: hasRemotePortDefined ? str[str.length - 1] : str[0]
     });
   });
 

@@ -93,7 +93,7 @@ function rsync(options, nextFn = () => {}) {
   log.faded(args.join(' '));
 
   if (utils.isTestRun()) {
-    log.log('mocked call of rsync command');
+    log.log('mocked call of Rsync command');
 
     return nextFn();
   }

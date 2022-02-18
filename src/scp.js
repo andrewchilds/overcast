@@ -87,6 +87,13 @@ function scpExec(options, nextFn = () => {}) {
   }
 
   log.faded(args.join(' '));
+
+  if (utils.isTestRun()) {
+    log.log('mocked call of SCP command');
+
+    return nextFn();
+  }
+
   const scp = utils.spawn(args);
 
   scp.stdout.on('data', data => {
