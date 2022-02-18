@@ -568,8 +568,8 @@ export function forceArray(strOrArray) {
 
 export function findUsingMultipleKeys(collection, val, keys) {
   var match = null;
-  each(collection, (obj) => {
-    each(keys, (key) => {
+  collection.forEach((obj) => {
+    keys.forEach((key) => {
       if (obj[key] && obj[key] === val) {
         match = obj;
         return false;

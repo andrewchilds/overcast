@@ -250,10 +250,12 @@ Options:                  Defaults:
   --ssh-key PATH          overcast.key
   --ssh-pub-key PATH      overcast.key.pub
   --region REGION         nyc3
-  --image IMAGE           ubuntu-14-04-x64
-  --size SIZE             512mb
-  --backups-enabled       false
+  --image IMAGE           ubuntu-20-04-x64
+  --size SIZE             s-1vcpu-2gb-intel
+  --backups               false
+  --monitoring            false
   --private-networking    false
+  --with-droplet-agent    false
 
 Examples:
   # Match using slugs:

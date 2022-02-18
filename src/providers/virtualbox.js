@@ -6,8 +6,8 @@ import * as log from '../log.js';
 var FIRST_IP = '192.168.22.10';
 var OVERCAST_VAGRANT_DIR = utils.getUserHome() + '/.overcast-vagrant';
 
-// export var id = 'virtualbox';
-// export var name = 'VirtualBox';
+export var id = 'virtualbox';
+export var NAME = 'VirtualBox';
 
 var BUNDLED_IMAGE_URLS = {
   'trusty64': 'https://cloud-images.ubuntu.com/vagrant/trusty/current/trusty-server-cloudimg-amd64-vagrant-disk1.box',

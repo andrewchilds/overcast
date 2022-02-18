@@ -82,6 +82,7 @@ export function run(command, args, nextFn) {
     }
 
     if (!args[key] && !required.optional) {
+      log.br();
       log.failure(`Missing [${required.name}] argument.`);
       shortCircuit = true;
     }
@@ -183,7 +184,7 @@ export function printCommandOptions(options) {
   }
   log.log(headline);
   options.forEach((option) => {
-    log.log(`  ${utils.padRight(option.usage, maxLength)}${option.default || ''}`);
+    log.info(`  ${utils.padRight(option.usage, maxLength)}${option.default || ''}`);
   });
 }
 

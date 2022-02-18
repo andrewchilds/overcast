@@ -37,11 +37,13 @@ commands.create = {
     { usage: '--ssh-port PORT', default: '22' },
     { usage: '--ssh-key PATH', default: 'overcast.key' },
     { usage: '--ssh-pub-key PATH', default: 'overcast.key.pub' },
-    { usage: '--region REGION', default: 'nyc3' },
-    { usage: '--image IMAGE', default: 'ubuntu-14-04-x64' },
-    { usage: '--size SIZE', default: '512mb' },
-    { usage: '--backups-enabled', default: 'false' },
-    { usage: '--private-networking', default: 'false' }
+    { usage: '--region REGION', default: api.DEFAULT_REGION },
+    { usage: '--image IMAGE', default: api.DEFAULT_IMAGE },
+    { usage: '--size SIZE', default: api.DEFAULT_SIZE },
+    { usage: '--backups', default: 'false' },
+    { usage: '--monitoring', default: 'false' },
+    { usage: '--private-networking', default: 'false' },
+    { usage: '--with-droplet-agent', default: 'false' }
   ],
   run: (args, nextFn) => {
     provider.create(api, args, nextFn);
