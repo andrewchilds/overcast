@@ -15,7 +15,7 @@ export function create(api, args, nextFn) {
   api.create(args, instance => {
     utils.saveInstanceToCluster(args.cluster, instance);
     log.success(`Instance "${args.name}" (${instance.ip}) saved.`);
-    utils.waitForBoot(instance, nextFn);
+    waitForBoot(instance, nextFn);
   });
 }
 
@@ -53,7 +53,7 @@ export function boot(api, args, nextFn) {
   log.faded(`Booting "${args.instance.name}"...`);
   api.boot(args.instance, () => {
     log.success(`Instance "${args.instance.name}" booted.`);
-    utils.waitForBoot(args.instance, nextFn);
+    waitForBoot(args.instance, nextFn);
   });
 }
 
@@ -75,7 +75,7 @@ export function reboot(api, args, nextFn) {
   log.faded(`Rebooting "${args.instance.name}"...`);
   api.reboot(args.instance, () => {
     log.success(`Instance "${args.instance.name}" rebooted.`);
-    utils.waitForBoot(args.instance, nextFn);
+    waitForBoot(args.instance, nextFn);
   });
 }
 
@@ -86,7 +86,7 @@ export function rebuild(api, args, nextFn) {
   api.rebuild(args.instance, args.image, () => {
     updateInstanceMetadata(api, args, () => {
       log.success(`Instance "${args.instance.name}" rebuilt.`);
-      utils.waitForBoot(args.instance, nextFn);
+      waitForBoot(args.instance, nextFn);
     });
   });
 }
@@ -116,7 +116,7 @@ export function snapshot(api, args, nextFn) {
   log.faded(`Saving snapshot "${args.snapshotName}" of "${args.instance.name}"...`);
   api.snapshot(args.instance, args.snapshotName, () => {
     log.success(`Snapshot "${args.snapshotName}" of "${args.instance.name}" saved.`);
-    utils.waitForBoot(args.instance, nextFn);
+    waitForBoot(args.instance, nextFn);
   });
 }
 
@@ -211,6 +211,58 @@ export function snapshots(api, nextFn) {
     utils.printCollection('snapshots', snapshots);
     if (utils.isFunction(nextFn)) {
       nextFn();
+    }
+  });
+}
+
+export function waitForBoot(instance, nextFn = () => {}, startTime) {
+  if (!startTime) {
+    startTime = utils.now();
+    log.faded('Waiting until we can connect to ' + instance.name + '...');
+  }
+
+  testConnection(instance, canConnect => {
+    const delayBetweenPolls = 2000;
+
+    if (canConnect) {
+      const duration = (now() - startTime) / 1000;
+      log.success('Connection established after ' + Math.ceil(duration) + ' seconds.');
+      nextFn();
+    } else {
+      setTimeout(() => {
+        waitForBoot(instance, nextFn, startTime);
+      }, delayBetweenPolls);
+    }
+  });
+}
+
+export function testConnection(instance, nextFn = () => {}) {
+  const key = utils.normalizeKeyPath(utils.escapeWindowsPath(instance.ssh_key));
+  const port = instance.ssh_port || 22;
+  const host = instance.user + '@' + instance.ip;
+  const command = 'ssh -i ' + key + ' -p ' + port + ' ' + host +
+    ' -o StrictHostKeyChecking=no "echo hi"';
+
+  const ssh = utils.spawn(command);
+  const timeout = setTimeout(() => {
+    callbackOnce(false);
+    ssh.kill();
+  }, 8000);
+
+  let alreadyCalled = false;
+  const callbackOnce = (result) => {
+    if (!alreadyCalled) {
+      clearTimeout(timeout);
+      alreadyCalled = true;
+      nextFn(result);
+    }
+  };
+
+  ssh.on('exit', (code) => {
+    if (code === 0) {
+      callbackOnce(true);
+    } else {
+      callbackOnce(false);
     }
   });
 }

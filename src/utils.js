@@ -719,29 +719,6 @@ export function waitForProgress(seconds, nextFn) {
   }, nextFn);
 }
 
-export function waitForBoot(instance, nextFn, startTime) {
-  if (!startTime) {
-    startTime = now();
-    log.faded('Waiting until we can connect to ' + instance.name + '...');
-  }
-
-  testConnection(instance, canConnect => {
-    var delayBetweenPolls = 2000;
-
-    if (canConnect) {
-      var duration = (now() - startTime) / 1000;
-      log.success('Connection established after ' + Math.ceil(duration) + ' seconds.');
-      if (isFunction(nextFn)) {
-        nextFn();
-      }
-    } else {
-      setTimeout(() => {
-        waitForBoot(instance, nextFn, startTime);
-      }, delayBetweenPolls);
-    }
-  });
-}
-
 export function fixedWait(seconds, nextFn = () => {}) {
   seconds = seconds || 60;
   log.faded('Waiting ' + seconds + ' seconds...');
@@ -804,37 +781,6 @@ export function printCommandHelp(commands) {
         log.br();
       }
       command.help();
-    }
-  });
-}
-
-export function testConnection(instance, nextFn = () => {}) {
-  const key = normalizeKeyPath(escapeWindowsPath(instance.ssh_key));
-  const port = instance.ssh_port || 22;
-  const host = instance.user + '@' + instance.ip;
-  const command = 'ssh -i ' + key + ' -p ' + port + ' ' + host +
-    ' -o StrictHostKeyChecking=no "echo hi"';
-
-  const ssh = spawn(command);
-  const timeout = setTimeout(() => {
-    callbackOnce(false);
-    ssh.kill();
-  }, 8000);
-
-  let alreadyCalled = false;
-  const callbackOnce = (result) => {
-    if (!alreadyCalled) {
-      clearTimeout(timeout);
-      alreadyCalled = true;
-      nextFn(result);
-    }
-  };
-
-  ssh.on('exit', (code) => {
-    if (code === 0) {
-      callbackOnce(true);
-    } else {
-      callbackOnce(false);
     }
   });
 }
