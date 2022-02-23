@@ -1,6 +1,6 @@
 import * as filters from '../filters.js';
 import * as provider from '../provider.js';
-import * as api from '../providers/virtualbox.js';
+import { api } from '../providers/virtualbox.js';
 
 export const commands = {};
 

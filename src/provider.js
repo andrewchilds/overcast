@@ -11,7 +11,7 @@ export function handleCommandNotFound(fn) {
 export function create(api, args, nextFn) {
   handleCommandNotFound(api.create);
 
-  log.faded(`Creating new instance "${args.name}" on ${api.NAME}...`);
+  log.faded(`Creating new instance "${args.name}" on ${api.name}...`);
   api.create(args, instance => {
     utils.saveInstanceToCluster(args.cluster, instance);
     log.success(`Instance "${args.name}" (${instance.ip}) saved.`);

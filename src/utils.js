@@ -163,8 +163,8 @@ export function keyExists(keyName) {
 }
 
 export function createKey(keyName, nextFn) {
-  var keyFile = getKeyFileFromName(keyName);
-  var keysDir = store.getConfigDir() + '/keys';
+  const keyFile = getKeyFileFromName(keyName);
+  const keysDir = store.getConfigDir() + '/keys';
 
   if (!fs.existsSync(keysDir)) {
     fs.mkdirSync(keysDir);
@@ -181,7 +181,8 @@ export function createKey(keyName, nextFn) {
       }
     });
   } else {
-    var keygen = spawn('ssh-keygen -t rsa -N "" -f ' + keyFile);
+    // Ref: https://medium.com/risan/upgrade-your-ssh-key-to-ed25519-c6e8d60d3c54
+    const keygen = spawn('ssh-keygen -o -a 100 -t ed25519 -N "" -f ' + keyFile);
     keygen.on('exit', code => {
       if (code !== 0) {
         log.failure('Error generating SSH key!');

@@ -7,7 +7,10 @@ import * as utils from '../utils.js';
 const FIRST_PAGE = 1;
 const PAGE_SIZE = 50;
 
-export const api = {};
+export const api = {
+  id: 'digitalocean',
+  name: 'DigitalOcean'
+};
 
 export const DEFAULT_IMAGE = 'ubuntu-20-04-x64';
 export const DEFAULT_SIZE = 's-1vcpu-2gb-intel';
@@ -16,9 +19,6 @@ export const DEFAULT_REGION = 'nyc3';
 const PRIVATE_CACHE = {
   API: null
 };
-
-export const id = 'digitalocean';
-export const NAME = 'DigitalOcean';
 
 // Provider interface
 
@@ -47,7 +47,7 @@ api.create = (args, nextFn) => {
 api.destroy = (instance, nextFn = () => {}) => {
   getAPI().droplets.deleteById(instance.digitalocean.id).then(body => {
     nextFn(body);
-  }).catch(genericErrorHandler);
+  }).catch(genericCatch);
 }
 
 api.boot = (instance, nextFn) => {
@@ -87,13 +87,13 @@ api.snapshot = (instance, snapshotName, nextFn) => {
 api.getImages = (nextFn) => {
   getAPI().images.getAll('', true, FIRST_PAGE, PAGE_SIZE).then(body => {
     nextFn(body);
-  }).catch(genericErrorHandler);
+  }).catch(genericCatch);
 }
 
 api.getInstances = (args, nextFn) => {
   getAPI().droplets.getAll('', true, FIRST_PAGE, PAGE_SIZE).then(body => {
     nextFn(body);
-  }).catch(genericErrorHandler);
+  }).catch(genericCatch);
 }
 
 api.getInstance = (instance, nextFn) => {
@@ -107,7 +107,7 @@ api.getInstance = (instance, nextFn) => {
     } else {
       utils.die('Unable to find droplet.');
     }
-  }).catch(genericErrorHandler);
+  }).catch(genericCatch);
 }
 
 api.sync = (instance, nextFn) => {
@@ -127,25 +127,25 @@ api.updateInstanceMetadata = (instance, nextFn = () => {}) => {
 api.getRegions = (nextFn) => {
   getAPI().regions.getAll('', true, FIRST_PAGE, PAGE_SIZE).then(body => {
     nextFn(body);
-  }).catch(genericErrorHandler);
+  }).catch(genericCatch);
 }
 
 api.getSizes = (nextFn) => {
   getAPI().sizes.get('', true, FIRST_PAGE, PAGE_SIZE).then(body => {
     nextFn(body);
-  }).catch(genericErrorHandler);
+  }).catch(genericCatch);
 }
 
 api.getSnapshots = (nextFn) => {
   getAPI().snapshots.get('', true, FIRST_PAGE, PAGE_SIZE).then(body => {
     nextFn(body);
-  }).catch(genericErrorHandler);
+  }).catch(genericCatch);
 }
 
 api.getKeys = (nextFn) => {
   getAPI().keys.getAll('', true, FIRST_PAGE, PAGE_SIZE).then(body => {
     nextFn(body);
-  }).catch(genericErrorHandler);
+  }).catch(genericCatch);
 }
 
 api.createKey = (keyData, nextFn) => {
@@ -158,7 +158,7 @@ api.createKey = (keyData, nextFn) => {
     } else {
       utils.die('Unable to add SSH key.');
     }
-  }).catch(genericErrorHandler);
+  }).catch(genericCatch);
 }
 
 // Internal functions
@@ -181,7 +181,7 @@ export function getAPI() {
   return PRIVATE_CACHE.API;
 }
 
-function genericErrorHandler(err) {
+function genericCatch(err) {
   if (err) {
     return utils.die(`Got an error from the DigitalOcean API: ${err.message || err}`);
   }
@@ -206,7 +206,7 @@ function _create(args, query, nextFn = () => {}) {
         });
       });
     }
-  }).catch(genericErrorHandler);
+  }).catch(genericCatch);
 }
 
 export function ensureDropletIsShutDown(instance, nextFn) {
@@ -242,7 +242,7 @@ export function waitForActionToComplete(id, nextFn) {
         waitForActionToComplete(id, nextFn);
       }, 3000);
     }
-  }).catch(genericErrorHandler);
+  }).catch(genericCatch);
 }
 
 export function dropletAction(instance, actionData, nextFn) {
@@ -250,7 +250,7 @@ export function dropletAction(instance, actionData, nextFn) {
     waitForActionToComplete(action.id, () => {
       api.updateInstanceMetadata(instance, nextFn);
     });
-  }).catch(genericErrorHandler);
+  }).catch(genericCatch);
 }
 
 export function normalizeAndFindPropertiesForCreate(args, nextFn = () => {}) {

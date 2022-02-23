@@ -3,37 +3,38 @@ import cp from 'child_process';
 import * as utils from '../utils.js';
 import * as log from '../log.js';
 
-var FIRST_IP = '192.168.22.10';
-var OVERCAST_VAGRANT_DIR = utils.getUserHome() + '/.overcast-vagrant';
+const FIRST_IP = '192.168.22.10';
+const OVERCAST_VAGRANT_DIR = utils.getUserHome() + '/.overcast-vagrant';
 
-export var id = 'virtualbox';
-export var NAME = 'VirtualBox';
+export const api = {
+  id: 'virtualbox',
+  name: 'VirtualBox'
+};
 
-var BUNDLED_IMAGE_URLS = {
+const BUNDLED_IMAGE_URLS = {
   'trusty64': 'https://cloud-images.ubuntu.com/vagrant/trusty/current/trusty-server-cloudimg-amd64-vagrant-disk1.box',
-  'precise64': 'https://cloud-images.ubuntu.com/vagrant/precise/current/precise-server-cloudimg-amd64-vagrant-disk1.box'
+  'precise64': 'https://cloud-images.ubuntu.com/vagrant/precise/current/precise-server-cloudimg-amd64-vagrant-disk1.box',
+  'focal64': 'https://app.vagrantup.com/bento/boxes/ubuntu-20.04/versions/202112.19.0/providers/virtualbox.box'
 };
 
 // Provider interface
 
-export function boot(instance, callback) {
+api.boot = (instance, nextFn = () => {}) => {
   startInstance(instance)
     .catch(genericCatch)
     .then(() => {
-      if (utils.isFunction(callback)) {
-        callback();
-      }
+      nextFn();
     });
-}
+};
 
-export function create(args, callback) {
+api.create = (args, nextFn = () => {}) => {
   args = Object.assign({
     ssh_port: 22,
     user: 'root',
     ssh_key: utils.normalizeKeyPath(args['ssh-key'] || 'overcast.key'),
     ssh_pub_key: utils.normalizeKeyPath(args['ssh-pub-key'] || 'overcast.key.pub'),
-    image: args.image || 'trusty64',
-    ram: args.ram || '512',
+    image: args.image || 'focal64',
+    ram: args.ram || '1024',
     cpus: args.cpus || '1'
   }, args);
 
@@ -42,7 +43,7 @@ export function create(args, callback) {
     .then(createInstance)
     .catch(genericCatch)
     .then(args => {
-      var instance = {
+      const instance = {
         name: args.name,
         ip: args.ip,
         ssh_key: args.ssh_key,
@@ -57,42 +58,34 @@ export function create(args, callback) {
         }
       };
 
-      if (utils.isFunction(callback)) {
-        callback(instance);
-      }
+      nextFn(instance);
     });
-}
+};
 
-export function destroy(instance, callback) {
+api.destroy = (instance, nextFn = () => {}) => {
   destroyInstance(instance)
     .catch(genericCatch)
     .then(() => {
-      if (utils.isFunction(callback)) {
-        callback();
-      }
+      nextFn();
     });
-}
+};
 
-export function reboot(instance, callback) {
+api.reboot = (instance, nextFn = () => {}) => {
   stopInstance(instance)
     .then(startInstance)
     .catch(genericCatch)
     .then(instance => {
-      if (utils.isFunction(callback)) {
-        callback();
-      }
+      nextFn();
     });
-}
+};
 
-export function shutdown(instance, callback) {
+api.shutdown = (instance, nextFn = () => {}) => {
   stopInstance(instance)
     .catch(genericCatch)
     .then(() => {
-      if (utils.isFunction(callback)) {
-        callback();
-      }
+      nextFn();
     });
-}
+};
 
 // Internal functions
 
@@ -206,7 +199,7 @@ export function createInstance(args) {
     var color = utils.getNextColor();
 
     var bashArgs = [
-      utils.escapeWindowsPath(utils.getFileDirname() + '/../../bin/overcast-vagrant')
+      utils.escapeWindowsPath(utils.getFileDirname() + '../bin/overcast-vagrant')
     ];
 
     var bashEnv = Object.assign({}, process.env, {
@@ -306,7 +299,6 @@ export function destroyInstance(instance) {
       if (code !== 0) {
         reject();
       } else {
-        // cross-platform rm -rf
         utils.rmDir(instance.virtualbox.dir, () => {
           resolve(instance);
         });
@@ -315,6 +307,8 @@ export function destroyInstance(instance) {
   });
 }
 
-export function genericCatch(err) {
-  return utils.die(err && err.message ? err.message : err);
+function genericCatch(err) {
+  if (err) {
+    return utils.die(`Got an error from the Virtualbox API: ${err.message || err}`);
+  }
 }
