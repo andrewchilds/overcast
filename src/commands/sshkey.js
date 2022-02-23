@@ -168,10 +168,14 @@ function printFile(file) {
 
 function listKeys(nextFn) {
   fs.readdir(`${getConfigDir()}/keys/`, (err, data) => {
-    data = data.map((name) => {
-      return name.replace('.pub', '').replace('.key', '');
+    const obj = {};
+    data.forEach((name) => {
+      name = name.replace('.pub', '').replace('.key', '');
+      obj[name] = true;
     });
-    data.map(log.log);
+    Object.keys(obj).forEach(row => {
+      log.log(row);
+    });
 
     nextFn();
   });

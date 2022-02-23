@@ -1,4 +1,4 @@
-import { overcast, tearDown, expectInLog } from './utils.js';
+import { overcast, tearDown, expectInLog, expectInLogExact } from './utils.js';
 
 describe('sshkey', () => {
   beforeAll((nextFn) => {
@@ -32,4 +32,13 @@ describe('sshkey', () => {
     });
   });
 
+  describe('list', () => {
+    it('should list the keys', (nextFn) => {
+      overcast('sshkey list', (logs) => {
+        expectInLogExact(expect, logs, 'myNewKey');
+        expectInLogExact(expect, logs, 'overcast');
+        nextFn();
+      });
+    });
+  });
 });
