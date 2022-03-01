@@ -85,11 +85,12 @@ export function run(command, args, nextFn) {
       log.br();
       log.failure(`Missing [${required.name}] argument.`);
       shortCircuit = true;
+      missingArguments(command);
     }
 
     if (args[key]) {
       utils.forceArray(required.filters).forEach((filter) => {
-        if (utils.isFunction(filter)) {
+        if (shortCircuit !== true && utils.isFunction(filter)) {
           // Allow filters to short-circuit a command run without
           // needing process.exit.
           if (filter(args[key], args) === false) {
@@ -102,7 +103,6 @@ export function run(command, args, nextFn) {
   });
 
   if (shortCircuit) {
-    missingArguments(command);
     return nextFn();
   }
 
