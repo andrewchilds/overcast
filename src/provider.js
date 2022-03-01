@@ -13,9 +13,10 @@ export function create(api, args, nextFn) {
 
   log.faded(`Creating new instance "${args.name}" on ${api.name}...`);
   api.create(args, instance => {
-    utils.saveInstanceToCluster(args.cluster, instance);
-    log.success(`Instance "${args.name}" (${instance.ip}) saved.`);
-    waitForBoot(instance, nextFn);
+    utils.saveInstanceToCluster(args.cluster, instance, () => {
+      log.success(`Instance "${args.name}" (${instance.ip}) saved.`);
+      waitForBoot(instance, nextFn);
+    });
   });
 }
 
@@ -23,11 +24,13 @@ export function destroy(api, args, nextFn) {
   handleCommandNotFound(api.destroy);
 
   const onDestroy = () => {
-    utils.deleteInstance(args.instance, nextFn);
-    log.success(`Instance "${args.instance.name}" destroyed.`);
+    utils.deleteInstance(args.instance, () => {
+      log.success(`Instance "${args.instance.name}" destroyed.`);
+      nextFn()
+    });
   };
 
-  if (args.force) {
+  if (args.force || utils.isTestRun()) {
     return api.destroy(args.instance, onDestroy);
   }
 
@@ -225,7 +228,7 @@ export function waitForBoot(instance, nextFn = () => {}, startTime) {
     const delayBetweenPolls = 2000;
 
     if (canConnect) {
-      const duration = (now() - startTime) / 1000;
+      const duration = (utils.now() - startTime) / 1000;
       log.success('Connection established after ' + Math.ceil(duration) + ' seconds.');
       nextFn();
     } else {
@@ -237,6 +240,10 @@ export function waitForBoot(instance, nextFn = () => {}, startTime) {
 }
 
 export function testConnection(instance, nextFn = () => {}) {
+  if (utils.isTestRun) {
+    return nextFn(true);
+  }
+
   const key = utils.normalizeKeyPath(utils.escapeWindowsPath(instance.ssh_key));
   const port = instance.ssh_port || 22;
   const host = instance.user + '@' + instance.ip;

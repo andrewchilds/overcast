@@ -1,6 +1,12 @@
 import * as filters from '../filters.js';
 import * as provider from '../provider.js';
+import { isTestRun } from '../utils.js';
 import { api } from '../providers/digitalocean.js';
+import { mockAPI } from '../providers/mock.js';
+
+function getAPI() {
+  return isTestRun() ? mockAPI : api;
+}
 
 export const commands = {};
 
@@ -12,7 +18,7 @@ commands.boot = {
     { name: 'name', filters: [filters.findFirstMatchingInstance, filters.shouldBeDigitalOcean] }
   ],
   run: (args, nextFn) => {
-    provider.boot(api, args, nextFn);
+    provider.boot(getAPI(), args, nextFn);
   }
 };
 
@@ -46,7 +52,7 @@ commands.create = {
     { usage: '--with-droplet-agent', default: 'false' }
   ],
   run: (args, nextFn) => {
-    provider.create(api, args, nextFn);
+    provider.create(getAPI(), args, nextFn);
   }
 };
 
@@ -67,7 +73,7 @@ commands.destroy = {
     { usage: '--force', default: 'false' }
   ],
   run: (args, nextFn) => {
-    provider.destroy(api, args, nextFn);
+    provider.destroy(getAPI(), args, nextFn);
   }
 };
 
@@ -76,7 +82,7 @@ commands.images = {
   usage: ['overcast digitalocean images'],
   description: 'List all images, including snapshots.',
   run: (args, nextFn) => {
-    provider.images(api, nextFn);
+    provider.images(getAPI(), nextFn);
   }
 };
 
@@ -85,7 +91,7 @@ commands.instances = {
   usage: ['overcast digitalocean instances'],
   description: 'List all instances in your account.',
   run: (args, nextFn) => {
-    provider.instances(api, args, nextFn);
+    provider.instances(getAPI(), args, nextFn);
   }
 };
 
@@ -99,7 +105,7 @@ commands.reboot = {
     { name: 'name', filters: [filters.findFirstMatchingInstance, filters.shouldBeDigitalOcean] }
   ],
   run: (args, nextFn) => {
-    provider.reboot(api, args, nextFn);
+    provider.reboot(getAPI(), args, nextFn);
   }
 };
 
@@ -108,7 +114,7 @@ commands.regions = {
   usage: ['overcast digitalocean regions'],
   description: 'List all available regions.',
   run: (args, nextFn) => {
-    provider.regions(api, nextFn);
+    provider.regions(getAPI(), nextFn);
   }
 };
 
@@ -131,7 +137,7 @@ commands.rebuild = {
     { name: 'image' }
   ],
   run: (args, nextFn) => {
-    provider.rebuild(api, args, nextFn);
+    provider.rebuild(getAPI(), args, nextFn);
   }
 };
 
@@ -155,7 +161,7 @@ commands.resize = {
     { usage: '--skip-boot', default: 'false' }
   ],
   run: (args, nextFn) => {
-    provider.resize(api, args, nextFn);
+    provider.resize(getAPI(), args, nextFn);
   }
 };
 
@@ -169,7 +175,7 @@ commands.snapshot = {
     { name: 'snapshot-name', varName: 'snapshotName' }
   ],
   run: (args, nextFn) => {
-    provider.snapshot(api, args, nextFn);
+    provider.snapshot(getAPI(), args, nextFn);
   }
 };
 
@@ -178,7 +184,7 @@ commands.snapshots = {
   usage: ['overcast digitalocean snapshots'],
   description: 'List all available snapshots in your account.',
   run: (args, nextFn) => {
-    provider.snapshots(api, nextFn);
+    provider.snapshots(getAPI(), nextFn);
   }
 };
 
@@ -190,7 +196,7 @@ commands.shutdown = {
     { name: 'name', filters: [filters.findFirstMatchingInstance, filters.shouldBeDigitalOcean] }
   ],
   run: (args, nextFn) => {
-    provider.shutdown(api, args, nextFn);
+    provider.shutdown(getAPI(), args, nextFn);
   }
 };
 
@@ -199,7 +205,7 @@ commands.sizes = {
   usage: ['overcast digitalocean sizes'],
   description: 'List all available instance sizes.',
   run: (args, nextFn) => {
-    provider.sizes(api, nextFn);
+    provider.sizes(getAPI(), nextFn);
   }
 };
 
@@ -213,6 +219,6 @@ commands.sync = {
     { name: 'name', filters: filters.findFirstMatchingInstance }
   ],
   run: (args, nextFn) => {
-    provider.sync(api, args, nextFn);
+    provider.sync(getAPI(), args, nextFn);
   }
 };

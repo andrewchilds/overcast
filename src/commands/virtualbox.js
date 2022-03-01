@@ -1,6 +1,12 @@
 import * as filters from '../filters.js';
 import * as provider from '../provider.js';
+import { isTestRun } from '../utils.js';
 import { api } from '../providers/virtualbox.js';
+import { mockAPI } from '../providers/mock.js';
+
+function getAPI() {
+  return isTestRun() ? mockAPI : api;
+}
 
 export const commands = {};
 
@@ -17,7 +23,7 @@ commands.boot = {
     { name: 'name', filters: [filters.findFirstMatchingInstance, filters.shouldBeVirtualbox] }
   ],
   run: (args, nextFn) => {
-    provider.boot(api, args, nextFn);
+    provider.boot(getAPI(), args, nextFn);
   }
 };
 
@@ -46,7 +52,7 @@ commands.create = {
     { usage: '--ssh-pub-key PATH', default: 'overcast.key.pub' }
   ],
   run: (args, nextFn) => {
-    provider.create(api, args, nextFn);
+    provider.create(getAPI(), args, nextFn);
   }
 };
 
@@ -67,7 +73,7 @@ commands.destroy = {
     { usage: '--force', default: 'false' }
   ],
   run: (args, nextFn) => {
-    provider.destroy(api, args, nextFn);
+    provider.destroy(getAPI(), args, nextFn);
   }
 };
 
@@ -79,7 +85,7 @@ commands.reboot = {
     { name: 'name', filters: [filters.findFirstMatchingInstance, filters.shouldBeVirtualbox] }
   ],
   run: (args, nextFn) => {
-    provider.reboot(api, args, nextFn);
+    provider.reboot(getAPI(), args, nextFn);
   }
 };
 
@@ -91,7 +97,7 @@ commands.shutdown = {
     { name: 'name', filters: [filters.findFirstMatchingInstance, filters.shouldBeVirtualbox] }
   ],
   run: (args, nextFn) => {
-    provider.shutdown(api, args, nextFn);
+    provider.shutdown(getAPI(), args, nextFn);
   }
 };
 
