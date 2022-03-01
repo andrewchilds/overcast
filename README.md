@@ -2,8 +2,6 @@
 
 Overcast is a tiny command line program designed to make it easy to spin up, configure and manage clusters of machines across multiple cloud providers.
 
-![Screenshot](http://i.imgur.com/5x1gKVC.png)
-
 ## Avoid Vendor Lock-in.
 
 Create, reboot and destroy instances on DigitalOcean or locally using Virtualbox. Other providers are on the roadmap.
