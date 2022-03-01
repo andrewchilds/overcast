@@ -1,6 +1,8 @@
 test/integration/.overcast
 .DS_Store
+.vscode
 .idea
 node_modules
 npm-debug.log
 libpeerconnection.log
+.overcast

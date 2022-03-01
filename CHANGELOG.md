@@ -6,6 +6,26 @@ npm -g update overcast
 
 # Change Log
 
+**2.0.0** (2022)
+
+Codebase refactor:
+
+- Refactor codebase to use modern ES6 + ESM syntax
+- Remove `lodash`, `bluebird`, `rimraf` dependencies
+- Replace `colors` dependency with `chalk`
+- Upgrade all remaining dependencies to latest
+
+Product simplification:
+
+- Remove `health` command, which doesn't need to be part of the core app
+- Remove unnecessary `get`, `import`, `destroy`, and `reboot` alias commands
+- Remove AWS and Linode as providers - may revisit adding them back in if there is enough demand
+- Rename `var` command to the not-reserved `vars`
+- Rename the overly-general `key` command to `sshkey`
+- Remove redundant `overcast help [command]` syntax
+- Remove ability to store files and scripts in the `.overcast` directory, which is now focused on storing keys, variables, and cluster data
+- Rename `cluster create` to `cluster add`, `instance import` to `instance add`.
+
 **1.0.8** (Apr 4, 2018)
 
 - Handle more than a single "reservation" when describing AWS instances.

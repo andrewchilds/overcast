@@ -9,7 +9,7 @@
 
 # Usage:
 # overcast expose myInstanceOrCluster 22 80 443 3000
-# overcast expose myInstanceOrCluster 22 80 443 3000 --whitelist "1.1.1.1 2.2.2.2 192.168.0.0/16"
+# overcast expose myInstanceOrCluster 22 80 443 3000 --allowlist "1.1.1.1 2.2.2.2 192.168.0.0/16"
 
 # set -x
 
@@ -41,17 +41,17 @@ fi
 iptables -F
 
 for exposed_port in $exposed_ports; do
-  port_whitelist_attribute="whitelist_$exposed_port"
-  port_whitelist="${!port_whitelist_attribute}"
-  if [ -z "$whitelist" ] && [ -z "$port_whitelist" ]; then
+  port_allowlist_attribute="allowlist_$exposed_port"
+  port_allowlist="${!port_allowlist_attribute}"
+  if [ -z "$allowlist" ] && [ -z "$port_allowlist" ]; then
     iptables -A INPUT -p tcp --dport $exposed_port -j ACCEPT
   else
-    if [ -z "$port_whitelist" ]; then
-      for ip in $whitelist; do
+    if [ -z "$port_allowlist" ]; then
+      for ip in $allowlist; do
         iptables -A INPUT -p tcp -s $ip --dport $exposed_port -j ACCEPT
       done
     else
-      for ip in $port_whitelist; do
+      for ip in $port_allowlist; do
         iptables -A INPUT -p tcp -s $ip --dport $exposed_port -j ACCEPT
       done
     fi

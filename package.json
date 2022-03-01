@@ -1,35 +1,32 @@
 {
   "name": "overcast",
-  "description": "A simple command line program designed to make it easy to spin up, configure, and interact with any number of machines over SSH.",
-  "version": "1.0.8",
+  "description": "A simple command line program that makes it easy to spin up, configure, and manage virtual machines over SSH.",
+  "version": "2.0.0-alpha",
   "repository": "https://github.com/andrewchilds/overcast.git",
   "author": {
     "name": "Andrew Childs",
-    "email": "ac@glomerate.com"
+    "email": "tidy.desk9426@fastmail.com"
   },
   "license": "MIT",
   "engines": {
-    "node": ">=0.10.x"
+    "node": ">=13.2.x"
   },
+  "type": "module",
   "main": "overcast.js",
   "scripts": {
-    "test": "rm -rf ./test/integration/.overcast && node ./node_modules/jasmine-node/bin/jasmine-node --coffee --color --verbose ./test"
+    "test": "cd test && npx jasmine --random=false integration/*.spec.js"
   },
   "bin": {
-    "overcast": "bin/overcast"
+    "overcast": "overcast.js"
   },
   "dependencies": {
-    "aws-sdk": "2.88.0",
-    "bluebird": "1.2.1",
-    "colors": "1.1.2",
-    "linode-api": "0.1.2",
-    "lodash": "3.10.1",
-    "minimist": "1.2.0",
-    "overcast-do-wrapper": "3.11.2",
-    "rimraf": "2.5.2",
-    "slack-notify": "0.1.6"
+    "chalk": "5.0.0",
+    "minimist": "1.2.5",
+    "do-wrapper": "4.5.1",
+    "slack-notify": "2.0.2"
   },
   "devDependencies": {
-    "jasmine-node": "1.14.5"
+    "eslint": "8.9.0",
+    "jasmine": "4.0.2"
   }
 }

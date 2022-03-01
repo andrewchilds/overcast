@@ -1,14 +1,15 @@
 #!/bin/bash
 
+set -e
+set -x
+
 if [ -z "$OVERCAST_FIXTURE_DIR" ] || [ -z "$OVERCAST_DEST_DIR" ]; then
   echo "Don't use this script directly. Run 'overcast init' from the directory"
   echo "you want to install an overcast configuration in."
   exit 1
 fi
 
-mkdir -p "$OVERCAST_DEST_DIR/files"
 mkdir -p "$OVERCAST_DEST_DIR/keys"
-mkdir -p "$OVERCAST_DEST_DIR/scripts"
 
 if [ ! -f "$OVERCAST_DEST_DIR/clusters.json" ]; then
   echo "{}" > "$OVERCAST_DEST_DIR/clusters.json"

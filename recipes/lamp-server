@@ -6,16 +6,6 @@
 #   overcast digitalocean create lamp-do-01
 #   recipes/lamp-server lamp-do-01
 
-# Deploy on a Linode 2048:
-#   overcast linode create lamp-linode-01
-#   recipes/lamp-server lamp-linode-01
-
-# Deploy on EC2:
-#   overcast aws create lamp-ec2-01 --user ubuntu
-#   overcast run lamp-ec2-01 allow_root_access_on_ec2
-#   overcast instance update lamp-ec2-01 --user root
-#   recipes/lamp-server lamp-ec2-01
-
 ###############################################################################
 
 # Configuration:
