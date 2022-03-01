@@ -1,6 +1,6 @@
 # ![Overcast Logo](http://i.imgur.com/eCBl2NI.png)
 
-Overcast is a command line program designed to make it easy to spin up, configure and manage clusters of machines across multiple cloud providers.
+Overcast is a tiny command line program designed to make it easy to spin up, configure and manage clusters of machines across multiple cloud providers.
 
 ![Screenshot](http://i.imgur.com/5x1gKVC.png)
 
