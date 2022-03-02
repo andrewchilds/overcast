@@ -6,7 +6,12 @@ npm -g update overcast
 
 # Change Log
 
-**2.0.0** (2022)
+**2.0.1** (Mar 2, 2022)
+
+Fixes:
+- Fix overcast/bin configuration
+
+**2.0.0** (Feb, 2022)
 
 Codebase refactor:
 
@@ -25,6 +30,9 @@ Product simplification:
 - Remove redundant `overcast help [command]` syntax
 - Remove ability to store files and scripts in the `.overcast` directory, which is now focused on storing keys, variables, and cluster data
 - Rename `cluster create` to `cluster add`, `instance import` to `instance add`.
+
+Fixes:
+- Removed clusters/variables caching, which fixes [#48](https://github.com/andrewchilds/overcast/issues/48).
 
 **1.0.8** (Apr 4, 2018)
 
