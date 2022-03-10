@@ -6,6 +6,11 @@ npm -g update overcast
 
 # Change Log
 
+**2.0.2** (Mar 10, 2022)
+
+Fixes:
+- Fix bug that prevented quoted SSH commands from running
+
 **2.0.1** (Mar 2, 2022)
 
 Fixes:

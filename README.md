@@ -1084,7 +1084,7 @@ git clone git@github.com:andrewchilds/overcast.git
 cd overcast
 
 # To use local development version:
-bin/overcast [args...]
+node overcast [args...]
 
 # To use published version:
 overcast [args...]
@@ -1094,12 +1094,10 @@ overcast [args...]
 
 - Standardize Recipes
 - Tagging
-- Events
 - Google Compute Engine support
-- [pkgcloud.compute](https://github.com/pkgcloud/pkgcloud#compute) integration (for Joyent, Openstack, Rackspace support)
 - More comprehensive script/recipe library
 - More test coverage
 
 ## License
 
-MIT. Copyright &copy; 2014-2017 [Andrew Childs](http://twitter.com/andrewchilds).
+MIT. Copyright &copy; 2014-2022 Andrew Childs

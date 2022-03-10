@@ -159,7 +159,6 @@ describe('utils', () => {
         ]);
       });
     });
-
   });
 
   describe('tokenize', () => {

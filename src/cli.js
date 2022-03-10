@@ -8,8 +8,26 @@ import allCommands from './commands/index.js';
 
 const DEFAULT_COMMAND = 'help';
 
+export function convertArgsToString(argv) {
+  argv = argv.slice(2);
+
+  return argv.map(chunk => {
+    if (chunk.includes(' ')) {
+      return `"${chunk}"`;
+    } else {
+      return chunk;
+    }
+  }).join(' ');
+}
+
 export function init(argString = '', nextFn = () => {}) {
-  store.setArgString(argString || process.argv.slice(2).join(' ') || DEFAULT_COMMAND);
+  if (!argString) {
+    argString = convertArgsToString(process.argv);
+  }
+  if (!argString) {
+    argString = DEFAULT_COMMAND;
+  }
+  store.setArgString(argString);
   utils.findConfig(() => {
     utils.createKeyIfMissing(() => {
       execute(store.getArgString(), nextFn);
