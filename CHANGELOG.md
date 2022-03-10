@@ -6,6 +6,11 @@ npm -g update overcast
 
 # Change Log
 
+**2.0.4** (Mar 10, 2022)
+
+Fixes:
+- Fix `--exclude` bug in `push` command
+
 **2.0.3** (Mar 10, 2022)
 
 Features:

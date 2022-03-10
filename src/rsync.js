@@ -69,11 +69,6 @@ function rsync(options, nextFn = () => {}) {
     ssh.push(options.ssh_key);
   }
 
-  if (options.exclude) {
-    ssh.push('--exclude');
-    ssh.push(options.exclude);
-  }
-
   const args = [
     'rsync',
     '-e "' + ssh.join(' ') + '"',
@@ -81,6 +76,11 @@ function rsync(options, nextFn = () => {}) {
     '--delete',
     '--ignore-errors'
   ];
+
+  if (options.exclude) {
+    args.push('--exclude');
+    args.push(options.exclude);
+  }
 
   if (options.direction === 'pull') {
     options.dest = utils.convertToAbsoluteFilePath(options.dest);
