@@ -34,6 +34,7 @@ function runOnInstance(instance, args, nextFn = () => {}) {
     ssh_key: args['ssh-key'] || instance.ssh_key,
     ssh_port: instance.ssh_port,
     env: args.env,
+    exclude: args.exclude,
     direction: args.direction,
     source: args.source,
     dest: args.dest
@@ -66,6 +67,11 @@ function rsync(options, nextFn = () => {}) {
   } else {
     ssh.push('-i');
     ssh.push(options.ssh_key);
+  }
+
+  if (options.exclude) {
+    ssh.push('--exclude');
+    ssh.push(options.exclude);
   }
 
   const args = [

@@ -13,7 +13,7 @@ commands.push = {
     'or rsync if the --rsync flag is used. Source can be absolute or relative',
     'to the .overcast/files directory. Destination can be absolute or relative',
     'to the home directory. Any reference to {instance} in the source will be',
-    'replaced with the instance name.'
+    'replaced with the instance name. The --exclude flag only works with rsync.'
   ],
   examples: [
     'Assuming instances "app.01" and "app.02", this will expand to:',
@@ -29,7 +29,8 @@ commands.push = {
   options: [
     { usage: '--rsync', default: 'false' },
     { usage: '--user USERNAME' },
-    { usage: '--password PASSWORD' }
+    { usage: '--password PASSWORD' },
+    { usage: '--exclude FILE_OR_DIRECTORY' }
   ],
   run: (args, nextFn) => {
     args.direction = 'push';

@@ -6,6 +6,11 @@ npm -g update overcast
 
 # Change Log
 
+**2.0.3** (Mar 10, 2022)
+
+Features:
+- Add `--exclude` argument to `push` command's rsync mode
+
 **2.0.2** (Mar 10, 2022)
 
 Fixes:
