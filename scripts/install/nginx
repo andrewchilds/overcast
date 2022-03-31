@@ -2,10 +2,11 @@
 
 # Install Nginx.
 
-# Tested on:
-# Debian 7.0
-# Ubuntu 12.04
+# Verified on:
+# Ubuntu 20.04
 # Ubuntu 14.04
+# Ubuntu 12.04
+# Debian 7.0
 
 # Usage:
 # overcast run myInstanceOrCluster install/nginx

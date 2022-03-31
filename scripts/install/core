@@ -2,10 +2,8 @@
 
 # Full system upgrade and install core packages.
 
-# Tested on:
-# Debian 7.0
-# Ubuntu 12.04
-# Ubuntu 14.04
+# Verified on:
+# Ubuntu 20.04
 
 # Usage:
 # overcast run myInstanceOrCluster install/core
@@ -20,8 +18,13 @@ fi
 # Install core packages
 
 apt-get update
-apt-get install aptitude
+apt-get -y install aptitude
 aptitude -y full-upgrade
+
+# Ref: https://askubuntu.com/a/340846
+echo iptables-persistent iptables-persistent/autosave_v4 boolean true | sudo debconf-set-selections
+echo iptables-persistent iptables-persistent/autosave_v6 boolean true | sudo debconf-set-selections
+
 aptitude -y install git-core wget less build-essential iptables-persistent
 
 exit 0

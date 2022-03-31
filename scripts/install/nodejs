@@ -1,14 +1,10 @@
 #!/bin/bash
 
-# Install NodeJS.
+# Install Node LTS
 # https://github.com/joyent/node/wiki/Installing-Node.js-via-package-manager
 
-# Tested on:
-# Ubuntu 12.04
-# Ubuntu 14.04
-
-# Does not work on:
-# Debian 7.0
+# Verified on:
+# Ubuntu 20.04
 
 # Usage:
 # overcast run myInstanceOrCluster install/nodejs
@@ -20,9 +16,7 @@ if [ "$(id -u)" != "0" ]; then
    exit 1
 fi
 
-aptitude -y install python-software-properties
-add-apt-repository ppa:chris-lea/node.js
-apt-get update
+curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
 aptitude -y install nodejs
 
 exit 0
