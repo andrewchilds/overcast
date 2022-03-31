@@ -6,6 +6,14 @@ npm -g update overcast
 
 # Change Log
 
+**2.0.5** (Mar 31, 2022)
+
+Updates:
+- install/core, install/nginx, install/node to work with latest versions and Ubuntu 20.04
+
+Adds:
+- install/postgres bundled install script
+
 **2.0.4** (Mar 10, 2022)
 
 Fixes:
@@ -13,7 +21,7 @@ Fixes:
 
 **2.0.3** (Mar 10, 2022)
 
-Features:
+Adds:
 - Add `--exclude` argument to `push` command's rsync mode
 
 **2.0.2** (Mar 10, 2022)
