@@ -2,10 +2,11 @@
 
 # Configure iptables.
 
-# Tested on:
-# Debian 7.0
-# Ubuntu 12.04
+# Verified on:
+# Ubuntu 20.04
 # Ubuntu 14.04
+# Ubuntu 12.04
+# Debian 7.0
 
 # Usage:
 # overcast expose myInstanceOrCluster 22 80 443 3000
@@ -18,7 +19,7 @@ if [ "$(id -u)" != "0" ]; then
    exit 1
 fi
 
-current_ssh_port=`cat /etc/ssh/sshd_config | grep Port | awk '{ print \$2 }'`
+current_ssh_port=`cat /etc/ssh/sshd_config | grep 'Port' | grep -v 'GatewayPorts' | awk '{ print $2 }'`
 
 if [ -z "$exposed_ports" ]; then
   echo "No exposed ports defined, no action taken."

@@ -2,10 +2,11 @@
 
 # Configure SSH to disallow password logins, decrease loginGraceTime.
 
-# Tested on:
-# Debian 7.0
-# Ubuntu 12.04
+# Verified on:
+# Ubuntu 20.04
 # Ubuntu 14.04
+# Ubuntu 12.04
+# Debian 7.0
 
 # Usage:
 # overcast run myInstanceOrCluster harden_ssh
@@ -19,9 +20,11 @@ fi
 
 cp /etc/ssh/sshd_config /etc/ssh/sshd_config-orig
 sed -i "s/LoginGraceTime [0-9]*/LoginGraceTime 30/g" /etc/ssh/sshd_config
+sed -i 's/UsePAM yes/UsePAM no/g' /etc/ssh/sshd_config
+
+# These are off by default in Ubuntu 20.04, leaving in for backwards compatibility.
 sed -i 's/#\?PasswordAuthentication yes/PasswordAuthentication no/g' /etc/ssh/sshd_config
 sed -i 's/ChallengeResponseAuthentication yes/ChallengeResponseAuthentication no/g' /etc/ssh/sshd_config
-sed -i 's/UsePAM yes/UsePAM no/g' /etc/ssh/sshd_config
 
 service ssh restart
 
