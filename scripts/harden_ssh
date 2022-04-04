@@ -23,7 +23,7 @@ sed -i "s/LoginGraceTime [0-9]*/LoginGraceTime 30/g" /etc/ssh/sshd_config
 sed -i 's/UsePAM yes/UsePAM no/g' /etc/ssh/sshd_config
 
 # These are off by default in Ubuntu 20.04, leaving in for backwards compatibility.
-sed -i 's/#\?PasswordAuthentication yes/PasswordAuthentication no/g' /etc/ssh/sshd_config
+sed -i -r 's/#\?PasswordAuthentication yes/PasswordAuthentication no/g' /etc/ssh/sshd_config
 sed -i 's/ChallengeResponseAuthentication yes/ChallengeResponseAuthentication no/g' /etc/ssh/sshd_config
 
 service ssh restart

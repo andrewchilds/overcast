@@ -23,7 +23,7 @@ if [ -z "$new_ssh_port" ]; then
   exit 1
 fi
 
-current_ssh_port=`cat /etc/ssh/sshd_config | grep 'Port' | grep -v 'GatewayPorts' | awk '{ print $2 }'`
+current_ssh_port=`cat /etc/ssh/sshd_config | grep 'Port ' | grep -v 'GatewayPorts' | awk '{ print $2 }'`
 exposed_ports=`iptables -L -n | grep 'ACCEPT' | grep 'tcp dpt:' | awk '{ print $7 }' | tr -d 'dpt:' | paste -sd ' '`
 
 ssh_port_not_exposed=true
@@ -40,7 +40,7 @@ fi
 
 echo Setting port to $new_ssh_port...
 
-sed -i "s/\#?Port [0-9]*/Port $new_ssh_port/g" /etc/ssh/sshd_config
+sed -i -r "s/^\#?Port [0-9]+/Port $new_ssh_port/g" /etc/ssh/sshd_config
 
 service ssh restart
 

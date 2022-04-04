@@ -6,7 +6,7 @@ npm -g update overcast
 
 # Change Log
 
-**2.0.6** (Apr 4, 2022)
+**2.0.7** (Apr 4, 2022)
 
 Updates:
 - Adds Ubuntu 20.04 support to `exposed` and `expose` commands and underlying scripts
