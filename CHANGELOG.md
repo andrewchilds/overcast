@@ -6,6 +6,11 @@ npm -g update overcast
 
 # Change Log
 
+**2.0.8** (Apr 4, 2022)
+
+Fixes:
+- Allow snapshots to used when creating new instances, which fixes [#44](https://github.com/andrewchilds/overcast/issues/44).
+
 **2.0.7** (Apr 4, 2022)
 
 Updates:

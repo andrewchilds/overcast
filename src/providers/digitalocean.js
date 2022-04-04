@@ -34,7 +34,7 @@ api.create = (args, nextFn) => {
         with_droplet_agent: utils.argIsTruthy(args['with-droplet-agent']),
         private_networking: utils.argIsTruthy(args['private-networking']),
         ssh_keys: [keyID],
-        image: args['image-slug'],
+        image: args['image-id'],
         size: args['size-slug'],
         region: args['region-slug']
       };
@@ -263,6 +263,7 @@ export function normalizeAndFindPropertiesForCreate(args, nextFn = () => {}) {
     if (!matchingImage) {
       return utils.die(`No image found that matches "${args.image}".`);
     }
+
     api.getSizes((sizes) => {
       const matchingSize = getMatching(sizes, args.size);
       if (!matchingSize) {
@@ -280,7 +281,7 @@ export function normalizeAndFindPropertiesForCreate(args, nextFn = () => {}) {
           delete args[key];
         });
 
-        args['image-slug'] = matchingImage.slug;
+        args['image-id'] = matchingImage.id;
         args['size-slug'] = matchingSize.slug;
         args['region-slug'] = matchingRegion.slug;
 
