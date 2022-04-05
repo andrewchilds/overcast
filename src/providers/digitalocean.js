@@ -33,6 +33,7 @@ api.create = (args, nextFn) => {
         name: args.name,
         with_droplet_agent: utils.argIsTruthy(args['with-droplet-agent']),
         private_networking: utils.argIsTruthy(args['private-networking']),
+        vpc_uuid: args['vpc-uuid'],
         ssh_keys: [keyID],
         image: args['image-id'],
         size: args['size-slug'],

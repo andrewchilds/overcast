@@ -6,6 +6,11 @@ npm -g update overcast
 
 # Change Log
 
+**2.0.9** (Apr 4, 2022)
+
+Adds:
+- Allow a DigitalOcean VPC UUID to be provided when creating a new droplet using `--vpc-uuid` (`--private-networking` is deprecated).
+
 **2.0.8** (Apr 4, 2022)
 
 Fixes:

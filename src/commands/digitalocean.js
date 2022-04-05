@@ -49,6 +49,7 @@ commands.create = {
     { usage: '--backups', default: 'false' },
     { usage: '--monitoring', default: 'false' },
     { usage: '--private-networking', default: 'false' },
+    { usage: '--vpc-uuid', default: '' },
     { usage: '--with-droplet-agent', default: 'false' }
   ],
   run: (args, nextFn) => {
