@@ -8,15 +8,19 @@ import { decreaseSSHCount } from './store.js';
 export function run(args, nextFn) {
   // Handle cases where minimist mistakenly parses ssh-args (e.g. "-tt" becomes { t: true }).
   if (args['ssh-args'] === true) {
-    var rawArgs = process.argv.slice(2);
-    var rawArgsIndex = rawArgs.findIndex(arg => arg === '--ssh-args') + 1;
+    const rawArgs = process.argv.slice(2);
+    const rawArgsIndex = rawArgs.findIndex(arg => arg === '--ssh-args') + 1;
     if (rawArgs[rawArgsIndex]) {
       args['ssh-args'] = rawArgs[rawArgsIndex];
     }
   }
 
-  var instances = utils.findMatchingInstances(args.name);
+  let instances = utils.findMatchingInstances(args.name);
   utils.handleInstanceOrClusterNotFound(instances, args);
+
+  if (instances.length > 1 && utils.argIsTruthy(args['only-once'])) {
+    instances = [instances[0]];
+  }
 
   if (args.parallel || args.p) {
     runOnInstancesInParallel(instances, args, nextFn);
@@ -36,7 +40,7 @@ function runOnInstancesInParallel(instances, args, nextFn) {
 }
 
 function runOnInstances(instances, args, nextFn = () => {}) {
-  var instance = instances.shift();
+  const instance = instances.shift();
   runOnInstance(instance, utils.deepClone(args), () => {
     if (instances.length > 0) {
       runOnInstances(instances, args, nextFn);
@@ -47,7 +51,7 @@ function runOnInstances(instances, args, nextFn = () => {}) {
 }
 
 function runOnInstance(instance, args, nextFn) {
-  var command = args._.shift();
+  const command = args._.shift();
   sshExec({
     ip: instance.ip,
     user: args.user || instance.user,
@@ -76,7 +80,7 @@ function sshExec(options, nextFn) {
     return nextFn();
   }
 
-  var color = utils.getNextColor();
+  const color = utils.getNextColor();
 
   options.ssh_key = utils.normalizeKeyPath(options.ssh_key);
   options.ssh_port = options.ssh_port || '22';
@@ -84,11 +88,11 @@ function sshExec(options, nextFn) {
   options.password = options.password || '';
   options.name = options.name || 'Unknown';
 
-  var args = [
+  const args = [
     utils.escapeWindowsPath(utils.getFileDirname() + '/../bin/overcast-ssh')
   ];
 
-  var sshEnv = {
+  const sshEnv = {
     OVERCAST_KEY: utils.escapeWindowsPath(options.ssh_key),
     OVERCAST_PORT: options.ssh_port,
     OVERCAST_USER: options.user,
@@ -112,8 +116,8 @@ function sshExec(options, nextFn) {
     }
   }
 
-  var cwdScriptFile = commandAsScriptFile(options.command, process.cwd());
-  var bundledScriptFile = commandAsScriptFile(options.command, utils.getFileDirname() + '/../scripts');
+  const cwdScriptFile = commandAsScriptFile(options.command, process.cwd());
+  const bundledScriptFile = commandAsScriptFile(options.command, utils.getFileDirname() + '/../scripts');
 
   if (fs.existsSync(cwdScriptFile)) {
     sshEnv.OVERCAST_SCRIPT_FILE = utils.escapeWindowsPath(cwdScriptFile);
@@ -139,8 +143,8 @@ function sshExec(options, nextFn) {
     return nextFn();
   }
 
-  var ssh = cp.spawn('bash', args, { env: Object.assign({}, process.env, sshEnv) });
-  var connectionProblem = false;
+  const ssh = cp.spawn('bash', args, { env: Object.assign({}, process.env, sshEnv) });
+  const connectionProblem = false;
 
   ssh.stdout.on('data', data => {
     if (options.machineReadable) {
@@ -184,7 +188,7 @@ function sshExec(options, nextFn) {
       }
     }
     if (code !== 0 && !options.continueOnError) {
-      var str = 'SSH connection exited with a non-zero code (' + code + '). Stopping execution...';
+      const str = 'SSH connection exited with a non-zero code (' + code + '). Stopping execution...';
       utils.prefixPrint(options.name, color, str, 'red');
       process.exit(1);
     }

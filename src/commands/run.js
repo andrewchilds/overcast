@@ -42,6 +42,7 @@ commands.run = {
     { usage: '--machine-readable, --mr', default: 'false' },
     { usage: '--parallel, -p', default: 'false' },
     { usage: '--shell-command "COMMAND"', default: 'bash -s' },
+    { usage: '--only-once', default: 'false' }
   ],
   run: (args, nextFn) => {
     args._.unshift(args.firstCommandOrFile);

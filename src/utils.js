@@ -653,8 +653,8 @@ export function missingCommand(helpFn) {
 }
 
 export function prefixPrint(prefix, prefixColor, buffer, textColor) {
-  prefix = chalk[prefixColor](prefix + ': ');
-  var str = textColor ? chalk[textColor](buffer.toString()) : buffer.toString();
+  prefix = chalk[prefixColor](prefix + ' ');
+  let str = textColor ? chalk[textColor](buffer.toString()) : buffer.toString();
   str = str.replace(/\r/g, "\r" + prefix).replace(/\n/g, "\n" + prefix);
   process.stdout.write(str);
 }

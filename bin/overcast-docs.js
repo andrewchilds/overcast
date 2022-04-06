@@ -13,7 +13,7 @@ utils.eachObject(allCommands, ({ commands }, name) => {
     if (subcommand.alias === true) {
       return;
     }
-    var subcommandName = subcommand.name && name !== subcommand.name ?
+    const subcommandName = subcommand.name && name !== subcommand.name ?
       ' ' + subcommand.name : '';
     console.log('### overcast ' + name + subcommandName);
     log.br();

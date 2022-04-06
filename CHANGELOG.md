@@ -6,6 +6,14 @@ npm -g update overcast
 
 # Change Log
 
+**2.1.0** (Apr 6, 2022)
+
+Adds:
+- Add `--only-once` argument to `run` command, so the command will run only against the first matching instance.
+
+Updates:
+- Removes the `:` from the instance suffix when running commands over SSH
+
 **2.0.10** (Apr 6, 2022)
 
 Fixes:
