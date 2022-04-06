@@ -6,6 +6,11 @@ npm -g update overcast
 
 # Change Log
 
+**2.0.10** (Apr 6, 2022)
+
+Fixes:
+- `sshkey` command would run successfully but throw an error
+
 **2.0.9** (Apr 4, 2022)
 
 Adds:

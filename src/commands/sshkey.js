@@ -137,9 +137,9 @@ commands.push = {
     args.mr = true; // machine readable
     ssh.run(args, () => {
       log.success(`Key updated on ${args.instances.length} instance(s).`);
-      log.cyan('If this is the default user you use to SSH in,');
-      log.cyan('you need to update the instance configuration. For example:');
-      log.cyan(`overcast instance update ${args.name} --ssh-key myPrivateKey.key`);
+      log.info('If this is the default user you use to SSH in,');
+      log.info('you need to update the instance configuration. For example:');
+      log.info(`overcast instance update ${args.name} --ssh-key myPrivateKey.key`);
 
       nextFn();
     });

@@ -1,4 +1,4 @@
-export const VERSION = '2.0.9';
+export const VERSION = '2.0.10';
 
 export const SSH_COLORS = [
   'cyan',
