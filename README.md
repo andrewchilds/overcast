@@ -2,32 +2,29 @@
 
 Overcast is a tiny command line program designed to make it easy to spin up, configure and manage clusters of machines across multiple cloud providers.
 
-## Avoid Vendor Lock-in.
+## Devops made simple.
 
-Create, reboot and destroy instances on DigitalOcean or locally using Virtualbox. Other providers are on the roadmap.
+Create, reboot and destroy instances on DigitalOcean or locally using Virtualbox.
 
 ```sh
 # Spin up a new Ubuntu 20.04 instance on DigitalOcean:
 $ overcast digitalocean create db-01
 
-# Spin up a new locally-running Ubuntu 14.04 Virtualbox instance:
-$ overcast virtualbox create db-02
-
-# Upgrade and install Redis on all of those instances:
-$ overcast run db-* install/core install/redis
+# Perform a full system upgrade and then install Redis:
+$ overcast run db-01 install/core install/redis
 ```
 
 Run multiple commands or multiple scripts on any of your instances over SSH. Commands can be run sequentially or in parallel. Run and test your deployment scripts across different providers.
 
 ```sh
-# Run bundled scripts, e.g. a LAMP stack:
+# Create a LAMP stack using bundled install scripts:
 $ overcast run lamp-01 install/core install/apache install/mysql install/php
 
-# Run scripts relative to the current working directory or using absolute path:
-$ overcast run app-cluster ./recipes/my-app/install /path/to/script
+# Run your own scripts using relative or absolute paths:
+$ overcast run app-cluster ./my-app/my-install-script /path/to/another-script
 
 # Run sequences of commands and scripts across multiple machines in parallel:
-$ overcast run db ./script.sh uptime "free -m" "df -h" --parallel
+$ overcast run app-* ./script.sh uptime "free -m" "df -h" --parallel
 ```
 
 Quickly SSH in to any instance by name.
@@ -36,20 +33,16 @@ Quickly SSH in to any instance by name.
 $ overcast ssh app-01
 ```
 
-Push and pull files between your local machine and any of your instances using SCP or rsync. Dynamically rewrite file paths to include the instance name using `{instance}` in either source or destination.
+Push and pull files between your local machine and any of your instances.
 
 ```sh
-$ overcast push app nginx/myapp.conf /etc/nginx/sites-enabled/myapp.conf
-$ overcast pull all /etc/nginx/sites-enabled/myapp.conf nginx/{instance}.myapp.conf
+$ overcast push app-01 nginx/myapp.conf /etc/nginx/sites-enabled/myapp.conf
+$ overcast pull app-01 /var/log/syslog ./my-local-syslog-copy
 ```
 
 Overcast is a thin layer on top of your SSH client. It doesn't install or leave anything on the servers you communicate with, so Overcast itself has no real attack surface.
 
-A library of [scripts](https://github.com/andrewchilds/overcast/tree/master/scripts) and [recipes](https://github.com/andrewchilds/overcast/tree/master/recipes) are included which make it easy to deploy a number of common software stacks and applications. The libraries were written for and tested against Ubuntu/Debian systems, but you can just as easily run your own custom scripts.
-
-```sh
-$ overcast run all /absolute/path/to/script ./relative/path/to/other/script
-```
+A library of [scripts](https://github.com/andrewchilds/overcast/tree/master/scripts) and [recipes](https://github.com/andrewchilds/overcast/tree/master/recipes) are bundled to make it easy to deploy a number of common software stacks and applications.
 
 ## Installation (OS X/Linux)
 
