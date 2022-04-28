@@ -19,6 +19,63 @@ describe('utils', () => {
     })
   });
 
+  describe('deepGet', () => {
+    const testObj = {
+      a: {
+        b: {
+          c: {
+            d: 123
+          }
+        },
+        e: [
+          { f: 9 },
+          { g: 10 }
+        ]
+      }
+    };
+
+    const falseyObj = {
+      isUndefined: undefined,
+      isNull: null,
+      isZero: 0,
+      isEmptyString: ''
+    };
+
+    const testArr = [
+      { id: 1, comments: [{ text: 'hello' }, { text: 'goodbye' }] },
+      { id: 2, comments: [] }
+    ];
+
+    it('handles nested objects', () => {
+      expect(utils.deepGet(testObj, 'a.b.c.d')).toBe(123);
+    });
+
+    it('handles arrays inside an object', () => {
+      expect(utils.deepGet(testObj, 'a.e[0].f')).toBe(9);
+    });
+
+    it('handles objects inside an array', () => {
+      expect(utils.deepGet(testArr, '[0].comments[1].text')).toBe('goodbye');
+    });
+
+    it('returns the default value if query was not found', () => {
+      const defaultVal = 'oh no';
+      expect(utils.deepGet(testObj, 'invalid.not[0].found', defaultVal)).toBe(defaultVal);
+    });
+
+    it('returns undefined if query was not found and no default is set', () => {
+      expect(utils.deepGet(testObj, 'invalid.not[0].found')).toBe(undefined);
+    });
+
+    it('returns falsey values', () => {
+      const defaultVal = 'my default';
+      expect(utils.deepGet(falseyObj, 'isUndefined', defaultVal)).toBe(undefined);
+      expect(utils.deepGet(falseyObj, 'isNull', defaultVal)).toBe(null);
+      expect(utils.deepGet(falseyObj, 'isZero', defaultVal)).toBe(0);
+      expect(utils.deepGet(falseyObj, 'isEmptyString', defaultVal)).toBe('');
+    });
+  });
+
   describe('deepClone', () => {
     it('creates a deep clone of an object', () => {
       const original = {

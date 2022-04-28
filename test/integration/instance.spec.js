@@ -1,3 +1,4 @@
+import { getClusters, saveClusters } from '../../src/utils.js';
 import { overcast, tearDown, expectInLog, expectInLogExact } from './utils.js';
 
 describe('instance', () => {
@@ -69,6 +70,25 @@ describe('instance', () => {
         expectInLogExact(expect, logs, 'instance.01');
         expectInLogExact(expect, logs, '127.0.0.1');
         nextFn();
+      });
+    });
+
+    it('should output the nested instance attributes', (nextFn) => {
+      const clusters = getClusters();
+      // 'instance-test': { instances: { 'instance.01': [Object], 'instance.02': [Object] } }
+      clusters['instance-test'].instances['instance.01'].nested = {
+        a: {
+          b: [
+            { c: 'foo' },
+            { d: 'bar' }
+          ]
+        }
+      };
+      saveClusters(clusters, () => {
+        overcast('instance get instance.01 nested.a.b[1].d', (logs) => {
+          expectInLogExact(expect, logs, 'bar');
+          nextFn();
+        });
       });
     });
 

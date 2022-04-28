@@ -6,6 +6,14 @@ npm -g update overcast
 
 # Change Log
 
+**2.2.0** (Apr 27, 2022)
+
+Adds:
+- Support for deep nested paths in the `instance get` command, e.g. `instance get a.b[0].c`.
+
+Updates:
+- Upgrade `minimist` dependency to 1.2.6 which patches CVE-2021-44906.
+
 **2.1.0** (Apr 6, 2022)
 
 Adds:

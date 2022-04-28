@@ -10,6 +10,7 @@ commands.get = {
   description: [
     'Returns the attribute(s) for the instance or cluster, one per line,',
     'or space-delimited using the --single-line option.',
+    'Deeply nested arrays and objects are supported.',
     '"origin" is a compound attribute that returns user@ip:ssh-port.'
   ],
   examples: [
@@ -19,7 +20,10 @@ commands.get = {
     '$ overcast instance get app-cluster ip',
     '127.0.0.1',
     '127.0.0.2',
-    '127.0.0.3'
+    '127.0.0.3',
+    '',
+    '$ overcast instance get app-01 digitalocean.image.id',
+    '103510828'
   ],
   options: [
     { usage: '--single-line, -s', default: 'false' }
@@ -37,8 +41,11 @@ commands.get = {
         attr = attr.replace(/-/g, '_');
         if (attr === 'origin') {
           output.push(`${instance.user}@${instance.ip}:${instance.ssh_port}`);
-        } else if (instance[attr]) {
-          output.push(instance[attr]);
+        } else {
+          const v = utils.deepGet(instance, attr);
+          if (v !== undefined) {
+            output.push(v);
+          }
         }
       });
     });
