@@ -52,14 +52,16 @@ function runOnInstances(instances, args, nextFn = () => {}) {
 
 function runOnInstance(instance, args, nextFn) {
   const command = args._.shift();
+  const vars = utils.getVariables();
+
   sshExec({
     ip: instance.ip,
-    user: args.user || instance.user,
-    password: args.password || instance.password,
     name: instance.name,
-    ssh_key: args['ssh-key'] || instance.ssh_key,
-    ssh_port: instance.ssh_port,
+    user: args.user || vars.OVERCAST_SSH_USER || instance.user,
+    password: args.password || instance.password,
+    ssh_key: args['ssh-key'] || vars.OVERCAST_SSH_KEY || instance.ssh_key,
     ssh_args: utils.isString(args['ssh-args']) ? args['ssh-args'] : '',
+    ssh_port: instance.ssh_port,
     continueOnError: args.continueOnError,
     machineReadable: args['mr'] || args['machine-readable'],
     env: args.env,

@@ -240,12 +240,13 @@ Options:                  Defaults:
   --ssh-port PORT         22
   --ssh-key PATH          overcast.key
   --ssh-pub-key PATH      overcast.key.pub
-  --region REGION         nyc3
-  --image IMAGE           ubuntu-20-04-x64
-  --size SIZE             s-1vcpu-2gb-intel
+  --region REGION
+  --image IMAGE
+  --size SIZE
   --backups               false
   --monitoring            false
   --private-networking    false
+  --vpc-uuid
   --with-droplet-agent    false
 
 Examples:
@@ -492,6 +493,7 @@ Usage:
 Description:
   Returns the attribute(s) for the instance or cluster, one per line,
   or space-delimited using the --single-line option.
+  Deeply nested arrays and objects are supported.
   "origin" is a compound attribute that returns user@ip:ssh-port.
 
 Options:               Defaults:
@@ -505,6 +507,9 @@ Examples:
   127.0.0.1
   127.0.0.2
   127.0.0.3
+
+  $ overcast instance get app-01 digitalocean.image.id
+  103510828
 ```
 
 ### overcast instance add
@@ -669,12 +674,13 @@ Description:
   or rsync if the --rsync flag is used. Source can be absolute or relative
   to the .overcast/files directory. Destination can be absolute or relative
   to the home directory. Any reference to {instance} in the source will be
-  replaced with the instance name.
+  replaced with the instance name. The --exclude flag only works with rsync.
 
-Options:                 Defaults:
-  --rsync                false
+Options:                         Defaults:
+  --rsync                        false
   --user USERNAME
   --password PASSWORD
+  --exclude FILE_OR_DIRECTORY
 
 Examples:
   Assuming instances "app.01" and "app.02", this will expand to:
@@ -705,6 +711,7 @@ Options:                         Defaults:
   --machine-readable, --mr       false
   --parallel, -p                 false
   --shell-command "COMMAND"      bash -s
+  --only-once                    false
 
 Examples:
   # Run arbirary commands and files in sequence across all instances:
@@ -781,6 +788,13 @@ Options:
   --user USERNAME
   --password PASSWORD
   --ssh-key PATH
+
+Examples:
+  $ overcast ssh instance-01
+  # To use a personal username and key in variables.json:
+  $ overcast vars set OVERCAST_SSH_USER my-username
+  $ overcast vars set OVERCAST_SSH_KEY /path/to/my.key
+  $ overcast ssh instance-01 # will use the above variables to attempt a connection
 ```
 
 ### overcast sshkey create

@@ -224,9 +224,7 @@ export function deleteFromKnownHosts(instance, nextFn = () => {}) {
   });
 }
 
-export function normalizeKeyPath(keyPath, keyName) {
-  keyName = keyName || 'overcast.key';
-
+export function normalizeKeyPath(keyPath, keyName = 'overcast.key') {
   if (!keyPath) {
     return path.resolve(store.getConfigDir(), 'keys', keyName);
   }

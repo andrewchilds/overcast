@@ -6,6 +6,11 @@ npm -g update overcast
 
 # Change Log
 
+**2.2.1** (Mar 14, 2023)
+
+Adds:
+- Support for `OVERCAST_SSH_KEY` and `OVERCAST_SSH_USER` variables to allow for overridable ssh access, per [#60](https://github.com/andrewchilds/overcast/issues/60).
+
 **2.2.0** (Apr 27, 2022)
 
 Adds:

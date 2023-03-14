@@ -26,12 +26,14 @@ function runOnInstances(instances, args, nextFn) {
 }
 
 function runOnInstance(instance, args, nextFn = () => {}) {
+  const vars = utils.getVariables();
+
   rsync({
     ip: instance.ip,
-    user: args.user || instance.user,
-    password: args.password || instance.password,
     name: instance.name,
-    ssh_key: args['ssh-key'] || instance.ssh_key,
+    user: args.user || vars.OVERCAST_SSH_USER || instance.user,
+    password: args.password || instance.password,
+    ssh_key: args['ssh-key'] || vars.OVERCAST_SSH_KEY || instance.ssh_key,
     ssh_port: instance.ssh_port,
     env: args.env,
     exclude: args.exclude,

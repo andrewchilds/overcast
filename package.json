@@ -1,7 +1,7 @@
 {
   "name": "overcast",
   "description": "A simple command line program that makes it easy to spin up, configure, and manage virtual machines over SSH.",
-  "version": "2.2.0",
+  "version": "2.2.1",
   "repository": "https://github.com/andrewchilds/overcast.git",
   "author": {
     "name": "Andrew Childs",
@@ -14,7 +14,8 @@
   "type": "module",
   "main": "overcast.js",
   "scripts": {
-    "test": "cd test && npx jasmine --random=false integration/*.spec.js"
+    "test": "cd test && npx jasmine --random=false integration/*.spec.js",
+    "docs": "node bin/overcast-docs.js > temp.md"
   },
   "bin": {
     "overcast": "./overcast.js"

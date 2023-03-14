@@ -15,6 +15,13 @@ commands.ssh = {
   required: [
     { name: 'instance', varName: 'name', filters: filters.findFirstMatchingInstance }
   ],
+  examples: [
+    '$ overcast ssh instance-01',
+    '# To use a personal username and key in variables.json:',
+    '$ overcast vars set OVERCAST_SSH_USER my-username',
+    '$ overcast vars set OVERCAST_SSH_KEY /path/to/my.key',
+    '$ overcast ssh instance-01 # will use the above variables to attempt a connection'
+  ],
   options: [
     { usage: '--user USERNAME' },
     { usage: '--password PASSWORD' },
@@ -30,9 +37,11 @@ commands.ssh = {
 };
 
 function connect(instance, args, nextFn = () => {}) {
-  const privateKeyFile = utils.normalizeKeyPath(args['ssh-key'] || instance.ssh_key || `${getConfigDir()}/keys/overcast.key`);
+  const vars = utils.getVariables();
+
+  const privateKeyFile = utils.normalizeKeyPath(args['ssh-key'] || vars.OVERCAST_SSH_KEY || instance.ssh_key || `${getConfigDir()}/keys/overcast.key`);
   const sshPort = instance.ssh_port || '22';
-  const host = `${args.user || instance.user || 'root'}@${instance.ip}`;
+  const host = `${args.user || vars.OVERCAST_SSH_USER || instance.user || 'root'}@${instance.ip}`;
   const password = (args.password || instance.password || '');
 
   const command = [];
