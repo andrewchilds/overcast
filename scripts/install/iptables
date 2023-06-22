@@ -41,6 +41,12 @@ fi
 # Flush all current rules from iptables
 iptables -F
 
+# Accept packets belonging to established and related connections
+iptables -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
+
+# Localhost
+iptables -A INPUT -i lo -j ACCEPT
+
 for exposed_port in $exposed_ports; do
   port_allowlist_attribute="allowlist_$exposed_port"
   port_allowlist="${!port_allowlist_attribute}"
@@ -60,13 +66,7 @@ for exposed_port in $exposed_ports; do
 done
 
 # Ping
-iptables -A INPUT -p icmp -m icmp --icmp-type 8 -j ACCEPT
-
-# Accept packets belonging to established and related connections
-iptables -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
-
-# Localhost
-iptables -A INPUT -i lo -j ACCEPT
+# iptables -A INPUT -p icmp -m icmp --icmp-type 8 -j ACCEPT
 
 # Log Dropped Connections
 # iptables -A INPUT -m limit --limit 30/minute -j LOG --log-level 7 --log-prefix "Dropped by firewall: "

@@ -6,6 +6,11 @@ npm -g update overcast
 
 # Change Log
 
+**2.2.2** (Jun 21, 2023)
+
+Updates:
+- Optimize `expose` command: remove icmp/ping port by default, and move established and related connections above other rules.
+
 **2.2.1** (Mar 14, 2023)
 
 Adds:
