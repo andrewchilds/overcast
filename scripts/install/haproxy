@@ -1,0 +1,22 @@
+#!/bin/bash
+
+# Install HAProxy 2.8 (LTS)
+
+# Verified on:
+# Ubuntu 20.04
+
+# Usage:
+# overcast run myInstanceOrCluster install/haproxy
+
+# set -x
+
+if [ "$(id -u)" != "0" ]; then
+   echo "This script must be run as root." 1>&2
+   exit 1
+fi
+
+add-apt-repository -y ppa:vbernat/haproxy-2.8
+apt-get update
+aptitude -y install haproxy
+
+exit 0

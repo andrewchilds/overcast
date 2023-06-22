@@ -6,7 +6,10 @@ npm -g update overcast
 
 # Change Log
 
-**2.2.2** (Jun 21, 2023)
+**2.2.3** (Jun 21, 2023)
+
+Adds:
+- `install/haproxy` bundled script that installs HAProxy 2.8 LTS.
 
 Updates:
 - Optimize `expose` command: remove icmp/ping port by default, and move established and related connections above other rules.
