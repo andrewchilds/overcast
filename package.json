@@ -21,10 +21,10 @@
     "overcast": "./overcast.js"
   },
   "dependencies": {
-    "chalk": "5.0.0",
-    "minimist": "1.2.6",
-    "do-wrapper": "4.5.1",
-    "slack-notify": "2.0.2"
+    "chalk": "5.3.0",
+    "minimist": "1.2.8",
+    "do-wrapper": "github:andrewchilds/do-wrapper#main",
+    "slack-notify": "2.0.6"
   },
   "devDependencies": {
     "eslint": "8.9.0",
