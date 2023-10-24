@@ -6,6 +6,12 @@ npm -g update overcast
 
 # Change Log
 
+**2.2.4** (Oct 24, 2023)
+
+Updates:
+- Replaces `aptitude` with `apt-get` in install scripts.
+- Bumps versions of all dependencies to latest.
+
 **2.2.3** (Jun 21, 2023)
 
 Adds:
