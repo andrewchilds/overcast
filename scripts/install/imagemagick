@@ -15,6 +15,6 @@ if [ "$(id -u)" != "0" ]; then
    exit 1
 fi
 
-aptitude -y install imagemagick
+apt-get install -y imagemagick
 
 exit 0

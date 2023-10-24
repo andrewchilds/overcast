@@ -17,6 +17,6 @@ fi
 
 add-apt-repository -y ppa:vbernat/haproxy-2.8
 apt-get update
-aptitude -y install haproxy
+apt-get install -y haproxy
 
 exit 0

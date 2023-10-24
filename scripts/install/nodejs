@@ -17,6 +17,6 @@ if [ "$(id -u)" != "0" ]; then
 fi
 
 curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
-aptitude -y install nodejs
+apt-get install -y nodejs
 
 exit 0

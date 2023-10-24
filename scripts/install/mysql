@@ -17,6 +17,6 @@ if [ "$(id -u)" != "0" ]; then
    exit 1
 fi
 
-DEBIAN_FRONTEND=noninteractive aptitude -q -y install mysql-server libmysqld-dev
+DEBIAN_FRONTEND=noninteractive apt-get -q -y install mysql-server libmysqld-dev
 
 exit 0

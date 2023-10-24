@@ -17,14 +17,18 @@ fi
 
 # Install core packages
 
+# Update the package list
 apt-get update
-apt-get -y install aptitude
-aptitude -y full-upgrade
+
+# Upgrade all installed packages
+# --force-confdef tells dpkg to use the default action
+# --force-confold tells it to keep the current version of a configuration file if one has been modified
+DEBIAN_FRONTEND=noninteractive apt-get upgrade -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold"
 
 # Ref: https://askubuntu.com/a/340846
 echo iptables-persistent iptables-persistent/autosave_v4 boolean true | sudo debconf-set-selections
 echo iptables-persistent iptables-persistent/autosave_v6 boolean true | sudo debconf-set-selections
 
-aptitude -y install git-core wget less build-essential iptables-persistent
+apt-get install -y git-core wget less build-essential iptables-persistent
 
 exit 0

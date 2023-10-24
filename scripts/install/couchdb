@@ -16,6 +16,6 @@ if [ "$(id -u)" != "0" ]; then
    exit 1
 fi
 
-aptitude -y install couchdb
+apt-get install -y couchdb
 
 exit 0

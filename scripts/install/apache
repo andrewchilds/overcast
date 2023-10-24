@@ -16,7 +16,7 @@ if [ "$(id -u)" != "0" ]; then
    exit 1
 fi
 
-aptitude install -y apache2
+apt-get install -y apache2
 
 # Create self-signed SSL certificate
 # mkdir /etc/apache2/ssl

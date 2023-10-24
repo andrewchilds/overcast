@@ -18,6 +18,6 @@ if [ "$(id -u)" != "0" ]; then
    exit 1
 fi
 
-aptitude install -y nginx
+apt-get install -y nginx
 
 exit 0

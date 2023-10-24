@@ -16,6 +16,6 @@ if [ "$(id -u)" != "0" ]; then
    exit 1
 fi
 
-aptitude install -y php5 php5-mysql php5-gd libapache-mod-ssl libapache2-mod-php5 php5-curl
+apt-get install -y php5 php5-mysql php5-gd libapache-mod-ssl libapache2-mod-php5 php5-curl
 
 exit 0
