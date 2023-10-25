@@ -6,6 +6,11 @@ npm -g update overcast
 
 # Change Log
 
+**2.2.6** (Oct 25, 2023)
+
+Updates:
+- Improved `harden_ssh` script to use sshaudit.com recommendations
+
 **2.2.5** (Oct 24, 2023)
 
 Updates:
