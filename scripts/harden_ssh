@@ -1,11 +1,11 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-# Configure SSH to disallow password logins, decrease loginGraceTime.
-
-# Verified on:
-# Ubuntu 20.04
-# Ubuntu 14.04
-# Ubuntu 12.04
+# Configures SSH to enhance security.
+# - Disallows password logins.
+# - Decreases LoginGraceTime.
+#
+# Tested on:
+# Ubuntu 22.04, 20.04, 14.04, 12.04
 # Debian 7.0
 
 # Usage:
@@ -18,14 +18,23 @@ if [ "$(id -u)" != "0" ]; then
   exit 1
 fi
 
-cp /etc/ssh/sshd_config /etc/ssh/sshd_config-orig
-sed -i "s/LoginGraceTime [0-9]*/LoginGraceTime 30/g" /etc/ssh/sshd_config
+cp /etc/ssh/sshd_config "/etc/ssh/sshd_config_backup-$(date +%F-%T)"
+
+sed -i -r 's/^#?(LoginGraceTime)[[:space:]]+[0-9]+m?/\1 30/g' /etc/ssh/sshd_config
 sed -i 's/UsePAM yes/UsePAM no/g' /etc/ssh/sshd_config
 
 # These are off by default in Ubuntu 20.04, leaving in for backwards compatibility.
 sed -i -r 's/#\?PasswordAuthentication yes/PasswordAuthentication no/g' /etc/ssh/sshd_config
 sed -i 's/ChallengeResponseAuthentication yes/ChallengeResponseAuthentication no/g' /etc/ssh/sshd_config
 
-service ssh restart
+# Check the SSH configuration for errors
+sshd -t
+if [ $? -ne 0 ]; then
+   echo "Error in SSH configuration. Not reloading SSH."
+   exit 1
+fi
+
+# Using `reload` instead of `restart` to avoid killing existing sessions.
+service ssh reload
 
 exit 0
