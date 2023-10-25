@@ -6,6 +6,11 @@ npm -g update overcast
 
 # Change Log
 
+**2.2.5** (Oct 24, 2023)
+
+Updates:
+- Improved `harden_ssh` script to work with Ubuntu 22.04 LTS.
+
 **2.2.4** (Oct 24, 2023)
 
 Updates:
