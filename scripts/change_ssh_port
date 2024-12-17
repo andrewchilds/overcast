@@ -3,6 +3,7 @@
 # Change SSH listener port.
 
 # Verified on:
+# Ubuntu 24.04
 # Ubuntu 20.04
 # Ubuntu 14.04
 # Ubuntu 12.04
@@ -42,6 +43,22 @@ echo Setting port to $new_ssh_port...
 
 sed -i -r "s/^\#?Port [0-9]+/Port $new_ssh_port/g" /etc/ssh/sshd_config
 
-service ssh restart
+# Disable SSH socket, which is enforcing the old port
+systemctl disable ssh.socket || systemctl disable sshd.socket
+systemctl stop ssh.socket || systemctl stop sshd.socket
+
+# Handle service restart for both old and new Ubuntu versions
+if command -v systemctl >/dev/null 2>&1; then
+  systemctl restart ssh.service || systemctl restart sshd.service
+else
+  service ssh restart || service sshd restart
+fi
+
+# Verify service is running
+if command -v systemctl >/dev/null 2>&1; then
+  systemctl is-active ssh.service || systemctl is-active sshd.service
+else
+  service ssh status || service sshd status
+fi
 
 exit 0

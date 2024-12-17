@@ -6,10 +6,15 @@ npm -g update overcast
 
 # Change Log
 
+**2.2.7** (Dec 17, 2024)
+
+Updates:
+- Update change_ssh_port script to work in Ubuntu 22.04 and up.
+
 **2.2.6** (Oct 25, 2023)
 
 Updates:
-- Improved `harden_ssh` script to use sshaudit.com recommendations
+- Improved `harden_ssh` script to use sshaudit.com recommendations.
 
 **2.2.5** (Oct 24, 2023)
 
