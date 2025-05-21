@@ -12,7 +12,7 @@ commands.slack = {
     'Sends a message to a Slack channel.',
     'Requires a SLACK_WEBHOOK_URL property to be set in variables.json.',
     'You can set that with the following command:',
-    'overcast var set SLACK_WEBHOOK_URL https://foo.slack.com/blah'
+    'overcast vars set SLACK_WEBHOOK_URL https://foo.slack.com/blah'
   ],
   examples: [
     '$ overcast slack "Deploy completed." --icon-emoji ":satelite:"',

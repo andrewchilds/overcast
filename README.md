@@ -57,7 +57,7 @@ A library of [scripts](https://github.com/andrewchilds/overcast/tree/master/scri
 3. You can now use Overcast from any directory. Running any overcast command from anywhere will create the `~/.overcast` config directory if it doesn't already exist. Add your API keys to `~/.overcast/variables.json` to use their respective commands, either manually or using the `var` command:
 
     ```sh
-    $ overcast var set DIGITALOCEAN_API_TOKEN abc123
+    $ overcast vars set DIGITALOCEAN_API_TOKEN abc123
     ```
 
 4. To make working with Overcast easier, you can add bash tab completion by adding the following to your `.bash_profile`:
@@ -761,7 +761,7 @@ Description:
   Sends a message to a Slack channel.
   Requires a SLACK_WEBHOOK_URL property to be set in variables.json.
   You can set that with the following command:
-  overcast var set SLACK_WEBHOOK_URL https://foo.slack.com/blah
+  overcast vars set SLACK_WEBHOOK_URL https://foo.slack.com/blah
 
 Options:                Defaults:
   --channel NAME        #alerts
@@ -1049,6 +1049,192 @@ Usage:
 
 Description:
   Shut down a Virtualbox instance.
+```
+
+### overcast vultr boot
+
+```
+Usage:
+  overcast vultr boot [name]
+
+Description:
+  Boot up an instance if powered off, otherwise do nothing.
+```
+
+### overcast vultr create
+
+```
+Usage:
+  overcast vultr create [name] [options...]
+
+Description:
+  Creates a new instance on Vultr.
+
+Options:                      Defaults:
+  --cluster CLUSTER           default
+  --ssh-port PORT             22
+  --ssh-key PATH              overcast.key
+  --ssh-pub-key PATH          overcast.key.pub
+  --region REGION/ID
+  --image OS/IMAGE
+  --plan SIZE
+  --enable-ipv6               false
+  --enable-private-network    false
+  --activation-email          false
+
+Examples:
+  # Create with defaults (Ubuntu 20.04, 1GB RAM, New Jersey region):
+  $ overcast vultr create vm-01
+
+  # Create with specific OS, plan and region:
+  $ overcast vultr create vm-02 --image "ubuntu_22_04_x64" --plan "vc2-2c-4gb" --region "lax"
+
+  # Create with additional options:
+  $ overcast vultr create vm-03 --enable-ipv6 --enable-private-network
+```
+
+### overcast vultr destroy
+
+```
+Usage:
+  overcast vultr destroy [name] [options...]
+
+Description:
+  Destroys a Vultr instance and removes it from your account.
+  Using --force overrides the confirm dialog.
+
+Options:     Defaults:
+  --force    false
+
+Examples:
+  $ overcast vultr destroy vm-01
+  $ overcast vultr destroy vm-01 --force
+```
+
+### overcast vultr images
+
+```
+Usage:
+  overcast vultr images
+
+Description:
+  List all available OS images, applications, and snapshots.
+```
+
+### overcast vultr instances
+
+```
+Usage:
+  overcast vultr instances
+
+Description:
+  List all instances in your account.
+```
+
+### overcast vultr reboot
+
+```
+Usage:
+  overcast vultr reboot [name]
+
+Description:
+  Reboot an instance using the provider API.
+```
+
+### overcast vultr regions
+
+```
+Usage:
+  overcast vultr regions
+
+Description:
+  List all available regions.
+```
+
+### overcast vultr rebuild
+
+```
+Usage:
+  overcast vultr rebuild [name] [image]
+
+Description:
+  Rebuilds an existing instance on Vultr, preserving the IP address.
+  [image] can be OS ID, OS name, image ID, or image name.
+
+Examples:
+  # Rebuild an instance using Ubuntu 22.04:
+  $ overcast vultr rebuild vm-01 ubuntu_22_04_x64
+
+  # Rebuild an instance using a snapshot:
+  $ overcast vultr rebuild vm-01 "My Custom Image"
+```
+
+### overcast vultr resize
+
+```
+Usage:
+  overcast vultr resize [name] [plan]
+
+Description:
+  Shut down, resize, and boot a Vultr instance.
+  [plan] can be plan ID or name.
+
+Examples:
+  # Resize an instance to a 4GB plan:
+  $ overcast vultr resize vm-01 vc2-2c-4gb
+```
+
+### overcast vultr snapshot
+
+```
+Usage:
+  overcast vultr snapshot [name] [snapshot-name]
+
+Description:
+  Creates a named snapshot of an instance.
+
+Examples:
+  $ overcast vultr snapshot vm-01 vm-01-backup
+```
+
+### overcast vultr snapshots
+
+```
+Usage:
+  overcast vultr snapshots
+
+Description:
+  List all snapshots in your account.
+```
+
+### overcast vultr shutdown
+
+```
+Usage:
+  overcast vultr shutdown [name]
+
+Description:
+  Shut down an instance using the provider API.
+```
+
+### overcast vultr plans
+
+```
+Usage:
+  overcast vultr plans
+
+Description:
+  List all available instance plans.
+```
+
+### overcast vultr sync
+
+```
+Usage:
+  overcast vultr sync [name]
+
+Description:
+  Fetch and update instance metadata.
 ```
 
 ### overcast wait

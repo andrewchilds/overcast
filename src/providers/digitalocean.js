@@ -174,7 +174,7 @@ export function getAPI() {
     log.failure('The variable DIGITALOCEAN_API_TOKEN is not set.');
     log.failure('Go to https://cloud.digitalocean.com/settings/applications');
     log.failure('to get your API token, then run the following command:');
-    return utils.die('overcast var set DIGITALOCEAN_API_TOKEN [your_api_token]');
+    return utils.die('overcast vars set DIGITALOCEAN_API_TOKEN [your_api_token]');
   }
 
   PRIVATE_CACHE.API = new DigitalOcean.default(vars.DIGITALOCEAN_API_TOKEN);

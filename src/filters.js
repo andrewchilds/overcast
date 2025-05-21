@@ -71,7 +71,7 @@ export function shouldBeExistingKey(name, args) {
   }
 }
 
-export function shouldBeDigitalOcean(name, {instance}) {
+export function shouldBeDigitalOcean(name, { instance }) {
   if (!instance || !instance.digitalocean) {
     log.failure('This instance has no DigitalOcean metadata attached.');
     log.failure('Run this command and then try again:');
@@ -79,8 +79,14 @@ export function shouldBeDigitalOcean(name, {instance}) {
   }
 }
 
-export function shouldBeVirtualbox(name, {instance}) {
+export function shouldBeVirtualbox(name, { instance }) {
   if (!instance || !instance.virtualbox) {
     return utils.die('This instance has no Virtualbox metadata attached.');
+  }
+}
+
+export function shouldBeVultr(name, { instance }) {
+  if (!instance || !instance.vultr) {
+    return utils.die(`Instance "${instance.name}" is not a Vultr instance.`);
   }
 }
