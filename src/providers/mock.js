@@ -12,7 +12,8 @@ mockAPI.create = (args, nextFn) => {
     ssh_port: args['ssh-port'],
     // Including these here to bypass filters
     virtualbox: {},
-    digitalocean: {}
+    digitalocean: {},
+    vultr: {},
   }));
 }
 
@@ -116,6 +117,12 @@ const MOCK_REGIONS = [
 ];
 
 const MOCK_KEYS = [];
+
+const MOCK_SIZES = [
+  { name: '512MB' },
+  { name: '1GB' },
+  { name: '2GB' }
+];
 
 const MOCK_INSTANCES = [
   mockInstance({ name: 'mock-01' })

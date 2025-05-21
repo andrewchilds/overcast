@@ -2,9 +2,10 @@ import * as filters from '../filters.js';
 import * as provider from '../provider.js';
 import { isTestRun } from '../utils.js';
 import { api } from '../providers/vultr.js';
+import { mockAPI } from '../providers/mock.js';
 
 function getAPI() {
-  return api;
+  return isTestRun() ? mockAPI : api;
 }
 
 export const commands = {};
