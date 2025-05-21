@@ -57,7 +57,7 @@ A library of [scripts](https://github.com/andrewchilds/overcast/tree/master/scri
 3. You can now use Overcast from any directory. Running any overcast command from anywhere will create the `~/.overcast` config directory if it doesn't already exist. Add your API keys to `~/.overcast/variables.json` to use their respective commands, either manually or using the `var` command:
 
     ```sh
-    $ overcast var set DIGITALOCEAN_API_TOKEN abc123
+    $ overcast vars set DIGITALOCEAN_API_TOKEN abc123
     ```
 
 4. To make working with Overcast easier, you can add bash tab completion by adding the following to your `.bash_profile`:
@@ -761,7 +761,7 @@ Description:
   Sends a message to a Slack channel.
   Requires a SLACK_WEBHOOK_URL property to be set in variables.json.
   You can set that with the following command:
-  overcast var set SLACK_WEBHOOK_URL https://foo.slack.com/blah
+  overcast vars set SLACK_WEBHOOK_URL https://foo.slack.com/blah
 
 Options:                Defaults:
   --channel NAME        #alerts

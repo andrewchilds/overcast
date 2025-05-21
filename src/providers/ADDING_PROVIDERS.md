@@ -182,7 +182,7 @@ function getAPI() {
     log.failure('The variable YOUR_PROVIDER_API_KEY is not set.');
     log.failure('Go to https://your-provider.com/settings/api');
     log.failure('to get your API key, then run the following command:');
-    return utils.die('overcast var set YOUR_PROVIDER_API_KEY [your_api_key]');
+    return utils.die('overcast vars set YOUR_PROVIDER_API_KEY [your_api_key]');
   }
 
   // Initialize your provider's API client with the credentials
