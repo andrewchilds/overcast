@@ -15,7 +15,7 @@
   "main": "overcast.js",
   "scripts": {
     "test": "cd test && npx jasmine --random=false integration/*.spec.js",
-    "docs": "node bin/overcast-docs.js > temp.md"
+    "docs": "node bin/overcast-docs.js > README_temp.md && echo 'Add README_temp.md to the Command Reference section of the README.md and then commit the changes.'"
   },
   "bin": {
     "overcast": "./overcast.js"

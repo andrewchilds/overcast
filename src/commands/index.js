@@ -21,6 +21,7 @@ import * as sshkey from './sshkey.js';
 import * as tunnel from './tunnel.js';
 import * as vars from './vars.js';
 import * as virtualbox from './virtualbox.js';
+import * as vultr from './vultr.js';
 import * as wait from './wait.js';
 
 export default {
@@ -47,5 +48,6 @@ export default {
   tunnel,
   vars,
   virtualbox,
+  vultr,
   wait
 };
