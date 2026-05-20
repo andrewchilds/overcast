@@ -12,7 +12,7 @@ export const api = {
   name: 'DigitalOcean'
 };
 
-export const DEFAULT_IMAGE = 'ubuntu-20-04-x64';
+export const DEFAULT_IMAGE = 'ubuntu-24-04-x64';
 export const DEFAULT_SIZE = 's-1vcpu-2gb-intel';
 export const DEFAULT_REGION = 'nyc3';
 

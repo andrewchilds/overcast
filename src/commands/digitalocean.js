@@ -30,10 +30,10 @@ commands.create = {
   description: ['Creates a new instance on DigitalOcean.'],
   examples: [
     '# Match using slugs:',
-    '$ overcast digitalocean create vm-01 --size 2gb --region sfo1',
+    '$ overcast digitalocean create vm-01 --size s-1vcpu-2gb --region sfo3',
     '',
     '# Match using IDs or names:',
-    '$ overcast digitalocean create vm-02 --region "London 1" --image 6374128'
+    '$ overcast digitalocean create vm-02 --region "London 1" --image ubuntu-24-04-x64'
   ],
   required: [
     { name: 'name', filters: filters.shouldBeNewInstance }
@@ -128,7 +128,7 @@ commands.rebuild = {
   ],
   examples: [
     '# Rebuild an instance using a readymade image:',
-    '$ overcast digitalocean rebuild vm-01 ubuntu-14-04-x64',
+    '$ overcast digitalocean rebuild vm-01 ubuntu-24-04-x64',
     '',
     '# Rebuild an instance using a snapshot:',
     '$ overcast digitalocean rebuild vm-01 "vm-01 backup"'
