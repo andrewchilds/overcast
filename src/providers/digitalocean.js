@@ -143,6 +143,12 @@ api.getSnapshots = (nextFn) => {
   }).catch(genericCatch);
 }
 
+api.deleteSnapshot = (snapshotId, nextFn = () => {}) => {
+  getAPI().snapshots.deleteById(snapshotId).then(body => {
+    nextFn(body);
+  }).catch(genericCatch);
+}
+
 api.getKeys = (nextFn) => {
   getAPI().keys.getAll('', true, FIRST_PAGE, PAGE_SIZE).then(body => {
     nextFn(body);

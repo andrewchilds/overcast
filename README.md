@@ -439,6 +439,24 @@ Description:
   List all available snapshots in your account.
 ```
 
+### overcast digitalocean destroy-snapshot
+
+```
+Usage:
+  overcast digitalocean destroy-snapshot [snapshot-id] [options...]
+
+Description:
+  Destroys a DigitalOcean snapshot.
+  Use "overcast digitalocean snapshots" to list available snapshots.
+  Using --force overrides the confirm dialog.
+
+Options:     Defaults:
+  --force    false
+
+Examples:
+  $ overcast digitalocean destroy-snapshot 12345678
+```
+
 ### overcast digitalocean shutdown
 
 ```

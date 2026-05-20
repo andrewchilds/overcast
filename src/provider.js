@@ -218,6 +218,39 @@ export function snapshots(api, nextFn) {
   });
 }
 
+export function destroySnapshot(api, args, nextFn) {
+  handleCommandNotFound(api.deleteSnapshot);
+
+  const onDestroy = () => {
+    log.success(`Snapshot "${args.snapshotId}" destroyed.`);
+    if (utils.isFunction(nextFn)) {
+      nextFn();
+    }
+  };
+
+  if (args.force || utils.isTestRun()) {
+    return api.deleteSnapshot(args.snapshotId, onDestroy);
+  }
+
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout
+  });
+
+  const q = `Do you really want to destroy snapshot "${args.snapshotId}"? [Y/n]`;
+  rl.question(q, answer => {
+    rl.close();
+    if (answer !== '' && answer !== 'Y' && answer !== 'y') {
+      log.faded('No action taken.');
+      if (utils.isFunction(nextFn)) {
+        nextFn();
+      }
+    } else {
+      api.deleteSnapshot(args.snapshotId, onDestroy);
+    }
+  });
+}
+
 export function waitForBoot(instance, nextFn = () => {}, startTime) {
   if (!startTime) {
     startTime = utils.now();

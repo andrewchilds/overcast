@@ -189,6 +189,28 @@ commands.snapshots = {
   }
 };
 
+commands['destroy-snapshot'] = {
+  name: 'destroy-snapshot',
+  usage: ['overcast digitalocean destroy-snapshot [snapshot-id] [options...]'],
+  description: [
+    'Destroys a DigitalOcean snapshot.',
+    'Use "overcast digitalocean snapshots" to list available snapshots.',
+    'Using --force overrides the confirm dialog.'
+  ],
+  examples: [
+    '$ overcast digitalocean destroy-snapshot 12345678'
+  ],
+  required: [
+    { name: 'snapshot-id', varName: 'snapshotId' }
+  ],
+  options: [
+    { usage: '--force', default: 'false' }
+  ],
+  run: (args, nextFn) => {
+    provider.destroySnapshot(getAPI(), args, nextFn);
+  }
+};
+
 commands.shutdown = {
   name: 'shutdown',
   usage: ['overcast digitalocean shutdown [name]'],

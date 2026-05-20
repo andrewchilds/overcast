@@ -75,6 +75,10 @@ mockAPI.getSnapshots = (nextFn) => {
   nextFn([]);
 }
 
+mockAPI.deleteSnapshot = (snapshotId, nextFn) => {
+  nextFn();
+}
+
 mockAPI.getKeys = (nextFn) => {
   nextFn(MOCK_KEYS);
 }
