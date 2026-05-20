@@ -6,6 +6,18 @@ npm -g update overcast
 
 # Change Log
 
+**2.2.8** (May 20, 2026)
+
+Adds:
+- Add `CLAUDE.md` for Claude Code guidance.
+- Add Dokku installation script and DigitalOcean deployment recipe.
+
+Fixes:
+- Fix variable name typo in `change_ssh_port` script.
+
+Updates:
+- Simplify `harden_ssh` script to use a drop-in config file approach.
+
 **2.2.7** (Dec 17, 2024)
 
 Updates:
