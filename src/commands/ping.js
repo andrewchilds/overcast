@@ -4,7 +4,6 @@ import cp from 'child_process';
 import * as log from '../log.js';
 import * as utils from '../utils.js';
 import * as filters from '../filters.js';
-import { fsync } from 'fs';
 
 export const commands = {};
 
@@ -37,7 +36,7 @@ commands.ping = {
 function ping({ ip, name }, count, nextFn) {
   cp.exec(`ping -c ${count} ${ip}`, (err, stdout) => {
     const color = utils.getNextColor();
-    const averagePing = stdout.match(/ ([\d\.]+)\/([\d\.]+)\/([\d\.]+)\/([\d\.]+) ms/);
+    const averagePing = stdout.match(/ ([\d.]+)\/([\d.]+)\/([\d.]+)\/([\d.]+) ms/);
     const prefix = `${name}: `;
     log.log(`${chalk[color](prefix) + averagePing[2]} ms`);
     nextFn();

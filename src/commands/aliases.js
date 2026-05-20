@@ -1,5 +1,5 @@
 import * as utils from '../utils.js';
-import { log, alert } from '../log.js';
+import { log } from '../log.js';
 
 export const commands = {};
 

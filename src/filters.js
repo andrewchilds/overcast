@@ -29,7 +29,7 @@ export function findMatchingCluster(name, args) {
   }
 }
 
-export function shouldBeNewCluster(name, args) {
+export function shouldBeNewCluster(name) {
   const clusters = utils.getClusters();
 
   if (clusters[name]) {
@@ -57,14 +57,14 @@ export function shouldBeNewInstance(name, args) {
   }
 }
 
-export function shouldBeNewKey(name, args) {
+export function shouldBeNewKey(name) {
   if (utils.keyExists(name)) {
     log.alert(`The key "${name}" already exists. No action taken.`);
     return false;
   }
 }
 
-export function shouldBeExistingKey(name, args) {
+export function shouldBeExistingKey(name) {
   if (!utils.keyExists(name)) {
     log.alert(`The key "${name}" was not found. No action taken.`);
     return false;

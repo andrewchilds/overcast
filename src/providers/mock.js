@@ -116,6 +116,11 @@ const MOCK_REGIONS = [
 
 const MOCK_KEYS = [];
 
+const MOCK_SIZES = [
+  { slug: 's-1vcpu-1gb' },
+  { slug: 's-2vcpu-2gb' }
+];
+
 const MOCK_INSTANCES = [
   mockInstance({ name: 'mock-01' })
 ];

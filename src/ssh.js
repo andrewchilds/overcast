@@ -106,7 +106,7 @@ function sshExec(options, nextFn) {
   if (options.env) {
     if (utils.isObject(options.env)) {
       sshEnv.OVERCAST_ENV = utils.mapObject(options.env, (val, key) => {
-        return key + '="' + (val + '').replace(/"/g, '\"') + '"';
+        return key + '="' + (val + '').replace(/"/g, '"') + '"';
       }).join(' ');
     } else if (utils.isArray(options.env)) {
       sshEnv.OVERCAST_ENV = options.env.join(' ');
@@ -146,7 +146,7 @@ function sshExec(options, nextFn) {
   }
 
   const ssh = cp.spawn('bash', args, { env: Object.assign({}, process.env, sshEnv) });
-  const connectionProblem = false;
+  let connectionProblem = false;
 
   ssh.stdout.on('data', data => {
     if (options.machineReadable) {

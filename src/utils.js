@@ -186,7 +186,7 @@ export function createKey(keyName, nextFn) {
     keygen.on('exit', code => {
       if (code !== 0) {
         log.failure('Error generating SSH key!');
-        die(err);
+        die('ssh-keygen exited with code ' + code);
       } else {
         log.success(`Created new SSH key at ${keyFile}.`);
         nextFn();
@@ -218,7 +218,7 @@ export function deleteKey(keyName, nextFn) {
 
 export function deleteFromKnownHosts(instance, nextFn = () => {}) {
   var ssh = spawn('ssh-keygen -R ' + instance.ip);
-  ssh.on('exit', code => {
+  ssh.on('exit', () => {
     log.faded(instance.ip + ' removed from ' + getUserHome() + '/.ssh/known_hosts.');
     nextFn(instance);
   });
@@ -301,7 +301,7 @@ export function initOvercastDir(destDir, nextFn) {
       OVERCAST_FIXTURE_DIR: fixtureDir,
       OVERCAST_DEST_DIR: escapeWindowsPath(destDir)
     })
-  }, (err, stdout, stderr) => {
+  }, (err) => {
     if (err) {
       return die('Unable to create .overcast directory.');
     }
@@ -424,7 +424,7 @@ export function getVariables() {
     try {
       const data = JSON.parse(fs.readFileSync(file, { encoding: 'utf8' }));
       return data;
-    } catch (e) {
+    } catch {
       die(`Unable to parse the variables file (${file}). Please correct the parsing error.`);
     }
   } else {
@@ -449,7 +449,7 @@ export function getClusters() {
     try {
       const data = JSON.parse(fs.readFileSync(file, { encoding: 'utf8' }));
       return data;
-    } catch (e) {
+    } catch {
       die(`Unable to parse the clusters file (${file}). Please correct the parsing error.`);
     }
   } else {
@@ -528,7 +528,7 @@ export function sanitize(str) {
     str = str + '';
   }
 
-  return str.replace(/[^0-9a-zA-Z\.\-\_\* ]/g, '');
+  return str.replace(/[^0-9a-zA-Z.\-_* ]/g, '');
 }
 
 export function capitalize(str) {
@@ -671,8 +671,7 @@ export function progress(percentage, elapsed) {
   }
 
   var width = Math.max(1, Math.ceil(percentage / 3));
-  var hashes = times(width, (i) => {
-    i += Math.round(now() / maxWidth);
+  var hashes = times(width, () => {
     return chalk.bgGreen(' ');
   });
   var spaces = times(maxWidth - width, () => {
