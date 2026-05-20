@@ -1,0 +1,78 @@
+#!/usr/bin/env bash
+
+# Create and bootstrap a Dokku VM on DigitalOcean using Overcast.
+#
+# Requirements:
+# - overcast installed and initialized
+# - DIGITALOCEAN_API_TOKEN set in the active .overcast/variables.json
+# - DNS A record or wildcard A record pointed at the droplet, unless using sslip.io
+
+###############################################################################
+
+# Configuration:
+
+cluster="${cluster:-dokku}"
+instance="${instance:-dokku.001}"
+
+# Dokku currently supports Ubuntu 22.04/24.04 and Debian 11+.
+image="${image:-ubuntu-24-04-x64}"
+size="${size:-s-1vcpu-2gb-intel}"
+region="${region:-nyc3}"
+
+# Pin the Dokku release used by the official bootstrap installer.
+dokkuTag="${dokkuTag:-v0.38.5}"
+
+# Leave empty to use "<droplet-ip>.sslip.io" for app subdomains.
+# For production, point a wildcard A record like "*.apps.example.com" at the
+# droplet and run with: DOKKU_DOMAIN=apps.example.com ./recipes/dokku-digitalocean
+dokkuDomain="${DOKKU_DOMAIN:-}"
+
+# Set to an alternate port if you want to move SSH off 22 during bootstrap.
+sshPort="${sshPort:-22}"
+
+###############################################################################
+
+set -e
+
+echo "Ensuring cluster \"$cluster\" exists..."
+if ! overcast cluster count "$cluster" >/dev/null 2>&1; then
+  overcast cluster add "$cluster"
+fi
+
+echo "Creating DigitalOcean droplet \"$instance\"..."
+overcast digitalocean create "$instance" \
+  --cluster "$cluster" \
+  --image "$image" \
+  --size "$size" \
+  --region "$region" \
+  --monitoring
+
+ip="$(overcast instance get "$instance" ip --single-line)"
+
+if [ -z "$dokkuDomain" ]; then
+  dokkuDomain="${ip}.sslip.io"
+fi
+
+echo "Installing core packages and Dokku $dokkuTag..."
+overcast run "$instance" install/core install/dokku \
+  --env "DOKKU_TAG=$dokkuTag DOKKU_DOMAIN=$dokkuDomain"
+
+echo "Hardening SSH and opening Dokku ports..."
+overcast run "$instance" harden_ssh
+overcast expose "$instance" 22 "$sshPort" 80 443
+
+if [ "$sshPort" != "22" ]; then
+  overcast port "$instance" "$sshPort"
+  overcast expose "$instance" "$sshPort" 80 443
+fi
+
+echo
+echo "Dokku VM ready."
+echo "Instance: $instance"
+echo "IP:       $ip"
+echo "Domain:   $dokkuDomain"
+echo
+echo "Create and deploy an app:"
+echo "  overcast run $instance \"dokku apps:create myapp\""
+echo "  git remote add dokku dokku@$dokkuDomain:myapp"
+echo "  git push dokku main"

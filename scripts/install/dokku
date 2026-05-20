@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+
+# Install and configure Dokku.
+#
+# Verified on:
+# Ubuntu 24.04
+#
+# Usage:
+# overcast run myInstance install/dokku --env "DOKKU_TAG=v0.38.5 DOKKU_DOMAIN=1.2.3.4.sslip.io"
+
+set -e
+
+if [ "$(id -u)" != "0" ]; then
+  echo "This script must be run as root." 1>&2
+  exit 1
+fi
+
+DOKKU_TAG="${DOKKU_TAG:-v0.38.5}"
+DOKKU_DOMAIN="${DOKKU_DOMAIN:-}"
+
+apt-get update
+apt-get install -y wget ca-certificates
+
+wget -NP /tmp "https://dokku.com/install/${DOKKU_TAG}/bootstrap.sh"
+DOKKU_TAG="${DOKKU_TAG}" bash /tmp/bootstrap.sh
+
+if ! dokku ssh-keys:list | grep -q '^admin '; then
+  if [ -f /root/.ssh/authorized_keys ]; then
+    dokku ssh-keys:add admin < /root/.ssh/authorized_keys
+  else
+    echo "No /root/.ssh/authorized_keys file found; skipping Dokku admin SSH key setup."
+  fi
+fi
+
+if [ -n "$DOKKU_DOMAIN" ]; then
+  dokku domains:set-global "$DOKKU_DOMAIN"
+fi
+
+dokku plugin:install https://github.com/dokku/dokku-letsencrypt.git || true
+
+exit 0
