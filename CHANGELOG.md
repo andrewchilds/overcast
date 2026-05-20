@@ -6,6 +6,11 @@ npm -g update overcast
 
 # Change Log
 
+**2.4.1** (May 20, 2026)
+
+Adds:
+- `digitalocean destroy-snapshot` command for deleting DigitalOcean snapshots.
+
 **2.4.0** (May 20, 2026)
 
 Adds:
