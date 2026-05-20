@@ -6,6 +6,12 @@ npm -g update overcast
 
 # Change Log
 
+**2.3.0** (May 20, 2026)
+
+Removes:
+- Remove Virtualbox support (commands, provider, vagrant script).
+- Remove Linode recipe.
+
 **2.2.8** (May 20, 2026)
 
 Adds:
