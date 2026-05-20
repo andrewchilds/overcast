@@ -27,7 +27,7 @@ fi
 current_ssh_port=`cat /etc/ssh/sshd_config | grep 'Port ' | grep -v 'GatewayPorts' | awk '{ print $2 }'`
 exposed_ports=`iptables -L -n | grep 'ACCEPT' | grep 'tcp dpt:' | awk '{ print $7 }' | tr -d 'dpt:' | paste -sd ' '`
 
-ssh_port_not_exposed=true
+new_ssh_port_not_exposed=true
 for exposed_port in $exposed_ports; do
   if [ "$new_ssh_port" -eq "$exposed_port" ]; then
     new_ssh_port_not_exposed=false
