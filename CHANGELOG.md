@@ -6,6 +6,14 @@ npm -g update overcast
 
 # Change Log
 
+**2.3.1** (May 20, 2026)
+
+Updates:
+- Upgrade eslint 8.9.0 → 10.4.0 (fixes flatted prototype pollution vulnerability).
+- Upgrade chalk 5.3.0 → 5.6.2, slack-notify 2.0.6 → 2.0.7, jasmine 4.0.2 → 6.2.0.
+- Convert eslint config to flat config format.
+- Fix various lint errors.
+
 **2.3.0** (May 20, 2026)
 
 Removes:
