@@ -1,10 +1,20 @@
 # ![Overcast Logo](http://i.imgur.com/eCBl2NI.png)
 
-Overcast is a tiny command line program designed to make it easy to spin up, configure and manage clusters of machines across multiple cloud providers.
+Overcast is a CLI for managing and provisioning servers on DigitalOcean. It's a thin SSH-based layer that lets you spin up instances, organize them into clusters, and run commands or scripts across them, without installing agents or daemons on your servers.
 
-## Devops made simple.
+## What it's for
 
-Create, reboot and destroy instances on DigitalOcean.
+- Spinning up and managing DigitalOcean droplets from the command line
+- Running shell commands and scripts across multiple servers (sequentially or in parallel)
+- Organizing servers into named clusters for easy targeting
+- Pushing and pulling files between your local machine and remote servers
+- Quick SSH access to any server by name
+
+## What it's not
+
+- A full configuration management system (no state tracking, no declarative configs)
+- A replacement for Ansible, Terraform, or Kubernetes
+- A process manager or monitoring solution
 
 ```sh
 # Spin up a new Ubuntu 20.04 instance on DigitalOcean:
@@ -14,7 +24,7 @@ $ overcast digitalocean create db-01
 $ overcast run db-01 install/core install/redis
 ```
 
-Run multiple commands or multiple scripts on any of your instances over SSH. Commands can be run sequentially or in parallel. Run and test your deployment scripts across different providers.
+Run multiple commands or scripts on any instance over SSH, sequentially or in parallel.
 
 ```sh
 # Create a LAMP stack using bundled install scripts:
@@ -50,27 +60,27 @@ A library of [scripts](https://github.com/andrewchilds/overcast/tree/master/scri
 
 2. Install Overcast using npm.
 
-    ```sh
-    $ npm -g install overcast
-    ```
+   ```sh
+   $ npm -g install overcast
+   ```
 
 3. You can now use Overcast from any directory. Running any overcast command from anywhere will create the `~/.overcast` config directory if it doesn't already exist. Add your API keys to `~/.overcast/variables.json` to use their respective commands, either manually or using the `var` command:
 
-    ```sh
-    $ overcast var set DIGITALOCEAN_API_TOKEN abc123
-    ```
+   ```sh
+   $ overcast var set DIGITALOCEAN_API_TOKEN abc123
+   ```
 
 4. To make working with Overcast easier, you can add bash tab completion by adding the following to your `.bash_profile`:
 
-    ```sh
-    # Overcast Tab completion
-    _overcast_completions() {
-      local cur=${COMP_WORDS[COMP_CWORD]}
-      COMPREPLY=($(compgen -W "`overcast completions`" -- "$cur"))
-      return 0
-    }
-    complete -F _overcast_completions overcast
-    ```
+   ```sh
+   # Overcast Tab completion
+   _overcast_completions() {
+     local cur=${COMP_WORDS[COMP_CWORD]}
+     COMPREPLY=($(compgen -W "`overcast completions`" -- "$cur"))
+     return 0
+   }
+   complete -F _overcast_completions overcast
+   ```
 
 ## Installation (Windows)
 
@@ -104,15 +114,7 @@ The command `overcast init` will create a new configuration in the current direc
 
 ## Design Goals
 
-There are many server management frameworks out there already, but they generally involve a complex server-client implementation, a steep learning curve, or a giant, monolithic conceptual framework that requires taking a course to understand.
-
-I wanted something that had little to no learning curve, that did only what you asked it to do on the remote machines and nothing more, that just focused on multi-server provisioning and communication and leaves problems like process/state management and system monitoring to tools designed specifically for those problems.
-
-## Example App Recipes
-
-  - [Discourse](https://github.com/andrewchilds/overcast/blob/master/recipes/discourse)
-  - [Ubuntu 14.04 LAMP server](https://github.com/andrewchilds/overcast/blob/master/recipes/lamp-server)
-  - [Overcast Charts](https://github.com/andrewchilds/overcast-charts)
+Overcast is intentionally minimal and boring. It wraps SSH and the DigitalOcean API without adding layers of abstraction. There's no agent to install, no state to manage, and no DSL to learn, just boring old shell commands and scripts.
 
 ## Command Reference
 
