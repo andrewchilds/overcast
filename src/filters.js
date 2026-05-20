@@ -79,8 +79,3 @@ export function shouldBeDigitalOcean(name, {instance}) {
   }
 }
 
-export function shouldBeVirtualbox(name, {instance}) {
-  if (!instance || !instance.virtualbox) {
-    return utils.die('This instance has no Virtualbox metadata attached.');
-  }
-}

@@ -7,11 +7,6 @@
 #   overcast digitalocean create discourse-do-01 --cluster discourse --size-slug 2gb
 #   recipes/discourse discourse-do-01
 
-# Deploy on a Linode 2048:
-#   overcast create cluster discourse
-#   overcast linode create discourse-linode-01 --cluster discourse
-#   recipes/discourse discourse-linode-01
-
 ###############################################################################
 
 # Configuration:

@@ -36,11 +36,5 @@ commands.list = {
 };
 
 function getProviderName(instance) {
-  let name = '';
-  ['digitalocean', 'virtualbox', 'linode', 'aws'].forEach((provider) => {
-    if (instance[provider]) {
-      name = `${provider}`;
-    }
-  });
-  return name;
+  return instance.digitalocean ? 'digitalocean' : '';
 }

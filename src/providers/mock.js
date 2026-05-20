@@ -11,7 +11,6 @@ mockAPI.create = (args, nextFn) => {
     name: args.name,
     ssh_port: args['ssh-port'],
     // Including these here to bypass filters
-    virtualbox: {},
     digitalocean: {}
   }));
 }

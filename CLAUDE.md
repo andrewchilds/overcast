@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Overcast is a CLI tool for managing virtual machines across cloud providers (DigitalOcean, Virtualbox). It provides a thin SSH-based layer for spinning up, configuring, and managing server clusters without installing anything on remote machines.
+Overcast is a CLI tool for managing virtual machines on DigitalOcean. It provides a thin SSH-based layer for spinning up, configuring, and managing server clusters without installing anything on remote machines.
 
 ## Commands
 

@@ -4,7 +4,7 @@ Overcast is a tiny command line program designed to make it easy to spin up, con
 
 ## Devops made simple.
 
-Create, reboot and destroy instances on DigitalOcean or locally using Virtualbox.
+Create, reboot and destroy instances on DigitalOcean.
 
 ```sh
 # Spin up a new Ubuntu 20.04 instance on DigitalOcean:
@@ -979,76 +979,6 @@ Description:
 
 Examples:
   $ overcast vars delete MY_CUSTOM_VARIABLE_NAME
-```
-
-### overcast virtualbox boot
-
-```
-Usage:
-  overcast virtualbox boot [name]
-
-Description:
-  Boot up a Virtualbox instance.
-```
-
-### overcast virtualbox create
-
-```
-Usage:
-  overcast virtualbox create [name] [options...]
-
-Description:
-  Creates a new Virtualbox instance.
-
-Options:                Defaults:
-  --cluster CLUSTER     default
-  --cpus COUNT          1
-  --image NAME          trusty64
-  --ram MB              512
-  --ip ADDRESS          192.168.22.10
-  --ssh-key PATH        overcast.key
-  --ssh-pub-key PATH    overcast.key.pub
-
-Examples:
-  $ overcast virtualbox create vm-01
-  $ overcast virtualbox create vm-02 --ram 1024 --image precise64
-```
-
-### overcast virtualbox destroy
-
-```
-Usage:
-  overcast virtualbox destroy [name] [options...]
-
-Description:
-  Destroys a Virtualbox instance.
-  Using --force overrides the confirm dialog.
-
-Options:     Defaults:
-  --force    false
-
-Examples:
-  $ overcast virtualbox destroy vm-01
-```
-
-### overcast virtualbox reboot
-
-```
-Usage:
-  overcast virtualbox reboot [name]
-
-Description:
-  Reboots a Virtualbox instance.
-```
-
-### overcast virtualbox shutdown
-
-```
-Usage:
-  overcast virtualbox shutdown [name]
-
-Description:
-  Shut down a Virtualbox instance.
 ```
 
 ### overcast wait
