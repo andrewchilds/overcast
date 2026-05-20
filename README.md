@@ -112,6 +112,69 @@ The command `overcast init` will create a new configuration in the current direc
   variables.json    # API keys, etc (see example.variables.json)
 ```
 
+## Secrets and Environment Variables
+
+Overcast resolves variables (like API tokens) with this precedence:
+
+1. **Command-line arguments** (e.g., `--ssh-key /path/to/key`)
+2. **Environment variables** (e.g., `DIGITALOCEAN_API_TOKEN`)
+3. **Secret references** in `variables.json` (see below)
+4. **Raw values** in `variables.json`
+
+### Using Environment Variables (Recommended for CI/Production)
+
+Environment variables are the simplest and most portable way to configure secrets:
+
+```sh
+# Set directly
+export DIGITALOCEAN_API_TOKEN=your_token_here
+overcast digitalocean create vm-01
+
+# Or use with secret managers that inject env vars
+doppler run -- overcast digitalocean create vm-01
+vault exec -- overcast run app ./deploy.sh
+```
+
+The following environment variables are recognized:
+
+| Variable | Description |
+|----------|-------------|
+| `DIGITALOCEAN_API_TOKEN` | DigitalOcean API token |
+| `SLACK_WEBHOOK_URL` | Slack incoming webhook URL |
+| `OVERCAST_SSH_KEY` | Default SSH private key path |
+| `OVERCAST_SSH_USER` | Default SSH username |
+
+### Secret References in variables.json
+
+For local development, you can store values directly in `variables.json`, or use references that resolve at runtime:
+
+```json
+{
+  "DIGITALOCEAN_API_TOKEN": "env:DO_API_TOKEN",
+  "SLACK_WEBHOOK_URL": "doppler:SLACK_WEBHOOK_URL",
+  "DEPLOY_KEY": "cmd:cat ~/.secrets/deploy-key"
+}
+```
+
+Supported reference prefixes:
+
+| Prefix | Description | Example |
+|--------|-------------|---------|
+| `env:` | Read from environment variable | `env:MY_VAR` |
+| `cmd:` | Execute command, use stdout | `cmd:cat /path/to/secret` |
+| `doppler:` | Fetch from Doppler CLI | `doppler:SECRET_NAME` |
+| `doppler:` | Fetch with explicit config | `doppler:project/config/SECRET_NAME` |
+
+### SSH Key Handling
+
+If no SSH key is configured for an instance (via `--ssh-key` or `instance.ssh_key`), Overcast will **not** pass the `-i` flag to SSH. This allows OpenSSH to use its default key selection:
+
+- Keys loaded in `ssh-agent` (including 1Password SSH Agent, Secretive, etc.)
+- Keys configured in `~/.ssh/config`
+- Default keys like `~/.ssh/id_ed25519` or `~/.ssh/id_rsa`
+
+This makes Overcast work seamlessly with hardware security keys and SSH agent forwarding.
+
 ## Design Goals
 
 Overcast is intentionally minimal and boring. It wraps SSH and the DigitalOcean API without adding layers of abstraction. There's no agent to install, no state to manage, and no DSL to learn, just boring old shell commands and scripts.
@@ -875,18 +938,18 @@ Usage:
 
 Description:
   Push a public SSH key to an instance or cluster. Accepts a key name,
-  filename, or full path. This will overwrite the existing authorized_keys
-  file, unless you use --append.
+  filename, or full path. By default, this will append to the existing
+  authorized_keys file. Use --overwrite to replace it entirely.
 
 Options:             Defaults:
   --user USERNAME
-  --append, -a       false
+  --overwrite, -o    false
 
 Examples:
   # Generate new SSH key pair:
   $ overcast sshkey create newKey
 
-  # Push public key to instance, update instance config to use private key:
+  # Push public key to instance (appends by default):
   $ overcast sshkey push vm-01 newKey
   $ overcast instance update vm-01 --ssh-key newKey.key
 
@@ -897,8 +960,8 @@ Examples:
   # Push public key to instance using arbitrary user:
   $ overcast sshkey push vm-03 newKey --user myOtherUser
 
-  # Append public key to authorized_keys instead of overwriting:
-  $ overcast sshkey push vm-04 newKey --append
+  # Overwrite authorized_keys instead of appending:
+  $ overcast sshkey push vm-04 newKey --overwrite
 ```
 
 ### overcast tunnel

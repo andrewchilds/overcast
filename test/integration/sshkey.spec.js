@@ -41,4 +41,55 @@ describe('sshkey', () => {
       });
     });
   });
+
+  describe('push', () => {
+    beforeAll((done) => {
+      // Clean up any leftover env vars from other tests
+      delete process.env.OVERCAST_SSH_KEY;
+      delete process.env.OVERCAST_SSH_USER;
+      overcast('instance add vm-push 1.2.3.4', () => {
+        done();
+      });
+    });
+
+    afterEach(() => {
+      delete process.env.OVERCAST_SSH_KEY;
+      delete process.env.OVERCAST_SSH_USER;
+    });
+
+    it('should append by default (SHOULD_APPEND=true)', (nextFn) => {
+      overcast('sshkey push vm-push overcast', (logs) => {
+        expectInLog(expect, logs, 'mocked call of SSH command');
+        // Check that SHOULD_APPEND is "true" in OVERCAST_ENV (default behavior)
+        const logWithEnv = logs.find(log =>
+          log && typeof log === 'object' && log.OVERCAST_ENV && log.OVERCAST_ENV.includes('SHOULD_APPEND="true"')
+        );
+        expect(logWithEnv).toBeTruthy();
+        nextFn();
+      });
+    });
+
+    it('should overwrite when --overwrite flag is passed', (nextFn) => {
+      overcast('sshkey push vm-push overcast --overwrite', (logs) => {
+        expectInLog(expect, logs, 'mocked call of SSH command');
+        // Check that SHOULD_APPEND is "false" when overwrite is requested
+        const logWithEnv = logs.find(log =>
+          log && typeof log === 'object' && log.OVERCAST_ENV && log.OVERCAST_ENV.includes('SHOULD_APPEND="false"')
+        );
+        expect(logWithEnv).toBeTruthy();
+        nextFn();
+      });
+    });
+
+    it('should overwrite when -o flag is passed', (nextFn) => {
+      overcast('sshkey push vm-push overcast -o', (logs) => {
+        expectInLog(expect, logs, 'mocked call of SSH command');
+        const logWithEnv = logs.find(log =>
+          log && typeof log === 'object' && log.OVERCAST_ENV && log.OVERCAST_ENV.includes('SHOULD_APPEND="false"')
+        );
+        expect(logWithEnv).toBeTruthy();
+        nextFn();
+      });
+    });
+  });
 });

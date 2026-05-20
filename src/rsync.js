@@ -26,14 +26,16 @@ function runOnInstances(instances, args, nextFn) {
 }
 
 function runOnInstance(instance, args, nextFn = () => {}) {
-  const vars = utils.getVariables();
+  // Use getVariable for proper precedence: CLI args > env > variables.json
+  const sshUser = args.user || utils.getVariable('OVERCAST_SSH_USER') || instance.user;
+  const sshKey = args['ssh-key'] || utils.getVariable('OVERCAST_SSH_KEY') || instance.ssh_key;
 
   rsync({
     ip: instance.ip,
     name: instance.name,
-    user: args.user || vars.OVERCAST_SSH_USER || instance.user,
+    user: sshUser,
     password: args.password || instance.password,
-    ssh_key: args['ssh-key'] || vars.OVERCAST_SSH_KEY || instance.ssh_key,
+    ssh_key: sshKey, // May be undefined - let OpenSSH handle key selection
     ssh_port: instance.ssh_port,
     env: args.env,
     exclude: args.exclude,
@@ -50,7 +52,8 @@ function rsync(options, nextFn = () => {}) {
 
   const color = utils.getNextColor();
 
-  options.ssh_key = utils.normalizeKeyPath(options.ssh_key);
+  // Only normalize key path if a key is specified
+  const sshKey = options.ssh_key ? utils.normalizeKeyPath(options.ssh_key) : '';
   options.ssh_port = options.ssh_port || '22';
   options.user = options.user || 'root';
   options.name = options.name || 'Unknown';
@@ -66,9 +69,11 @@ function rsync(options, nextFn = () => {}) {
   if (options.password) {
     ssh.push('-o');
     ssh.push('PubkeyAuthentication=no');
-  } else {
+  } else if (sshKey) {
+    // Only pass -i if a key is specified
+    // Otherwise let OpenSSH use ssh-agent, ~/.ssh/config, or default keys
     ssh.push('-i');
-    ssh.push(options.ssh_key);
+    ssh.push(sshKey);
   }
 
   const args = [

@@ -169,15 +169,25 @@ export function getAPI() {
     return PRIVATE_CACHE.API;
   }
 
-  const vars = utils.getVariables();
-  if (!vars.DIGITALOCEAN_API_TOKEN) {
+  const token = utils.getVariable('DIGITALOCEAN_API_TOKEN');
+  if (!token) {
     log.failure('The variable DIGITALOCEAN_API_TOKEN is not set.');
     log.failure('Go to https://cloud.digitalocean.com/settings/applications');
-    log.failure('to get your API token, then run the following command:');
-    return utils.die('overcast var set DIGITALOCEAN_API_TOKEN [your_api_token]');
+    log.failure('to get your API token, then run one of the following:');
+    log.failure('');
+    log.failure('  # Set via environment variable (recommended for CI/production):');
+    log.failure('  export DIGITALOCEAN_API_TOKEN=your_api_token');
+    log.failure('');
+    log.failure('  # Or store in variables.json (for local development):');
+    log.failure('  overcast var set DIGITALOCEAN_API_TOKEN your_api_token');
+    log.failure('');
+    log.failure('  # Or use a secret reference in variables.json:');
+    log.failure('  "DIGITALOCEAN_API_TOKEN": "env:DO_TOKEN"');
+    log.failure('  "DIGITALOCEAN_API_TOKEN": "doppler:DIGITALOCEAN_API_TOKEN"');
+    return utils.die('');
   }
 
-  PRIVATE_CACHE.API = new DigitalOcean.default(vars.DIGITALOCEAN_API_TOKEN);
+  PRIVATE_CACHE.API = new DigitalOcean.default(token);
 
   return PRIVATE_CACHE.API;
 }

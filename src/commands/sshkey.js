@@ -97,14 +97,14 @@ commands.push = {
   usage: ['overcast sshkey push [instance|cluster|all] [name|path] [options...]'],
   description: [
     'Push a public SSH key to an instance or cluster. Accepts a key name,',
-    'filename, or full path. This will overwrite the existing authorized_keys',
-    'file, unless you use --append.'
+    'filename, or full path. By default, this will append to the existing',
+    'authorized_keys file. Use --overwrite to replace it entirely.'
   ],
   examples: [
     '# Generate new SSH key pair:',
     '$ overcast sshkey create newKey',
     '',
-    '# Push public key to instance, update instance config to use private key:',
+    '# Push public key to instance (appends by default):',
     '$ overcast sshkey push vm-01 newKey',
     '$ overcast instance update vm-01 --ssh-key newKey.key',
     '',
@@ -115,8 +115,8 @@ commands.push = {
     '# Push public key to instance using arbitrary user:',
     '$ overcast sshkey push vm-03 newKey --user myOtherUser',
     '',
-    '# Append public key to authorized_keys instead of overwriting:',
-    '$ overcast sshkey push vm-04 newKey --append'
+    '# Overwrite authorized_keys instead of appending:',
+    '$ overcast sshkey push vm-04 newKey --overwrite'
   ],
   required: [
     { name: 'instance|cluster|all', varName: 'name', filters: filters.findMatchingInstances },
@@ -124,13 +124,15 @@ commands.push = {
   ],
   options: [
     { usage: '--user USERNAME' },
-    { usage: '--append, -a', default: 'false' }
+    { usage: '--overwrite, -o', default: 'false' }
   ],
   run: (args, nextFn) => {
     const keyPath = getKeyPath(args.path);
+    // Default to append (safer), only overwrite if explicitly requested
+    const shouldOverwrite = utils.argIsTruthy(args.overwrite) || utils.argIsTruthy(args.o);
     args.env = {
       PUBLIC_KEY: fs.readFileSync(keyPath, { encoding: 'utf8' }),
-      SHOULD_APPEND: utils.argIsTruthy(args.append) || utils.argIsTruthy(args.a)
+      SHOULD_APPEND: !shouldOverwrite
     };
 
     args._ = ['authorize_key'];

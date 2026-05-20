@@ -37,11 +37,12 @@ commands.ssh = {
 };
 
 function connect(instance, args, nextFn = () => {}) {
-  const vars = utils.getVariables();
-
-  const privateKeyFile = utils.normalizeKeyPath(args['ssh-key'] || vars.OVERCAST_SSH_KEY || instance.ssh_key || `${getConfigDir()}/keys/overcast.key`);
+  // Use getVariable for proper precedence: CLI args > env > variables.json
+  const sshKeyArg = args['ssh-key'] || utils.getVariable('OVERCAST_SSH_KEY') || instance.ssh_key;
+  const sshKey = sshKeyArg ? utils.normalizeKeyPath(sshKeyArg) : '';
   const sshPort = instance.ssh_port || '22';
-  const host = `${args.user || vars.OVERCAST_SSH_USER || instance.user || 'root'}@${instance.ip}`;
+  const sshUser = args.user || utils.getVariable('OVERCAST_SSH_USER') || instance.user || 'root';
+  const host = `${sshUser}@${instance.ip}`;
   const password = (args.password || instance.password || '');
 
   const command = [];
@@ -51,9 +52,11 @@ function connect(instance, args, nextFn = () => {}) {
   }
   command.push('ssh');
   command.push('-tt');
-  if (!password) {
+  // Only pass -i if a key is specified and not using password auth
+  // Otherwise let OpenSSH use ssh-agent, ~/.ssh/config, or default keys
+  if (!password && sshKey) {
     command.push('-i');
-    command.push(privateKeyFile);
+    command.push(sshKey);
   }
   command.push('-p');
   command.push(sshPort);

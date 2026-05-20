@@ -43,15 +43,21 @@ commands.tunnel = {
 function connect(instance, args, nextFn) {
   const password = (args.password || instance.password || '');
 
+  // Use getVariable for proper precedence: CLI args > env > variables.json
+  const sshKeyArg = args['ssh-key'] || utils.getVariable('OVERCAST_SSH_KEY') || instance.ssh_key;
+  const sshKey = sshKeyArg ? utils.normalizeKeyPath(sshKeyArg) : '';
+
   const sshArgs = [];
   if (password) {
     sshArgs.push('sshpass');
     sshArgs.push(`-p${password}`);
   }
   sshArgs.push('ssh');
-  if (!password) {
+  // Only pass -i if a key is specified and not using password auth
+  // Otherwise let OpenSSH use ssh-agent, ~/.ssh/config, or default keys
+  if (!password && sshKey) {
     sshArgs.push('-i');
-    sshArgs.push(utils.normalizeKeyPath(args['ssh-key'] || instance.ssh_key || 'overcast.key'));
+    sshArgs.push(sshKey);
   }
   sshArgs.push('-p');
   sshArgs.push((instance.ssh_port || '22'));

@@ -1,12 +1,18 @@
 #!/bin/bash
 
+# Build SSH key argument only if OVERCAST_KEY is set
+SSH_KEY_ARG=""
+if [ -n "$OVERCAST_KEY" ]; then
+  SSH_KEY_ARG="-i $OVERCAST_KEY"
+fi
+
 if [ -z "$OVERCAST_SCRIPT_FILE" ]; then
   if [ -z "$OVERCAST_HIDE_COMMAND" ]; then
     echo ""
     echo "\$ $OVERCAST_ENV$OVERCAST_COMMAND"
   fi
   if [ -z "$OVERCAST_PASSWORD" ]; then
-    ssh -i $OVERCAST_KEY -p $OVERCAST_PORT $OVERCAST_USER@$OVERCAST_IP \
+    ssh $SSH_KEY_ARG -p $OVERCAST_PORT $OVERCAST_USER@$OVERCAST_IP \
       -o StrictHostKeyChecking=no $OVERCAST_SSH_ARGS "$OVERCAST_ENV $OVERCAST_COMMAND"
   else
     sshpass "-p$OVERCAST_PASSWORD" \
@@ -22,7 +28,7 @@ else
     echo "\$ $OVERCAST_ENV$SHELL_COMMAND $OVERCAST_SCRIPT_FILE"
   fi
   if [ -z "$OVERCAST_PASSWORD" ]; then
-    ssh -i $OVERCAST_KEY -p $OVERCAST_PORT $OVERCAST_USER@$OVERCAST_IP \
+    ssh $SSH_KEY_ARG -p $OVERCAST_PORT $OVERCAST_USER@$OVERCAST_IP \
       -o StrictHostKeyChecking=no $OVERCAST_SSH_ARGS "$OVERCAST_ENV $SHELL_COMMAND" < "$OVERCAST_SCRIPT_FILE"
   else
     sshpass "-p$OVERCAST_PASSWORD" \

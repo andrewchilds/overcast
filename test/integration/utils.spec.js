@@ -6,6 +6,119 @@ describe('utils', () => {
     store.clearStore();
   });
 
+  describe('resolveSecretReference', () => {
+    it('returns non-string values as-is', () => {
+      expect(utils.resolveSecretReference(123)).toBe(123);
+      expect(utils.resolveSecretReference(null)).toBe(null);
+      expect(utils.resolveSecretReference(undefined)).toBe(undefined);
+      expect(utils.resolveSecretReference(true)).toBe(true);
+    });
+
+    it('returns plain strings as-is', () => {
+      expect(utils.resolveSecretReference('my-secret-value')).toBe('my-secret-value');
+      expect(utils.resolveSecretReference('some token here')).toBe('some token here');
+    });
+
+    it('resolves env: prefix from environment variables', () => {
+      process.env.TEST_SECRET_VAR = 'secret-from-env';
+      expect(utils.resolveSecretReference('env:TEST_SECRET_VAR')).toBe('secret-from-env');
+      delete process.env.TEST_SECRET_VAR;
+    });
+
+    it('returns undefined for missing env: variables', () => {
+      delete process.env.NONEXISTENT_VAR;
+      expect(utils.resolveSecretReference('env:NONEXISTENT_VAR')).toBe(undefined);
+    });
+
+    it('resolves cmd: prefix by executing command', () => {
+      const result = utils.resolveSecretReference('cmd:echo hello-from-cmd');
+      expect(result).toBe('hello-from-cmd');
+    });
+
+    it('trims whitespace from cmd: output', () => {
+      const result = utils.resolveSecretReference('cmd:echo "  spaces  "');
+      expect(result).toBe('spaces');
+    });
+  });
+
+  describe('getVariable', () => {
+    const originalEnv = { ...process.env };
+
+    afterEach(() => {
+      // Restore environment
+      Object.keys(process.env).forEach(key => {
+        if (!(key in originalEnv)) {
+          delete process.env[key];
+        }
+      });
+    });
+
+    it('returns undefined for missing variables', () => {
+      store.setConfigDirs(process.cwd() + '/.overcast');
+      const result = utils.getVariable('TOTALLY_MISSING_VAR', {});
+      expect(result).toBe(undefined);
+    });
+
+    it('prioritizes explicit args over everything', () => {
+      store.setConfigDirs(process.cwd() + '/.overcast');
+      process.env.TEST_PRIORITY_VAR = 'from-env';
+      const result = utils.getVariable('TEST_PRIORITY_VAR', { TEST_PRIORITY_VAR: 'from-args' });
+      expect(result).toBe('from-args');
+      delete process.env.TEST_PRIORITY_VAR;
+    });
+
+    it('prioritizes environment variables over variables.json', () => {
+      store.setConfigDirs(process.cwd() + '/.overcast');
+      process.env.TEST_NAME = 'from-environment';
+      const result = utils.getVariable('TEST_NAME', {});
+      expect(result).toBe('from-environment');
+      delete process.env.TEST_NAME;
+    });
+
+    it('falls back to variables.json when env is not set', () => {
+      store.setConfigDirs(process.cwd() + '/.overcast');
+      delete process.env.DIGITALOCEAN_API_TOKEN;
+      // The test fixtures have empty values, so this should return undefined
+      const result = utils.getVariable('DIGITALOCEAN_API_TOKEN', {});
+      expect(result).toBe(undefined);
+    });
+  });
+
+  describe('normalizeKeyPath', () => {
+    beforeEach(() => {
+      store.setConfigDirs(process.cwd() + '/.overcast');
+    });
+
+    it('returns default key path for falsy inputs', () => {
+      // normalizeKeyPath falls back to default 'overcast.key' when given falsy input
+      // Callers should check for undefined/null before calling if they want empty
+      const result = utils.normalizeKeyPath('');
+      expect(result).toContain('overcast.key');
+    });
+
+    it('expands tilde paths', () => {
+      const result = utils.normalizeKeyPath('~/mykey.pem');
+      expect(result).not.toContain('~');
+      expect(result).toContain('mykey.pem');
+    });
+
+    it('expands $HOME paths', () => {
+      const result = utils.normalizeKeyPath('$HOME/.ssh/id_rsa');
+      expect(result).not.toContain('$HOME');
+      expect(result).toContain('.ssh/id_rsa');
+    });
+
+    it('returns absolute paths unchanged', () => {
+      const result = utils.normalizeKeyPath('/absolute/path/to/key.pem');
+      expect(result).toBe('/absolute/path/to/key.pem');
+    });
+
+    it('resolves relative paths to keys directory', () => {
+      const result = utils.normalizeKeyPath('mykey.key');
+      expect(result).toContain('.overcast/keys/mykey.key');
+    });
+  });
+
   describe('getNextColor', () => {
     it('sends back the next color and advances the state count', () => {
       expect(utils.getNextColor()).toBe('cyan');

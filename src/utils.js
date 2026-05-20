@@ -10,6 +10,9 @@ import * as log from './log.js';
 import * as store from './store.js';
 import { SSH_COLORS } from './constants.js';
 
+// Secret reference prefixes for variables.json values
+const SECRET_PREFIXES = ['env:', 'cmd:', 'doppler:'];
+
 export function getNextColor() {
   const count = store.getSSHCount();
   store.increaseSSHCount();
@@ -430,6 +433,86 @@ export function getVariables() {
   } else {
     die(`Unable to find the variables file (${file}).`);
   }
+}
+
+// Get a variable with precedence: explicit args > env > resolved reference > raw value
+// Supports secret references in variables.json: env:VAR, cmd:command, doppler:SECRET_NAME
+export function getVariable(name, args = {}) {
+  // 1. Explicit CLI args (convert kebab-case to match common patterns)
+  if (args[name] !== undefined) {
+    return args[name];
+  }
+
+  // 2. Environment variables take precedence
+  if (process.env[name]) {
+    return process.env[name];
+  }
+
+  // 3. Check variables.json and resolve any secret references
+  const vars = getVariables();
+  const value = vars[name];
+
+  if (value === undefined || value === null || value === '') {
+    return undefined;
+  }
+
+  // 4. Resolve secret references
+  return resolveSecretReference(value);
+}
+
+// Resolve a secret reference (env:, cmd:, doppler:) or return the value as-is
+export function resolveSecretReference(value) {
+  if (typeof value !== 'string') {
+    return value;
+  }
+
+  // env:VAR_NAME - read from environment variable
+  if (value.startsWith('env:')) {
+    const envVar = value.slice(4);
+    const envValue = process.env[envVar];
+    if (!envValue) {
+      log.alert(`Environment variable "${envVar}" is not set.`);
+    }
+    return envValue;
+  }
+
+  // cmd:command - execute command and return stdout
+  if (value.startsWith('cmd:')) {
+    const command = value.slice(4);
+    try {
+      return cp.execSync(command, { encoding: 'utf8' }).trim();
+    } catch (err) {
+      die(`Failed to execute secret command: ${err.message}`);
+    }
+  }
+
+  // doppler:SECRET_NAME or doppler:PROJECT/CONFIG/SECRET_NAME
+  // Without project/config, uses Doppler's default resolution (doppler.yaml, env vars, etc.)
+  if (value.startsWith('doppler:')) {
+    const dopplerRef = value.slice(8);
+    const parts = dopplerRef.split('/');
+
+    let command;
+    if (parts.length === 3) {
+      // Explicit: doppler:project/config/SECRET_NAME
+      const [project, config, secretName] = parts;
+      command = `doppler secrets get ${secretName} --plain --project ${project} --config ${config}`;
+    } else if (parts.length === 1) {
+      // Simple: doppler:SECRET_NAME (uses doppler.yaml or DOPPLER_* env vars)
+      command = `doppler secrets get ${parts[0]} --plain`;
+    } else {
+      die(`Invalid doppler reference "${value}". Use "doppler:SECRET_NAME" or "doppler:project/config/SECRET_NAME".`);
+    }
+
+    try {
+      return cp.execSync(command, { encoding: 'utf8' }).trim();
+    } catch (err) {
+      die(`Failed to fetch secret from Doppler: ${err.message}`);
+    }
+  }
+
+  // No prefix - return raw value
+  return value;
 }
 
 export function saveVariables(variables, nextFn = () => {}) {

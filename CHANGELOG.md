@@ -6,6 +6,17 @@ npm -g update overcast
 
 # Change Log
 
+**2.4.0** (May 20, 2026)
+
+Adds:
+- Environment variable support for secrets (DIGITALOCEAN_API_TOKEN, OVERCAST_SSH_KEY, OVERCAST_SSH_USER).
+- Secret references in variables.json with `env:`, `cmd:`, and `doppler:` prefixes.
+- New `getVariable()` function with precedence: CLI args > env vars > secret references > raw values.
+
+Changes:
+- `sshkey push` now appends to authorized_keys by default (use `--overwrite` for old behavior).
+- SSH commands no longer pass `-i` flag when no key is configured, allowing OpenSSH to use ssh-agent, ~/.ssh/config, or default keys.
+
 **2.3.1** (May 20, 2026)
 
 Updates:

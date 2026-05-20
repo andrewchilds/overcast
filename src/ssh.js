@@ -52,14 +52,17 @@ function runOnInstances(instances, args, nextFn = () => {}) {
 
 function runOnInstance(instance, args, nextFn) {
   const command = args._.shift();
-  const vars = utils.getVariables();
+
+  // Use getVariable for proper precedence: CLI args > env > variables.json
+  const sshUser = args.user || utils.getVariable('OVERCAST_SSH_USER') || instance.user;
+  const sshKey = args['ssh-key'] || utils.getVariable('OVERCAST_SSH_KEY') || instance.ssh_key;
 
   sshExec({
     ip: instance.ip,
     name: instance.name,
-    user: args.user || vars.OVERCAST_SSH_USER || instance.user,
+    user: sshUser,
     password: args.password || instance.password,
-    ssh_key: args['ssh-key'] || vars.OVERCAST_SSH_KEY || instance.ssh_key,
+    ssh_key: sshKey, // May be undefined - let OpenSSH handle key selection
     ssh_args: utils.isString(args['ssh-args']) ? args['ssh-args'] : '',
     ssh_port: instance.ssh_port,
     continueOnError: args.continueOnError,
@@ -84,7 +87,9 @@ function sshExec(options, nextFn) {
 
   const color = utils.getNextColor();
 
-  options.ssh_key = utils.normalizeKeyPath(options.ssh_key);
+  // Only normalize key path if a key is specified
+  // If no key, let OpenSSH use ssh-agent, ~/.ssh/config, or default keys
+  const sshKey = options.ssh_key ? utils.normalizeKeyPath(options.ssh_key) : '';
   options.ssh_port = options.ssh_port || '22';
   options.user = options.user || 'root';
   options.password = options.password || '';
@@ -95,7 +100,7 @@ function sshExec(options, nextFn) {
   ];
 
   const sshEnv = {
-    OVERCAST_KEY: utils.escapeWindowsPath(options.ssh_key),
+    OVERCAST_KEY: sshKey ? utils.escapeWindowsPath(sshKey) : '', // Empty string = no -i flag
     OVERCAST_PORT: options.ssh_port,
     OVERCAST_USER: options.user,
     OVERCAST_PASSWORD: options.password,
