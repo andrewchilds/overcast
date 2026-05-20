@@ -12,7 +12,7 @@ describe('tunnel', () => {
     });
   });
 
-  it('should throw an error if instance is missing', (nextFn) => {
+  it('should throw an error if instance is not found', (nextFn) => {
     overcast('tunnel MISSING', (logs) => {
       expectInLog(expect, logs, 'No instance found matching "MISSING"');
       nextFn();
