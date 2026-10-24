@@ -163,6 +163,12 @@ describe('utils', () => {
       expect(utils.deepGet(testObj, 'a.b.c.d')).toBe(123);
     });
 
+    it('handles multi-digit array indices', () => {
+      const items = Array.from({ length: 12 }, (_, value) => ({ value }));
+      expect(utils.deepGet({ items }, 'items[10].value')).toBe(10);
+      expect(utils.deepGet(items, '[11].value')).toBe(11);
+    });
+
     it('handles arrays inside an object', () => {
       expect(utils.deepGet(testObj, 'a.e[0].f')).toBe(9);
     });

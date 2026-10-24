@@ -902,7 +902,7 @@ export function rmDir(dir, nextFn) {
 // Also handles undefined as a valid value - see test case for details.
 // Based on: https://gist.github.com/harish2704/d0ee530e6ee75bad6fd30c98e5ad9dab
 export function deepGet(obj, query, defaultVal) {
-  query = Array.isArray(query) ? query : query.replace(/(\[(\d)\])/g, '.$2').replace(/^\./, '').split('.');
+  query = Array.isArray(query) ? query : query.replace(/(\[(\d+)\])/g, '.$2').replace(/^\./, '').split('.');
   if (!(query[0] in obj)) {
     return defaultVal;
   }
